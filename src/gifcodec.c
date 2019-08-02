@@ -950,7 +950,13 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 		bitmap_data->left = img_desc->Left;
 		bitmap_data->top = img_desc->Top;
 
-		bitmap_data->scan0 = GdipAlloc (bitmap_data->stride * bitmap_data->height);
+		unsigned long long int size = (unsigned long long int)bitmap_data->stride * bitmap_data->height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
+
+		bitmap_data->scan0 = GdipAlloc (size);
 		if (!bitmap_data->scan0) {
 			status = OutOfMemory;
 			goto error;
@@ -986,7 +992,7 @@ gdip_load_gif_image (void *stream, GpImage **image, BOOL from_file)
 						/* TODO: This will be wrong if each image has a different palette */
 						/* There's a comment up there too */
 						memcpy (bitmap_data->scan0, last_bitmap->scan0,
-							bitmap_data->height * bitmap_data->stride);
+							size);
 					}
 
 					for (ridx = 0, widx = bitmap_data->left; ridx < img_desc->Width; widx++, ridx++) {
@@ -1094,7 +1100,7 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 	BOOL		animated;
 	int		frame;
 	ActiveBitmapData	*bitmap_data;
-	int		pixbuf_size;
+	unsigned long long int		pixbuf_size;
 
 	if (!stream) {
 		return InvalidParameter;
@@ -1131,7 +1137,12 @@ gdip_save_gif_image (void *stream, GpImage *image, BOOL from_file)
 		for (k = 0; k < image->frames[frame].count; k++) {
 			bitmap_data = &image->frames[frame].bitmap[k];
 
-			pixbuf_size = bitmap_data->width * bitmap_data->height * sizeof(GifByteType);
+			pixbuf_size = (unsigned long long int)bitmap_data->width * bitmap_data->height * sizeof(GifByteType);
+
+			if (pixbuf_size > G_MAXINT32) {
+				status = OutOfMemory;
+				goto error;
+			}
 
 			if (gdip_is_an_indexed_pixelformat(bitmap_data->pixel_format)) {
 				BYTE w;

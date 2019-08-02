@@ -241,7 +241,12 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	 * - ANDBitmap is *always* a monochrome (1bpp) bitmap
 	 * - in every case each line is padded to 32 bits boundary
 	 */
-	pixels = GdipAlloc (result->active_bitmap->stride * result->active_bitmap->height);
+	unsigned long long int size = (unsigned long long int)result->active_bitmap->stride * result->active_bitmap->height;
+	if (size > G_MAXINT32) {
+		status = OutOfMemory;
+		goto error;
+	}
+	pixels = GdipAlloc (size);
 	if (pixels == NULL) {
 		status = OutOfMemory;
 		goto error;

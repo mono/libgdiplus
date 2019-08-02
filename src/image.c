@@ -1697,7 +1697,11 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 		}
 	}
 
-	rotated = GdipAlloc (target_height * target_stride);
+	unsigned long long int size = (unsigned long long int)target_height * target_stride;
+	if (size > G_MAXINT32)
+		return OutOfMemory;
+
+	rotated = GdipAlloc (size);
 
 	if (rotated == NULL) {
 		return OutOfMemory;
@@ -1775,7 +1779,11 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		return gdip_flip_y(image);
 	}
 
-	rotated = GdipAlloc (target_height * target_stride);
+	unsigned long long int size = (unsigned long long int)target_height * target_stride;
+	if (size > G_MAXINT32)
+		return OutOfMemory;
+
+	rotated = GdipAlloc (size);
 	if (rotated == NULL) {
 		return OutOfMemory;
 	}

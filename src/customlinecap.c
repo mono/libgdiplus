@@ -219,11 +219,11 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 			/* mask the bits so that we get only the type value not the other flags */
 			switch (type & PathPointTypePathTypeMask) {
 			case PathPointTypeStart:
-				gdip_cairo_move_to (graphics, point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
+				gdip_cairo_move_to (graphics, (double)point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
 				break;
 
 			case PathPointTypeLine:
-				gdip_cairo_line_to (graphics, point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
+				gdip_cairo_line_to (graphics, (double)point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
 				break;
 
 			case PathPointTypeBezier:
@@ -235,7 +235,7 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 
 				/* once we've added 3 pts, we can draw the curve */
 				if (idx == 3) {
-					gdip_cairo_curve_to (graphics, pts[0].X * penwidth, pts[0].Y * penwidth, pts[1].X * penwidth, pts[1].Y * penwidth, pts[2].X * penwidth, pts[2].Y * penwidth, TRUE, TRUE);
+					gdip_cairo_curve_to (graphics, (double)pts[0].X * penwidth, (double)pts[0].Y * penwidth, (double)pts[1].X * penwidth, (double)pts[1].Y * penwidth, (double)pts[2].X * penwidth, (double)pts[2].Y * penwidth, TRUE, TRUE);
 					idx = 0;
 				}
 				break;

@@ -397,6 +397,7 @@ gdip_bitmapdata_clone (ActiveBitmapData *src, ActiveBitmapData **dest, int count
 	GpStatus	status;
 	ActiveBitmapData	*result;
 	int		i;
+	unsigned long long int size;
 
 	if (!dest)
 		return InvalidParameter;
@@ -426,12 +427,17 @@ gdip_bitmapdata_clone (ActiveBitmapData *src, ActiveBitmapData **dest, int count
 		result[i].transparent = src[i].transparent;
 
 		if (src[i].scan0 != NULL) {
-			result[i].scan0 = GdipAlloc(src[i].stride * src[i].height);
+			size = (unsigned long long int)src[i].stride * src[i].height;
+			if (size > G_MAXINT32) {
+				GdipFree(result);
+				return OutOfMemory;
+			}
+			result[i].scan0 = GdipAlloc(size);
 			if (result[i].scan0 == NULL) {
 				GdipFree(result);
 				return OutOfMemory;
 			}
-			memcpy(result[i].scan0, src[i].scan0, src[i].stride * src[i].height);
+			memcpy(result[i].scan0, src[i].scan0, size);
 		} else {
 			result[i].scan0 = NULL;
 		}
@@ -901,14 +907,19 @@ GdipCreateBitmapFromScan0 (INT width, INT height, INT stride, PixelFormat format
 	bitmap_data->stride = stride;
 
 	if (!scan0) {
-		scan0 = GdipAlloc (stride * height);
+		unsigned long long int size = (unsigned long long int)stride * height;
+		if (size > G_MAXINT32) {
+			gdip_bitmap_dispose (result);
+			return OutOfMemory;
+		}
+		scan0 = GdipAlloc (size);
 		if (!scan0) {
 			gdip_bitmap_dispose (result);
 			return OutOfMemory;
 		}
 
 		if ((gdip_get_pixel_format_bpp(format) < 32) || gdip_is_an_alpha_pixelformat(format)) {
-			memset (scan0, 0, stride * height);
+			memset (scan0, 0, size);
 		} else {
 			/* Since the pixel format is not an alpha pixel format (i.e., it is
 			 * PixelFormat32bppRGB), the image should be initially black, not
@@ -1189,7 +1200,11 @@ gdip_bitmap_clone_data_rect (ActiveBitmapData *srcData, Rect *srcRect, ActiveBit
 		destData->stride = ((destRect->Width * dest_components * dest_depth) >> 3);
 		gdip_align_stride (destData->stride);
 
-		destData->scan0 = GdipAlloc (destData->stride * destRect->Height);
+		unsigned long long int size = (unsigned long long int)destData->stride * destRect->Height;
+		if (size > G_MAXINT32) {
+			return OutOfMemory;
+		}
+		destData->scan0 = GdipAlloc (size);
 		if (destData== NULL) {
 			return OutOfMemory;
 		}
@@ -1922,7 +1937,11 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 		if ((flags & ImageLockModeUserInputBuf) == 0) {
 			dest_data->reserved |= GBD_OWN_SCAN0;
 
-			dest_data->scan0 = GdipAlloc (src_rect.Height * dest_data->stride);
+			unsigned long long int size = (unsigned long long int)src_rect.Height * dest_data->stride;
+			if (size > G_MAXINT32)
+				return OutOfMemory;
+
+			dest_data->scan0 = GdipAlloc (size);
 			if (!dest_data->scan0)
 				return OutOfMemory;
 		} else {
@@ -2161,7 +2180,10 @@ BYTE*
 gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
 {
 	ActiveBitmapData *data = bitmap->active_bitmap;
-	BYTE* premul = (BYTE*) GdipAlloc (data->height * data->stride);
+	unsigned long long int size = (unsigned long long int)data->height * data->stride;
+	if (size > G_MAXINT32)
+		return NULL;
+	BYTE* premul = (BYTE*) GdipAlloc (size);
 	if (!premul)
 		return NULL;
 

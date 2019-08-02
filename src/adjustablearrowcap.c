@@ -132,8 +132,8 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 	cairo_rotate (graphics->ct, angle);
 
 	gdip_cairo_move_to (graphics, 0, 0, TRUE, TRUE);
-	gdip_cairo_line_to (graphics, -w * penwidth, -h * penwidth, TRUE, TRUE);
-	gdip_cairo_line_to (graphics, w * penwidth, -h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, (double)-w * penwidth, (double)-h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, (double)w * penwidth, (double)-h * penwidth, TRUE, TRUE);
 	gdip_cairo_line_to (graphics, 0, 0, TRUE, TRUE);
 
 	if (arrowcap->fill_state) {
