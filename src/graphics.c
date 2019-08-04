@@ -503,8 +503,9 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	if (!graphics)
 		return InvalidParameter;
 
+	// Do nothing if the state is invalid.
 	if (state <= 0 || (state - 1) >= MAX_GRAPHICS_STATE_STACK || (state - 1) > graphics->saved_status_pos)
-		return InvalidParameter;
+		return Ok;
 
 	pos_state = graphics->saved_status;
 	pos_state += (state - 1);	
@@ -1537,9 +1538,6 @@ GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 	/* when tension is 0, the edges are straight lines */
 	if (tension == 0)
 		return GdipFillPolygon2 (graphics, brush, points, count);
-
-	if (!graphics || !brush || !points)
-		return InvalidParameter;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
