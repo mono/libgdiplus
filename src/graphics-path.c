@@ -861,15 +861,12 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathArc (GpPath *path, float x, float y, 
-		float width, float height, float startAngle, float sweepAngle)
+GdipAddPathArc (GpPath *path, REAL x, REAL y, 
+		REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
 	int point_count;
 
-	if (!path)
-		return InvalidParameter;
-
-	if (width == 0 || height == 0)
+	if (!path || width <= 0 || height <= 0)
 		return InvalidParameter;
 
 	point_count = count_arcs_points (path, x, y, width, height, startAngle, sweepAngle);
@@ -1103,13 +1100,13 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
+GdipAddPathPie (GpPath *path, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
 	int point_count;
 
 	float sin_alpha, cos_alpha;
 
-	if (width == 0 || height == 0)
+	if (!path || width <= 0 || height <= 0)
 		return InvalidParameter;
 
 	float rx = width / 2;
@@ -1127,9 +1124,6 @@ GdipAddPathPie (GpPath *path, float x, float y, float width, float height, float
 
 	sin_alpha = sin (alpha);
 	cos_alpha = cos (alpha);
-
-	if (!path)
-		return InvalidParameter;
 
 	point_count = count_arcs_points (path, x, y, width, height, startAngle, sweepAngle) + 1;
 	if (fabs (sweepAngle) < 360)
@@ -1419,7 +1413,7 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathArcI (GpPath *path, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipAddPathArcI (GpPath *path, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle)
 {
 	return GdipAddPathArc (path, x, y, width, height, startAngle, sweepAngle);
 }
@@ -1559,7 +1553,7 @@ GdipAddPathEllipseI (GpPath *path, int x, int y, int width, int height)
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathPieI (GpPath *path, int x, int y, int width, int height, float startAngle, float sweepAngle)
+GdipAddPathPieI (GpPath *path, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle)
 {
 	return GdipAddPathPie (path, x, y, width, height, startAngle, sweepAngle);
 }

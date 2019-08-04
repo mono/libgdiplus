@@ -3513,6 +3513,302 @@ static void test_transformPath ()
 	GdipDeleteMatrix (customMatrix);
 }
 
+static void test_addPathArc ()
+{
+	GpStatus status;
+	GpPath *path;
+
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 0, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, -90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, -180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, -360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 0);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArc (path, -1, -2, 3, 4, 0, 360);
+	assertEqualInt (status, Ok);
+
+	// Negative tests.
+	status = GdipAddPathArc (NULL, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArc (path, 1, 2, -1, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArc (path, 1, 2, 0, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArc (path, 1, 2, 3, -1, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArc (path, 1, 2, 3, 0, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (path);
+}
+
+static void test_addPathArcI ()
+{
+	GpStatus status;
+	GpPath *path;
+
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 0, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, -90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, -180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, -360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 0);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathArcI (path, -1, -2, 3, 4, 0, 360);
+	assertEqualInt (status, Ok);
+
+	// Negative tests.
+	status = GdipAddPathArcI (NULL, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArcI (path, 1, 2, -1, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArcI (path, 1, 2, 0, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArcI (path, 1, 2, 3, -1, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathArcI (path, 1, 2, 3, 0, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (path);
+}
+
+static void test_addPathPie ()
+{
+	GpStatus status;
+	GpPath *path;
+
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 0, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, -90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, -180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, -360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 0);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPie (path, -1, -2, 3, 4, 0, 360);
+	assertEqualInt (status, Ok);
+
+	// Negative tests.
+	status = GdipAddPathPie (NULL, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPie (path, 1, 2, -1, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPie (path, 1, 2, 0, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPie (path, 1, 2, 3, -1, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPie (path, 1, 2, 3, 0, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (path);
+}
+
+static void test_addPathPieI ()
+{
+	GpStatus status;
+	GpPath *path;
+
+	GdipCreatePath (FillModeAlternate, &path);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 0, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, -90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, -180, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, -360, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 0);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -90);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -180);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -360);
+	assertEqualInt (status, Ok);
+	
+	status = GdipAddPathPieI (path, -1, -2, 3, 4, 0, 360);
+	assertEqualInt (status, Ok);
+
+	// Negative tests.
+	status = GdipAddPathPieI (NULL, 1, 2, 3, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPieI (path, 1, 2, -1, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPieI (path, 1, 2, 0, 4, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPieI (path, 1, 2, 3, -1, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipAddPathPieI (path, 1, 2, 3, 0, 5, 6);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePath (path);
+}
+
 static void test_addPathString ()
 {
 	GpStatus status;
@@ -3920,6 +4216,10 @@ main (int argc, char**argv)
 	test_flattenPath ();
 	test_windingModeOutline ();
 	test_transformPath ();
+	test_addPathArc ();
+	test_addPathArcI ();
+	test_addPathPie ();
+	test_addPathPieI ();
 	test_addPathString ();
 	test_addPathStringI ();
 
