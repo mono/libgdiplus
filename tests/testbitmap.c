@@ -693,6 +693,18 @@ static void test_createBitmapFromScan0 ()
 	
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormatUndefined, NULL, &bitmap);
 	assertEqualInt (status, InvalidParameter);
+
+	status = GdipCreateBitmapFromScan0 (1, INT_MAX, 4, PixelFormat1bppIndexed, NULL, &bitmap);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipCreateBitmapFromScan0 (1, 2, INT_MAX, PixelFormat1bppIndexed, NULL, &bitmap);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipCreateBitmapFromScan0 (1, INT_MAX, INT_MAX, PixelFormat1bppIndexed, NULL, &bitmap);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat1bppIndexed, NULL, NULL);
+	assertEqualInt (status, InvalidParameter);
 }
 
 static void test_createBitmapFromGraphics ()
@@ -756,6 +768,278 @@ static void test_createBitmapFromGraphics ()
 	GdipDisposeImage ((GpImage *) sourceWithResolution);
 	GdipDeleteGraphics (graphics);
 	GdipDeleteGraphics (graphicsWithResolution);
+}
+
+static void test_bitmapSetPixel ()
+{
+	GpStatus status;
+	GpBitmap *image;
+	GpBitmap *indexedImage;
+	
+	GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat32bppRGB, NULL, &image);
+	GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat8bppIndexed, NULL, &indexedImage);
+
+	// Negative tests.
+	status = GdipBitmapSetPixel (NULL, 0, 0, 0xFF000000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, -1, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, -1, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, 5, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, 5, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, 6, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, 6, 1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, 1, -1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, 1, -1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, 1, 3, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, 1, 3, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (image, 1, 4, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapSetPixel (indexedImage, 1, 4, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	// Locked.
+	BitmapData data;
+	memset (&data, 0, sizeof (data));
+
+	status = GdipBitmapLockBits (image, NULL, 0, PixelFormat32bppRGB, &data);
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapSetPixel (image, 0, 0, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+
+	// FIXME: indexed formats not supported: https://github.com/mono/libgdiplus/issues/462
+	status = GdipBitmapSetPixel (indexedImage, 0, 0, 0xFFFF0000);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (status, InvalidParameter);
+#else
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapGetPixel (indexedImage, 0, 0, &pixel);
+	assertEqualInt (status, Ok);
+	assertEqualARGB (pixel, 0xFFFF0000);
+#endif
+
+	status = GdipBitmapSetPixel (image, -1, 0, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage, -1, 0, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapSetPixel (image, 5, 0, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage, 5, 0, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapSetPixel (image,  6, 0, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage,  6, 0, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapSetPixel (image, 0, -1, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage, 0, -1, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapSetPixel (image, 0, 3, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage, 0, 3, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapSetPixel (image, 0, 4, 0xFFFF0000);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapSetPixel (indexedImage, 0, 4, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipBitmapUnlockBits (image, &data);
+	GdipDisposeImage ((GpImage *) image);
+
+	// Invalid type.
+	status = GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat32bppCMYK, NULL, &image);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (status, NotImplemented);
+#else
+
+	status = GdipBitmapSetPixel (image, 0, 0, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage ((GpImage *) image);
+#endif
+	
+	status = GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat16bppGrayScale, NULL, &image);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (status, NotImplemented);
+#else
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapSetPixel (image, 0, 0, 0xFFFF0000);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage ((GpImage *) image);
+#endif
+	
+	GdipDisposeImage ((GpImage *) indexedImage);
+}
+
+static void test_bitmapGetPixel ()
+{
+	GpStatus status;
+	GpBitmap *image;
+	GpBitmap *indexedImage;
+	ARGB pixel;
+
+	GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat32bppRGB, NULL, &image);
+	GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat8bppIndexed, NULL, &indexedImage);
+
+	// Negative tests.
+	status = GdipBitmapGetPixel (NULL, 0, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, -1, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, -1, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, 5, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 5, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, 6, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 6, 1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, 1, -1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 1, -1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, 1, 3, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 1, 3, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (image, 1, 4, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 1, 4, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipBitmapGetPixel (indexedImage, 1, 4, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	// Locked.
+	BitmapData data;
+	memset (&data, 0, sizeof (data));
+
+	status = GdipBitmapLockBits (image, NULL, 0, PixelFormat32bppRGB, &data);
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapGetPixel (image, 0, 0, &pixel);
+	assertEqualInt (status, WrongState);
+
+	pixel = 0xCCCCCCCC;
+	status = GdipBitmapGetPixel (indexedImage, 0, 0, &pixel);
+	assertEqualInt (status, Ok);
+	assertEqualARGB (pixel, 0xFF000000);
+	
+	status = GdipBitmapGetPixel (image, -1, 0, &pixel);
+	assertEqualInt (status, WrongState);
+
+	status = GdipBitmapGetPixel (indexedImage, -1, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapGetPixel (image, 5, 0, &pixel);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapGetPixel (indexedImage, 5, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapGetPixel (image,  6, 0, &pixel);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapGetPixel (indexedImage,  6, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapGetPixel (image, 0, -1, &pixel);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapGetPixel (indexedImage, 0, -1, &pixel);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapGetPixel (image, 0, 3, &pixel);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapGetPixel (indexedImage, 0, 3, &pixel);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipBitmapGetPixel (image, 0, 4, &pixel);
+	assertEqualInt (status, WrongState);
+	
+	status = GdipBitmapGetPixel (indexedImage, 0, 4, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipBitmapUnlockBits (image, &data);
+	GdipDisposeImage ((GpImage *) image);
+
+	// Invalid type.
+	status = GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat32bppCMYK, NULL, &image);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (status, NotImplemented);
+#else
+	assertEqualInt (status, Ok);
+
+	status = GdipBitmapGetPixel (image, 0, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage ((GpImage *) image);
+#endif
+	
+	status = GdipCreateBitmapFromScan0 (5, 3, 0, PixelFormat16bppGrayScale, NULL, &image);
+#if !defined(USE_WINDOWS_GDIPLUS)
+	assertEqualInt (status, NotImplemented);
+#else
+	assertEqualInt (status, Ok);
+	
+	status = GdipBitmapGetPixel (image, 0, 0, &pixel);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage ((GpImage *) image);
+#endif
+
+	GdipDisposeImage ((GpImage *) indexedImage);
 }
 
 static void test_bitmapLockBits ()
@@ -937,6 +1221,8 @@ main(int argc, char**argv)
 	test_createBitmapFromFileICM ();
 	test_createBitmapFromScan0 ();
 	test_createBitmapFromGraphics ();
+	test_bitmapSetPixel ();
+	test_bitmapGetPixel ();
 	test_bitmapLockBits ();
 	test_bitmapUnlockBits ();
 

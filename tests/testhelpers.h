@@ -186,6 +186,12 @@ ATTRIBUTE_USED static void assertEqualRectImpl (GpRectF actual, GpRectF expected
 
 #define assertEqualRect(actual, expected) assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__)
 
+#define assertEqualRectFInline(actual, x, y, width, height) \
+{ \
+    RectF expected = { x, y, width, height }; \
+    assertEqualRectImpl (actual, expected, NULL, __FILE__, __func__, __LINE__); \
+}
+
 ATTRIBUTE_USED static void assertEqualPointImpl (Point actual, Point expected, const char *message, const char *file, const char *function, int line)
 {
 	if (actual.X != expected.X || actual.X != expected.X)
