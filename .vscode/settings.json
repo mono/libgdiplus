@@ -5,6 +5,11 @@
         "__locale": "c",
         "string": "c",
         "string_view": "c",
-        "vector": "c"
+        "vector": "c",
+        "jpegcodec.h": "c",
+        "jpeglib.h": "c",
+        "dstream.h": "c",
+        "jconfig.h": "c",
+        "jmorecfg.h": "c"
     }
 }
