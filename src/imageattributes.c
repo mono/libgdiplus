@@ -75,8 +75,7 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	if (attr->colormap && attr->colormap_elem > 0) {
 		clone->colormap = GdipAlloc(sizeof(ColorMap) * attr->colormap_elem);
 
-		if (!clone->colormap)
-		{
+		if (!clone->colormap) {
 			gdip_dispose_image_attribute(clone);
 			return OutOfMemory;
 		}
@@ -87,8 +86,7 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	if (attr->colormatrix) {
 		clone->colormatrix = GdipAlloc(sizeof(ColorMatrix));
 
-		if (!clone->colormatrix)
-		{
+		if (!clone->colormatrix) {
 			gdip_dispose_image_attribute(clone);
 			return OutOfMemory;
 		}
@@ -99,8 +97,7 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	if (attr->graymatrix) {
 		clone->graymatrix = GdipAlloc(sizeof(ColorMatrix));
 
-		if (!clone->graymatrix)
-		{
+		if (!clone->graymatrix) {
 			gdip_dispose_image_attribute(clone);
 			return OutOfMemory;
 		}
@@ -109,10 +106,8 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	}
 
 	if (attr->colorprofile_filename) {
-		strcpy(clone->colorprofile_filename, attr->colorprofile_filename);
-
-		if (!clone->colorprofile_filename)
-		{
+		clone->colorprofile_filename = strdup (attr->colorprofile_filename);
+		if (!clone->colorprofile_filename) {
 			gdip_dispose_image_attribute(clone);
 			return OutOfMemory;
 		}
