@@ -60,6 +60,14 @@ To run the tests with Clang sanitizers, run the following command from the root 
 	./autogen.sh --enable-asan
 	make check
 
+To run the unit tests with leak sanitizers, run the following command from the root of the repository:
+
+	./autogen.sh --enable-asan
+	export ASAN_OPTIONS=detect_leaks=1
+	export ASAN_OPTIONS=fast_unwind_on_malloc=0
+	export LSAN_OPTIONS=suppressions=lsansuppressions.txt
+	make check
+
 ### Code coverage
 
 Code coverage stats are generated with `lcov`. You can use [Homebrew](https://brew.sh/) on **OSX** to install the dependencies:

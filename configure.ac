@@ -42,7 +42,7 @@ fi
 AC_ARG_ENABLE(asan, AS_HELP_STRING([--enable-asan],[Enable address sanitizer.]),[asan=yes],[asan=no])
 
 if test $asan = "yes"; then
-  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -fsanitize=address,signed-integer-overflow,undefined -g -O1"
+  GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -fsanitize=address,signed-integer-overflow,undefined -g -O1 -fno-omit-frame-pointer"
   LDFLAGS="$LDFLAGS -fsanitize=address,signed-integer-overflow,undefined"
 fi
 

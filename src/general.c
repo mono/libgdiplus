@@ -69,8 +69,8 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 	/* A fontconfig instance which didn't find a configfile is unbelievably
 		cranky, so let's just write out a small xml file and make fontconfig
 		happy */
-	if (FcConfigFilename (0) == NULL)
-	{
+	FcChar8 *fontConfigName = FcConfigFilename (0);
+	if (!fontConfigName) {
 		/* Newer versions of font-config have FcConfigParseAndLoadFromMemory,
 		   which we could use to avoid generating a temporary file. But meanwhile,
 		   we are stuck with this workaround. */
@@ -112,6 +112,8 @@ GdiplusStartup (ULONG_PTR *token, const GdiplusStartupInput *input, GdiplusStart
 			// FcConfig is reference-counted, so it's OK to call destroy here.
 			FcConfigDestroy (c);
 		}
+	} else {
+		FcStrFree (fontConfigName);
 	}
 
 	gdip_get_display_dpi();

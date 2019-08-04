@@ -306,7 +306,9 @@ EXTRA_DIST =			\
 	$(testtexturebrush_SOURCES)	\
 	$(testtext_SOURCES)	\
 	$(testtiffcodec_SOURCES) \
-	$(testwmfcodec_SOURCES)
+	$(testwmfcodec_SOURCES) \
+	lsansuppressions.txt \
+	$(NULL)
 
 #	$(testgdi_SOURCES)
 
