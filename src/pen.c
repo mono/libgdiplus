@@ -536,7 +536,10 @@ GdipSetPenColor (GpPen *pen, ARGB argb)
 		return status;
 
 	pen->color = argb;
+	if (pen->own_brush)
+		GdipDeleteBrush (pen->brush);
 	pen->brush = (GpBrush *) brush;
+	pen->own_brush = TRUE;
 	pen->changed = TRUE;
 
 	return Ok;
