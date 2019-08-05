@@ -109,7 +109,7 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	}
 
 	if (attr->colorprofile_filename) {
-		strcpy(clone->colorprofile_filename, attr->colorprofile_filename);
+		clone->colorprofile_filename = strdup (attr->colorprofile_filename);
 
 		if (!clone->colorprofile_filename)
 		{
