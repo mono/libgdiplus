@@ -94,3 +94,4 @@ Temporary Items
 coverage.info
 /coverage
 
+*.tmp
