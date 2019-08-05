@@ -127,7 +127,7 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	newbrush = gdip_pathgradient_new ();
+	newbrush = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
 	if (!newbrush)
 		return OutOfMemory;
 

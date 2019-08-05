@@ -111,7 +111,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	newbrush = gdip_linear_gradient_new ();
+	newbrush = (GpLineGradient *) GdipAlloc (sizeof (GpLineGradient));
 	if (!newbrush)
 		return OutOfMemory;
 
