@@ -219,11 +219,11 @@ gdip_custom_linecap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cus
 			/* mask the bits so that we get only the type value not the other flags */
 			switch (type & PathPointTypePathTypeMask) {
 			case PathPointTypeStart:
-				gdip_cairo_move_to (graphics, (double)point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
+				gdip_cairo_move_to (graphics, (double)point.X * penwidth, (double)point.Y * penwidth, TRUE, TRUE);
 				break;
 
 			case PathPointTypeLine:
-				gdip_cairo_line_to (graphics, (double)point.X * penwidth, point.Y * penwidth, TRUE, TRUE);
+				gdip_cairo_line_to (graphics, (double)point.X * penwidth, (double)point.Y * penwidth, TRUE, TRUE);
 				break;
 
 			case PathPointTypeBezier:
