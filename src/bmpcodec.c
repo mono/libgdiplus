@@ -1188,6 +1188,12 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		return OutOfMemory;
 	}
 
+	result->active_bitmap->scan0 = pixels;
+	result->active_bitmap->reserved = GBD_OWN_SCAN0;
+	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
+	if (bmi.bV5XPelsPerMeter != 0 && bmi.bV5YPelsPerMeter != 0)
+		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
+
 	if (gdip_is_an_indexed_pixelformat (result->active_bitmap->pixel_format)) {
 		if (bmi.bV5Compression == BI_RLE4)
 			gdip_read_bmp_rle_4bit (pointer, pixels, upsidedown, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
@@ -1207,12 +1213,6 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			return status;
 		}
 	}
-
-	result->active_bitmap->scan0 = pixels;
-	result->active_bitmap->reserved = GBD_OWN_SCAN0;
-	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsColorSpaceRGB;
-	if (bmi.bV5XPelsPerMeter != 0 && bmi.bV5YPelsPerMeter != 0)
-		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
 
 	*image = result;
 	return Ok;
