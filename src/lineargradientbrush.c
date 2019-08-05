@@ -111,7 +111,7 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	newbrush = gdip_linear_gradient_new ();
+	newbrush = (GpLineGradient *) GdipAlloc (sizeof (GpLineGradient));
 	if (!newbrush)
 		return OutOfMemory;
 
@@ -494,8 +494,10 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 		return InvalidParameter;
 
 	// For GDI+ compat. A zero-length gradient isn't well-defined.
-	if (point1->X == point2->X && point1->Y == point2->Y)
+	if (point1->X == point2->X && point1->Y == point2->Y) {
+		*lineGradient = NULL;
 		return OutOfMemory;
+	}
 
 	linear = gdip_linear_gradient_new ();
 	if (!linear)

@@ -4,7 +4,7 @@ LIBS = $(GDIPLUS_LIBS)
 
 AM_CPPFLAGS =					\
 	-I$(top_srcdir)				\
-	-I$(top_builddir)/src			\
+	-I$(top_builddir)/src		\
 	-I$(top_srcdir)/src			\
 	$(GDIPLUS_CFLAGS)
 
@@ -307,7 +307,21 @@ EXTRA_DIST =			\
 	$(testtext_SOURCES)	\
 	$(testtiffcodec_SOURCES) \
 	$(testwmfcodec_SOURCES) \
-	lsansuppressions.txt \
+	AdobeRGB1998.icc \
+	test-gsa.png \
+	test-trns.png \
+	test.bmp \
+	test.emf \
+	test.gif \
+	test.ico \
+	test.jpg \
+	test.otf \
+	test.png \
+	test.tif \
+	test.ttf \
+	test.wmf \
+	testhelpers.h \
+  lsansuppressions.txt \
 	$(NULL)
 
 #	$(testgdi_SOURCES)
@@ -354,19 +368,3 @@ TESTS = \
 if HAVE_X11
 # TESTS += testgdi
 endif
-
-EXTRA_DIST = \
-	AdobeRGB1998.icc \
-	test-gsa.png \
-	test-trns.png \
-	test.bmp \
-	test.emf \
-	test.gif \
-	test.ico \
-	test.jpg \
-	test.otf \
-	test.png \
-	test.tif \
-	test.ttf \
-	test.wmf \
-	testhelpers.h

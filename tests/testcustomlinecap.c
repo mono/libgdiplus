@@ -242,6 +242,9 @@ static void test_setCustomLineCapStrokeCaps ()
 	status = GdipSetCustomLineCapStrokeCaps (NULL, LineCapArrowAnchor, LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapFlat - 1), LineCapFlat);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapTriangle + 1), LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
@@ -267,6 +270,9 @@ static void test_setCustomLineCapStrokeCaps ()
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapCustom + 1), LineCapFlat);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap)(LineCapFlat - 1));
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap)(LineCapTriangle + 1));

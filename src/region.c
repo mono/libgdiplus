@@ -107,15 +107,16 @@ gdip_extend_rect_array (GpRectF** srcarray, int* elements, int* capacity) {
 		if (!array)
 			return OutOfMemory;
 
-		memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
-
-		if (*srcarray)
+		if (*srcarray) {
+			memcpy (array, *srcarray, sizeof (GpRectF) * (*elements));
 			GdipFree (*srcarray);
+		}
 
 		*srcarray = array;
 		if (capacity)
 			*capacity = newCapacity;
 	}
+
 	return Ok;
 }
 

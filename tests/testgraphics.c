@@ -56,8 +56,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 		default:
 			return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-    return 0;
+	}
+	return 0;
 }
 #endif
 
@@ -3396,8 +3396,6 @@ static void test_region_mask()
 	assertEqualInt(status, Ok);
 	assertEqualInt(color, 0xFF808080);
 
-	//GdipSaveImageToFile (bitmap, (const WCHAR*)createWchar( "test-image.png" ), &png_clsid, NULL);
-
 	GdipDeleteGraphics (graphics);
 	GdipDeletePath (rectPath);
 	GdipDeletePath (polyPath);
@@ -3523,22 +3521,19 @@ static void test_world_transform_respects_page_unit_document ()
 	status = GdipCreateSolidFill (FillColor, &brush);
 	assertEqualInt (status, Ok);
 
-	int rectX = 360;
-	int rectY = 111;
+	REAL rectX = 360;
+	REAL rectY = 111;
 	GdipCreateMatrix2 (1, 0, 0, 1, rectX, rectY, &matrix);
 	status = GdipSetWorldTransform (graphics, matrix);
 	assertEqualInt (status, Ok);
 
-	int rectWidth = 74;
-	int rectHeight = 72;
-	status = GdipFillRectangleI (graphics, brush, 0, 0, rectWidth, rectHeight);
+	REAL rectWidth = 74;
+	REAL rectHeight = 72;
+	status = GdipFillRectangle (graphics, brush, 0, 0, rectWidth, rectHeight);
 	assertEqualInt (status, Ok);
 
-	//CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-	//WCHAR *filePath = createWchar ("test_world_transform_respects_page_unit_document.png");
-	//status = GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL);
-
-	int points[] = {
+#if !defined(USE_WINDOWS_GDIPLUS)
+	REAL points[] = {
 		rectX + 2,
 		rectY + 2,
 		rectX + rectWidth / 2,
@@ -3546,12 +3541,13 @@ static void test_world_transform_respects_page_unit_document ()
 		rectX + rectWidth - 1,
 		rectY + rectHeight - 1
 	};
-	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
+	for (int i = 0; i < ARRAY_SIZE (points); i += 2) {
 		ARGB color;
 		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * 72 / 300.0f), (int)(points[i + 1] * 72 / 300.0f), &color);
 		assertEqualInt (status, Ok);
-		assertEqualInt (color, FillColor);
+		assertEqualARGB (color, FillColor);
 	}
+#endif
 
 	GdipDisposeImage ((GpImage *)bitmap);
 	GdipDeleteGraphics (graphics);
@@ -3584,21 +3580,17 @@ static void test_world_transform_respects_page_unit_point ()
 	status = GdipCreateSolidFill (FillColor, &brush);
 	assertEqualInt (status, Ok);
 
-	int rectX = 360;
-	int rectY = 111;
-	int rectWidth = 74;
-	int rectHeight = 72;
+	REAL rectX = 360;
+	REAL rectY = 111;
+	REAL rectWidth = 74;
+	REAL rectHeight = 72;
 	status = GdipTranslateWorldTransform (graphics, rectX, rectY, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 
-	status = GdipFillRectangleI (graphics, brush, 0, 0, rectWidth, rectHeight);
+	status = GdipFillRectangle (graphics, brush, 0, 0, rectWidth, rectHeight);
 	assertEqualInt (status, Ok);
 
-	//CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-	//WCHAR *filePath = createWchar ("test_world_transform_respects_page_unit_point.png");
-	//status = GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL);
-
-	int points[] = {
+	REAL points[] = {
 		rectX,
 		rectY,
 		rectX + rectWidth / 2,
@@ -3606,20 +3598,199 @@ static void test_world_transform_respects_page_unit_point ()
 		rectX + rectWidth - 1,
 		rectY + rectHeight - 1
 	};
-	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
+	for (int i = 0; i < ARRAY_SIZE (points); i += 2) {
 		ARGB color;
-		status = GdipBitmapGetPixel (bitmap, points[i], points[i + 1], &color);
+		status = GdipBitmapGetPixel (bitmap,(int) points[i], (int) points[i + 1], &color);
 		assertEqualInt (status, Ok);
-		assertEqualInt (color, 0);
+		assertEqualARGB (color, 0);
 
 		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * scaleFactor) + 1, (int)(points[i + 1] * scaleFactor) + 1, &color);
 		assertEqualInt (status, Ok);
-		assertEqualInt (color, FillColor);
+		assertEqualARGB (color, FillColor);
 	}
 
 	GdipDisposeImage ((GpImage *)bitmap);
 	GdipDeleteGraphics (graphics);
 	GdipDeleteBrush (brush);
+}
+
+static void test_saveGraphics ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GraphicsState state1;
+	GraphicsState state2;
+
+	graphics = getImageGraphics (&image);
+
+	status = GdipSaveGraphics (graphics, &state1);
+	assertEqualInt (status, Ok);
+	assert (state1);
+
+	status = GdipSaveGraphics (graphics, &state2);
+	assertEqualInt (status, Ok);
+	assert (state2 && state1 != state2);
+
+	// Negative tests.
+	status = GdipSaveGraphics (NULL, &state1);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipSaveGraphics (graphics, NULL);
+	assertEqualInt (status, InvalidParameter);
+	
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
+}
+
+static void test_restoreGraphics ()
+{
+	GpStatus status;
+	GpImage *image;
+	GpGraphics *graphics;
+	GraphicsState state;
+	RectF clipBounds1 = { 1, 2, 3, 4 };
+	RectF clipBounds2 = { 2, 3, 4, 5 };
+	CompositingMode compositingMode;
+	CompositingQuality compositingQuality;
+	InterpolationMode interpolationMode;
+	REAL pageScale;
+	Unit pageUnit;
+	PixelOffsetMode pixelOffsetMode;
+	INT renderingOriginX;
+	INT renderingOriginY;
+	SmoothingMode smoothingMode;
+	UINT textContrast;
+	TextRenderingHint textRenderingHint;
+	GpMatrix *worldTransform1;
+	GpMatrix *worldTransform2;
+	GpMatrix *worldTransform;
+
+	graphics = getImageGraphics (&image);
+	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &worldTransform1);
+	GdipCreateMatrix2 (2, 3, 4, 5, 6, 7, &worldTransform2);
+	GdipCreateMatrix (&worldTransform);
+
+	status = GdipSaveGraphics (graphics, &state);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, state);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, state);
+	assertEqualInt (status, Ok);
+
+	status = GdipSaveGraphics (graphics, &state);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, 0);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, -1);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, 512);
+	assertEqualInt (status, Ok);
+
+	status = GdipRestoreGraphics (graphics, 513);
+	assertEqualInt (status, Ok);
+
+	// Setup save.
+	GdipSetClipRect (graphics, 1, 2, 3, 4, CombineModeReplace);
+	GdipSetCompositingMode (graphics, CompositingModeSourceCopy);
+	GdipSetCompositingQuality (graphics, CompositingQualityAssumeLinear);
+	GdipSetInterpolationMode (graphics, InterpolationModeBicubic);
+	GdipSetPageScale (graphics, 100);
+	GdipSetPageUnit (graphics, UnitInch);
+	GdipSetPixelOffsetMode (graphics, PixelOffsetModeHighQuality);
+	GdipSetRenderingOrigin (graphics, 1, 2);
+	GdipSetSmoothingMode (graphics, SmoothingModeAntiAlias);
+	GdipSetTextContrast (graphics, 12);
+	GdipSetTextRenderingHint (graphics, TextRenderingHintSingleBitPerPixel);
+	GdipSetWorldTransform (graphics, worldTransform1);
+
+	GdipGetClipBounds (graphics, &clipBounds1);
+
+	status = GdipSaveGraphics (graphics, &state);
+	assertEqualInt (status, Ok);
+	
+	// Change.
+	GdipSetClipRect (graphics, 2, 3, 4, 5, CombineModeReplace);
+	GdipSetCompositingMode (graphics, CompositingModeSourceOver);
+	GdipSetCompositingQuality (graphics, CompositingQualityGammaCorrected);
+	GdipSetInterpolationMode (graphics, InterpolationModeBilinear);
+	GdipSetPageScale (graphics, 99);
+	GdipSetPageUnit (graphics, UnitPoint);
+	GdipSetPixelOffsetMode (graphics, PixelOffsetModeHighSpeed);
+	GdipSetRenderingOrigin (graphics, 2, 3);
+	GdipSetSmoothingMode (graphics, SmoothingModeNone);
+	GdipSetTextContrast (graphics, 11);
+	GdipSetTextRenderingHint (graphics, TextRenderingHintAntiAlias);
+	GdipSetWorldTransform (graphics, worldTransform2);
+
+	GdipGetCompositingMode (graphics, &compositingMode);
+	GdipGetCompositingQuality (graphics, &compositingQuality);
+	GdipGetInterpolationMode (graphics, &interpolationMode);
+	GdipGetPageScale (graphics, &pageScale);
+	GdipGetPageUnit (graphics, &pageUnit);
+	GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
+	GdipGetRenderingOrigin (graphics, &renderingOriginX, &renderingOriginY);
+	GdipGetSmoothingMode (graphics, &smoothingMode);
+	GdipGetTextContrast (graphics, &textContrast);
+	GdipGetTextRenderingHint (graphics, &textRenderingHint);
+	GdipGetWorldTransform (graphics, worldTransform);
+	assertEqualInt (compositingMode, CompositingModeSourceOver);
+	assertEqualInt (compositingQuality, CompositingQualityGammaCorrected);
+	assertEqualInt (interpolationMode, InterpolationModeBilinear);
+	assertEqualInt (pageUnit, UnitPoint);
+	assertEqualFloat (pageScale, 99);
+	assertEqualInt (pixelOffsetMode, PixelOffsetModeHighSpeed);
+	assertEqualInt (renderingOriginX, 2);
+	assertEqualInt (renderingOriginY, 3);
+	assertEqualInt (smoothingMode, SmoothingModeNone);
+	assertEqualInt (textContrast, 11);
+	assertEqualInt (textRenderingHint, TextRenderingHintAntiAlias);
+	verifyMatrix (worldTransform, 2, 3, 4, 5, 6, 7);
+
+	// Restore.
+	status = GdipRestoreGraphics (graphics, state);
+	assertEqualInt (status, Ok);
+
+	GdipGetClipBounds (graphics, &clipBounds2);
+	GdipGetCompositingMode (graphics, &compositingMode);
+	GdipGetCompositingQuality (graphics, &compositingQuality);
+	GdipGetInterpolationMode (graphics, &interpolationMode);
+	GdipGetPageScale (graphics, &pageScale);
+	GdipGetPageUnit (graphics, &pageUnit);
+	GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
+	GdipGetRenderingOrigin (graphics, &renderingOriginX, &renderingOriginY);
+	GdipGetSmoothingMode (graphics, &smoothingMode);
+	GdipGetTextContrast (graphics, &textContrast);
+	GdipGetTextRenderingHint (graphics, &textRenderingHint);
+	GdipGetWorldTransform (graphics, worldTransform);
+	assertEqualRect (clipBounds2, clipBounds1);
+	assertEqualInt (compositingMode, CompositingModeSourceCopy);	
+	assertEqualInt (compositingQuality, CompositingQualityAssumeLinear);
+	assertEqualInt (interpolationMode, InterpolationModeBicubic);
+	assertEqualInt (pageUnit, UnitInch);
+	assertEqualFloat (pageScale, 100);
+	assertEqualInt (pixelOffsetMode, PixelOffsetModeHighQuality);
+	assertEqualInt (renderingOriginX, 1);
+	assertEqualInt (renderingOriginY, 2);
+	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
+	assertEqualInt (textContrast, 12);
+	assertEqualInt (textRenderingHint, TextRenderingHintSingleBitPerPixel);
+	verifyMatrix (worldTransform, 1, 2, 3, 4, 5, 6);
+
+	// Negative tests.
+	status = GdipRestoreGraphics (NULL, state);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDisposeImage (image);
+	GdipDeleteGraphics (graphics);
+	GdipDeleteMatrix (worldTransform1);
+	GdipDeleteMatrix (worldTransform2);
+	GdipDeleteMatrix (worldTransform);
 }
 
 int
@@ -3688,6 +3859,8 @@ main (int argc, char**argv)
 	test_world_transform_in_container ();
 	test_world_transform_respects_page_unit_document ();
 	test_world_transform_respects_page_unit_point ();
+	test_saveGraphics ();
+	test_restoreGraphics ();
 
 #if defined(USE_WINDOWS_GDIPLUS)
 	DestroyWindow (hwnd);

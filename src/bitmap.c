@@ -2033,11 +2033,11 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	
 	data = bitmap->active_bitmap;
 
-	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED) {
-		return InvalidParameter;
-	}
-
 	if (gdip_is_an_indexed_pixelformat (data->pixel_format))
+		return InvalidParameter;
+	if (data->reserved & GBD_LOCKED)
+		return WrongState;
+	if (x < 0 || x >= data->width || y < 0 || y >= data->height)
 		return InvalidParameter;
 
 	v = (BYTE*)(data->scan0) + y * data->stride;
@@ -2071,10 +2071,10 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 
 	data = bitmap->active_bitmap;
 
-	if (x < 0 || y < 0 || x >= data->width || y >= data->height || data->reserved & GBD_LOCKED)
-		return InvalidParameter;
-
 	if (gdip_is_an_indexed_pixelformat (data->pixel_format)) {
+		if (x < 0 || x >= data->width || y < 0 || y >= data->height)
+			return InvalidParameter;
+
 		StreamingState	pixel_stream;
 		GpStatus	status;
 		unsigned int	palette_index;
@@ -2094,6 +2094,11 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 			*color = data->palette->Entries[palette_index];
 		}
 	} else {
+		if (data->reserved & GBD_LOCKED)
+			return WrongState;
+		if (x < 0 || x >= data->width || y < 0 || y >= data->height)
+			return InvalidParameter;
+
 		BYTE *v = ((BYTE*)data->scan0) + y * data->stride;
 
 		switch (data->pixel_format) {

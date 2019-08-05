@@ -45,21 +45,87 @@ static void test_cloneImageAttributes ()
 	GpStatus status;
 	GpImageAttributes *attributes;
 	GpImageAttributes *clonedAttributes;
+	ColorMatrix colorMatrix;
+	ColorMatrix grayMatrix;
+	WCHAR *colorProfileName = createWchar ("AdobeRGB1998.icc");
+	ColorMap remapTable[2] = {
+		{ {123}, {234} },
+		{ {345}, {678} }
+	};
 
+	memset ((void *) &colorMatrix, 0, sizeof (ColorMatrix));
+	memset ((void *) &grayMatrix, 0, sizeof (ColorMatrix));
+
+	// Simple.
 	GdipCreateImageAttributes (&attributes);
 
 	status = GdipCloneImageAttributes (attributes, &clonedAttributes);
 	assertEqualInt (status, Ok);
 	assert (attributes && attributes != clonedAttributes);
 
+	GdipDisposeImageAttributes (clonedAttributes);
+	GdipDisposeImageAttributes (attributes);
+
+	// Complex.
+	GdipCreateImageAttributes (&attributes);
+	GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeDefault, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeBitmap, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeBrush, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypePen, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	GdipSetImageAttributesColorMatrix (attributes, ColorAdjustTypeText, TRUE, &colorMatrix, &grayMatrix, ColorMatrixFlagsDefault);
+	GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeDefault, TRUE, 100);
+	GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeBitmap, TRUE, 101);
+	GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeBrush, TRUE, 102);
+	GdipSetImageAttributesThreshold (attributes, ColorAdjustTypePen, TRUE, 103);
+	GdipSetImageAttributesThreshold (attributes, ColorAdjustTypeText, TRUE, 104);
+	GdipSetImageAttributesGamma (attributes, ColorAdjustTypeDefault, TRUE, 100);
+	GdipSetImageAttributesGamma (attributes, ColorAdjustTypeBitmap, TRUE, 101);
+	GdipSetImageAttributesGamma (attributes, ColorAdjustTypeBrush, TRUE, 102);
+	GdipSetImageAttributesGamma (attributes, ColorAdjustTypePen, TRUE, 103);
+	GdipSetImageAttributesGamma (attributes, ColorAdjustTypeText, TRUE, 104);
+	GdipSetImageAttributesColorKeys (attributes, ColorAdjustTypeDefault, TRUE, 0x01020304, 0x02030406);
+	GdipSetImageAttributesColorKeys (attributes, ColorAdjustTypeBitmap, TRUE, 0x01020305, 0x02030407);
+	GdipSetImageAttributesColorKeys (attributes, ColorAdjustTypeBrush, TRUE, 0x01020306, 0x02030408);
+	GdipSetImageAttributesColorKeys (attributes, ColorAdjustTypePen, TRUE, 0x01020307, 0x02030409);
+	GdipSetImageAttributesColorKeys (attributes, ColorAdjustTypeText, TRUE, 0x01020308, 0x02030400);
+	GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeDefault, TRUE, ColorChannelFlagsC);
+	GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeBitmap, TRUE, ColorChannelFlagsM);
+	GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeBrush, TRUE, ColorChannelFlagsY);
+	GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypePen, TRUE, ColorChannelFlagsK);
+	GdipSetImageAttributesOutputChannel (attributes, ColorAdjustTypeText, TRUE, ColorChannelFlagsC);
+	GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeDefault, TRUE, colorProfileName);
+	GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeBitmap, TRUE, colorProfileName);
+	GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeBrush, TRUE, colorProfileName);
+	GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypePen, TRUE, colorProfileName);
+	GdipSetImageAttributesOutputChannelColorProfile (attributes, ColorAdjustTypeText, TRUE, colorProfileName);
+	GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeDefault, TRUE, 1, remapTable);
+	GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeBitmap, TRUE, 1, remapTable);
+	GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeBrush, TRUE, 1, remapTable);
+	GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypePen, TRUE, 1, remapTable);
+	GdipSetImageAttributesRemapTable (attributes, ColorAdjustTypeText, TRUE, 1, remapTable);
+	GdipSetImageAttributesWrapMode (attributes, WrapModeTile, 10, TRUE);
+	GdipSetImageAttributesCachedBackground (attributes, TRUE);
+
+	status = GdipCloneImageAttributes (attributes, &clonedAttributes);
+	assertEqualInt (status, Ok);
+	assert (attributes && attributes != clonedAttributes);
+
+	GdipDisposeImageAttributes (clonedAttributes);
+	GdipDisposeImageAttributes (attributes);
+
 	// Negative tests.
+	GdipCreateImageAttributes (&attributes);
+
+	clonedAttributes = (GpImageAttributes *) 0xCC;
 	status = GdipCloneImageAttributes (NULL, &clonedAttributes);
 	assertEqualInt (status, InvalidParameter);
+	assert (clonedAttributes == (GpImageAttributes *) 0xCC);
 
 	status = GdipCloneImageAttributes (attributes, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImageAttributes (attributes);
+	freeWchar (colorProfileName);
 }
 
 static void test_disposeImageAttributes ()
