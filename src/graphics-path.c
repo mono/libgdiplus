@@ -373,21 +373,31 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 	result->fill_mode = path->fill_mode;
 	result->count = path->count;
 	result->size = path->size;
-	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
-	if (!result->points) {
-		GdipFree (result);
-		return OutOfMemory;
+
+	if (path->points) {
+		result->points = GdipAlloc (sizeof (GpPointF) * result->size);
+		if (!result->points) {
+			GdipFree (result);
+			return OutOfMemory;
+		}
+
+		memcpy (result->points, path->points, sizeof (GpPointF) * path->count);
+	} else {
+		result->points = NULL;
 	}
 
-	result->types = GdipAlloc (sizeof (BYTE) * result->size);
-	if (!result->types) {
-		GdipFree (result->points);
-		GdipFree (result);
-		return OutOfMemory;
-	}
+	if (path->types) {
+		result->types = GdipAlloc (sizeof (BYTE) * result->size);
+		if (!result->types) {
+			GdipFree (result->points);
+			GdipFree (result);
+			return OutOfMemory;
+		}
 
-	memcpy (result->points, path->points, sizeof (GpPointF) * path->count);
-	memcpy (result->types, path->types, sizeof (BYTE) * path->count);
+		memcpy (result->types, path->types, sizeof (BYTE) * path->count);
+	} else {
+		result->types = NULL;
+	}
 
 	result->start_new_fig = path->start_new_fig;
 
