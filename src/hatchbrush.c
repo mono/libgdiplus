@@ -26,6 +26,7 @@
 /* FIXME - match hatchbrush use the RenderOrigin stored in graphics */
 
 #include "hatchbrush-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 
 static GpStatus gdip_hatch_setup (GpGraphics *graphics, GpBrush *brush);
@@ -1295,7 +1296,7 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	if (!brush || !clonedBrush)
 		return InvalidParameter;
 
-	result = (GpHatch *) GdipAlloc (sizeof (GpHatch));
+	result = gdip_hatch_new ();
 	if (!result) {
 		*clonedBrush = NULL;
 		return OutOfMemory;
@@ -1309,44 +1310,48 @@ gdip_hatch_clone (GpBrush *brush, GpBrush **clonedBrush)
 	result->backColor = hatch->backColor;
 	result->base.changed = TRUE;
 	result->pattern = NULL;
-	*clonedBrush = (GpBrush *) result;
 
+	*clonedBrush = (GpBrush *) result;
 	return Ok;
 }
 
 GpStatus
 gdip_hatch_destroy (GpBrush *brush)
 {
-	/* a. the NULL check for brush is done by the caller, GdipDeleteBrush */
-	/* b. brush itself is freed by the caller */
+	GpHatch *hatch = (GpHatch *) brush;
 
-	GpHatch *hbr = (GpHatch *) brush;
-
-	if (hbr->pattern) {
-		cairo_pattern_destroy (hbr->pattern);
-		hbr->pattern = NULL;
+	if (hatch->pattern) {
+		cairo_pattern_destroy (hatch->pattern);
+		hatch->pattern = NULL;
 	}
+
 	return Ok;
 }
 
 // coverity[+alloc : arg-*3]
 GpStatus
-GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecolor, ARGB backcolor, GpHatch **brush)
+GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecol, ARGB backcol, GpHatch **brush)
 {
+	GpHatch *result;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!brush)
 		return InvalidParameter;
 
 	if (hatchstyle < HatchStyleMin || hatchstyle > HatchStyleMax)
 		return InvalidParameter;
 
-	*brush = gdip_hatch_new ();
-	if (!*brush)
+	result = gdip_hatch_new ();
+	if (!result)
 		return OutOfMemory;
 
-	(*brush)->hatchStyle = hatchstyle;
-	(*brush)->foreColor = forecolor;
-	(*brush)->backColor = backcolor;
+	result->hatchStyle = hatchstyle;
+	result->foreColor = forecol;
+	result->backColor = backcol;
 
+	*brush = result;
 	return Ok; 
 }
 
@@ -1361,21 +1366,21 @@ GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle)
 }
 
 GpStatus
-GdipGetHatchForegroundColor (GpHatch *brush, ARGB *forecolor)
+GdipGetHatchForegroundColor (GpHatch *brush, ARGB *forecol)
 {
-	if (!brush || !forecolor)
+	if (!brush || !forecol)
 		return InvalidParameter;
 
-	*forecolor = brush->foreColor;
+	*forecol = brush->foreColor;
 	return Ok;
 }
 
 GpStatus
-GdipGetHatchBackgroundColor (GpHatch *brush, ARGB *backcolor)
+GdipGetHatchBackgroundColor (GpHatch *brush, ARGB *backcol)
 {
-	if (!brush || !backcolor)
+	if (!brush || !backcol)
 		return InvalidParameter;
 
-	*backcolor = brush->backColor;
+	*backcol = brush->backColor;
 	return Ok;
 }

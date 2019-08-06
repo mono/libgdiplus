@@ -31,9 +31,9 @@ fi
 }
 
 if [ -z "$LIBTOOLIZE" ]; then
-  LIBTOOLIZE=`which glibtoolize 2>/dev/null`
+  LIBTOOLIZE=`command -v glibtoolize 2>/dev/null`
   if [ ! -x "$LIBTOOLIZE" ]; then
-    LIBTOOLIZE=`which libtoolize`
+    LIBTOOLIZE=`command -v libtoolize`
   fi
 fi
 
@@ -131,7 +131,7 @@ do
   shift
 done
 
-conf_flags="--enable-maintainer-mode --enable-compile-warnings" #--enable-iso-c
+conf_flags="--enable-maintainer-mode"
 
 if test x$NOCONFIGURE = x; then
   echo Running $srcdir/configure $conf_flags $CONF_OPTIONS ...

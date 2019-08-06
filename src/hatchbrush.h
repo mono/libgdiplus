@@ -12,9 +12,9 @@
 
 #include "brush.h"
 
-GpStatus GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecolor, ARGB backcolor, GpHatch **brush);
-GpStatus GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle);
-GpStatus GdipGetHatchForegroundColor (GpHatch *brush, ARGB *forecolor);
-GpStatus GdipGetHatchBackgroundColor (GpHatch *brush, ARGB *backcolor);
+GpStatus WINGDIPAPI GdipCreateHatchBrush (GpHatchStyle hatchstyle, ARGB forecol, ARGB backcolor, GpHatch **brush);
+GpStatus WINGDIPAPI GdipGetHatchStyle (GpHatch *brush, GpHatchStyle *hatchstyle);
+GpStatus WINGDIPAPI GdipGetHatchForegroundColor (GpHatch *brush, ARGB *forecol);
+GpStatus WINGDIPAPI GdipGetHatchBackgroundColor (GpHatch *brush, ARGB *backcol);
 
 #endif

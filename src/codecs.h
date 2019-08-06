@@ -21,48 +21,17 @@
  *      Duncan Mak (duncan@ximian.com)
  *      Miguel de Icaza (miguel@ximian.com)
  *      Ravindra (rkumar@novell.com)
- *  	Sanjay Gupta (gsanjay@novell.com)
- *	Vladimir Vukicevic (vladimir@pobox.com)
- *	Geoff Norton (gnorton@customerdna.com)
+ *      Sanjay Gupta (gsanjay@novell.com)
+ *      Vladimir Vukicevic (vladimir@pobox.com)
+ *      Geoff Norton (gnorton@customerdna.com)
  *      Jonathan Gilbert (logic@deltaq.org)
- *	Sebastien Pouliot  <sebastien@ximian.com>
+ *      Sebastien Pouliot  <sebastien@ximian.com>
  *
  * Copyright (C) 2003-2007 Novell, Inc (http://www.novell.com)
  */
 
 #ifndef __CODECS_H__
 #define __CODECS_H__
-
-#include "win32structs.h"
-#include "gdipenums.h"
-
-typedef struct {
-	GUID	Guid;
-	ULONG	NumberOfValues;
-	ULONG	Type;
-	VOID*	Value;
-} EncoderParameter;
-
-typedef struct {
-	UINT Count;
-	EncoderParameter Parameter[1];
-} EncoderParameters;
-
-typedef struct {
-        CLSID Clsid;
-        GUID  FormatID;
-        const WCHAR* CodecName;
-        const WCHAR* DllName;
-        const WCHAR* FormatDescription;
-        const WCHAR* FilenameExtension;
-        const WCHAR* MimeType;
-        DWORD Flags;
-        DWORD Version;
-        DWORD SigCount;
-        DWORD SigSize;
-        const BYTE* SigPattern;
-        const BYTE* SigMask;
-} ImageCodecInfo;
 
 GpStatus WINGDIPAPI GdipGetImageDecodersSize (UINT *numDecoders, UINT *size);
 GpStatus WINGDIPAPI GdipGetImageDecoders (UINT numDecoders, UINT size, ImageCodecInfo *decoders);

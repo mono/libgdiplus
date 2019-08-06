@@ -26,10 +26,10 @@
  */
 
 #include "config.h"
-#include "gdiplus-private.h"
+#include "codecs-private.h"
+#include "jpegcodec.h"
 
 GUID gdip_jpg_image_format_guid = {0xb96b3caeU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e}};
-extern GUID GdipEncoderQuality;
 
 #ifdef HAVE_LIBJPEG
 
@@ -45,11 +45,9 @@ extern GUID GdipEncoderQuality;
 #include <libexif/exif-entry.h>
 #endif
 
-#include "jpegcodec.h"
-
 /* Codecinfo related data*/
 static ImageCodecInfo jpeg_codec;
-static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', 0}; /* Built-in JPEG */
+static const WCHAR jpeg_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'J', 'P', 'E', 'G', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in JPEG Codec */
 static const WCHAR jpeg_extension[] = {'*', '.', 'J', 'P','G', ';','*', '.', 'J','P', 'E', 'G', ';', '*',
         '.', 'J', 'P', 'E', ';', '*', '.', 'J', 'F','I','F', 0}; /* JPG;*.JPEG;*.JPE;*.JFIF */
 static const WCHAR jpeg_mimetype[] = {'i', 'm', 'a','g', 'e','/', 'j', 'p', 'e', 'g', 0}; /* image/png */
@@ -304,10 +302,15 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	cinfo.do_block_smoothing = FALSE;
 
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
+	if (!result) {
+		status = OutOfMemory;
+		goto error;
+	}
+
 	result->type = ImageTypeBitmap;
 	result->active_bitmap->width = cinfo.image_width;
 	result->active_bitmap->height = cinfo.image_height;
-	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize | ImageFlagsPartiallyScalable | ImageFlagsHasRealDPI;
+	result->active_bitmap->image_flags = ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 
 	if (cinfo.density_unit == 1) { /* dpi */
 		result->active_bitmap->dpi_horz = cinfo.X_density;
@@ -319,6 +322,9 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;
 	}
+
+	if (result->active_bitmap->dpi_horz && result->active_bitmap->dpi_vert)
+		result->active_bitmap->image_flags |= ImageFlagsHasRealDPI;
 
 	if (cinfo.num_components == 1) {
 		result->cairo_format = CAIRO_FORMAT_A8;
@@ -343,22 +349,16 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	switch (cinfo.jpeg_color_space) {
 	case JCS_GRAYSCALE:
 		result->active_bitmap->image_flags |= ImageFlagsColorSpaceGRAY;
-		if (cinfo.num_components == 1)
+		if (cinfo.num_components == 1) {
 			result->active_bitmap->palette = gdip_create_greyscale_palette (256);
-		break;
-	case JCS_RGB:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
-		break;
-	case JCS_YCbCr:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCBCR;
-		break;
-	case JCS_YCCK:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceYCCK;
-		break;
-	case JCS_CMYK:
-		result->active_bitmap->image_flags |= ImageFlagsColorSpaceCMYK;
+			if (!result->active_bitmap->palette) {				
+				status = OutOfMemory;
+				goto error;
+			}
+		}
 		break;
 	default:
+		result->active_bitmap->image_flags |= ImageFlagsColorSpaceRGB;
 		break;
 	}
 
@@ -387,7 +387,8 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 			cinfo.out_color_components = 1;
 			break;
 		}
-		/* else treat as RGB */
+		/* else treat as RGB and */
+		/* fall through */
 	case JCS_RGB:
 	case JCS_YCbCr:
 		cinfo.out_color_space = JCS_RGB;
@@ -477,20 +478,24 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					 * looks like BGR data. */
 					inptr -= 3;
 					outptr -= 4;
+					g_assert (inptr && outptr);
 					set_pixel_bgra(outptr, 0, inptr[2], inptr[1], inptr[0], 0xff);
 				}
 				/* keep last 2 lines in temporary variables */
 				if (width > 1) {
 					BYTE b2, g2, r2, b1, g1, r1;
 					inptr -= 3;
+					g_assert (inptr);
 					b2 = inptr[2];
 					g2 = inptr[1];
 					r2 = inptr[0];
 					inptr -= 3;
+					g_assert (inptr);
 					b1 = inptr[2];
 					g1 = inptr[1];
 					r1 = inptr[0];
 					outptr -= 4;
+					g_assert (outptr);
 					set_pixel_bgra(outptr, 0, b2, g2, r2, 0xff);
 					outptr -= 4;
 					set_pixel_bgra(outptr, 0, b1, g1, r1, 0xff);
@@ -498,10 +503,12 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					/* in case the jpeg has a single line */
 					BYTE b, g, r;
 					inptr -= 3;
+					g_assert (inptr);
 					b = inptr[2];
 					g = inptr[1];
 					r = inptr[0];
 					outptr -= 4;
+					g_assert (outptr);
 					set_pixel_bgra(outptr, 0, b, g, r, 0xff);
 				}
 			}
@@ -537,7 +544,7 @@ error:
 static void
 add_properties_from_entry (ExifEntry *entry, void *user_data)
 {
-	BitmapData *bitmap_data = (BitmapData *) user_data;
+	ActiveBitmapData *bitmap_data = (ActiveBitmapData *) user_data;
 
 	gdip_bitmapdata_property_add (bitmap_data, entry->tag, entry->size, entry->format, entry->data);
 }
@@ -551,7 +558,7 @@ add_properties_from_content (ExifContent *content, void *user_data)
 static void
 load_exif_data (ExifData *exif_data, GpImage *image)
 {
-	BitmapData *bitmap;
+	ActiveBitmapData *bitmap;
 
 	if (exif_data == NULL)
 		return;
@@ -845,8 +852,6 @@ error:
 		GdipFree (scanline);
 	}
 
-	return GenericError;
-
 	return status;
 }
 
@@ -908,49 +913,47 @@ gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 
 #endif
 
-/*
- * MS Jpeg supports:
- *   Quality (LongRange)
- *   Transformation (Long)
- *   LuminanceTable (Short)
- *   ChrominanceTable (Short)
- * For now, we're only going to export Quality.
- */
-
-UINT
-gdip_get_encoder_parameter_list_size_jpeg ()
-{
-	/* We'll need:
-	 *  4                              - count
-	 *  + sizeof(EncoderParameter) * 1 - number of param structs
-	 *  + sizeof(int) * 2              - param data (the two quality values)
-	 * and make sure the whole thing is 4-byte aligned (so we can index from the end)
-	 */
-	UINT sz = 4 + sizeof(EncoderParameter) * 1 + sizeof(int) * 2;
-	return (sz + 3) & ~3;
-}
-
 GpStatus
-gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size)
+gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *buffer, UINT size)
 {
-	BYTE *ucptr = (BYTE*) eps;
-	int *iptr;
+	JpegEncoderParameters *jpegBuffer = (JpegEncoderParameters *) buffer;
 
-	if (!eps || (size < gdip_get_encoder_parameter_list_size_jpeg ()) || ((size & 3) != 0))
+	if (!buffer || size != sizeof (JpegEncoderParameters))
 		return InvalidParameter;
 
-	eps->Count = 1;
+	jpegBuffer->count = 5;
 
-	/* Steal the last 8 bytes from the data space to hold our range values */
-	iptr = (int *) (ucptr + size - 8);
-	iptr[0] = 0;
-	iptr[1] = 100;
+	jpegBuffer->transformation.Guid = GdipEncoderTransformation;
+	jpegBuffer->transformation.NumberOfValues = 5;
+	jpegBuffer->transformation.Type = EncoderParameterValueTypeLong;
+	jpegBuffer->transformationData[0] = EncoderValueTransformRotate90;
+	jpegBuffer->transformationData[1] = EncoderValueTransformRotate180;
+	jpegBuffer->transformationData[2] = EncoderValueTransformRotate270;
+	jpegBuffer->transformationData[3] = EncoderValueTransformFlipHorizontal;
+	jpegBuffer->transformationData[4] = EncoderValueTransformFlipVertical;
+	jpegBuffer->transformation.Value = &jpegBuffer->transformationData;
 
-	eps->Parameter[0].Guid = GdipEncoderQuality;
-	eps->Parameter[0].NumberOfValues = 1;
-	eps->Parameter[0].Type = EncoderParameterValueTypeLongRange;
-	eps->Parameter[0].Value = iptr;
+	jpegBuffer->quality.Guid = GdipEncoderQuality;
+	jpegBuffer->quality.NumberOfValues = 1;
+	jpegBuffer->quality.Type = EncoderParameterValueTypeLongRange;
+	jpegBuffer->qualityRange[0] = 0;
+	jpegBuffer->qualityRange[1] = 100;
+	jpegBuffer->quality.Value = &jpegBuffer->qualityRange;
+
+	jpegBuffer->luminanceTable.Guid = GdipEncoderLuminanceTable;
+	jpegBuffer->luminanceTable.NumberOfValues = 0;
+	jpegBuffer->luminanceTable.Type = EncoderParameterValueTypeShort;
+	jpegBuffer->luminanceTable.Value = NULL;
+
+	jpegBuffer->chrominanceTable.Guid = GdipEncoderChrominanceTable;
+	jpegBuffer->chrominanceTable.NumberOfValues = 0;
+	jpegBuffer->chrominanceTable.Type = EncoderParameterValueTypeShort;
+	jpegBuffer->chrominanceTable.Value = NULL;
+
+	jpegBuffer->imageItems.Guid = GdipEncoderImageItems;
+	jpegBuffer->imageItems.NumberOfValues = 0;
+	jpegBuffer->imageItems.Type = 9; // Undocumented type.
+	jpegBuffer->imageItems.Value = NULL;
 
 	return Ok;
 }
-

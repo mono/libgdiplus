@@ -20,26 +20,34 @@
 *	Frederik Carlier <frederik.carlier@quamotion.mobi>
 */
 
-#include "win32_io.h"
+#include "win32-private.h"
 
-#include <windows.h>
-#include <stdio.h>
-#include "gdipenums.h"
+#include <Windows.h>
 
-int CreateTempFile (char *filename)
+FILE *CreateTempFile (char *filename)
 {
 	TCHAR temppath[MAX_PATH];
 	DWORD ret = 0;
 	
 	ret = GetTempPath (MAX_PATH, temppath);
 	if (ret > MAX_PATH || ret == 0) {
-		return FileNotFound;
+		return NULL;
 	}
 
 	ret = GetTempFileName (temppath, "ff", 0, (LPSTR)filename);
 	if (ret == 0) {
-		return FileNotFound;
+		return NULL;
 	}
 
-	return (int)(intptr_t)fopen (filename, "w");
+	return fopen (filename, "wb");
+}
+
+int gdip_get_display_dpi_win32 ()
+{
+	int dpis;
+	HDC dc;
+	dc = GetDC (0);
+	dpis = GetDeviceCaps (dc, LOGPIXELSX);
+	ReleaseDC (0, dc);
+	return dpis;
 }

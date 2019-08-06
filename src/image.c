@@ -32,6 +32,7 @@
 #include "gdiplus-private.h"
 #include "image-private.h"
 #include "imageattributes-private.h"
+#include "general-private.h"
 #include "graphics-private.h"
 #include "matrix.h"
 
@@ -62,8 +63,15 @@ GUID gdip_membmp_image_format_guid = {0xb96b3caaU, 0x0728U, 0x11d3U, {0x9d, 0x7b
 /*
  * encoder param guids
  */
-GUID GdipEncoderQuality = {0x1d5be4b5U, 0xfa4aU, 0x452dU, {0x9c, 0xdd, 0x5d, 0xb3, 0x51, 0x05, 0xe7, 0xeb}};
-GUID GdipEncoderCompression = {0xe09d739dU, 0xccd4U, 0x44eeU, {0x8e, 0xba, 0x3f, 0xbf, 0x8b, 0xe4, 0xfc, 0x58}};
+GUID GdipEncoderCompression = {0x0E09D739DU, 0x0CCD4U, 0x44EEU, {0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B, 0x0E4, 0x0FC, 0x58}};
+GUID GdipEncoderColorDepth = {0x66087055U, 0x0AD66U, 0x4C7CU, {0x9A, 0x18, 0x38, 0x0A2, 0x31, 0x0B, 0x83, 0x37}};
+GUID GdipEncoderSaveFlag = {0x292266FCU, 0x0AC40U, 0x47BFU, {0x8C, 0x0FC, 0x0A8, 0x5B, 0x89, 0x0A6, 0x55, 0x0DE}};
+GUID GdipEncoderSaveAsCMYK = {0x0A219BBC9U, 0x0A9DU, 0x4005U, {0x0A3, 0x0EE, 0x3A, 0x42, 0x1B, 0x8B, 0x0B0, 0x6C}};
+GUID GdipEncoderImageItems = {0x63875E13U, 0x1F1DU, 0x45ABU, {0x91, 0x95, 0x0A2, 0x9B, 0x60, 0x66, 0x0A6, 0x50}};
+GUID GdipEncoderTransformation = {0x8D0EB2D1U, 0x0A58EU, 0x4EA8U, {0x0AA, 0x14, 0x10, 0x80, 0x74, 0x0B7, 0x0B6, 0x0F9}};
+GUID GdipEncoderQuality = {0x1D5BE4B5U, 0x0FA4AU, 0x452DU, {0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5, 0x0E7, 0x0EB}};
+GUID GdipEncoderLuminanceTable = {0x0EDB33BCEU, 0x266U, 0x4A77U, {0x0B9, 0x4, 0x27, 0x21, 0x60, 0x99, 0x0E7, 0x17}};
+GUID GdipEncoderChrominanceTable = {0x0F2E455DCU, 0x9B3U, 0x4316U, {0x82, 0x60, 0x67, 0x6A, 0x0DA, 0x32, 0x48, 0x1C}};
 
 #define DECODERS_SUPPORTED 8
 #define ENCODERS_SUPPORTED 5
@@ -107,6 +115,9 @@ static const int nonplaceable_wmf_sig_size = 6;
 static BOOL
 signature_match (char *data, size_t data_size, int size, int count, BYTE* sig_pattern, BYTE* sig_mask)
 {
+	if (data_size < size)
+		return FALSE;
+
 	int sig;
 	for (sig = 0; sig < (size * count); sig += size) {
 		BOOL match = TRUE;
@@ -311,8 +322,15 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 				image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
 
 	gfx = gdip_graphics_new (surface);
+	if (!gfx)
+		return OutOfMemory;
+
 	gfx->dpi_x = image->active_bitmap->dpi_horz <= 0 ? gdip_get_display_dpi () : image->active_bitmap->dpi_horz;
 	gfx->dpi_y = image->active_bitmap->dpi_vert <= 0 ? gdip_get_display_dpi () : image->active_bitmap->dpi_vert;
+	gfx->bounds.Width = image->active_bitmap->width;
+	gfx->bounds.Height = image->active_bitmap->height;
+	gfx->orig_bounds.Width = image->active_bitmap->width;
+	gfx->orig_bounds.Height = image->active_bitmap->height;
 	cairo_surface_destroy (surface);
 
 	gfx->image = image;
@@ -327,32 +345,22 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 GpStatus WINGDIPAPI 
 GdipDrawImageI (GpGraphics *graphics, GpImage *image, INT x, INT y)
 {
-	if (!image)
-		return InvalidParameter;
-
-	switch (image->type) {
-	case ImageTypeBitmap: {
-		BitmapData *data = image->active_bitmap;
-		return GdipDrawImageRect (graphics, image, x, y, data->width, data->height);
-	}
-	case ImageTypeMetafile: {
-		MetafileHeader *metaheader = &((GpMetafile*)image)->metafile_header;
-		return GdipDrawImageRect (graphics, image, x, y, metaheader->Width, metaheader->Height);
-	}
-	default:
-		return InvalidParameter;
-	}
+	return GdipDrawImage (graphics, image, x, y);
 }
 
 GpStatus WINGDIPAPI 
 GdipDrawImage (GpGraphics *graphics, GpImage *image, REAL x, REAL y)
 {
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
 	if (!image)
 		return InvalidParameter;
 
 	switch (image->type) {
 	case ImageTypeBitmap: {
-		BitmapData *data = image->active_bitmap;
+		ActiveBitmapData *data = image->active_bitmap;
 		return GdipDrawImageRect (graphics, image, x, y, data->width, data->height);
 	}
 	case ImageTypeMetafile: {
@@ -382,11 +390,12 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	BYTE *premul = NULL;
 	cairo_surface_t *original = NULL;
 
-	if (!graphics || !image)
+	if (!graphics)
 		return InvalidParameter;
-
-	if ((width <= 0) || (height <= 0))
-		return Ok;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image)
+		return InvalidParameter;
 			
 	if (image->type == ImageTypeBitmap) {
 		/* check does not apply to metafiles, and it's better be done before converting the image */
@@ -404,6 +413,9 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 			return status;
 		}
 	}
+
+	if ((width == 0) || (height == 0))
+		return Ok;
 
 	/* conversion must be done after the recursive call to GdipDrawImageRect to remove the indexed bitmap */
 	if (!OPTIMIZE_CONVERSION (graphics)) {
@@ -430,11 +442,10 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 	
-	if (graphics->type != gtMemoryBitmap &&
-		gdip_bitmap_format_needs_premultiplication (image)) {
+	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
-			BitmapData *data = image->active_bitmap;
+			ActiveBitmapData *data = image->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
 															data->width, data->height, data->stride);
 		}
@@ -493,9 +504,15 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	MetafilePlayContext *metacontext = NULL;
 	BYTE *premul = NULL;
 	cairo_surface_t *original = NULL;
-	
-	if (!graphics || !image || !dstPoints || (count != 3))
+
+	if (!graphics || !dstPoints || count <= 0)
 		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image || (count != 3 && count != 4))
+		return InvalidParameter;
+	if (count == 4)
+		return NotImplemented;
 
 	cairo_new_path (graphics->ct);
 
@@ -527,7 +544,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 		metacontext = gdip_metafile_play_setup ((GpMetafile*)image, graphics, tRect.X, tRect.Y, tRect.Width, tRect.Height);
 
 		cairo_get_matrix (graphics->ct, &orig_matrix);
-		cairo_set_matrix (graphics->ct, matrix);
+		gdip_cairo_set_matrix (graphics, matrix);
 		status = gdip_metafile_play (metacontext);
 		GdipDeleteMatrix (matrix);
 
@@ -538,11 +555,10 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	/* Create a surface for this bitmap if one doesn't exist */
 	gdip_bitmap_ensure_surface (image);
 
-	if (graphics->type != gtMemoryBitmap &&
-		gdip_bitmap_format_needs_premultiplication (image)) {
+	if (gdip_bitmap_format_needs_premultiplication (image)) {
 		premul = gdip_bitmap_get_premultiplied_scan0 (image);
 		if (premul) {
-			BitmapData *data = image->active_bitmap;
+			ActiveBitmapData *data = image->active_bitmap;
 			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
 															data->width, data->height, data->stride);
 		}
@@ -559,7 +575,7 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	cairo_pattern_reference(org_pattern);
 	
 	cairo_get_matrix(graphics->ct, &orig_matrix);
-	cairo_set_matrix (graphics->ct, matrix);
+	gdip_cairo_set_matrix (graphics, matrix);
 	cairo_set_source_surface (graphics->ct, image->surface, 0, 0);
 	
 	cairo_paint (graphics->ct);	
@@ -581,18 +597,20 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 GpStatus WINGDIPAPI
 GdipDrawImagePointsI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint *dstPoints, INT count)
 {
-	GpPointF points[3];
-	int i;
-	
-	if (!dstPoints || (count != 3))
+	GpStatus status;
+	GpPointF *pointsF;
+
+	if (!dstPoints || count < 0)
 		return InvalidParameter;
 
-	for (i = 0; i < 3; i++) {
-		points[i].X = dstPoints[i].X;
-		points[i].Y = dstPoints[i].Y;
-	}
-	
-	return GdipDrawImagePoints (graphics, image, points, 3);
+	pointsF = convert_points (dstPoints, count);
+	if (!pointsF)
+		return OutOfMemory;
+
+	status = GdipDrawImagePoints (graphics, image, pointsF, count);
+
+	GdipFree (pointsF);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -618,6 +636,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
                        GDIPCONST GpImageAttributes *imageAttributes,
                        DrawImageAbort callback, void *callbackData)
 {
+	GpStatus status;
 	cairo_pattern_t	*pattern;
 	cairo_pattern_t	*orig;
 	cairo_matrix_t	mat;
@@ -628,7 +647,11 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	BYTE			*premul = NULL;
 	cairo_surface_t	*original = NULL;
 	
-	if (!graphics || !image)
+	if (!graphics)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image)
 		return InvalidParameter;
 
 	switch (srcUnit) {
@@ -649,15 +672,15 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	if (image->type == ImageTypeBitmap) {
 		if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
-			GpStatus status = OutOfMemory;
 			GpBitmap *rgb_bitmap = gdip_convert_indexed_to_rgb (image);
-			if (rgb_bitmap) {
-				status = GdipDrawImageRectRect (graphics, rgb_bitmap,
-					dstx, dsty, dstwidth, dstheight,
-					srcx, srcy, srcwidth, srcheight,
-					srcUnit, imageAttributes, callback, callbackData);
-				GdipDisposeImage (rgb_bitmap);
-			}
+			if (!rgb_bitmap)
+				return OutOfMemory;
+
+			status = GdipDrawImageRectRect (graphics, rgb_bitmap,
+				dstx, dsty, dstwidth, dstheight,
+				srcx, srcy, srcwidth, srcheight,
+				srcUnit, imageAttributes, callback, callbackData);
+			GdipDisposeImage (rgb_bitmap);
 
 			return status;
 		}
@@ -667,7 +690,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	/* see OPTIMIZE_CONVERSION in general.h */
-	if ((srcUnit != UnitPixel) && (srcUnit != UnitWorld) && ((srcUnit != UnitDisplay) || (graphics->type != gtPostScript))) {
+	if (srcUnit != UnitPixel && graphics->type != gtPostScript) {
 		dstx = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_x, graphics->type, dstx);
 		dsty = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_y, graphics->type, dsty);
 		dstwidth = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_x, graphics->type, dstwidth);
@@ -680,7 +703,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	org = dest = image->active_bitmap->scan0; 
 	org_format = image->active_bitmap->pixel_format;
-	gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
+	status = gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
+	if (status != Ok)
+		return status;
 
 	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
 	if (allocated) {
@@ -725,15 +750,22 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (flipXOn) {			
 			/* We're ok just cloning the bitmap, we don't need the image data
 			 * and we destroy it before we leave this function */
-			gdip_bitmap_clone (image, &imgflipX);
-			gdip_flip_x (imgflipX);	
+			status = gdip_bitmap_clone (image, &imgflipX);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_x (imgflipX);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipX);
+				return status;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipX);			
 
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipX)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipX)) {
 				premulX = gdip_bitmap_get_premultiplied_scan0 (imgflipX);
 				if (premulX) {
-					BitmapData *data = imgflipX->active_bitmap;
+					ActiveBitmapData *data = imgflipX->active_bitmap;
 					originalX = cairo_image_surface_create_for_data (premulX, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -744,15 +776,22 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipYOn) {			
-			gdip_bitmap_clone (image, &imgflipY);
-			gdip_flip_y (imgflipY);	
+			status = gdip_bitmap_clone (image, &imgflipY);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_y (imgflipY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipY);
+				return status;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipY);			
 			
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipY)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipY)) {
 				premulY = gdip_bitmap_get_premultiplied_scan0 (imgflipY);
 				if (premulY) {
-					BitmapData *data = imgflipY->active_bitmap;
+					ActiveBitmapData *data = imgflipY->active_bitmap;
 					originalY = cairo_image_surface_create_for_data (premulY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -763,16 +802,28 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipXOn && flipYOn) {			
-			gdip_bitmap_clone (image, &imgflipXY);
-			gdip_flip_x (imgflipXY);	
-			gdip_flip_y (imgflipXY);	
+			status = gdip_bitmap_clone (image, &imgflipXY);
+			if (status != Ok)
+				return status;
+
+			status = gdip_flip_x (imgflipXY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipXY);
+				return status;
+			}
+
+			status = gdip_flip_y (imgflipXY);
+			if (status != Ok) {
+				gdip_bitmap_dispose (imgflipXY);
+				return Ok;
+			}
+
 			gdip_bitmap_ensure_surface (imgflipXY);			
 
-			if (graphics->type != gtMemoryBitmap &&
-				gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
+			if (gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
 				premulXY = gdip_bitmap_get_premultiplied_scan0 (imgflipXY);
 				if (premulXY) {
-					BitmapData *data = imgflipXY->active_bitmap;
+					ActiveBitmapData *data = imgflipXY->active_bitmap;
 					originalXY = cairo_image_surface_create_for_data (premulXY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 				}
 			}
@@ -784,11 +835,10 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		gdip_bitmap_ensure_surface (image);
 
-		if (graphics->type != gtMemoryBitmap &&
-			gdip_bitmap_format_needs_premultiplication (image)) {
+		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
-				BitmapData *data = image->active_bitmap;
+				ActiveBitmapData *data = image->active_bitmap;
 				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 			}
 		}
@@ -880,11 +930,10 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		gdip_bitmap_ensure_surface (image);
 
-		if (graphics->type != gtMemoryBitmap &&
-			gdip_bitmap_format_needs_premultiplication (image)) {
+		if (gdip_bitmap_format_needs_premultiplication (image)) {
 			premul = gdip_bitmap_get_premultiplied_scan0 (image);
 			if (premul) {
-				BitmapData *data = image->active_bitmap;
+				ActiveBitmapData *data = image->active_bitmap;
 				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
 			}
 		}
@@ -963,9 +1012,30 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	GpMatrix *matrix = NULL;
 	cairo_matrix_t orig_matrix;
 
-	if (!graphics || !image || !points || (count < 3))
+	if (!graphics || !points || count <= 0)
 		return InvalidParameter;
-	if (count > 3)
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+	if (!image || (count != 3 && count != 4))
+		return InvalidParameter;
+
+	switch (srcUnit) {
+	case UnitPixel:
+		break;
+	case UnitPoint:
+	case UnitInch:
+	case UnitDocument:
+	case UnitMillimeter:
+		if (graphics->type != gtPostScript)
+			return NotImplemented; /* GDI+ returns the same */
+		break;
+	case UnitWorld:
+	case UnitDisplay:
+	default:
+		return InvalidParameter;
+	}
+
+	if (count == 4)
 		return NotImplemented;
 
 	rect.X = 0; 
@@ -980,15 +1050,18 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	}
 
 	status = GdipCreateMatrix3 (&rect, points, &matrix);
-	if (status == Ok) {
-		cairo_get_matrix (graphics->ct, &orig_matrix);
-		cairo_set_matrix (graphics->ct, matrix);
-		status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
-			srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
-		cairo_set_matrix (graphics->ct, &orig_matrix);
-	}
-	if (matrix)
+	if (status != Ok) {
 		GdipDeleteMatrix (matrix);
+		return status;
+	}
+
+	cairo_get_matrix (graphics->ct, &orig_matrix);
+	gdip_cairo_set_matrix (graphics, matrix);
+	status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
+		srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
+	cairo_set_matrix (graphics->ct, &orig_matrix);
+	
+	GdipDeleteMatrix (matrix);
 	return status;
 }
 
@@ -997,21 +1070,16 @@ GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoin
 	INT srcwidth, INT srcheight, GpUnit srcUnit, GDIPCONST GpImageAttributes *imageAttributes, DrawImageAbort callback,
 	void *callbackData)
 {
-	GpPointF pf[3];
+	GpPointF *pointsF;
 
-	if (!points || (count < 3))
+	if (!points || count < 0)
 		return InvalidParameter;
-	if (count > 3)
-		return NotImplemented;
 
-	pf[0].X = points[0].X;
-	pf[0].Y = points[0].Y;
-	pf[1].X = points[1].X;
-	pf[1].Y = points[1].Y;
-	pf[2].X = points[2].X;
-	pf[2].Y = points[2].Y;
+	pointsF = convert_points (points, count);
+	if (!pointsF)
+		return OutOfMemory;
 
-	return GdipDrawImagePointsRect (graphics, image, (GDIPCONST GpPointF*)&pf, count, srcx, srcy, srcwidth, srcheight, 
+	return GdipDrawImagePointsRect (graphics, image, pointsF, count, srcx, srcy, srcwidth, srcheight, 
 		srcUnit, imageAttributes, callback, callbackData);
 }
 
@@ -1021,6 +1089,9 @@ GdipDrawImagePointsRectI (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoin
 GpStatus WINGDIPAPI
 GdipLoadImageFromStream (void *stream, GpImage **image)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!stream || !image)
 		return InvalidParameter;
 
@@ -1053,11 +1124,14 @@ GdipLoadImageFromFile (GDIPCONST WCHAR *file, GpImage **image)
 	char		*file_name = NULL;
 	char		format_peek[MAX_CODEC_SIG_LENGTH];
 	int		format_peek_sz;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 	
 	if (!image || !file)
 		return InvalidParameter;
 	
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)file, -1);
 	if (!file_name) {
 		*image = NULL;
 		return InvalidParameter;
@@ -1171,7 +1245,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if (format == INVALID)
 		return UnknownImageFormat;
 	
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)file, -1);
 	if (file_name == NULL)
 		return InvalidParameter;
 	
@@ -1623,7 +1697,11 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 		}
 	}
 
-	rotated = GdipAlloc (target_height * target_stride);
+	unsigned long long int size = (unsigned long long int)target_height * target_stride;
+	if (size > G_MAXINT32)
+		return OutOfMemory;
+
+	rotated = GdipAlloc (size);
 
 	if (rotated == NULL) {
 		return OutOfMemory;
@@ -1701,7 +1779,11 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 		return gdip_flip_y(image);
 	}
 
-	rotated = GdipAlloc (target_height * target_stride);
+	unsigned long long int size = (unsigned long long int)target_height * target_stride;
+	if (size > G_MAXINT32)
+		return OutOfMemory;
+
+	rotated = GdipAlloc (size);
 	if (rotated == NULL) {
 		return OutOfMemory;
 	}
@@ -1902,7 +1984,6 @@ GdipImageRotateFlip (GpImage *image, RotateFlipType type)
 GpStatus WINGDIPAPI 
 GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 {
-	int palette_entries;
 	int bytes_needed;
 
 	if (!image || !palette)
@@ -1927,15 +2008,9 @@ GdipGetImagePalette (GpImage *image, ColorPalette *palette, INT size)
 		return Ok;
 	}
 
-	palette_entries = image->active_bitmap->palette->Count;
-
-	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
-		palette_entries = 16;
-
-	bytes_needed = (palette_entries - 1) * sizeof(ARGB) + sizeof(ColorPalette);
-	if (bytes_needed != size) {
+	GdipGetImagePaletteSize (image, &bytes_needed);
+	if (bytes_needed != size)
 		return InvalidParameter;
-	}
 
 	memcpy(palette, image->active_bitmap->palette, bytes_needed);
 	return Ok;
@@ -1975,16 +2050,13 @@ GdipGetImagePaletteSize (GpImage *image, INT* size)
 	int palette_entries;
 
 	if (!image || !size)
-			return InvalidParameter;
+		return InvalidParameter;
 
 	/* GDI+ doesn't support this for metafiles */
 	if (image->type != ImageTypeBitmap)
 		return GenericError;
 
 	palette_entries = (image->active_bitmap->palette) ? image->active_bitmap->palette->Count : 0;
-
-	if (image->active_bitmap->pixel_format == PixelFormat4bppIndexed)
-		palette_entries = 16;
 
 	if (palette_entries == 0)
 		*size = sizeof(ColorPalette);
@@ -2400,11 +2472,6 @@ initCodecList (void)
 	memcpy (epos, gdip_getcodecinfo_bmp (), sizeof (ImageCodecInfo));
 	epos += sizeof (ImageCodecInfo);
 	g_encoders++;
-
-	/* ICO codec (decoder-only) - built-in */
-	memcpy (dpos, gdip_getcodecinfo_ico (), sizeof (ImageCodecInfo));
-	dpos += sizeof (ImageCodecInfo);
-	g_decoders++;
 	
 	/* JPEG codec (encoder+decoder) */
 	if (gdip_getcodecinfo_jpeg ()) {
@@ -2424,6 +2491,20 @@ initCodecList (void)
 		memcpy (epos, gdip_getcodecinfo_gif (), sizeof (ImageCodecInfo));
 		epos += sizeof (ImageCodecInfo);
 		g_encoders++;
+	}
+
+	/* EMF codec (decoder-only) */
+	if (gdip_getcodecinfo_emf ()) {
+		memcpy (dpos, gdip_getcodecinfo_emf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
+	}
+
+	/* WMF codec (decoder-only) */
+	if (gdip_getcodecinfo_wmf ()) {
+		memcpy (dpos, gdip_getcodecinfo_wmf (), sizeof (ImageCodecInfo));
+		dpos += sizeof (ImageCodecInfo);
+		g_decoders++;
 	}
 	
 	/* TIFF codec (encoder+decoder) */
@@ -2446,19 +2527,10 @@ initCodecList (void)
 		g_encoders++;
 	}
 
-	/* WMF codec (decoder-only) */
-	if (gdip_getcodecinfo_wmf ()) {
-		memcpy (dpos, gdip_getcodecinfo_wmf (), sizeof (ImageCodecInfo));
-		dpos += sizeof (ImageCodecInfo);
-		g_decoders++;
-	}
-
-	/* EMF codec (decoder-only) */
-	if (gdip_getcodecinfo_emf ()) {
-		memcpy (dpos, gdip_getcodecinfo_emf (), sizeof (ImageCodecInfo));
-		dpos += sizeof (ImageCodecInfo);
-		g_decoders++;
-	}
+	/* ICO codec (decoder-only) - built-in */
+	memcpy (dpos, gdip_getcodecinfo_ico (), sizeof (ImageCodecInfo));
+	dpos += sizeof (ImageCodecInfo);
+	g_decoders++;
 
 	return Ok;
 }
@@ -2579,14 +2651,31 @@ GdipGetEncoderParameterListSize (GpImage *image, GDIPCONST CLSID *clsidEncoder, 
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
+		case TIF:
+			if (!size)
+				return InvalidParameter;
+
+			*size = sizeof (TiffEncoderParameters);
+			return Ok;
+		case GIF:
+			if (!size)
+				return InvalidParameter;
+
+			*size = sizeof (GifEncoderParameters);
+			return Ok;
+		case PNG:
+			if (!size)
+				return InvalidParameter;
+
+			*size = sizeof (PngEncoderParameters);
+			return Ok;
 		case JPEG:
 			if (!size)
 				return InvalidParameter;
 
-			*size = gdip_get_encoder_parameter_list_size_jpeg ();
+			*size = sizeof (JpegEncoderParameters);
 			return Ok;
 		case BMP:
-		case TIF:
 			*size = 0;
 			return NotImplemented;
 		default:
@@ -2607,12 +2696,14 @@ GdipGetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT
 	fmt = gdip_get_imageformat_from_codec_clsid ((CLSID *) clsidEncoder);
 
 	switch (fmt) {
-		case JPEG:
-			if (!buffer)
-				return InvalidParameter;
-
-			return gdip_fill_encoder_parameter_list_jpeg (buffer, size);
 		case TIF:
+			return gdip_fill_encoder_parameter_list_tiff (buffer, size);
+		case GIF:
+			return gdip_fill_encoder_parameter_list_gif (buffer, size);
+		case PNG:
+			return gdip_fill_encoder_parameter_list_png (buffer, size);
+		case JPEG:
+			return gdip_fill_encoder_parameter_list_jpeg (buffer, size);
 		case BMP:
 			return NotImplemented;
 		default:
@@ -2625,11 +2716,50 @@ GdipGetEncoderParameterList (GpImage *image, GDIPCONST CLSID *clsidEncoder, UINT
 GpStatus WINGDIPAPI
 GdipGetImageThumbnail (GpImage *image, UINT thumbWidth, UINT thumbHeight, GpImage **thumbImage, GetThumbnailImageAbort callback, VOID *callbackData)
 {
+	GpStatus status;
+	PixelFormat format;
+	GpImage *result;
+	GpGraphics *graphics;
+
 	if (!image || !thumbImage)
 		return InvalidParameter;
 
-	/* We don't really need to implement this; we've got it handled in System.Drawing directly */
-	return NotImplemented;
+	if (!thumbWidth && !thumbHeight)
+		thumbWidth = thumbHeight = 120;
+	else if (!thumbWidth || !thumbHeight)
+		return OutOfMemory;
+
+	switch (image->type) {
+	case ImageTypeBitmap:
+		format = PixelFormat32bppPARGB;
+		break;
+	case ImageTypeMetafile:
+		format = PixelFormat32bppARGB;
+		break;
+	default:
+		return InvalidParameter;
+	}
+
+	status = GdipCreateBitmapFromScan0 (thumbWidth, thumbHeight, 0, format, NULL, (GpBitmap **) &result);
+	if (status != Ok)
+		return status;
+
+	status = GdipGetImageGraphicsContext (result, &graphics);
+	if (status != Ok) {
+		GdipDisposeImage (result);
+		return status;
+	}
+
+	status = GdipDrawImageRectI (graphics, image, 0, 0, thumbWidth, thumbHeight);
+	if (status != Ok) {
+		GdipDisposeImage (result);
+		GdipDeleteGraphics (graphics);
+		return status;
+	}
+
+	GdipDeleteGraphics (graphics);
+	*thumbImage = result;
+	return Ok;
 }
 
 /* coverity[+alloc : arg-*1] */

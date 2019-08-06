@@ -33,6 +33,8 @@ libgdiplus_la_SOURCES = \
 	gdiplus-private.h		\
 	gdip.h				\
 	gdipenums.h			\
+	gdiplusimaging.h			\
+	gdipluspixelformats.h			\
 	gdipstructs.h			\
 	general.c			\
 	general.h			\
@@ -127,6 +129,6 @@ endif
 
 libgdiplus_la_LIBADD = $(GDIPLUS_LIBS)
 
-AM_CPPFLAGS = $(GDIPLUS_CFLAGS) -Wall -Wno-unused -Wno-format
+AM_CPPFLAGS = $(GDIPLUS_CFLAGS)
 
-EXTRA_DIST = libgdiplus.vcxproj packages.config
+EXTRA_DIST = libgdiplus.vcxproj

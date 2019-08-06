@@ -40,23 +40,25 @@ GpStatus WINGDIPAPI GdipCombineRegionPath(GpRegion *region, GpPath *path, Combin
 GpStatus WINGDIPAPI GdipCombineRegionRegion(GpRegion *region,  GpRegion *region2, CombineMode combineMode);
 
 GpStatus WINGDIPAPI GdipGetRegionBounds(GpRegion *region, GpGraphics *graphics, GpRectF *rect);
+GpStatus WINGDIPAPI GdipGetRegionHRgn(GpRegion *region, GpGraphics *graphics, HRGN *hRgn);
 GpStatus WINGDIPAPI GdipIsEmptyRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
 GpStatus WINGDIPAPI GdipIsInfiniteRegion(GpRegion *region, GpGraphics *graphics, BOOL *result);
 
-GpStatus WINGDIPAPI GdipIsVisibleRegionPoint(GpRegion *region, float x, float y, GpGraphics *graphics, BOOL *result);
-GpStatus WINGDIPAPI GdipIsVisibleRegionPointI(GpRegion *region, int x, int y, GpGraphics *graphics, BOOL *result);
-GpStatus WINGDIPAPI GdipIsVisibleRegionRect(GpRegion *region, float x, float y, float width, float height, GpGraphics *graphics, BOOL *result);
-GpStatus WINGDIPAPI GdipIsVisibleRegionRectI(GpRegion *region, int x, int y, int width, int height, GpGraphics *graphics, BOOL *result);
+GpStatus WINGDIPAPI GdipIsVisibleRegionPoint(GpRegion *region, REAL x, REAL y, GpGraphics *graphics, BOOL *result);
+GpStatus WINGDIPAPI GdipIsVisibleRegionPointI(GpRegion *region, INT x, INT y, GpGraphics *graphics, BOOL *result);
+GpStatus WINGDIPAPI GdipIsVisibleRegionRect(GpRegion *region, REAL x, REAL y, REAL width, REAL height, GpGraphics *graphics, BOOL *result);
+GpStatus WINGDIPAPI GdipIsVisibleRegionRectI(GpRegion *region, INT x, INT y, INT width, INT height, GpGraphics *graphics, BOOL *result);
 
-GpStatus WINGDIPAPI GdipGetRegionScansCount(GpRegion *region, int* count, GpMatrix* matrix);
-GpStatus WINGDIPAPI GdipGetRegionScans(GpRegion *region, GpRectF* rects, int* count, GpMatrix* matrix);
+GpStatus WINGDIPAPI GdipGetRegionScansCount(GpRegion *region, UINT *count, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipGetRegionScans(GpRegion *region, GpRectF *rects, INT *count, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipGetRegionScansI(GpRegion *region, GpRect *rects, INT *count, GpMatrix *matrix);
 
 GpStatus WINGDIPAPI GdipIsEqualRegion(GpRegion *region, GpRegion *region2, GpGraphics *graphics, BOOL *result);
 GpStatus WINGDIPAPI GdipGetRegionDataSize(GpRegion *region, UINT * bufferSize);
 GpStatus WINGDIPAPI GdipGetRegionData(GpRegion *region, BYTE * buffer, UINT bufferSize, UINT *sizeFilled);
 
-GpStatus WINGDIPAPI GdipTranslateRegion(GpRegion *region, float dx, float dy);
-GpStatus WINGDIPAPI GdipTranslateRegionI(GpRegion *region, int dx, int dy);
+GpStatus WINGDIPAPI GdipTranslateRegion(GpRegion *region, REAL dx, REAL dy);
+GpStatus WINGDIPAPI GdipTranslateRegionI(GpRegion *region, INT dx, INT dy);
 GpStatus WINGDIPAPI GdipTransformRegion(GpRegion *region, GpMatrix *matrix);
 
 #endif

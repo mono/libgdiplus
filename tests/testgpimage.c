@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -89,7 +89,7 @@ static void test_loadImageFromStreamICM ()
 	status = GdipLoadImageFromStreamICM (NULL, &image);
 	assertEqualInt (status, InvalidParameter);
 
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	int temp = 0;
 
 	status = GdipLoadImageFromStreamICM (&temp, NULL);
@@ -124,21 +124,11 @@ static void test_loadImageFromFileICM ()
 	freeWchar (invalidFile);
 }
 
-static void test_loadImageFromFileBmp ()
-{
-	GpImage *image = getImage ("test.bmp");
-
-	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyImage (image, ImageTypeBitmap, bmpRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 0, FALSE);
-
-	GdipDisposeImage (image);
-}
-
 static void test_loadImageFromFileTif ()
 {
 	GpImage *image = getImage ("test.tif");
 
-	verifyImage (image, ImageTypeBitmap, tifRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 19, TRUE);
+	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 19, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -147,7 +137,7 @@ static void test_loadImageFromFileGif ()
 {
 	GpImage *image = getImage ("test.gif");
 
-	verifyImage (image, ImageTypeBitmap, gifRawFormat, PixelFormat8bppIndexed, 0, 0, 100, 68, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4, TRUE);
+	verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 4, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -156,7 +146,7 @@ static void test_loadImageFromFilePng ()
 {
 	GpImage *image = getImage ("test.png");
 
-	verifyImage (image, ImageTypeBitmap, pngRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 5, TRUE);
+	verifyBitmap (image, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -165,8 +155,7 @@ static void test_loadImageFromFileJpg ()
 {
 	GpImage *image = getImage ("test.jpg");
 
-	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyImage (image, ImageTypeBitmap, jpegRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (image, jpegRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -175,7 +164,7 @@ static void test_loadImageFromFileIcon ()
 {
 	GpImage *image = getImage ("test.ico");
 
-	verifyImage (image, ImageTypeBitmap, icoRawFormat, PixelFormat32bppARGB, 0, 0, 48, 48, 48, 48, 73746, 0, TRUE);
+	verifyBitmap (image, icoRawFormat, PixelFormat32bppARGB, 48, 48, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 0, TRUE);
 
 	GdipDisposeImage (image);
 }
@@ -184,7 +173,7 @@ static void test_loadImageFromFileWmf ()
 {
 	GpImage *image = getImage ("test.wmf");
 
-	verifyImage (image, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f, 327683, 0, TRUE);
+	verifyMetafile (image, wmfRawFormat, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 
 	GdipDisposeImage (image);
 }
@@ -193,7 +182,7 @@ static void test_loadImageFromFileEmf ()
 {
 	GpImage *image = getImage ("test.emf");
 
-	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 100, 100, 1944.444336f, 1888.888794f, 327683, 0, TRUE);
+	verifyMetafile (image, emfRawFormat, 0, 0, 100, 100, 1944.444336f, 1888.888794f);
 
 	GdipDisposeImage (image);
 }
@@ -210,23 +199,21 @@ static void test_cloneImage ()
 	status = GdipCloneImage (bitmapImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != bitmapImage);
-	// FIXME: bmp image flags are wrong in libgdiplus.
-	verifyImage (clonedImage, ImageTypeBitmap, bmpRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 77840, 0, FALSE);
+	verifyBitmap (clonedImage, bmpRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeBitmap - jpg.
 	status = GdipCloneImage (jpgImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != jpgImage);
-	// FIXME: jpg image flags are wrong in libgdiplus.
-	verifyImage (clonedImage, ImageTypeBitmap, jpegRawFormat, PixelFormat24bppRGB, 0, 0, 100, 68, 100, 68, 73744, 2, FALSE);
+	verifyBitmap (clonedImage, jpegRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2, TRUE);
 	GdipDisposeImage (clonedImage);
 
 	// ImageTypeMetafile.
 	status = GdipCloneImage (metafileImage, &clonedImage);
 	assertEqualInt (status, Ok);
 	assert (clonedImage && clonedImage != metafileImage);
-	verifyImage (clonedImage, ImageTypeMetafile, wmfRawFormat, PixelFormat32bppRGB, -4008, -3378, 8016, 6756, 20360.638672f, 17160.238281f, 327683, 0, TRUE);
+	verifyMetafile (clonedImage, wmfRawFormat, -4008, -3378, 8016, 6756, 20360.638672f, 17160.238281f);
 	GdipDisposeImage (clonedImage);
 
 	// Negative tests.
@@ -473,37 +460,69 @@ static void test_getImageThumbnail ()
 {
 	GpStatus status;
 	GpImage *bitmapImage = getImage ("test.bmp");
-	GpImage *metafileImage = getImage ("test.wmf");
+	GpImage *wmfImage = getImage ("test.wmf");
+	GpImage *emfImage = getImage ("test.emf");
 	GpImage *thumbImage;
 
-#if defined(USE_WINDOWS_GDIPLUS)
 	// ImageTypeBitmap - non zero width and height.
 	status = GdipGetImageThumbnail (bitmapImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 0, 0, 10, 10, 10, 10, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+	
+	// ImageTypeBitmap - width > height.
+	status = GdipGetImageThumbnail (bitmapImage, 20, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+	
+	// ImageTypeBitmap - height > width.
+	status = GdipGetImageThumbnail (bitmapImage, 10, 20, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 10, 20, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeBitmap - zero width and height.
 	status = GdipGetImageThumbnail (bitmapImage, 0, 0, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 0, 0, 120, 120, 120, 120, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 120, 120, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
 	// ImageTypeMetafile - non zero width and height.
-	status = GdipGetImageThumbnail (metafileImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	status = GdipGetImageThumbnail (wmfImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 0, 0, 10, 10, 10, 10, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
 
-	// ImageTypeMetafile - zero width and height.
-	status = GdipGetImageThumbnail (metafileImage, 0, 0, &thumbImage, NULL, NULL);
+	// ImageTypeMetafile - width > height.
+	status = GdipGetImageThumbnail (wmfImage, 20, 10, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
-	verifyImage (thumbImage, ImageTypeBitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 0, 0, 120, 120, 120, 120, 2, 0, TRUE);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
-#else
-	status = GdipGetImageThumbnail (metafileImage, 0, 0, &thumbImage, NULL, NULL);
-	assert (status == NotImplemented);
-#endif
+	
+	// ImageTypeMetafile - height > width.
+	status = GdipGetImageThumbnail (wmfImage, 10, 20, &thumbImage, NULL, NULL);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 20, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+
+	// ImageTypeMetafile - non zero width and height.
+	status = GdipGetImageThumbnail (emfImage, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+
+	// ImageTypeMetafile - width > height.
+	status = GdipGetImageThumbnail (emfImage, 20, 10, &thumbImage, NULL, NULL);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
+	
+	// ImageTypeMetafile - height > width.
+	status = GdipGetImageThumbnail (emfImage, 10, 20, &thumbImage, NULL, NULL);
+	assertEqualInt (status, Ok);
+	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 10, 20, ImageFlagsHasAlpha, 0, TRUE);
+	GdipDisposeImage (thumbImage);
 
 	// Negative tests.
 	status = GdipGetImageThumbnail (NULL, 10, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
@@ -511,9 +530,40 @@ static void test_getImageThumbnail ()
 
 	status = GdipGetImageThumbnail (bitmapImage, 10, 10, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetImageThumbnail (bitmapImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (wmfImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (emfImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+	
+	status = GdipGetImageThumbnail (NULL, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetImageThumbnail (bitmapImage, 0, 10, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetImageThumbnail (bitmapImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (wmfImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+
+	status = GdipGetImageThumbnail (emfImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, OutOfMemory);
+	
+	status = GdipGetImageThumbnail (NULL, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, InvalidParameter);
+	
+	status = GdipGetImageThumbnail (bitmapImage, 10, 0, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
+	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (bitmapImage);
-	GdipDisposeImage (metafileImage);
+	GdipDisposeImage (wmfImage);
+	GdipDisposeImage (emfImage);
 }
 
 static void test_getEncoderParameterListSize ()
@@ -526,32 +576,20 @@ static void test_getEncoderParameterListSize ()
 	assertEqualInt (status, NotImplemented);
 
 	status = GdipGetEncoderParameterListSize (image, &tifEncoderClsid, &size);
-	// FIXME: this returns NotImplemented with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, is_32bit() ? 164 : 184);
-#endif
+	assertEqualInt (size, (is_32bit() ? 164 : 184));
 
 	status = GdipGetEncoderParameterListSize (image, &gifEncoderClsid, &size);
-	// FIXME: this returns FileNotFound with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, is_32bit() ? 64 : 80);
-#endif
+	assertEqualInt (size, (is_32bit() ? 64 : 80));
 
 	status = GdipGetEncoderParameterListSize (image, &pngEncoderClsid, &size);
-	// FIXME: this returns FileNotFound with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, is_32bit() ? 32 : 40);
-#endif
+	assertEqualInt (size, (is_32bit() ? 32 : 40));
 
 	status = GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-	// FIXME: this returns 44 with libgdiplus.
-#if defined(USE_WINDOWS_GDIPLUS)
-	assertEqualInt (size, is_32bit() ? 172 : 200);
-#endif
+	assertEqualInt (size, (is_32bit() ? 172 : 200));
 
 	status = GdipGetEncoderParameterListSize (image, &icoEncoderClsid, &size);
 	assertEqualInt (status, FileNotFound);
@@ -582,10 +620,128 @@ static void test_getEncoderParameterList ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
+	UINT tiffSize;
+	UINT gifSize;
+	UINT pngSize;
+	UINT jpegSize;
 	EncoderParameters buffer;
-	UINT size;
+	EncoderParameters *parameters;
+	GUID compression = {0x0E09D739D, 0x0CCD4, 0x44EE, {0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B, 0x0E4, 0x0FC, 0x58}};
+	GUID colorDepth = {0x66087055, 0x0AD66, 0x4C7C, {0x9A, 0x18, 0x38, 0x0A2, 0x31, 0x0B, 0x83, 0x37}};
+	GUID saveFlag = {0x292266FC, 0x0AC40, 0x47BF, {0x8C, 0x0FC, 0x0A8, 0x5B, 0x89, 0x0A6, 0x55, 0x0DE}};
+	GUID saveAsCMYK = {0x0A219BBC9, 0x0A9D, 0x4005, {0x0A3, 0x0EE, 0x3A, 0x42, 0x1B, 0x8B, 0x0B0, 0x6C}};
+	GUID imageItems = {0x63875E13, 0x1F1D, 0x45AB, {0x91, 0x95, 0x0A2, 0x9B, 0x60, 0x66, 0x0A6, 0x50}};
+	GUID transformation = {0x8D0EB2D1, 0x0A58E, 0x4EA8, {0x0AA, 0x14, 0x10, 0x80, 0x74, 0x0B7, 0x0B6, 0x0F9}};
+	GUID quality = {0x1D5BE4B5, 0x0FA4A, 0x452D, {0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5, 0x0E7, 0x0EB}};
+	GUID luminanceTable = {0x0EDB33BCE, 0x266, 0x4A77, {0x0B9, 0x4, 0x27, 0x21, 0x60, 0x99, 0x0E7, 0x17}};
+	GUID chrominanceTable = {0x0F2E455DC, 0x9B3, 0x4316, {0x82, 0x60, 0x67, 0x6A, 0x0DA, 0x32, 0x48, 0x1C}};
 
-	GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &size);
+	// TIFF encoder.
+	GdipGetEncoderParameterListSize (image, &tifEncoderClsid, &tiffSize);
+	parameters = (EncoderParameters *) malloc (tiffSize);
+
+	status = GdipGetEncoderParameterList (image, &tifEncoderClsid, tiffSize, parameters);
+	assertEqualInt (status, Ok);
+	assertEqualInt (parameters->Count, 4);
+
+	assert (memcmp ((void *) &parameters->Parameter[0].Guid, (void *) &compression, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[0].NumberOfValues, 5);
+	assertEqualInt (parameters->Parameter[0].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[0], EncoderValueCompressionLZW);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[1], EncoderValueCompressionCCITT3);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[2], EncoderValueCompressionRle);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[3], EncoderValueCompressionCCITT4);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[4], EncoderValueCompressionNone);
+
+	assert (memcmp ((void *) &parameters->Parameter[1].Guid, (void *) &colorDepth, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[1].NumberOfValues, 5);
+	assertEqualInt (parameters->Parameter[1].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[0], 1);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[1], 4);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[2], 8);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[3], 24);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[4], 32);
+
+	assert (memcmp ((void *) &parameters->Parameter[2].Guid, (void *) &saveFlag, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[2].NumberOfValues, 1);
+	assertEqualInt (parameters->Parameter[2].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[2].Value)[0], EncoderValueMultiFrame);
+
+	assert (memcmp ((void *) &parameters->Parameter[3].Guid, (void *) &saveAsCMYK, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[3].NumberOfValues, 1);
+	assertEqualInt (parameters->Parameter[3].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[3].Value)[0], 1);
+
+	free (parameters);
+
+	// GIF encoder.
+	GdipGetEncoderParameterListSize (image, &gifEncoderClsid, &gifSize);
+	parameters = (EncoderParameters *) malloc (gifSize);
+
+	status = GdipGetEncoderParameterList (image, &gifEncoderClsid, gifSize, parameters);
+	assertEqualInt (status, Ok);
+	assertEqualInt (parameters->Count, 2);
+
+	assert (memcmp ((void *) &parameters->Parameter[0].Guid, (void *) &imageItems, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[0].NumberOfValues, 0);
+	assertEqualInt (parameters->Parameter[0].Type, (EncoderParameterValueType) 9);
+	assert (!parameters->Parameter[0].Value);
+
+	assert (memcmp ((void *) &parameters->Parameter[1].Guid, (void *) &saveFlag, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[1].NumberOfValues, 1);
+	assertEqualInt (parameters->Parameter[1].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[0], EncoderValueMultiFrame);
+
+	// PNG encoder.
+	GdipGetEncoderParameterListSize (image, &pngEncoderClsid, &pngSize);
+	parameters = (EncoderParameters *) malloc (pngSize);
+
+	status = GdipGetEncoderParameterList (image, &pngEncoderClsid, pngSize, parameters);
+	assertEqualInt (status, Ok);
+	assertEqualInt (parameters->Count, 1);
+
+	assert (memcmp ((void *) &parameters->Parameter[0].Guid, (void *) &imageItems, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[0].NumberOfValues, 0);
+	assertEqualInt (parameters->Parameter[0].Type, (EncoderParameterValueType) 9);
+	assert (!parameters->Parameter[0].Value);
+
+	// JPEG encoder.
+	GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &jpegSize);
+	parameters = (EncoderParameters *) malloc (jpegSize);
+
+	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, jpegSize, parameters);
+	assertEqualInt (status, Ok);
+	assertEqualInt (parameters->Count, 5);
+
+	assert (memcmp ((void *) &parameters->Parameter[0].Guid, (void *) &transformation, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[0].NumberOfValues, 5);
+	assertEqualInt (parameters->Parameter[0].Type, EncoderParameterValueTypeLong);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[0], EncoderValueTransformRotate90);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[1], EncoderValueTransformRotate180);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[2], EncoderValueTransformRotate270);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[3], EncoderValueTransformFlipHorizontal);
+	assertEqualInt (((LONG *) parameters->Parameter[0].Value)[4], EncoderValueTransformFlipVertical);
+
+	assert (memcmp ((void *) &parameters->Parameter[1].Guid, (void *) &quality, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[1].NumberOfValues, 1);
+	assertEqualInt (parameters->Parameter[1].Type, EncoderParameterValueTypeLongRange);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[0], 0);
+	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[1], 100);
+
+	assert (memcmp ((void *) &parameters->Parameter[2].Guid, (void *) &luminanceTable, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[2].NumberOfValues, 0);
+	assertEqualInt (parameters->Parameter[2].Type, EncoderParameterValueTypeShort);
+	assert (!parameters->Parameter[2].Value);
+
+	assert (memcmp ((void *) &parameters->Parameter[3].Guid, (void *) &chrominanceTable, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[3].NumberOfValues, 0);
+	assertEqualInt (parameters->Parameter[3].Type, EncoderParameterValueTypeShort);
+	assert (!parameters->Parameter[3].Value);
+
+	assert (memcmp ((void *) &parameters->Parameter[4].Guid, (void *) &imageItems, sizeof (GUID)) == 0);
+	assertEqualInt (parameters->Parameter[4].NumberOfValues, 0);
+	assertEqualInt (parameters->Parameter[4].Type, (EncoderParameterValueType) 9);
+	assert (!parameters->Parameter[4].Value);
 
 	// Negative tests.
 	status = GdipGetEncoderParameterList (NULL, &emfEncoderClsid, 100, &buffer);
@@ -597,6 +753,15 @@ static void test_getEncoderParameterList ()
 	status = GdipGetEncoderParameterList (image, &emfEncoderClsid, 100, NULL);
 	assertEqualInt (status, FileNotFound);
 
+	status = GdipGetEncoderParameterList (image, &tifEncoderClsid, 100, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &gifEncoderClsid, 100, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &pngEncoderClsid, 100, NULL);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, 100, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -606,8 +771,41 @@ static void test_getEncoderParameterList ()
 	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, -1, &buffer);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, size - 1, &buffer);
+	status = GdipGetEncoderParameterList (image, &tifEncoderClsid, tiffSize - 1, &buffer);
 	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &tifEncoderClsid, tiffSize + 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &gifEncoderClsid, gifSize - 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &gifEncoderClsid, gifSize + 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &pngEncoderClsid, pngSize - 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &pngEncoderClsid, pngSize + 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, jpegSize - 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &jpegEncoderClsid, jpegSize + 1, &buffer);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetEncoderParameterList (image, &bmpEncoderClsid, 0, &buffer);
+	assertEqualInt (status, NotImplemented);
+
+	status = GdipGetEncoderParameterList (image, &icoEncoderClsid, 0, &buffer);
+	assertEqualInt (status, FileNotFound);
+
+	status = GdipGetEncoderParameterList (image, &wmfEncoderClsid, 0, &buffer);
+	assertEqualInt (status, FileNotFound);
+
+	status = GdipGetEncoderParameterList (image, &emfEncoderClsid, 0, &buffer);
+	assertEqualInt (status, FileNotFound);
 
 	GdipDisposeImage (image);
 }
@@ -1417,15 +1615,12 @@ static void test_setPropertyItem()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_loadImageFromStream ();
 	test_loadImageFromFile ();
 	test_loadImageFromStreamICM ();
 	test_loadImageFromFileICM ();
-	test_loadImageFromFileBmp ();
 	test_loadImageFromFileTif ();
 	test_loadImageFromFileGif ();
 	test_loadImageFromFilePng ();
@@ -1467,6 +1662,6 @@ main (int argc, char**argv)
 	test_removePropertyItem ();
 	test_setPropertyItem ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

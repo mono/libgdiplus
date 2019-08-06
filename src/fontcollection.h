@@ -33,12 +33,12 @@
 
 /* FontCollection public API (only!) */
 
-GpStatus WINGDIPAPI GdipDeletePrivateFontCollection (GpFontCollection** fontCollection);
-GpStatus WINGDIPAPI GdipGetFontCollectionFamilyCount (GpFontCollection* fontCollection, INT* numFound);
-GpStatus WINGDIPAPI GdipGetFontCollectionFamilyList (GpFontCollection* fontCollection, INT numSought, GpFontFamily* gpfamilies[], INT* numFound);
-GpStatus WINGDIPAPI GdipNewInstalledFontCollection (GpFontCollection** fontCollection);
-GpStatus WINGDIPAPI GdipNewPrivateFontCollection (GpFontCollection** fontCollection);
-GpStatus WINGDIPAPI GdipPrivateAddFontFile (GpFontCollection* fontCollection, GDIPCONST WCHAR* filename);
+GpStatus WINGDIPAPI GdipDeletePrivateFontCollection (GpFontCollection **fontCollection);
+GpStatus WINGDIPAPI GdipGetFontCollectionFamilyCount (GpFontCollection *fontCollection, INT *numFound);
+GpStatus WINGDIPAPI GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought, GpFontFamily *gpfamilies[], INT *numFound);
+GpStatus WINGDIPAPI GdipNewInstalledFontCollection (GpFontCollection **fontCollection);
+GpStatus WINGDIPAPI GdipNewPrivateFontCollection (GpFontCollection **fontCollection);
+GpStatus WINGDIPAPI GdipPrivateAddFontFile (GpFontCollection *fontCollection, GDIPCONST WCHAR *filename);
 GpStatus WINGDIPAPI GdipPrivateAddMemoryFont (GpFontCollection *fontCollection, GDIPCONST void *memory, INT length);
 
 #endif

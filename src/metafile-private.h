@@ -46,8 +46,6 @@
 #define METAOBJECT_TYPE_PEN	1
 #define METAOBJECT_TYPE_BRUSH	2
 
-#define GDIP_EMFPLUS_RECORD_BASE	16384
-
 #define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
@@ -114,10 +112,17 @@ typedef struct {
 	GpPointF *points;
 } PointFList;
 
+typedef struct {
+	DWORD	cbPixelFormat;
+	DWORD	offPixelFormat;
+	DWORD	bOpenGL;
+} HeaderExtension1;
 
 GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source) GDIP_INTERNAL;
 GpStatus gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile) GDIP_INTERNAL;
 GpStatus gdip_metafile_dispose (GpMetafile *metafile) GDIP_INTERNAL;
+
+GpStatus gdip_get_bitmap_from_metafile (GpMetafile *metafile, INT width, INT height, GpImage **thumbnail) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_stop_recording (GpMetafile *metafile) GDIP_INTERNAL;
 
@@ -158,6 +163,8 @@ GpStatus gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenSt
 GpStatus gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch) GDIP_INTERNAL;
 GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
 	int xstart, int ystart, int xend, int yend) GDIP_INTERNAL;
+GpStatus gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int rightRect, int topRect, int leftRect) GDIP_INTERNAL;
+GpStatus gdip_metafile_SetPixel (MetafilePlayContext *context, DWORD color, int x, int y) GDIP_INTERNAL;
 GpStatus gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
 	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
 	UINT iUsage, DWORD dwRop) GDIP_INTERNAL;

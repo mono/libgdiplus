@@ -24,7 +24,16 @@ GpStatus gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image) G
 GpStatus gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image, 
 	GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
-
 ImageCodecInfo *gdip_getcodecinfo_gif () GDIP_INTERNAL;
+
+GpStatus gdip_fill_encoder_parameter_list_gif (EncoderParameters *buffer, UINT size) GDIP_INTERNAL;
+
+typedef struct
+{
+  UINT count;
+  EncoderParameter imageItems;
+  EncoderParameter saveFlag;
+  LONG saveFlagValue;
+} GifEncoderParameters;
 
 #endif /* _GIFCODEC_H */

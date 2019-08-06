@@ -66,7 +66,7 @@ GpStatus WINGDIPAPI GdipGetImageBounds (GpImage *image, GpRectF *srcRect, GpUnit
 GpStatus WINGDIPAPI GdipGetImageDimension (GpImage *image, REAL *width, REAL *height);
 GpStatus WINGDIPAPI GdipGetImageType (GpImage *image, ImageType *type);
 GpStatus WINGDIPAPI GdipGetImageWidth (GpImage *image, UINT *width);
-GpStatus WINGDIPAPI GdipGetImageHeight (GpImage *image, UINT *heigth);
+GpStatus WINGDIPAPI GdipGetImageHeight (GpImage *image, UINT *height);
 GpStatus WINGDIPAPI GdipGetImageHorizontalResolution (GpImage *image, REAL *resolution);
 GpStatus WINGDIPAPI GdipGetImageVerticalResolution (GpImage *image, REAL *resolution);
 GpStatus WINGDIPAPI GdipGetImageFlags (GpImage *image, UINT *flags);

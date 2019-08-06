@@ -49,7 +49,7 @@ GpStatus WINGDIPAPI GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIP
 GpStatus WINGDIPAPI GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect);
 GpStatus WINGDIPAPI GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect);
 
-GpStatus WINGDIPAPI GdipGetPathGradientPointCount (GpPathGradient *brush, INT* count);
+GpStatus WINGDIPAPI GdipGetPathGradientPointCount (GpPathGradient *brush, INT *count);
 
 GpStatus WINGDIPAPI GdipSetPathGradientGammaCorrection (GpPathGradient *brush, BOOL useGammaCorrection);
 GpStatus WINGDIPAPI GdipGetPathGradientGammaCorrection (GpPathGradient *brush, BOOL *useGammaCorrection);

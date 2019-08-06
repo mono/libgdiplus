@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -31,6 +31,7 @@ static void test_getBrushType ()
 
     GdipCreateSolidFill (1, &brush);
 
+    // Negative tests.
     status = GdipGetBrushType (NULL, &brushType);
     assertEqualInt (status, InvalidParameter);
 
@@ -48,6 +49,7 @@ static void test_clone ()
 
     GdipCreateSolidFill (1, &brush);
 
+    // Negative tests.
     status = GdipCloneBrush (NULL, &clone);
     assertEqualInt (status, InvalidParameter);
 
@@ -67,6 +69,7 @@ static void test_delete ()
     status = GdipDeleteBrush ((GpBrush *) brush);
     assertEqualInt (status, Ok);
 
+    // Negative tests.
     status = GdipDeleteBrush (NULL);
     assertEqualInt (status, InvalidParameter);
 }
@@ -74,14 +77,12 @@ static void test_delete ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+    STARTUP;
 
     test_getBrushType ();
     test_clone ();
     test_delete ();
 
-	GdiplusShutdown (gdiplusToken);
-	return 0;
+    SHUTDOWN;
+    return 0;
 }

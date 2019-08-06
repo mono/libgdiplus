@@ -25,7 +25,18 @@ GpStatus gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc,
 
 ImageCodecInfo *gdip_getcodecinfo_jpeg () GDIP_INTERNAL;
 
-UINT gdip_get_encoder_parameter_list_size_jpeg () GDIP_INTERNAL;
-GpStatus gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *eps, UINT size) GDIP_INTERNAL;
+GpStatus gdip_fill_encoder_parameter_list_jpeg (EncoderParameters *buffer, UINT size) GDIP_INTERNAL;
+
+typedef struct
+{
+	UINT count;
+	EncoderParameter transformation;
+	EncoderParameter quality;
+	EncoderParameter luminanceTable;
+	EncoderParameter chrominanceTable;
+	EncoderParameter imageItems;
+	LONG transformationData[5];
+	UINT qualityRange[2];
+} JpegEncoderParameters;
 
 #endif /* _JPEGCODEC_H */

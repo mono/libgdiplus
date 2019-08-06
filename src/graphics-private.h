@@ -103,7 +103,7 @@ typedef struct {
 typedef enum {
 	GraphicsStateValid = 0,
 	GraphicsStateBusy = 1
-} GraphicsState;
+} GraphicsInternalState;
 
 typedef struct _Graphics {
 	GraphicsBackEnd		backend;
@@ -111,7 +111,7 @@ typedef struct _Graphics {
 	cairo_t			*ct;
 	GpMatrix		*copy_of_ctm;
 	cairo_matrix_t		previous_matrix;
-#if HAS_X11
+#if defined(HAVE_X11)
 #ifdef CAIRO_HAS_XLIB_SURFACE
 	Display			*display;
 	Drawable		drawable;
@@ -131,6 +131,7 @@ typedef struct _Graphics {
 	GpRegion*		clip;
 	GpMatrix*		clip_matrix;
 	GpRect			bounds;
+	GpRect			orig_bounds;
 	GpUnit			page_unit;
 	float			scale;
 	InterpolationMode	interpolation;
@@ -146,7 +147,7 @@ typedef struct _Graphics {
 	float			dpi_x;
 	float			dpi_y;
 	int			text_contrast;
-	GraphicsState		state;
+	GraphicsInternalState		state;
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
 	void		*cg_context;
 #endif
@@ -168,20 +169,29 @@ void gdip_cairo_line_to (GpGraphics *graphics, double x, double y, BOOL convert_
 void gdip_cairo_curve_to (GpGraphics *graphics, double x1, double y1, double x2, double y2, double x3, double y3, 
 	BOOL convert_units, BOOL antialiasing) GDIP_INTERNAL;
 
+void gdip_cairo_set_matrix (GpGraphics *graphics, GpMatrix *matrixPageUnits) GDIP_INTERNAL;
+
 #ifdef CAIRO_HAS_QUARTZ_SURFACE
+
+#if __i386__
+typedef float CGFloat;
+#else
+typedef double CGFloat;
+#endif
+
 // For the Quartz backend to function we need a few structures and function declarations.
 // Unfortunately including the headers causes conflicts with internal types.  This must
 // be kept in sync with any changes that might happen (albeit unlikely) to apples structures
 struct CGPoint {
-   float x;
-   float y;
+	CGFloat x;
+	CGFloat y;
 };
 
 typedef struct CGPoint CGPoint;
 
 struct CGSize {
-   float width;
-   float height;
+	CGFloat width;
+	CGFloat height;
 };
 
 typedef struct CGSize CGSize;

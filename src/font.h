@@ -33,15 +33,15 @@
 
 /* Font public API (only!) */
 
-GpStatus WINGDIPAPI GdipCreateFont (GDIPCONST GpFontFamily* family, REAL emSize, INT style, Unit unit, GpFont **font);
+GpStatus WINGDIPAPI GdipCreateFont (GDIPCONST GpFontFamily *family, REAL emSize, INT style, Unit unit, GpFont **font);
 GpStatus WINGDIPAPI GdipCreateFontFromDC (HDC hdc, GpFont **font);
 
 GpStatus WINGDIPAPI GdipCreateFontFromLogfontA (HDC hdc, GDIPCONST LOGFONTA *logfont, GpFont **font);
 GpStatus WINGDIPAPI GdipCreateFontFromLogfontW (HDC hdc, GDIPCONST LOGFONTW *logfont, GpFont **font);
 
-GpStatus WINGDIPAPI GdipCloneFont (GpFont* font, GpFont** cloneFont);
+GpStatus WINGDIPAPI GdipCloneFont (GpFont *font, GpFont **cloneFont);
 
-GpStatus WINGDIPAPI GdipDeleteFont (GpFont* font);
+GpStatus WINGDIPAPI GdipDeleteFont (GpFont *font);
 GpStatus WINGDIPAPI GdipGetLogFontA (GpFont *font, GpGraphics *graphics, LOGFONTA *logfontA);
 GpStatus WINGDIPAPI GdipGetLogFontW (GpFont *font, GpGraphics *graphics, LOGFONTW *logfontW);
 GpStatus WINGDIPAPI GdipGetFontHeight (GDIPCONST GpFont *font, GDIPCONST GpGraphics *graphics, REAL *height);

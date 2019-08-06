@@ -16,23 +16,19 @@ This requires the libraries used by the Cairo vector graphics library to build (
 
 On **OSX** you can use [Homebrew](https://brew.sh/) to install the dependencies:
 
-	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pkg-config
+	brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pango pkg-config
+	brew link gettext --force
 
 On **Debian-based Linux distributions** you can use `apt-get` to install the dependencies:
 
 	sudo apt-get install libgif-dev autoconf libtool automake build-essential gettext libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev
 
-On **Windows** you can use [Chocolatey](https://chocolatey.org) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
+On **Windows** you can use [Vcpkg](https://github.com/Microsoft/vcpkg) to install the dependencies. Run the following commands from the root of the repository from an admin command prompt:
 
-	choco install wget
-	wget "https://dl.hexchat.net/gtk-win32/vc14/x86/gtk-Win32.7z" -O gtk-Win32.7z
-	wget "https://dl.hexchat.net/gtk-win32/vc14/x64/gtk-x64.7z" -O gtk-x64.7z
-	wget "https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe" -O nuget.exe
-
-	7z x gtk-Win32.7z -ogtk
-	7z x gtk-x64.7z -ogtk
-
-	nuget restore
+	bootstrap-vcpkg.bat
+	vcpkg.exe integrate install
+	vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x86-windows
+	vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
 
 ### Build instructions
 
@@ -59,15 +55,35 @@ Run the following command from the root of the repository:
 
 	make check
 
+To run the tests with Clang sanitizers, run the following command from the root of the repository:
+
+	./autogen.sh --enable-asan
+	make check
+
+### Code coverage
+
+Code coverage stats are generated with `lcov`. You can use [Homebrew](https://brew.sh/) on **OSX** to install the dependencies:
+
+	brew install lcov
+
+To run the tests with code coverage, run the following commands from the root of the repository:
+
+	./autogen.sh --enable-coverage
+	make check
+	lcov --capture --directory src --output-file coverage.info
+	genhtml coverage.info --output-directory coverage
+
+To view the coverage report, navigate to the `coverage` directory in the root of the repository and open `index.html`.
+
 ### Installing libgdiplus
 
 Run the following command from the root of the repository:
 
 	make install
 
-### Optional build options [UNSUPPORTED]
+### Optional build options
 
 	--with-pango
 
 	This builds libgdiplus using Pango to render (measure and draw) 
-	all of it's text. This requires Pango version 1.10 (or later).
+	all of it's text. This requires Pango version 1.38 (or later).

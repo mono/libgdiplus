@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(lldb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "preLaunchTask": "Build",
+            "program": "${workspaceFolder}/tests/.libs/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [{
+                "Name": "DYLD_LIBRARY_PATH",
+                "Value": "${workspaceFolder}/src/.libs:$DYLD_LIBRARY_PATH"
+            }],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

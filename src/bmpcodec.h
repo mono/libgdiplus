@@ -15,11 +15,6 @@
 //#include "codecs-private.h"
 #include "dstream.h"
 
-#define BI_RGB           0
-#define BI_RLE8          1
-#define BI_RLE4          2
-#define BI_BITFIELDS     3
-
 #define BITMAPINFOHEADER_SIZE   40
 #define BITMAPCOREHEADER_SIZE   12
 
@@ -43,42 +38,23 @@ typedef struct
 
 #define BFT_BITMAP 0x4d42
 
-typedef long FXPT2DOT30;
-
 typedef struct {
-	FXPT2DOT30	ciexyzX;
-	FXPT2DOT30	ciexyzY;
-	FXPT2DOT30	ciexyzZ;
-} CIEXYZ;
-
-typedef struct {
-	CIEXYZ	ciexyzRed;
-	CIEXYZ	ciexyzGreen;
-	CIEXYZ	ciexyzBlue;
-} CIEXYZTRIPLE;
-
-typedef struct {
-	DWORD 	bV4Size;
-	LONG  	bV4Width;
-	LONG  	bV4Height;
-	WORD 	bV4Planes;
-	WORD 	bV4BitCount;
-	DWORD 	bV4Compression;
-	DWORD 	bV4SizeImage;
-	LONG  	bV4XPelsPerMeter;
-	LONG  	bV4YPelsPerMeter;
-	DWORD 	bV4ClrUsed;
-	DWORD 	bV4ClrImportant;
-	DWORD	bV4RedMask;
-	DWORD	bV4GreenMask;
-	DWORD	bV4BlueMask;
-	DWORD	bV4AlphaMask;
-	DWORD	bV4CSType;
-	CIEXYZTRIPLE	bV4Endpoints;
-	DWORD	bV4GammaRed;
-	DWORD	bV4GammaGreen;
-	DWORD	bV4GammaBlue;
-} BITMAPV4HEADER, *PBITMAPV4HEADER;
+	DWORD 	bV3Size;
+	LONG  	bV3Width;
+	LONG  	bV3Height;
+	WORD 	bV3Planes;
+	WORD 	bV3BitCount;
+	DWORD 	bV3Compression;
+	DWORD 	bV3SizeImage;
+	LONG  	bV3XPelsPerMeter;
+	LONG  	bV3YPelsPerMeter;
+	DWORD 	bV3ClrUsed;
+	DWORD 	bV3ClrImportant;
+	DWORD	bV3RedMask;
+	DWORD	bV3GreenMask;
+	DWORD	bV3BlueMask;
+	DWORD	bV3AlphaMask;
+} BITMAPV3HEADER, *PBITMAPV3HEADER;
 
 #include "gdiplus-private.h"
 
@@ -91,8 +67,16 @@ GpStatus gdip_save_bmp_image_to_stream_delegate (PutBytesDelegate putBytesFunc, 
 
 ImageCodecInfo *gdip_getcodecinfo_bmp () GDIP_INTERNAL;
 
+/* Conversion functions */
+ARGB gdip_getpixel_32bppARGB (BYTE *scan, INT x) GDIP_INTERNAL;
+void gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b) GDIP_INTERNAL;
+
+ARGB gdip_getpixel_16bppRGB555 (BYTE *scan, INT x) GDIP_INTERNAL;
+
+ARGB gdip_getpixel_16bppRGB565 (BYTE *scan, INT x) GDIP_INTERNAL;
+
 /* helper functions / shared with ICOn codec */
-GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, BITMAPINFOHEADER *bmi, ImageSource source, BOOL *os2format, 
+GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, 
 	BOOL *upsidedown) GDIP_INTERNAL;
 int gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source) GDIP_INTERNAL;
 

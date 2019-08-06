@@ -22,8 +22,11 @@
 
 #include "region-private.h"
 #include "graphics-path-private.h"
+#include "graphics-cairo-private.h"
 
-#if FALSE
+// #define DEBUG_REGION
+
+#ifdef DEBUG_REGION
 
 /*
  * Debugging helpers
@@ -122,14 +125,16 @@ rect_intersect (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, GpRect *rect)
  * @x: a pointer to an integer
  * @width: a pointer to an integer
  *
- * Adjust the @x and @width values so that they both are multiples of eight
+ * Adjust the @x and @width values so that they both are multiples of 32
  * and still encompass, at least, the same data as their original value.
+ * The value 32 is chosen to match CAIRO_STRIDE_ALIGNMENT and allow direct
+ * use of cairo surfaces.
  */
 static void
 rect_adjust_horizontal (int *x, int *width)
 {
 	/* ensure that X is a multiple of 8 */
-	int i = (*x & 7);
+	int i = (*x & 31);
 	if (i > 0) {
 		/* reduce X to be a multiple of 8*/
 		*x -= i;
@@ -137,9 +142,9 @@ rect_adjust_horizontal (int *x, int *width)
 		*width += i;
 	}
 	/* ensure that Width is a multiple of 8 */
-	i = (*width & 7);
+	i = (*width & 31);
 	if (i > 0) {
-		*width += (8 - i);
+		*width += (32 - i);
 	}
 }
 
@@ -346,78 +351,6 @@ gdip_region_bitmap_free (GpRegionBitmap *bitmap)
 
 
 /*
- * reduce:
- * @source: a byte array containing the 32bpp bitmap
- * @width: the width of the bitmap
- * @height: the height of the bitmap
- * @dest: a byte array for the reduced (1bpp) bitmap
- *
- * Reduce a 32bpp bitmap @source into a 1bbp bitmap @dest.
- */
-static void
-reduce (BYTE* source, int width, int height, BYTE *dest)
-{
-	int i, j, n = 0, value = 0;
-
-	for (i = 0; i < height; i++) {
-		for (j = 0; j < width; j++) {
-			int pos = (i * width + j) * 4;
-			BYTE combine = source [pos] | source [pos + 1] | source [pos + 2] | source [pos + 3];
-
-			if (combine != 0)
-				value |= 128;
-
-			if (++n == 8) {
-				*dest++ = value;
-				n = 0;
-				value = 0;
-			} else {
-				value >>= 1;
-			}
-		}
-	}
-}
-
-
-/*
- * gdip_region_bitmap_apply_alpha:
- * @bitmap: a GpBitmap (not a GpRegionBitmap!)
- * @alpha: a GpRegionBitmap
- *
- * Apply the alpha bits (from @alpha) to a ARGB32 (or RGB24) @bitmap.
- */
-void 
-gdip_region_bitmap_apply_alpha (GpBitmap *bitmap, GpRegionBitmap *alpha)
-{
-	int x, y, p = 0, n = 3; /* FIXME - is it endian safe ? */
-
-	for (y = 0; y < alpha->Height; y++) {
-		for (x = 0; x < alpha->Width; x += 8) {
-			// ARGB32
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x01) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x02) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x04) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x08) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x10) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x20) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x40) ? 0xFF : 0x00;
-			n += 4;
-			bitmap->active_bitmap->scan0 [n] = (alpha->Mask [p] & 0x80) ? 0xFF : 0x00;
-			n += 4;
-
-			p++;
-		}
-	}
-}
-
-
-/*
  * gdip_region_bitmap_from_tree:
  * @tree: a GpPathTree
  *
@@ -492,6 +425,18 @@ gdip_region_bitmap_invalidate (GpRegion *region)
 	region->bitmap = NULL;
 }
 
+/*
+ * gdip_region_bitmap_to_cairo_surface
+ * @bitmap: a GpRegionBitmap
+ *
+ * Create a cairo mask surface for the given region bitmap. Caller is
+ * responsible for calling cairo_surface_destroy on the returned surface.
+ */
+cairo_surface_t *
+gdip_region_bitmap_to_cairo_surface (GpRegionBitmap *bitmap)
+{
+	return cairo_image_surface_create_for_data (bitmap->Mask, CAIRO_FORMAT_A1, bitmap->Width, bitmap->Height, bitmap->Width >> 3);
+}
 
 /*
  * gdip_region_bitmap_from_path:
@@ -507,10 +452,9 @@ gdip_region_bitmap_from_path (GpPath *path)
 {
 	GpRect bounds;
 	GpRegionBitmap *bitmap;
-	BYTE* buffer;
-	int i, idx, stride;
+	int i, idx;
 	int length = path->count;
-	unsigned long size;
+	unsigned long long int size;
 	cairo_surface_t *surface = NULL;
 	cairo_t *cr = NULL;
 
@@ -530,28 +474,24 @@ gdip_region_bitmap_from_path (GpPath *path)
 		return alloc_bitmap_with_buffer (bounds.X, bounds.Y, bounds.Width, bounds.Height, NULL);
 
 	/* replay the path list and the operations to reconstruct the bitmap */
-	stride = bounds.Width * 4;	/* RGBA -> 32 bpp, 4 Bbp */
-	size = stride * bounds.Height;
-
-	/* here the memory is allocated for a ARGB bitmap - so 32 times bigger than our normal alpha bitmap */
-	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE << 5)) {
-		g_warning ("Path conversion requested %lu bytes (%d x %d). Maximum size is %d bytes.",
-			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE << 5);
+	size = (unsigned long long int)(bounds.Width >> 3) * bounds.Height;
+	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE)) {
+		g_warning ("Path conversion requested %llu bytes (%d x %d). Maximum size is %d bytes.",
+			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE);
 		return NULL;
 	}
-	buffer = (BYTE*) GdipAlloc (size);
-	if (!buffer)
-		return NULL;
-	memset (buffer, 0, size);
 
-	surface = cairo_image_surface_create_for_data (buffer, 
-		CAIRO_FORMAT_ARGB32, bounds.Width, bounds.Height, stride);
+	bitmap = alloc_bitmap (bounds.X, bounds.Y, bounds.Width, bounds.Height);
+	if (bitmap == NULL)
+		return NULL;
+
+	surface = gdip_region_bitmap_to_cairo_surface (bitmap);
 	cr = cairo_create (surface);
 
 	idx = 0;
 	for (i = 0; i < length; ++i) {
-		GpPointF pt = g_array_index (path->points, GpPointF, i);
-		BYTE type = g_array_index (path->types, BYTE, i);
+		GpPointF pt = path->points[i];
+		BYTE type = path->types[i];
 		GpPointF pts [3];
 		/* mask the bits so that we get only the type value not the other flags */
 		switch (type & PathPointTypePathTypeMask) {
@@ -589,10 +529,6 @@ gdip_region_bitmap_from_path (GpPath *path)
 
 	cairo_surface_destroy (surface);
 
-	bitmap = alloc_bitmap (bounds.X, bounds.Y, bounds.Width, bounds.Height);
-	reduce (buffer, bounds.Width, bounds.Height, bitmap->Mask);
-	GdipFree (buffer);
-
 	return bitmap;
 }
 
@@ -613,21 +549,29 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 	int last_x = -1;			/* empty (right) columns */
 	int i = 0;
 	int original_size = SHAPE_SIZE(bitmap);
-	int old_width_byte = bitmap->Width >> 3;
 	int x = 0, y = 0;
+	int k;
 
 	while (i < original_size) {
-		if (bitmap->Mask [i++] != 0) {
-			if (x < first_x)
-				first_x = x;
-			if (x > last_x)
-				last_x = x;
-			if (y < first_y)
-				first_y = y;
-			if (y > last_y)
-				last_y = y;
+		if (bitmap->Mask [i] != 0) {
+			for (k = 0; k < 8; k++) {
+				if ((bitmap->Mask [i] & (1 << k)) != 0) {
+					if (x < first_x)
+						first_x = x;
+					if (x > last_x)
+						last_x = x;
+					if (y < first_y)
+						first_y = y;
+					if (y > last_y)
+						last_y = y;				
+				}
+				x++;
+			}
+		} else {
+			x += 8;
 		}
-		if (++x == old_width_byte) {
+		i++;		
+		if (x == bitmap->Width) {
 			x = 0;
 			y++;
 		}
@@ -638,9 +582,9 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 		rect->X = rect->Y = rect->Width = rect->Height = 0;
 	} else {
 		// convert to pixel values
-		rect->X = bitmap->X + (first_x << 3);
+		rect->X = bitmap->X + first_x;
 		rect->Y = bitmap->Y + first_y;
-		rect->Width = abs (((last_x + 1) << 3) - first_x);
+		rect->Width = last_x - first_x + 1;
 		rect->Height = last_y - first_y + 1;
 	}
 }
@@ -824,22 +768,23 @@ gdip_region_bitmap_is_rect_visible (GpRegionBitmap *bitmap, GpRect *rect)
 		return FALSE;
 
 	/* quick intersection checks */
-	if (bitmap->X < rect->X + rect->Width)
+	if (bitmap->X >= rect->X + rect->Width)
 		return FALSE;
-	if (bitmap->X + bitmap->Width > rect->X)
+	if (bitmap->X + bitmap->Width <= rect->X)
 		return FALSE;
-	if (bitmap->Y < rect->Y + rect->Height)
+	if (bitmap->Y >= rect->Y + rect->Height)
 		return FALSE;
-	if (bitmap->Y + bitmap->Height > rect->Y)
+	if (bitmap->Y + bitmap->Height <= rect->Y)
 		return FALSE;
 
 	/* TODO - optimize */
 	for (y = rect->Y; y < rect->Y + rect->Height; y++) {
 		for (x = rect->X; x < rect->X + rect->Width; x++) {
-			if (is_point_visible (bitmap, x, y))
+			if (gdip_region_bitmap_is_point_visible (bitmap, x, y))
 				return TRUE;
 		}
 	}
+
 	return FALSE;
 }
 
@@ -925,14 +870,16 @@ process_line (GpRegionBitmap *bitmap, int y, int *x, int *w)
  * gdip_region_bitmap_get_scans:
  * @bitmap: a GpRegionBitmap
  * @rect: a pointer to an array of GpRectF
- * @count: the number of GpRectF in the array
  *
  * Convert the scan lines of the bitmap into an array of GpRectF. The return
  * value represents the actual number of GpRectF entries that were generated.
  */
 int
-gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
+gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect)
 {
+	if (!bitmap || !bitmap->Mask)
+		return 0;
+
 	GpRect actual;
 	int x, y, w;
 	int n = 0;
@@ -962,7 +909,7 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect, int count)
 				actual.Width = w;
 				actual.Height = 1;
 
-				if (rect && (n < count)) {
+				if (rect) {
 					rect [n].X = actual.X;
 					rect [n].Y = actual.Y;
 					rect [n].Width = actual.Width;

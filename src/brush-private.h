@@ -45,7 +45,7 @@ typedef struct {
 
 typedef struct _BrushClass {
 	/* Brush virtual functions */
-        GpBrushType type;
+	GpBrushType type;
 	GpStatus (*setup) (GpGraphics *graphics, GpBrush *brush);
 	GpStatus (*clone_brush) (GpBrush *brush, GpBrush **clonedBrush);
 	GpStatus (*destroy) (GpBrush *brush);

@@ -25,11 +25,9 @@
 
 /* Graphics public API (only!) */
 
-typedef unsigned int GraphicsContainer;
-
-GpStatus WINGDIPAPI GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF* dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GraphicsContainer *state);
-GpStatus WINGDIPAPI GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state);
-GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect* dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainer (GpGraphics *graphics, GDIPCONST GpRectF *dstrect, GDIPCONST GpRectF *srcrect, GpUnit unit, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer *state);
+GpStatus WINGDIPAPI GdipBeginContainerI (GpGraphics *graphics, GDIPCONST GpRect *dstrect, GDIPCONST GpRect *srcrect, GpUnit unit, GraphicsContainer *state);
 GpStatus WINGDIPAPI GdipEndContainer (GpGraphics *graphics, GraphicsContainer state);
 GpStatus WINGDIPAPI GdipFlush (GpGraphics *graphics, GpFlushIntention intention);
 
@@ -43,16 +41,16 @@ GpStatus WINGDIPAPI GdipDeleteGraphics (GpGraphics *graphics);
 GpStatus WINGDIPAPI GdipGetDC (GpGraphics *graphics, HDC *hdc);
 GpStatus WINGDIPAPI GdipReleaseDC (GpGraphics *graphics, HDC hdc);
 
-GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, unsigned int graphicsState);
-GpStatus WINGDIPAPI GdipSaveGraphics(GpGraphics *graphics, unsigned int * state);
+GpStatus WINGDIPAPI GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state);
+GpStatus WINGDIPAPI GdipSaveGraphics (GpGraphics *graphics, GraphicsState *state);
 
 GpStatus WINGDIPAPI GdipGetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipSetWorldTransform (GpGraphics *graphics, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipMultiplyWorldTransform (GpGraphics *graphics, GpMatrix *matrix, GpMatrixOrder order);
 GpStatus WINGDIPAPI GdipResetWorldTransform (GpGraphics *graphics);
-GpStatus WINGDIPAPI GdipScaleWorldTransform (GpGraphics *graphics, float sx, float sy, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipRotateWorldTransform (GpGraphics *graphics, float angle, GpMatrixOrder order);
-GpStatus WINGDIPAPI GdipTranslateWorldTransform (GpGraphics *graphics, float dx, float dy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipScaleWorldTransform (GpGraphics *graphics, REAL sx, REAL sy, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipRotateWorldTransform (GpGraphics *graphics, REAL angle, GpMatrixOrder order);
+GpStatus WINGDIPAPI GdipTranslateWorldTransform (GpGraphics *graphics, REAL dx, REAL dy, GpMatrixOrder order);
 
 GpStatus WINGDIPAPI GdipDrawArc (GpGraphics *graphics, GpPen *pen, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle);
 GpStatus WINGDIPAPI GdipDrawArcI (GpGraphics *graphics, GpPen *pen, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle);
@@ -99,16 +97,16 @@ GpStatus WINGDIPAPI GdipDrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCO
 GpStatus WINGDIPAPI GdipDrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, INT count);
 GpStatus WINGDIPAPI GdipFillClosedCurve (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count);
 GpStatus WINGDIPAPI GdipFillClosedCurveI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count);
-GpStatus WINGDIPAPI GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, REAL tension);
-GpStatus WINGDIPAPI GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension);
+GpStatus WINGDIPAPI GdipFillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, REAL tension, GpFillMode fillMode);
+GpStatus WINGDIPAPI GdipFillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, REAL tension, GpFillMode fillMode);
 GpStatus WINGDIPAPI GdipFillEllipse (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height);
 GpStatus WINGDIPAPI GdipFillEllipseI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height);
-GpStatus WINGDIPAPI GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, REAL x1, REAL y1, REAL x2, REAL y2);
-GpStatus WINGDIPAPI GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x1, INT y1, INT x2, INT y2);
+GpStatus WINGDIPAPI GdipFillRectangle (GpGraphics *graphics, GpBrush *brush, REAL x, REAL y, REAL width, REAL height);
+GpStatus WINGDIPAPI GdipFillRectangleI (GpGraphics *graphics, GpBrush *brush, INT x, INT y, INT width, INT height);
 GpStatus WINGDIPAPI GdipFillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, INT count);
 GpStatus WINGDIPAPI GdipFillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, INT count);
-GpStatus WINGDIPAPI GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, FillMode fillMode);
-GpStatus WINGDIPAPI GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, FillMode fillMode);
+GpStatus WINGDIPAPI GdipFillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count, GpFillMode fillMode);
+GpStatus WINGDIPAPI GdipFillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count, GpFillMode fillMode);
 GpStatus WINGDIPAPI GdipFillPolygon2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, INT count);
 GpStatus WINGDIPAPI GdipFillPolygon2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, INT count);
 GpStatus WINGDIPAPI GdipFillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path);
@@ -125,8 +123,9 @@ GpStatus WINGDIPAPI GdipSetCompositingMode (GpGraphics *graphics, CompositingMod
 GpStatus WINGDIPAPI GdipGetCompositingMode (GpGraphics *graphics, CompositingMode *compositingMode);
 GpStatus WINGDIPAPI GdipSetCompositingQuality (GpGraphics *graphics, CompositingQuality compositingQuality);
 GpStatus WINGDIPAPI GdipGetCompositingQuality (GpGraphics *graphics, CompositingQuality *compositingQuality);
-GpStatus WINGDIPAPI GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode imode);
-GpStatus WINGDIPAPI GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *imode);
+GpStatus WINGDIPAPI GdipSetInterpolationMode (GpGraphics *graphics, InterpolationMode interpolationMode);
+GpStatus WINGDIPAPI GdipGetInterpolationMode (GpGraphics *graphics, InterpolationMode *interpolationMode);
+GpStatus WINGDIPAPI GdipResetPageTransform (GpGraphics *graphics);;
 GpStatus WINGDIPAPI GdipSetPageScale (GpGraphics *graphics, REAL scale);
 GpStatus WINGDIPAPI GdipGetPageScale (GpGraphics *graphics, REAL *scale);
 GpStatus WINGDIPAPI GdipSetPageUnit (GpGraphics *graphics, GpUnit unit);
@@ -135,8 +134,8 @@ GpStatus WINGDIPAPI GdipSetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMod
 GpStatus WINGDIPAPI GdipGetPixelOffsetMode (GpGraphics *graphics, PixelOffsetMode *pixelOffsetMode);
 GpStatus WINGDIPAPI GdipSetRenderingOrigin (GpGraphics *graphics, INT x, INT y);
 GpStatus WINGDIPAPI GdipGetRenderingOrigin (GpGraphics *graphics, INT *x, INT *y);
-GpStatus WINGDIPAPI GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode mode);
-GpStatus WINGDIPAPI GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *mode);
+GpStatus WINGDIPAPI GdipSetSmoothingMode (GpGraphics *graphics, SmoothingMode smoothingMode);
+GpStatus WINGDIPAPI GdipGetSmoothingMode (GpGraphics *graphics, SmoothingMode *smoothingMode);
 GpStatus WINGDIPAPI GdipSetTextContrast (GpGraphics *graphics, UINT contrast);
 GpStatus WINGDIPAPI GdipGetTextContrast (GpGraphics *graphics, UINT *contrast);
 GpStatus WINGDIPAPI GdipSetTextRenderingHint (GpGraphics *graphics, TextRenderingHint mode);
@@ -167,9 +166,36 @@ GpStatus WINGDIPAPI GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect
 GpStatus WINGDIPAPI GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy);
 GpStatus WINGDIPAPI GdipTranslateClipI (GpGraphics *graphics, INT dx, INT dy);
 
-/* missing API
-	GdipCreateHalftonePalette
-	GdipResetPageTransform
- */
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestPoint (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoint,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestPointI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoint,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestRect (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST RectF *destRect,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestRectI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Rect *destRect,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes );
+
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestPoints (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoints, INT count,
+    EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileDestPointsI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoints, INT count,
+	EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes );
+
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestPoint (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST PointF *destPoint, GDIPCONST RectF *srcRect,
+    Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes * imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestPointI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoint, GDIPCONST Rect *srcRect,
+    Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestRect (GpGraphics * graphics, GDIPCONST GpMetafile *metafile, GDIPCONST RectF *destRect, GDIPCONST RectF *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestRectI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Rect *destRect, GDIPCONST Rect *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestPoints (GpGraphics *graphics, GDIPCONST GpMetafile * metafile, GDIPCONST PointF *destPoints, INT count, GDIPCONST RectF *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+GpStatus WINGDIPAPI GdipEnumerateMetafileSrcRectDestPointsI (GpGraphics *graphics, GDIPCONST GpMetafile *metafile, GDIPCONST Point *destPoints, INT count, GDIPCONST Rect *srcRect,
+	Unit srcUnit, EnumerateMetafileProc callback, VOID *callbackData, GDIPCONST GpImageAttributes *imageAttributes);
+
+HPALETTE WINGDIPAPI GdipCreateHalftonePalette();
 
 #endif

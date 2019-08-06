@@ -78,23 +78,10 @@ typedef void GpTexture;
  * Their content is public but, unlike this file, the header filenames do NOT match MS filenames!
  */
 
+#include "gdipluspixelformats.h"
+#include "gdiplusimaging.h"
 #include "gdipenums.h"
 #include "gdipstructs.h"
-
-/* FIXME - libgdiplus version is larger than this (and some members are misnamed) */
-typedef struct {
-	UINT		Width;
-	UINT		Height;
-	INT		Stride;
-	/* C++ compilers should need '::' (and GCC does) */
-#ifdef __cplusplus
-	::PixelFormat	PixelFormat;
-#else
-	PixelFormat	PixelFormat;
-#endif
-	VOID 		*Scan0;
-	UINT		*Reserved;
-} BitmapData;
 
 #include "general.h"
 #include "adjustablearrowcap.h"

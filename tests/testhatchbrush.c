@@ -13,7 +13,7 @@
 #include <GdiPlusFlat.h>
 #endif
 
-#ifdef WIN32
+#if defined(USE_WINDOWS_GDIPLUS)
 using namespace Gdiplus;
 using namespace DllExports;
 #endif
@@ -34,7 +34,7 @@ static void test_clone ()
     ARGB foregroundColor;
     ARGB backgroundColor;
 
-    GdipCreateHatchBrush (HatchStyle10Percent, 1, 2, (GpHatch **)&brush);
+    GdipCreateHatchBrush (HatchStyle10Percent, 0x00000001, 0x00000002, (GpHatch **)&brush);
 
     status = GdipCloneBrush (brush, &clone);
     assertEqualInt (status, Ok);
@@ -47,13 +47,24 @@ static void test_clone ()
     assertEqualInt (hatchStyle, HatchStyle10Percent);
 
     GdipGetHatchForegroundColor ((GpHatch *) clone, &foregroundColor);
-    assertEqualInt (foregroundColor, 1);
+    assertEqualInt (foregroundColor, 0x00000001);
 
     GdipGetHatchBackgroundColor ((GpHatch *) clone, &backgroundColor);
-    assertEqualInt (backgroundColor, 2);
+    assertEqualInt (backgroundColor, 0x00000002);
 
     GdipDeleteBrush (brush);
     GdipDeleteBrush (clone);
+}
+
+static void test_delete ()
+{
+    GpStatus status;
+    GpHatch *brush;
+
+    GdipCreateHatchBrush (HatchStyle05Percent, 0x00000001, 0x00000002, &brush);
+
+    status = GdipDeleteBrush ((GpBrush *) brush);
+    assertEqualInt (status, Ok);
 }
 
 static void test_createHatchBrush ()
@@ -62,7 +73,7 @@ static void test_createHatchBrush ()
     GpHatch *brush;
     GpBrushType brushType;
 
-    status = GdipCreateHatchBrush (HatchStyleMin, 1, 2, &brush);
+    status = GdipCreateHatchBrush (HatchStyleMin, 0x00000001, 0x00000002, &brush);
     assertEqualInt (status, Ok);
     assert (brush != NULL && "Expected the brush to be initialized.");
 
@@ -72,20 +83,27 @@ static void test_createHatchBrush ()
 
     GdipDeleteBrush ((GpBrush *) brush);
 
-    status = GdipCreateHatchBrush (HatchStyleMax, 1, 2, &brush);
+    status = GdipCreateHatchBrush (HatchStyleMax, 0x00000001, 0x00000002, &brush);
     assertEqualInt (status, Ok);
     assert (brush != NULL && "Expected the brush to be initialized.");
 
     GdipDeleteBrush ((GpBrush *)brush);
 
-    status = GdipCreateHatchBrush (HatchStyle05Percent, 1, 2, NULL);
+    // Negative tests.
+    brush = (GpHatch *) 0xCC;
+    status = GdipCreateHatchBrush (HatchStyle05Percent, 0x00000001, 0x00000002, NULL);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpHatch *) 0xCC);
 
-    status = GdipCreateHatchBrush ((HatchStyle)(HatchStyleMin - 1), 1, 2, &brush);
+    brush = (GpHatch *) 0xCC;
+    status = GdipCreateHatchBrush ((HatchStyle)(HatchStyleMin - 1), 0x00000001, 0x00000002, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpHatch *) 0xCC);
 
-    status = GdipCreateHatchBrush ((HatchStyle)(HatchStyleMax + 1), 1, 2, &brush);
+    brush = (GpHatch *) 0xCC;
+    status = GdipCreateHatchBrush ((HatchStyle)(HatchStyleMax + 1), 0x00000001, 0x00000002, &brush);
     assertEqualInt (status, InvalidParameter);
+    assert (brush == (GpHatch *) 0xCC);
 }
 
 static void test_getHatchStyle ()
@@ -94,12 +112,13 @@ static void test_getHatchStyle ()
     GpHatch *brush;
     GpHatchStyle hatchStyle;
 
-    GdipCreateHatchBrush (HatchStyle05Percent, 1, 2, &brush);
+    GdipCreateHatchBrush (HatchStyle05Percent, 0x00000001, 0x00000002, &brush);
 
     status = GdipGetHatchStyle (brush, &hatchStyle);
     assertEqualInt (status, Ok);
     assertEqualInt (hatchStyle, HatchStyle05Percent);
 
+    // Negative tests.
     status = GdipGetHatchStyle (NULL, &hatchStyle);
     assertEqualInt (status, InvalidParameter);
 
@@ -115,12 +134,13 @@ static void test_getForegroundColor ()
     GpHatch *brush;
     ARGB foregroundColor;
 
-    GdipCreateHatchBrush (HatchStyle05Percent, 1, 2, &brush);
+    GdipCreateHatchBrush (HatchStyle05Percent, 0x00000001, 0x00000002, &brush);
 
     status = GdipGetHatchForegroundColor (brush, &foregroundColor);
     assertEqualInt (status, Ok);
-    assertEqualInt (foregroundColor, 1);
+    assertEqualInt (foregroundColor, 0x00000001);
 
+    // Negative tests.
     status = GdipGetHatchForegroundColor (NULL, &foregroundColor);
     assertEqualInt (status, InvalidParameter);
 
@@ -136,12 +156,13 @@ static void test_getBackgroundColor ()
     GpHatch *brush;
     ARGB backgroundColor;
 
-    GdipCreateHatchBrush (HatchStyle05Percent, 1, 2, &brush);
+    GdipCreateHatchBrush (HatchStyle05Percent, 0x00000001, 0x00000002, &brush);
 
     status = GdipGetHatchBackgroundColor (brush, &backgroundColor);
     assertEqualInt (status, Ok);
-    assertEqualInt (backgroundColor, 2);
+    assertEqualInt (backgroundColor, 0x00000002);
 
+    // Negative tests.
     status = GdipGetHatchBackgroundColor (NULL, &backgroundColor);
     assertEqualInt (status, InvalidParameter);
 
@@ -154,16 +175,15 @@ static void test_getBackgroundColor ()
 int
 main (int argc, char**argv)
 {
-    GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
     test_clone ();
+    test_delete ();
     test_createHatchBrush ();
     test_getHatchStyle ();
     test_getForegroundColor ();
     test_getBackgroundColor ();
 
-    GdiplusShutdown (gdiplusToken);
+    SHUTDOWN;
     return 0;
 }

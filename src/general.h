@@ -27,7 +27,7 @@
 
 /* Startup / shutdown */
 typedef struct {
-	UINT32	GdiplusVersion;			/* must be 1 */
+	UINT32	GdiplusVersion;			/* must be 1 or 2 */
 	void*	DebugEventCallback;		/* ignored in libgdiplus */
 	BOOL	SuppressBackgroundThread;	/* ignored in libgdiplus */
 	BOOL	SuppressExternalCodecs;		/* ignored in libgdiplus */
@@ -44,6 +44,10 @@ void WINGDIPAPI GdiplusShutdown (ULONG_PTR token);
 /* Memory / public API */
 WINGDIPAPI void*  GdipAlloc (size_t size);
 WINGDIPAPI void GdipFree (void *ptr);
+
+/* Notification API */
+GpStatus WINGDIPAPI GdiplusNotificationHook (ULONG_PTR *token);
+void WINGDIPAPI GdiplusNotificationUnhook (ULONG_PTR token);
 
 /* libgdiplus-specific API, useful for quirking buggy behavior in older versions */
 WINGDIPAPI char* GetLibgdiplusVersion ();

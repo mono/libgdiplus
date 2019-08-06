@@ -20,6 +20,10 @@
 *	Frederik Carlier <frederik.carlier@quamotion.mobi>
 */
 
+#include <stdio.h>
+
 // Creates a temporary file. Saves the value of the temporary file in filename,
 // and returns a handle to the temp file.
-int CreateTempFile (char *filename);
+FILE *CreateTempFile (char *filename);
+
+int gdip_get_display_dpi_win32 ();

@@ -22,8 +22,10 @@
 
 #include "metafile-private.h"
 #include "solidbrush-private.h"
+#include "general-private.h"
 #include "graphics.h"
 #include "graphics-path-private.h"
+#include "hatchbrush-private.h"
 #include "pen.h"
 
 //#define DEBUG_METAFILE
@@ -431,89 +433,11 @@ gdip_metafile_SetMiterLimit (MetafilePlayContext *context, float eNewLimit, floa
 GpStatus
 gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color)
 {
-	GpStatus status;
-	GpPen *pen = NULL;
-	GpLineCap line_cap = LineCapRound;
-	GpLineJoin line_join = LineJoinRound;
-	int s = style & PS_STYLE_MASK;
-
-#ifdef DEBUG_METAFILE
-	printf ("CreatePenIndirect style %d, width %d, color %X", style, width, color);
-#endif
-	if (s == PS_NULL)
-		color &= 0x00FFFFFF;
-	else
-		color |= 0xFF000000;
-
-	if (width > 1) {
-		/* style is always solid for width > 1 */
-		status = GdipCreatePen1 (color, width, UnitPixel, &pen);
-	} else {
-		/* 0 isn't a mistake, this ensure we have a "real" pixel-wide line drawn */
-		status = GdipCreatePen1 (color, 0, UnitPixel, &pen);
-
-		switch (s) {
-		default:
-			g_warning ("Invalid pen style %d, style & PS_STYLE_MASK %d", style, s);
-			/* fall through */
-		case PS_NULL:
-		case DashStyleSolid:
-			break;
-		case DashStyleDash:
-		case DashStyleDot:
-		case DashStyleDashDot:
-		case DashStyleDashDotDot:
-			if (status == Ok)
-				status = GdipSetPenDashStyle (pen, s);
-			break;
-		}
-	}
-
-	if (status != Ok) {
-		if (pen)
-			GdipDeletePen (pen);
-		return status;
-	}
-	/* at this stage we got a pen, so we won't abort drawing on it's style */
-
-	s = (style & PS_ENDCAP_MASK);
-	switch (s) {
-	default:
-		g_warning ("Invalid pen endcap, style %d, (style & PS_ENDCAP_MASK) %d", style, s);
-		/* fall through */
-	case PS_ENDCAP_ROUND:
-		line_cap = LineCapRound;
-		break;
-	case PS_ENDCAP_SQUARE:
-		line_cap = LineCapSquare;
-		break;
-	case PS_ENDCAP_FLAT:
-		line_cap = LineCapFlat;
-		break;
-	}
-	GdipSetPenStartCap (pen, line_cap);
-	GdipSetPenEndCap (pen, line_cap);
-
-	s = (style & PS_JOIN_MASK);
-	switch (s) {
-	default:
-		g_warning ("Invalid pen join, style %d, (style & PS_JOIN_MASK) %d", style, s);
-		/* fall through */
-	case PS_JOIN_ROUND:
-		line_join = LineJoinRound;
-		break;
-	case PS_JOIN_BEVEL:
-		line_join = LineJoinBevel;
-		break;
-	case PS_JOIN_MITER:
-		line_join = LineJoinMiter;
-		break;
-	}
-	GdipSetPenLineJoin (pen, line_join);
-
-	context->created.type = METAOBJECT_TYPE_PEN;
-	context->created.ptr = pen;
-	return Ok;
+	LOGBRUSH brush;
+	brush.lbStyle = 0;
+	brush.lbColor = color;
+	brush.lbHatch = 0;
+	return gdip_metafile_ExtCreatePen (context, style, width, &brush, 0, NULL);
 }
 
 GpStatus
@@ -521,7 +445,89 @@ gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenStyle, DWOR
 	DWORD dwStyleCount, CONST DWORD *lpStyle)
 {
 	/* TODO - there's more cases to consider */
-	return gdip_metafile_CreatePenIndirect (context, dwPenStyle, dwWidth, lplb->lbColor);
+	GpStatus status;
+	GpPen *pen = NULL;
+	GpLineCap line_cap = LineCapRound;
+	GpLineJoin line_join = LineJoinRound;
+	int s = dwPenStyle & PS_STYLE_MASK;
+	DWORD color = lplb->lbColor;
+
+#ifdef DEBUG_METAFILE
+	printf ("ExtCreatePenIndirect style %d, width %d, color %X", dwPenStyle, dwWidth, color);
+#endif
+	if (s == PS_NULL)
+		color &= 0x00FFFFFF;
+	else
+		color |= 0xFF000000;
+
+	status = GdipCreatePen1 (color, dwWidth, UnitPixel, &pen);
+	if (status != Ok)
+		return status;
+
+	/* The style is always solid for width > 1 */
+	if (dwWidth > 1) {
+		switch (s) {
+		default:
+			g_warning ("Invalid pen style %d, style & PS_STYLE_MASK %d", dwPenStyle, s);
+			/* fall through */
+		case PS_NULL:
+		case PS_SOLID:
+			break;
+		case PS_DASH:
+		case PS_DOT:
+		case PS_DASHDOT:
+		case PS_DASHDOTDOT:
+			status = GdipSetPenDashStyle (pen, s);
+			if (status != Ok) {
+				GdipDeletePen (pen);
+				return status;
+			}
+			break;
+		}
+	}
+
+	/* at this stage we got a pen, so we won't abort drawing on it's style */
+	s = (dwPenStyle & PS_TYPE_MASK);
+	if (s == PS_GEOMETRIC) {
+		s = (dwPenStyle & PS_ENDCAP_MASK);
+		switch (s) {
+		default:
+			g_warning ("Invalid pen endcap, style %d, (style & PS_ENDCAP_MASK) %d", dwPenStyle, s);
+			/* fall through */
+		case PS_ENDCAP_ROUND:
+			line_cap = LineCapRound;
+			break;
+		case PS_ENDCAP_SQUARE:
+			line_cap = LineCapSquare;
+			break;
+		case PS_ENDCAP_FLAT:
+			line_cap = LineCapFlat;
+			break;
+		}
+		GdipSetPenStartCap (pen, line_cap);
+		GdipSetPenEndCap (pen, line_cap);
+		
+		s = (dwPenStyle & PS_JOIN_MASK);
+		switch (s) {
+		default:
+			g_warning ("Invalid pen join, style %d, (style & PS_JOIN_MASK) %d", dwPenStyle, s);
+			/* fall through */
+		case PS_JOIN_ROUND:
+			line_join = LineJoinRound;
+			break;
+		case PS_JOIN_BEVEL:
+			line_join = LineJoinBevel;
+			break;
+		case PS_JOIN_MITER:
+			line_join = LineJoinMiter;
+			break;
+		}
+		GdipSetPenLineJoin (pen, line_join);
+	}
+
+	context->created.type = METAOBJECT_TYPE_PEN;
+	context->created.ptr = pen;
+	return Ok;
 }
 
 /* http://wvware.sourceforge.net/caolan/CreateBrushIndirect.html */
@@ -529,20 +535,24 @@ GpStatus
 gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch)
 {
 	GpStatus status = Ok;
-	GpSolidFill *brush;
+	void *brush;
 
 	switch (style) {
 	case BS_SOLID:
 		color |= 0xFF000000;
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
 		break;
 	case BS_NULL:
 		color &= 0x00FFFFFF;
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
+		break;
+	case BS_HATCHED:
+		color |= 0xFF000000;
+		status = GdipCreateHatchBrush (hatch, color, 0xFFFFFFFF, (GpHatch **) &brush);
 		break;
 	default:
 		g_warning ("gdip_metafile_CreateBrushIndirect unimplemented style %d", style);
-		status = GdipCreateSolidFill (color, &brush);
+		status = GdipCreateSolidFill (color, (GpSolidFill **) &brush);
 		break;
 	}
 
@@ -570,6 +580,43 @@ gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, i
 
 	return GdipDrawArc (context->graphics, gdip_metafile_GetSelectedPen (context), left, top, 
 		(right - left), (bottom - top), atan2 (ystart, xstart), atan2 (yend, xend));
+}
+
+/* http://wvware.sourceforge.net/caolan/Rectangle.html */
+GpStatus
+gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int rightRect, int topRect, int leftRect)
+{
+	GpStatus status;
+	int x = min (leftRect, rightRect);
+	int y = min (topRect, bottomRect);
+	int width = abs (rightRect - leftRect);
+	int height = abs (bottomRect - topRect);
+
+#ifdef DEBUG_METAFILE
+	printf ("Rectangle bottom %d, right %d, top %d, left %d", 
+		bottomRect, rightRect, topRect, leftRect);
+#endif
+
+	status = GdipFillRectangleI (context->graphics, gdip_metafile_GetSelectedBrush (context), x, y, width, height);
+	if (status != Ok)
+		return status;
+
+	return GdipDrawRectangleI (context->graphics, gdip_metafile_GetSelectedPen (context), x, y, width, height);
+}
+
+GpStatus
+gdip_metafile_SetPixel (MetafilePlayContext *context, DWORD color, int x, int y)
+{
+	color |= 0xFF000000;
+
+	GpBrush *fill;
+	GpStatus status = GdipCreateSolidFill (color, (GpSolidFill **) &fill);
+	if (status != Ok)
+		return status;
+
+	status = GdipFillRectangle (context->graphics, fill, x, y, 1, 1);
+	GdipDeleteBrush (fill);
+	return status;
 }
 
 
@@ -936,6 +983,32 @@ gdip_metafile_dispose (GpMetafile *metafile)
 }
 
 GpStatus
+gdip_get_bitmap_from_metafile (GpMetafile *metafile, INT width, INT height, GpImage **thumbnail)
+{
+	if (width <= 0 || height <= 0) {
+		switch (metafile->metafile_header.Type) {
+		case MetafileTypeWmfPlaceable:
+		case MetafileTypeWmf: {
+			width = iround (metafile->metafile_header.Width / 1000.0f * gdip_get_display_dpi());
+			height = iround (metafile->metafile_header.Height / 1000.0f * gdip_get_display_dpi());
+			break;
+		}
+		case MetafileTypeEmf:
+		case MetafileTypeEmfPlusOnly:
+		case MetafileTypeEmfPlusDual: {
+			width = metafile->metafile_header.Width;
+			height = metafile->metafile_header.Height;
+			break;
+		}
+		default:
+			return GenericError;
+		}
+	}
+
+	return GdipGetImageThumbnail ((GpImage *) metafile, width, height, thumbnail, NULL, NULL);
+}
+
+GpStatus
 gdip_metafile_stop_recording (GpMetafile *metafile)
 {
 	/* TODO save current stuff */
@@ -1001,10 +1074,24 @@ gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int
 
 	/* defaults */
 	context->fill_mode = FillModeAlternate;
-	context->map_mode = MM_TEXT;
+	switch (context->metafile->metafile_header.Type) {
+		case MetafileTypeWmfPlaceable:
+		case MetafileTypeWmf:
+			gdip_metafile_SetMapMode (context, MM_TWIPS);
+			break;
+		case MetafileTypeEmf:
+		case MetafileTypeEmfPlusOnly:
+		case MetafileTypeEmfPlusDual:
+			gdip_metafile_SetMapMode (context, MM_TEXT);
+			break;
+		default:
+			GdipFree (context);
+			return NULL;
+	}
+
 	context->miter_limit = 10.0f;
-	context->selected_pen = -1;
-	context->selected_brush = -1;
+	context->selected_pen =  ENHMETA_STOCK_OBJECT + BLACK_PEN;
+	context->selected_brush = ENHMETA_STOCK_OBJECT + WHITE_BRUSH;
 	context->selected_font = -1;
 	context->selected_palette = -1;
 
@@ -1197,12 +1284,19 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 {
 	if (wmfPlaceableFileHeader) {
 		header->Type = MetafileTypeWmfPlaceable;
-		header->X = wmfPlaceableFileHeader->BoundingBox.Left;
-		header->Y = wmfPlaceableFileHeader->BoundingBox.Top;
-		header->Width = wmfPlaceableFileHeader->BoundingBox.Right - wmfPlaceableFileHeader->BoundingBox.Left;
-		header->Height= wmfPlaceableFileHeader->BoundingBox.Bottom - wmfPlaceableFileHeader->BoundingBox.Top;
-		header->DpiX = wmfPlaceableFileHeader->Inch;
-		header->DpiY = wmfPlaceableFileHeader->Inch;
+
+		header->X = min (wmfPlaceableFileHeader->BoundingBox.Right, wmfPlaceableFileHeader->BoundingBox.Left);
+		header->Y = min (wmfPlaceableFileHeader->BoundingBox.Top, wmfPlaceableFileHeader->BoundingBox.Bottom);
+		header->Width = abs (wmfPlaceableFileHeader->BoundingBox.Right - wmfPlaceableFileHeader->BoundingBox.Left);
+		header->Height= abs (wmfPlaceableFileHeader->BoundingBox.Bottom - wmfPlaceableFileHeader->BoundingBox.Top);
+
+		/* The units of a metafile are twips (1/20 of a point). The Inch field contains the number
+		*  of twips per inch used to represent the image. There are 1440 twips per inch by default.
+		*  Use the default if the placeable header has no twips per inch specified. */
+		if (wmfPlaceableFileHeader->Inch == 0)
+			header->DpiX = 1440;
+		else
+			header->DpiX = wmfPlaceableFileHeader->Inch;
 	} else {
 		header->Type = MetafileTypeWmf;
 		header->X = 0;
@@ -1211,8 +1305,9 @@ combine_headers (GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, Metaf
 		header->Width = 1280;
 		header->Height= 1024;
 		header->DpiX = gdip_get_display_dpi ();
-		header->DpiY = header->DpiX;
 	}
+
+	header->DpiY = header->DpiX;
 	header->Size = header->Header.Wmf.mtSize * 2;
 	header->Version = header->Header.Wmf.mtVersion;
 	header->EmfPlusFlags = 0;
@@ -1230,6 +1325,9 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 	GpStatus status = Ok;
 	MetafilePlayContext context;
 	GpMetafile mf;
+	if (length < sizeof (DWORD))
+		return Ok;
+
 	DWORD *func = (DWORD*)data;
 
 	switch (*func) {
@@ -1251,7 +1349,49 @@ update_emf_header (MetafileHeader *header, BYTE* data, int length)
 	return status;
 }
 
-static GpStatus 
+static GpStatus
+gdip_read_emf_header_optionals (ENHMETAHEADER3 *header, void *pointer, ImageSource source)
+{
+	/* This algorithm is taken from the specification: https://msdn.microsoft.com/en-us/library/cc230635.aspx. */
+	const int HeaderRecordSize = sizeof (ENHMETAHEADER3);
+	const int HeaderExtension1Size = sizeof (ENHMETAHEADER3) + sizeof (HeaderExtension1);
+
+	/* Initialize header size to minimum. */
+	int headerSize = HeaderRecordSize;
+
+	/* Valid header record size? */
+	if (header->nSize >= HeaderRecordSize)
+	{
+		/* Set HeaderSize to header record size. */
+		headerSize = header->nSize;
+
+		/* Valid description values? If so, set HeaderSize to description offset. */
+		if (header->offDescription >= HeaderRecordSize && (header->offDescription + header->nDescription * 2) <= header->nSize)
+			headerSize = header->offDescription;
+
+		/* Header big enough to contain an extension? */
+		if (headerSize >= HeaderExtension1Size)
+		{
+			/* Match GDI+ behaviour where missing header data is set to 0. */
+			HeaderExtension1 extension;
+			memset (&extension, 0, sizeof (HeaderExtension1));
+			gdip_read_emf_data (pointer, (BYTE *) &extension, sizeof (HeaderExtension1), source);
+
+			/* Valid pixel format values? */
+			if (extension.offPixelFormat >= HeaderExtension1Size && (extension.offPixelFormat + extension.cbPixelFormat) <= header->nSize)
+			{
+				/* Pixel format before description? If so, set HeaderSize to pixel format offset. */
+				if (extension.offPixelFormat > header->offDescription)
+					headerSize = extension.offPixelFormat;
+			}
+		}
+	}
+
+	header->nSize = headerSize;
+	return Ok;
+}
+
+static GpStatus
 gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource source)
 {
 	int size;
@@ -1263,7 +1403,7 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 	/* peek at first DWORD to select the right format */
 	size = sizeof (DWORD);
 	if (gdip_read_wmf_data (pointer, (void*)&key, size, source) != size)
-		return GenericError;
+		return OutOfMemory;
 
 #if G_BYTE_ORDER != G_LITTLE_ENDIAN
 	key = GUINT32_FROM_LE (key);
@@ -1273,8 +1413,8 @@ gdip_get_metafileheader_from (void *pointer, MetafileHeader *header, ImageSource
 		aldus_header.Key = key;
 		size = sizeof (WmfPlaceableFileHeader) - size;
 		if (gdip_read_wmf_data(pointer, (BYTE*)(&aldus_header) + sizeof(DWORD), size, source) != size)
-			return InvalidParameter;
-#if FALSE
+			return OutOfMemory;
+#ifdef DEBUG_METAFILE
 g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inch %d, reserved %d, checksum %d", 
 	aldus_header.Key, aldus_header.Hmf, aldus_header.BoundingBox.Left, aldus_header.BoundingBox.Top,
 	aldus_header.BoundingBox.Right, aldus_header.BoundingBox.Bottom, aldus_header.Inch, aldus_header.Reserved,
@@ -1282,10 +1422,18 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 #endif
 		size = sizeof (METAHEADER);
 		if (gdip_read_wmf_data (pointer, (BYTE*)&header->Header.Wmf, size, source) != size)
-			return InvalidParameter;
+			return OutOfMemory;
 
 		WmfPlaceableFileHeaderLE (&aldus_header);
 		MetafileHeaderLE (header);
+
+		if (header->Header.Wmf.mtType != 1 && header->Header.Wmf.mtType != 2)
+			return OutOfMemory;
+		if (header->Header.Wmf.mtHeaderSize != 9)
+			return OutOfMemory;
+		if (header->Header.Wmf.mtVersion != 0x0100 && header->Header.Wmf.mtVersion != 0x0300)
+			return OutOfMemory;
+
 		status = combine_headers (&aldus_header, header);
 		break;
 	case WMF_TYPE_AND_HEADERSIZE_KEY:
@@ -1299,13 +1447,17 @@ g_warning ("ALDUS_PLACEABLE_METAFILE key %d, hmf %d, L %d, T %d, R %d, B %d, inc
 		status = combine_headers (NULL, header);
 		break;
 	case EMF_EMR_HEADER_KEY:
-		emf = &(header->Header.Emf);
+		emf = &header->Header.Emf;
 		emf->iType = key;
+
+		/* Match GDI+ behaviour where missing header data is set to 0. */
 		size = sizeof (ENHMETAHEADER3) - size;
-		if (gdip_read_emf_data (pointer, (BYTE*)(&header->Header.Emf) + sizeof (DWORD), size, source) != size)
-			return InvalidParameter;
+		memset ((BYTE *) emf + sizeof (DWORD), 0, size);
+		gdip_read_emf_data (pointer, (BYTE *) emf + sizeof (DWORD), size, source);
+
 		EnhMetaHeaderLE (&header->Header.Emf);
-#if FALSE
+
+#ifdef DEBUG_METAFILE
 g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame L %d, T %d, R %d, B %d, signature %X, version %d, bytes %d, records %d, handles %d, reserved %d, description %d, %d, palentries %d, device %d, %d, millimeters %d, %d", 
 	emf->iType, emf->nSize, 
 	emf->rclBounds.left, emf->rclBounds.top, emf->rclBounds.right, emf->rclBounds.bottom,
@@ -1314,19 +1466,39 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 	emf->sReserved, emf->nDescription, emf->offDescription, emf->nPalEntries,
 	emf->szlDevice.cx, emf->szlDevice.cy, emf->szlMillimeters.cx, emf->szlMillimeters.cy);
 #endif
-		/* sanity check */
-		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520) || (emf->sReserved != 0))
-			return InvalidParameter;
+		if ((emf->iType != 1) || (emf->dSignature != 0x464D4520))
+			return OutOfMemory;
+		if (emf->nRecords < 2)
+			return OutOfMemory;
+		if (emf->nHandles == 0)
+			return OutOfMemory;
+		if (emf->nBytes < emf->nSize || emf->nBytes & 3)
+			return OutOfMemory;
+		if (emf->szlDevice.cx == 0 || emf->szlDevice.cy == 0)
+			return OutOfMemory;
+		if (emf->szlMillimeters.cx == 0 || emf->szlMillimeters.cy == 0)
+			return OutOfMemory;
 
 		header->Type = MetafileTypeEmf;
 
-		header->X = emf->rclBounds.left;
-		header->Y = emf->rclBounds.top;
-		header->Width = emf->rclBounds.right - emf->rclBounds.left + 1;
-		header->Height = emf->rclBounds.bottom - emf->rclBounds.top + 1;
+		/* Convert millimetres to inches to get the DPI for each dimension. */
+		header->DpiX = emf->szlDevice.cx / (emf->szlMillimeters.cx / MM_PER_INCH);
+		header->DpiY = emf->szlDevice.cy / (emf->szlMillimeters.cy / MM_PER_INCH);
 
-		header->DpiX = MM_PER_INCH / ((float)emf->szlMillimeters.cx / emf->szlDevice.cx);
-		header->DpiY = MM_PER_INCH / ((float)emf->szlMillimeters.cy / emf->szlDevice.cy);
+		/* The bounding box of the metafile is derived from rclFrame, not rclBounds.
+		 * We need to perform some unit conversions from 100s of millimetres to pixels. */
+		REAL inchLeft = emf->rclFrame.left / (MM_PER_INCH * 100);
+		REAL inchTop = emf->rclFrame.top / (MM_PER_INCH * 100);
+		REAL inchRight = emf->rclFrame.right / (MM_PER_INCH * 100);
+		REAL inchBottom = emf->rclFrame.bottom / (MM_PER_INCH * 100);
+		
+		header->X = iround (inchLeft * header->DpiX);
+		header->Y = iround (inchTop * header->DpiY);
+
+		/* The frame is inclusive, so we need to add 1. */
+		header->Width = iround ((inchRight - inchLeft) * header->DpiX) + 1;
+		header->Height = iround ((inchBottom - inchTop) * header->DpiY) + 1;
+
 		header->Size = emf->nBytes;
 		header->Version = emf->nVersion;
 		/* We need to check for the EmfHeader record (can't be done at this stage) but some files still returns
@@ -1337,27 +1509,13 @@ g_warning ("EMF HEADER iType %d, nSize %d, Bounds L %d, T %d, R %d, B %d, Frame 
 		header->LogicalDpiX = 0;
 		header->LogicalDpiY = 0;
 
-		/* note: there can be (empty?) space between the header and the start of the metafile records */
-		size = emf->nSize - sizeof (ENHMETAHEADER3);
-		if (size > 0) {
-			while (size > sizeof (DWORD)) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), sizeof (DWORD), source) != sizeof (DWORD))
-					return InvalidParameter;
-				size -= sizeof (DWORD);
-			}
-			if (size > 0) {
-				if (gdip_read_emf_data (pointer, (void*)(&key), size, source) != size)
-					return InvalidParameter;
-			}
-		}
-		status = Ok;
+		status = gdip_read_emf_header_optionals (emf, pointer, source);
 		break;
 	default:
-		g_warning ("Unknown metafile format: key %d", key);
-		status = GenericError;
+		status = OutOfMemory;
 	}
 
-#if FALSE
+#ifdef DEBUG_METAFILE
 g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec %d, #params %d",
 	header->Header.Wmf.mtType, header->Header.Wmf.mtHeaderSize, header->Header.Wmf.mtVersion,
 	header->Header.Wmf.mtSize, header->Header.Wmf.mtNoObjects, header->Header.Wmf.mtMaxRecord,
@@ -1366,7 +1524,7 @@ g_warning ("METAHEADER type %d, header %d, version %d, size %d, #obj %d, max rec
 	return status;
 }
 
-GpStatus 
+GpStatus
 gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source)
 {
 	BOOL adjust_emf_headers = FALSE;
@@ -1386,6 +1544,22 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 		mf->base.image_format = WMF;
 		/* note: mtSize is in WORD, mtSize contains the METAHEADER, mf->length is in bytes */
 		mf->length = mf->metafile_header.Header.Wmf.mtSize * 2 - sizeof (METAHEADER);
+
+		/* The file size has to be enough for an EOF record. */
+		if (mf->length == 0)
+		{
+			if (mf->metafile_header.Header.Wmf.mtMaxRecord != 3)
+			{
+				status = OutOfMemory;
+				goto error;
+			}
+		}
+		else if (mf->length <= 4)
+		{
+			status = OutOfMemory;
+			goto error;
+		}
+
 		break;
 	case MetafileTypeEmf:
 	case MetafileTypeEmfPlusOnly:
@@ -1402,11 +1576,11 @@ gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source
 	mf->data = (BYTE*) GdipAlloc (mf->length);
 	if (!mf->data)
 		goto error;
-	/* copy data in memory (to play it later) */
-	if (gdip_read_wmf_data (pointer, (void*)mf->data, mf->length, source) != mf->length) {
-		status = InvalidParameter;
-		goto error;
-	}
+
+	/* Copy the data into memory for playback later. To match GDI+ behaviour, we don't validate that there is
+	 * as much data as the header says. Instead, if the data length is invalid and there is no EOF record before
+	 * we run out of space in the buffer playback will fail. */
+	mf->length = gdip_read_wmf_data (pointer, (void *) mf->data, mf->length, source);
 
 	if (adjust_emf_headers) {
 		/* if the first EMF record is an EmfHeader (or an Header inside a Comment) then we have extra data to extract */
@@ -1431,21 +1605,32 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 {
 	FILE *fp;
 	char *file_name;
-	GpStatus status = GenericError;
+	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!file || !metafile)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)file, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)file, -1);
 	if (!file_name)
 		return InvalidParameter;
-	
+
 	fp = fopen (file_name, "rb");
-	if (fp) {
-		status = gdip_get_metafile_from (fp, metafile, File);
-		fclose (fp);
+	if (!fp) {
+		GdipFree (file_name);
+		return GenericError;
 	}
+
+	/* Match GDI+ behaviour by either returning Ok or GenericError. */
+	status = gdip_get_metafile_from (fp, metafile, File);
+	if (status != Ok)
+		status = GenericError;
+
+	fclose (fp);
 	GdipFree (file_name);
+
 	return status;
 }
 
@@ -1455,6 +1640,12 @@ GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile)
 GpStatus
 GdipCreateMetafileFromStream (void *stream, GpMetafile **metafile)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
+	if (!stream || !metafile)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 /*
@@ -1483,21 +1674,37 @@ GdipCreateMetafileFromEmf (HENHMETAFILE hEmf, BOOL deleteEmf, GpMetafile **metaf
 {
 	GpStatus status;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!hEmf || !metafile)
 		return InvalidParameter;
 
-	status = gdip_metafile_clone ((GpMetafile*)hEmf, metafile);
-	if (status != Ok)
-		return status;
+	switch (((GpMetafile *) hEmf)->metafile_header.Type) {
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
+		status = gdip_metafile_clone ((GpMetafile*)hEmf, metafile);
+		if (status != Ok)
+			return status;
 
-	(*metafile)->delete = deleteEmf;
-	return Ok;
+		(*metafile)->delete = deleteEmf;
+		return Ok;
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+	default:
+		*metafile = NULL;
+		return GenericError;
+	}
 }
 
 GpStatus
 GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile)
 {
 	GpStatus status;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!hWmf || !metafile)
 		return InvalidParameter;
@@ -1506,14 +1713,27 @@ GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceabl
 	if (status != Ok)
 		return status;
 
-	status = GdipGetMetafileHeaderFromWmf (hWmf, wmfPlaceableFileHeader, &(*metafile)->metafile_header);
-	if (status != Ok) {
-		GdipFree (*metafile);
-		return status;
-	}
+	switch ((*metafile)->metafile_header.Type) {
+	case MetafileTypeWmfPlaceable:
+	case MetafileTypeWmf:
+		if (wmfPlaceableFileHeader) {
+			status = GdipGetMetafileHeaderFromWmf (hWmf, wmfPlaceableFileHeader, &(*metafile)->metafile_header);
+			if (status != Ok) {
+				GdipFree (*metafile);
+				return status;
+			}
+		}
 
-	(*metafile)->delete = deleteWmf;
-	return Ok;
+		(*metafile)->delete = deleteWmf;
+		return Ok;
+	case MetafileTypeEmf:
+	case MetafileTypeEmfPlusOnly:
+	case MetafileTypeEmfPlusDual:
+	default:
+		GdipFree (*metafile);
+		*metafile = NULL;
+		return GenericError;
+	}
 }
 
 GpStatus
@@ -1560,7 +1780,7 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 	if (!filename || !header)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)filename, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)filename, -1);
 	if (!file_name)
 		return InvalidParameter;
 	
@@ -1584,6 +1804,12 @@ GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header
 GpStatus
 GdipGetMetafileHeaderFromStream (void *stream, MetafileHeader *header)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
+	if (!stream || !header)
+		return InvalidParameter;
+
 	return NotImplemented;
 }
 /*
@@ -1678,7 +1904,7 @@ GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileR
 GpStatus
 GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordType recordType, UINT flags, UINT dataSize, GDIPCONST BYTE* data)
 {
-	if (!metafile)
+	if (!metafile || (dataSize && !data))
 		return InvalidParameter;
 
 	/* TODO */
@@ -1690,6 +1916,9 @@ GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect
 	GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
 	GpMetafile *mf;
+
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
 
 	if (!referenceHdc || !frameRect || !metafile)
 		return InvalidParameter;
@@ -1745,10 +1974,13 @@ GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType
 	GpMetafile *mf = NULL;
 	char *file_name;
 
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	if (!fileName)
 		return InvalidParameter;
 
-	file_name = (char *) ucs2_to_utf8 ((const gunichar2 *)fileName, -1);
+	file_name = (char *) utf16_to_utf8 ((const gunichar2 *)fileName, -1);
 	if (!file_name) {
 		*metafile = NULL;
 		return InvalidParameter;
@@ -1791,6 +2023,9 @@ GpStatus
 GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile)
 {
+	if (!gdiplusInitialized)
+		return GdiplusNotInitialized;
+
 	return NotImplemented;
 }
 

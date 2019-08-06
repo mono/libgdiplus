@@ -33,13 +33,13 @@ GUID gdip_png_image_format_guid = {0xb96b3cafU, 0x0728U, 0x11d3U, {0x9d, 0x7b, 0
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
-#include "gdiplus-private.h"
+#include "codecs-private.h"
 #include "pngcodec.h"
 #include <setjmp.h>
 
 /* Codecinfo related data*/
 static ImageCodecInfo png_codec;
-static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'P', 'N', 'G', 0}; /* Built-in PNG */
+static const WCHAR png_codecname[] = {'B', 'u', 'i','l', 't', '-','i', 'n', ' ', 'P', 'N', 'G', ' ', 'C', 'o', 'd', 'e', 'c', 0}; /* Built-in PNG Codec */
 static const WCHAR png_extension[] = {'*', '.', 'P', 'N', 'G', 0}; /* *.PNG */
 static const WCHAR png_mimetype[] = {'i', 'm', 'a','g', 'e', '/', 'p', 'n', 'g', 0}; /* image/png */
 static const WCHAR png_format[] = {'P', 'N', 'G', 0}; /* PNG */
@@ -107,7 +107,7 @@ _gdip_png_stream_flush_data (png_structp png_ptr)
 }
 
 static GpStatus
-gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, BitmapData *bitmap_data)
+gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end_ptr, ActiveBitmapData *bitmap_data)
 {
 #if defined(PNG_INCH_CONVERSIONS) && defined(PNG_FLOATING_POINT_SUPPORTED)
 	bitmap_data->image_flags |= ImageFlagsHasRealDPI;
@@ -175,36 +175,38 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 			guint32		*ptr;
 
 			buffer = GdipAlloc(6 * (sizeof(png_uint_32) + sizeof(png_uint_32)));
-			if (buffer != NULL)  {
-				ptr = (guint32 *)buffer;
-
-				ptr[0] = (guint32)(red_x * 100000);
-				ptr[1] = 1000000;
-				ptr[2] = (guint32)(red_y * 100000);
-				ptr[3] = 100000;
-
-				ptr[4] = (guint32)(green_x * 100000);
-				ptr[5] = 1000000;
-				ptr[6] = (guint32)(green_y * 100000);
-				ptr[7] = 100000;
-
-				ptr[8] = (guint32)(blue_x * 100000);
-				ptr[9] = 100000;
-				ptr[10] = (guint32)(blue_y * 100000);
-				ptr[11] = 100000;
-
-				gdip_bitmapdata_property_add (bitmap_data, PropertyTagPrimaryChromaticities, 
-					6 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
-
-				ptr[0] = (guint32)(white_x * 100000);
-				ptr[1] = 1000000;
-				ptr[2] = (guint32)(white_y * 100000);
-				ptr[3] = 100000;
-				gdip_bitmapdata_property_add (bitmap_data, PropertyTagWhitePoint, 
-					2 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
-
-				GdipFree(buffer);
+			if (!buffer) {
+				return OutOfMemory;
 			}
+
+			ptr = (guint32 *)buffer;
+
+			ptr[0] = (guint32)(red_x * 100000);
+			ptr[1] = 1000000;
+			ptr[2] = (guint32)(red_y * 100000);
+			ptr[3] = 100000;
+
+			ptr[4] = (guint32)(green_x * 100000);
+			ptr[5] = 1000000;
+			ptr[6] = (guint32)(green_y * 100000);
+			ptr[7] = 100000;
+
+			ptr[8] = (guint32)(blue_x * 100000);
+			ptr[9] = 100000;
+			ptr[10] = (guint32)(blue_y * 100000);
+			ptr[11] = 100000;
+
+			gdip_bitmapdata_property_add (bitmap_data, PropertyTagPrimaryChromaticities, 
+				6 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
+
+			ptr[0] = (guint32)(white_x * 100000);
+			ptr[1] = 1000000;
+			ptr[2] = (guint32)(white_y * 100000);
+			ptr[3] = 100000;
+			gdip_bitmapdata_property_add (bitmap_data, PropertyTagWhitePoint, 
+				2 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
+
+			GdipFree(buffer);
 		}
 	}
 #endif
@@ -247,7 +249,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_infop	end_info_ptr = NULL;
 	BYTE		*rawdata = NULL;
 	GpImage		*result = NULL;
-	GpStatus	status = InvalidParameter;
+	GpStatus	status = OutOfMemory;
 	int		bit_depth;
 	int		channels;
 	BYTE		color_type;
@@ -318,7 +320,18 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		/* Copy image data. */
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
-		rawdata = GdipAlloc(dest_stride * height);
+		unsigned long long int size = (unsigned long long int)dest_stride * height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
+
+		rawdata = GdipAlloc(size);
+		if (!rawdata) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		for (i=0; i < height; i++) {
 			memcpy (rawdata + i * dest_stride, row_pointers[i], source_stride);
 		}
@@ -326,10 +339,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		/* Copy palette. */
 		num_colours = 1 << bit_depth;
 
-		if (png_get_color_type (png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY) {
+		if (color_type == PNG_COLOR_TYPE_GRAY) {
 			/* A gray-scale image; generate a palette fading from black to white. */
 			colourspace_flag = ImageFlagsColorSpaceGRAY;
 			palette = gdip_create_greyscale_palette (num_colours);
+			if (!palette) {
+				status = OutOfMemory;
+				goto error;
+			}
+
 			palette->Flags = PaletteFlagsGrayScale;
 		} else {
 			/* Copy the palette data into the GDI+ structure. */
@@ -341,6 +359,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			}
 
 			palette = GdipAlloc (sizeof(ColorPalette) + (num_colours - 1) * sizeof(ARGB));
+			if (!palette) {
+				status = OutOfMemory;
+				goto error;
+			}
+
 			palette->Flags = 0;
 			palette->Count = num_colours;
 
@@ -387,6 +410,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		}
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
+		if (!result) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		result->type = ImageTypeBitmap;
 		result->active_bitmap->stride = dest_stride;
 		result->active_bitmap->width = width;
@@ -423,11 +451,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		int		height;
 		BYTE		bit_depth;
 		int		stride;
-		int		interlace;
 		png_bytep *row_pointers;
 		BYTE *rawptr;
 		int i, j;
-		BYTE	alpha[4];	/* transparency values for 2bpp */
+		BYTE	alpha[4] = {0xFF, 0xFF, 0xFF, 0xFF};	/* Transparency values for 2bpp - default to fully opaque. */
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
@@ -440,16 +467,24 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			goto error;
 		}
 
-		interlace = png_get_interlace_type (png_ptr, info_ptr);
-
 		stride = (width * 4);
 		gdip_align_stride (stride);
 
 		row_pointers = png_get_rows (png_ptr, info_ptr);
 
-		rawdata = GdipAlloc (stride * height);
-		rawptr = rawdata;
+		unsigned long long int size = (unsigned long long int)stride * height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
 
+		rawdata = GdipAlloc (size);
+		if (!rawdata) {
+			status = OutOfMemory;
+			goto error;
+		}
+
+		rawptr = rawdata;
 		switch (channels) {
 			case 4: {
 				for (i = 0; i < height; i++) {
@@ -495,7 +530,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			case 1:
 				if (bit_depth == 2) {
 					/* Make sure transparency is respected for 2bpp images. */
-					memset(alpha, 0xFF, 4);	/* default to fully opaque */
 					int num_trans = 0;
 					BYTE * trans = NULL;
 					png_color_16p dummy = NULL;
@@ -561,6 +595,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		}
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
+		if (!result) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		result->type = ImageTypeBitmap;
 
 		result->cairo_format = CAIRO_FORMAT_ARGB32;
@@ -601,7 +640,11 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->dpi_vert = 0;
 	}
 
-	gdip_load_png_properties(png_ptr, info_ptr, end_info_ptr, result->active_bitmap);
+	status = gdip_load_png_properties(png_ptr, info_ptr, end_info_ptr, result->active_bitmap);
+	if (status != Ok) {
+		goto error;
+	}
+
 	png_destroy_read_struct (&png_ptr, &info_ptr, &end_info_ptr);
 
 	*image = result;
@@ -609,6 +652,14 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	return Ok;
 
 error:
+	if (result) {
+		// Avoid double freeing the rawdata.
+		if (result->active_bitmap->scan0 == rawdata) {
+			rawdata = NULL;
+		}
+		gdip_bitmap_dispose (result);
+	}
+
 	/* coverity[dead_error_line] */
 	if (rawdata) {
 		GdipFree (rawdata);
@@ -638,6 +689,7 @@ gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDel
 static GpStatus 
 gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, GpImage *image, GDIPCONST EncoderParameters *params)
 {
+	GpStatus status;
 	png_structp	png_ptr = NULL;
 	png_infop	info_ptr = NULL;
 	int		i;
@@ -646,16 +698,19 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 
 	png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr) {
+		status = OutOfMemory;
 		goto error;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		/* png detected error occured */
+		status = GenericError;
 		goto error;
 	}
 
 	info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
+		status = OutOfMemory;
 		goto error;
 	}
 
@@ -708,6 +763,7 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	}
 
 	if (bit_depth == -1) {
+		status = GenericError;
 		goto error;
 	}
 
@@ -738,14 +794,6 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	png_set_sRGB_gAMA_and_cHRM (png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
 	png_write_info (png_ptr, info_ptr);
 
-#if 0
-	if ((image->active_bitmap->pixel_format == Format24bppRGB) || (image->active_bitmap->pixel_format == Format32bppRGB)) {
-		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
-	} else if (image->active_bitmap->pixel_format == Format8bppIndexed) {
-		png_set_filler (png_ptr, 0, PNG_FILLER_AFTER);
-	}
-#endif
-
 	png_set_bgr(png_ptr);
 
 	if (gdip_is_an_indexed_pixelformat (image->active_bitmap->pixel_format)) {
@@ -755,6 +803,11 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 	} else if (image->active_bitmap->pixel_format == PixelFormat24bppRGB) {
 		int j;
 		BYTE *row_pointer = GdipAlloc (image->active_bitmap->width * 3);
+		if (!row_pointer) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
 #ifdef WORDS_BIGENDIAN
@@ -774,6 +827,10 @@ gdip_save_png_image_to_file_or_stream (FILE *fp, PutBytesDelegate putBytesFunc, 
 #ifdef WORDS_BIGENDIAN
 		int j;
 		BYTE *row_pointer = GdipAlloc (image->active_bitmap->width * 4);
+		if (!row_pointer) {
+			status = OutOfMemory;
+			goto error;
+		}
 
 		for (i = 0; i < image->active_bitmap->height; i++) {
 			for (j = 0; j < image->active_bitmap->width; j++) {
@@ -802,7 +859,7 @@ error:
 	if (png_ptr) {
 		png_destroy_write_struct (&png_ptr, info_ptr ? &info_ptr : NULL);
 	}
-	return GenericError;
+	return status;
 }
 
 GpStatus 
@@ -819,6 +876,7 @@ gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *
 
 #else
 
+#include "codecs-private.h"
 #include "pngcodec.h"
 
 GpStatus 
@@ -858,3 +916,20 @@ gdip_getcodecinfo_png ()
 }
 #endif	/* HAVE_LIBPNG */
 
+GpStatus
+gdip_fill_encoder_parameter_list_png (EncoderParameters *buffer, UINT size)
+{
+	PngEncoderParameters *pngBuffer = (PngEncoderParameters *) buffer;
+
+	if (!buffer || size != sizeof (PngEncoderParameters))
+		return InvalidParameter;
+	
+	pngBuffer->count = 1;
+
+	pngBuffer->imageItems.Guid = GdipEncoderImageItems;
+	pngBuffer->imageItems.NumberOfValues = 0;
+	pngBuffer->imageItems.Type = 9; // Undocumented type.
+	pngBuffer->imageItems.Value = NULL;
+
+	return Ok;
+}

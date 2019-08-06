@@ -13,15 +13,15 @@
 #include <GdiPlusFlat.h>
 #endif
 
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "testhelpers.h"
-
-#ifdef USE_WINDOWS_GDIPLUS
-using namespace Gdiplus;
-using namespace DllExports;
-#endif
 
 static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, StringTrimming expectedTrimming)
 {
@@ -37,7 +37,7 @@ static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, 
 	REAL firstTabOffset;
 	REAL tabStops[1];
 	INT measurableCharacterRangeCount;
-	
+
 	status = GdipGetStringFormatFlags (format, &flags);
 	assertEqualInt (status, Ok);
 	assertEqualInt (flags, expectedAttributes);
@@ -74,8 +74,6 @@ static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, 
 	status = GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
 	assertEqualInt (status, Ok);
 	assertEqualInt (measurableCharacterRangeCount, 0);
-
-	GdipDeleteStringFormat (format);
 }
 
 static void test_createStringFormat ()
@@ -87,16 +85,19 @@ static void test_createStringFormat ()
 	status = GdipCreateStringFormat (10, 11, &format);
 	assertEqualInt (status, Ok);
 	verifyStringFormat (format, 10, StringTrimmingCharacter);
+	GdipDeleteStringFormat (format);
 
 	// Zero values.
 	status = GdipCreateStringFormat (0, 0, &format);
 	assertEqualInt (status, Ok);
 	verifyStringFormat (format, 0, StringTrimmingCharacter);
+	GdipDeleteStringFormat (format);
 
 	// Negative values.
 	status = GdipCreateStringFormat (-1, -2, &format);
 	assertEqualInt (status, Ok);
 	verifyStringFormat (format, -1, StringTrimmingCharacter);
+	GdipDeleteStringFormat (format);
 
 	// Negative tests.
 	status = GdipCreateStringFormat (10, 11, NULL);
@@ -106,11 +107,45 @@ static void test_createStringFormat ()
 static void test_getGenericDefault ()
 {
 	GpStatus status;
-	GpStringFormat *format;
-	
-	status = GdipStringFormatGetGenericDefault (&format);
+	GpStringFormat *format1;
+	GpStringFormat *format2;
+	StringAlignment lineAlign;
+
+	// Should be a singleton.
+	status = GdipStringFormatGetGenericDefault (&format1);
 	assertEqualInt (status, Ok);
-	verifyStringFormat (format, 0, StringTrimmingCharacter);
+	assert (format1);
+	verifyStringFormat (format1, 0, StringTrimmingCharacter);
+
+	status = GdipStringFormatGetGenericDefault (&format2);
+	assertEqualInt (status, Ok);
+	assert (format2);
+	verifyStringFormat (format2, 0, StringTrimmingCharacter);
+	assert (format1 == format2);
+
+	// Should not be deleted.
+	status = GdipDeleteStringFormat (format2);
+	assertEqualInt (status, Ok);
+
+	status = GdipStringFormatGetGenericDefault (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, 0, StringTrimmingCharacter);
+	assert (format1 == format2);
+
+	// Should be mutable.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetStringFormatLineAlign (format1, &lineAlign);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineAlign, StringAlignmentFar);
+
+	// Set back to the default.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentNear);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipStringFormatGetGenericDefault (NULL);
@@ -120,11 +155,40 @@ static void test_getGenericDefault ()
 static void test_getGenericTypographic ()
 {
 	GpStatus status;
-	GpStringFormat *format;
-	
-	status = GdipStringFormatGetGenericTypographic (&format);
+	GpStringFormat *format1;
+	GpStringFormat *format2;
+	StringAlignment lineAlign;
+
+	// Should be a singleton.
+	status = GdipStringFormatGetGenericTypographic (&format1);
 	assertEqualInt (status, Ok);
-	verifyStringFormat (format, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	verifyStringFormat (format1, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+
+	status = GdipStringFormatGetGenericTypographic (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	assert (format1 == format2);
+
+	// Should not be deleted.
+	status = GdipDeleteStringFormat (format2);
+	assertEqualInt (status, Ok);
+
+	status = GdipStringFormatGetGenericTypographic (&format2);
+	assertEqualInt (status, Ok);
+	verifyStringFormat (format2, StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip, StringTrimmingNone);
+	assert (format1 == format2);
+
+	// Should be mutable.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	status = GdipGetStringFormatLineAlign (format1, &lineAlign);
+	assertEqualInt (status, Ok);
+	assertEqualInt (lineAlign, StringAlignmentFar);
+
+	// Set back to the default.
+	status = GdipSetStringFormatLineAlign (format1, StringAlignmentNear);
+	assertEqualInt (status, Ok);
 
 	// Negative tests.
 	status = GdipStringFormatGetGenericTypographic (NULL);
@@ -135,7 +199,7 @@ static void test_deleteStringFormat ()
 {
 	GpStatus status;
 	GpStringFormat *format;
-	
+
 	GdipCreateStringFormat (10, 11, &format);
 
 	status = GdipDeleteStringFormat (format);
@@ -153,10 +217,11 @@ static void test_cloneStringFormat ()
 	GpStringFormat *clonedFormat;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
 	status = GdipCloneStringFormat (format, &clonedFormat);
 	assertEqualInt (status, Ok);
 	verifyStringFormat (clonedFormat, 10, StringTrimmingCharacter);
+	GdipDeleteStringFormat (clonedFormat);
 
 	// Negative tests.
 	status = GdipCloneStringFormat (NULL, &clonedFormat);
@@ -175,12 +240,34 @@ static void test_setStringFormatAlign ()
 	StringAlignment align;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
+	// StringAlignmentCenter.
+	status = GdipSetStringFormatAlign (format, StringAlignmentNear);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatAlign (format, &align);
+	assertEqualInt (align, StringAlignmentNear);
+
+	// Same.
+	status = GdipSetStringFormatAlign (format, StringAlignmentNear);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatAlign (format, &align);
+	assertEqualInt (align, StringAlignmentNear);
+
+	// StringAlignmentCenter.
 	status = GdipSetStringFormatAlign (format, StringAlignmentCenter);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatAlign (format, &align);
 	assertEqualInt (align, StringAlignmentCenter);
+
+	// StringAlignmentFar.
+	status = GdipSetStringFormatAlign (format, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatAlign (format, &align);
+	assertEqualInt (align, StringAlignmentFar);
 
 	// Negative tests.
 	status = GdipSetStringFormatAlign (NULL, StringAlignmentCenter);
@@ -206,7 +293,7 @@ static void test_getStringFormatAlign ()
 	// Negative tests.
 	status = GdipGetStringFormatAlign (NULL, &align);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetStringFormatAlign (format, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -220,12 +307,34 @@ static void test_setStringFormatLineAlign ()
 	StringAlignment lineAlign;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
+	// StringAlignmentNear.
+	status = GdipSetStringFormatLineAlign (format, StringAlignmentNear);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatLineAlign (format, &lineAlign);
+	assertEqualInt (lineAlign, StringAlignmentNear);
+
+	// Same.
+	status = GdipSetStringFormatLineAlign (format, StringAlignmentNear);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatLineAlign (format, &lineAlign);
+	assertEqualInt (lineAlign, StringAlignmentNear);
+
+	// StringAlignmentCenter.
 	status = GdipSetStringFormatLineAlign (format, StringAlignmentCenter);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatLineAlign (format, &lineAlign);
 	assertEqualInt (lineAlign, StringAlignmentCenter);
+
+	// StringAlignmentFar.
+	status = GdipSetStringFormatLineAlign (format, StringAlignmentFar);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatLineAlign (format, &lineAlign);
+	assertEqualInt (lineAlign, StringAlignmentFar);
 
 	// Negative tests.
 	status = GdipSetStringFormatLineAlign (NULL, StringAlignmentCenter);
@@ -251,7 +360,7 @@ static void test_getStringFormatLineAlign ()
 	// Negative tests.
 	status = GdipGetStringFormatLineAlign (NULL, &lineAlign);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetStringFormatLineAlign (format, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -265,12 +374,55 @@ static void test_setStringFormatTrimming ()
 	StringTrimming trimming;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
+	// StringTrimmingNone
+	status = GdipSetStringFormatTrimming (format, StringTrimmingNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingNone);
+
+	// Same.
+	status = GdipSetStringFormatTrimming (format, StringTrimmingNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingNone);
+
+	// StringTrimmingEllipsisCharacter.
+	status = GdipSetStringFormatTrimming (format, StringTrimmingCharacter);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingCharacter);
+
+	// StringTrimmingWord.
+	status = GdipSetStringFormatTrimming (format, StringTrimmingWord);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingWord);
+
+	// StringTrimmingEllipsisCharacter.
 	status = GdipSetStringFormatTrimming (format, StringTrimmingEllipsisCharacter);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTrimming (format, &trimming);
 	assertEqualInt (trimming, StringTrimmingEllipsisCharacter);
+
+	// StringTrimmingEllipsisWord.
+	status = GdipSetStringFormatTrimming (format, StringTrimmingEllipsisWord);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingEllipsisWord);
+
+	// StringTrimmingEllipsisPath.
+	status = GdipSetStringFormatTrimming (format, StringTrimmingEllipsisPath);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTrimming (format, &trimming);
+	assertEqualInt (trimming, StringTrimmingEllipsisPath);
 
 	// Negative tests.
 	status = GdipSetStringFormatTrimming (NULL, StringTrimmingEllipsisCharacter);
@@ -296,7 +448,7 @@ static void test_getStringFormatTrimming ()
 	// Negative tests.
 	status = GdipGetStringFormatTrimming (NULL, &trimming);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetStringFormatTrimming (format, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -310,12 +462,34 @@ static void test_setStringFormatHotkeyPrefix ()
 	INT hotkeyPrefix;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
+	// HotkeyPrefixNone.
+	status = GdipSetStringFormatHotkeyPrefix (format, HotkeyPrefixNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatHotkeyPrefix (format, &hotkeyPrefix);
+	assertEqualInt (hotkeyPrefix, HotkeyPrefixNone);
+
+	// Same.
+	status = GdipSetStringFormatHotkeyPrefix (format, HotkeyPrefixNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatHotkeyPrefix (format, &hotkeyPrefix);
+	assertEqualInt (hotkeyPrefix, HotkeyPrefixNone);
+
+	// HotkeyPrefixShow.
 	status = GdipSetStringFormatHotkeyPrefix (format, HotkeyPrefixShow);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatHotkeyPrefix (format, &hotkeyPrefix);
 	assertEqualInt (hotkeyPrefix, HotkeyPrefixShow);
+
+	// HotkeyPrefixHide.
+	status = GdipSetStringFormatHotkeyPrefix (format, HotkeyPrefixHide);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatHotkeyPrefix (format, &hotkeyPrefix);
+	assertEqualInt (hotkeyPrefix, HotkeyPrefixHide);
 
 	// Negative tests.
 	status = GdipSetStringFormatHotkeyPrefix (NULL, HotkeyPrefixNone);
@@ -341,7 +515,7 @@ static void test_getStringFormatHotkeyPrefix ()
 	// Negative tests.
 	status = GdipGetStringFormatHotkeyPrefix (NULL, &hotkeyPrefix);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetStringFormatHotkeyPrefix (format, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -353,17 +527,18 @@ static void test_setStringFormatTabStops ()
 	GpStatus status;
 	GpStringFormat *format;
 	REAL firstTabOffset;
-	REAL tabStops[4] = {1, 0, 2, 3};
+	REAL tabStops1[4] = {1, 0, 2, 3};
+	REAL tabStops2[4] = {3, 2, 0, 1};
 	REAL oneTabStop[1] = {0};
 	REAL negativeValueInTabStops[4] = {1, -1};
 	REAL formatTabStops[4];
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
 	// Count of 4.
-	status = GdipSetStringFormatTabStops (format, 10, 4, tabStops);
+	status = GdipSetStringFormatTabStops (format, 10, 4, tabStops1);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
 	assertEqualFloat (firstTabOffset, 10);
 	assertEqualFloat (formatTabStops[0], 1);
@@ -371,10 +546,21 @@ static void test_setStringFormatTabStops ()
 	assertEqualFloat (formatTabStops[2], 2);
 	assertEqualFloat (formatTabStops[3], 3);
 
+	// Count of 4 again.
+	status = GdipSetStringFormatTabStops (format, FLT_MAX, 4, tabStops2);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
+	assertEqualFloat (firstTabOffset, FLT_MAX);
+	assertEqualFloat (formatTabStops[0], 3);
+	assertEqualFloat (formatTabStops[1], 2);
+	assertEqualFloat (formatTabStops[2], 0);
+	assertEqualFloat (formatTabStops[3], 1);
+
 	// Count of 1.
 	status = GdipSetStringFormatTabStops (format, 0, 1, oneTabStop);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
 	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
@@ -382,7 +568,7 @@ static void test_setStringFormatTabStops ()
 	// Count of 0.
 	status = GdipSetStringFormatTabStops (format, 10, 0, oneTabStop);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
 	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
@@ -390,7 +576,7 @@ static void test_setStringFormatTabStops ()
 	// Count of -1.
 	status = GdipSetStringFormatTabStops (format, 10, -1, oneTabStop);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
 	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
@@ -398,7 +584,7 @@ static void test_setStringFormatTabStops ()
 	// Count of 0, invalid first tab offset.
 	status = GdipSetStringFormatTabStops (format, -1, 0, oneTabStop);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetStringFormatTabStops (format, 1, &firstTabOffset, formatTabStops);
 	assertEqualFloat (firstTabOffset, 0);
 	assertEqualFloat (formatTabStops[0], 0);
@@ -464,19 +650,28 @@ static void test_getStringFormatTabStops ()
 	assertEqualFloat (formatTabStops[2], 3);
 	assertEqualFloat (formatTabStops[3], 4);
 	assertEqualFloat (formatTabStops[4], -5);
-	
+
 	// Negative tests,
 	status = GdipGetStringFormatTabStops (NULL, 0, &firstTabOffset, formatTabStops);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetStringFormatTabStops (NULL, -1, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetStringFormatTabStops (format, 0, NULL, formatTabStops);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipGetStringFormatTabStops (format, -1, NULL, formatTabStops);
+	assertEqualInt (status, InvalidParameter);
+
 	status = GdipGetStringFormatTabStops (format, 0, &firstTabOffset, NULL);
 	assertEqualInt (status, InvalidParameter);
 
+	status = GdipGetStringFormatTabStops (format, -1, &firstTabOffset, NULL);
+	assertEqualInt (status, InvalidParameter);
+
 	// This causes GDI+ to crash.
-#if !defined(_WIN32)
+#if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipGetStringFormatTabStops (format, -1, &firstTabOffset, formatTabStops);
 	assertEqualInt (status, InvalidParameter);
 #endif
@@ -491,7 +686,7 @@ static void test_getStringFormatTabStopCount ()
 	INT tabStopCount;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
 	// Negative tests.
 	status = GdipGetStringFormatTabStopCount (NULL, &tabStopCount);
 	assertEqualInt (status, InvalidParameter);
@@ -511,13 +706,61 @@ static void test_setStringFormatDigitSubstitution ()
 
 	GdipCreateStringFormat (10, 11, &format);
 
-	// Valid value.
+	// StringDigitSubstituteUser.
+	status = GdipSetStringFormatDigitSubstitution (format, 10, StringDigitSubstituteUser);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 10);
+	assertEqualInt (substitute, StringDigitSubstituteUser);
+
+	// Same.
+	status = GdipSetStringFormatDigitSubstitution (format, 10, StringDigitSubstituteUser);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 10);
+	assertEqualInt (substitute, StringDigitSubstituteUser);
+
+	// Different language, same substitute.
+	status = GdipSetStringFormatDigitSubstitution (format, 12, StringDigitSubstituteUser);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 12);
+	assertEqualInt (substitute, StringDigitSubstituteUser);
+
+	// Same language, different substitute.
+	status = GdipSetStringFormatDigitSubstitution (format, 12, StringDigitSubstituteNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 12);
+	assertEqualInt (substitute, StringDigitSubstituteNone);
+
+	// StringDigitSubstituteNone.
+	status = GdipSetStringFormatDigitSubstitution (format, 10, StringDigitSubstituteNone);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 10);
+	assertEqualInt (substitute, StringDigitSubstituteNone);
+
+	// StringDigitSubstituteNational.
 	status = GdipSetStringFormatDigitSubstitution (format, 10, StringDigitSubstituteNational);
 	assertEqualInt (status, Ok);
 
 	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
 	assertEqualInt (language, 10);
 	assertEqualInt (substitute, StringDigitSubstituteNational);
+
+	// StringDigitSubstituteTraditional.
+	status = GdipSetStringFormatDigitSubstitution (format, 10, StringDigitSubstituteTraditional);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
+	assertEqualInt (language, 10);
+	assertEqualInt (substitute, StringDigitSubstituteTraditional);
 
 	// Invalid value - negative.
 	status = GdipSetStringFormatDigitSubstitution (format, 0, (StringDigitSubstitute)(StringDigitSubstituteUser - 1));
@@ -534,7 +777,7 @@ static void test_setStringFormatDigitSubstitution ()
 	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
 	assertEqualInt (language, 0);
 	assertEqualInt (substitute, (StringDigitSubstitute)(StringDigitSubstituteTraditional + 1));
-	
+
 	// Negative tests.
 	status = GdipSetStringFormatDigitSubstitution (NULL, 0, StringDigitSubstituteNational);
 	assertEqualInt (status, InvalidParameter);
@@ -572,6 +815,67 @@ static void test_getStringFormatDigitSubstitution ()
 	GdipDeleteStringFormat (format);
 }
 
+static void test_setStringFormatFlags ()
+{
+	GpStatus status;
+	GpStringFormat *format;
+	INT flags;
+
+	GdipCreateStringFormat (10, 11, &format);
+
+	// Custom flags.
+	status = GdipSetStringFormatFlags (format, 1234);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatFlags (format, &flags);
+	assertEqualInt (flags, 1234);
+
+	// Same.
+	status = GdipSetStringFormatFlags (format, 1234);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatFlags (format, &flags);
+	assertEqualInt (flags, 1234);
+
+	// Zero.
+	status = GdipSetStringFormatFlags (format, 0);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatFlags (format, &flags);
+	assertEqualInt (flags, 0);
+
+	// Negative.
+	status = GdipSetStringFormatFlags (format, -1234);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatFlags (format, &flags);
+	assertEqualInt (flags, -1234);
+
+	// Negative tests.
+	status = GdipSetStringFormatFlags (NULL, 1234);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteStringFormat (format);
+}
+
+static void test_getStringFormatFlags ()
+{
+	GpStatus status;
+	GpStringFormat *format;
+	INT flags;
+
+	GdipCreateStringFormat (10, 11, &format);
+
+	// Negative tests.
+	status = GdipGetStringFormatFlags (NULL, &flags);
+	assertEqualInt (status, InvalidParameter);
+
+	status = GdipGetStringFormatFlags (format, NULL);
+	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteStringFormat (format);
+}
+
 static void test_getStringFormatMeasurableCharacterRangeCount ()
 {
 	GpStatus status;
@@ -579,7 +883,7 @@ static void test_getStringFormatMeasurableCharacterRangeCount ()
 	INT measurableCharacterRangeCount;
 
 	GdipCreateStringFormat (10, 11, &format);
-	
+
 	// Negative tests.
 	status = GdipGetStringFormatMeasurableCharacterRangeCount (NULL, &measurableCharacterRangeCount);
 	assertEqualInt (status, InvalidParameter);
@@ -594,12 +898,19 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 {
 	GpStatus status;
 	GpStringFormat *format;
-	CharacterRange ranges[3];
+	CharacterRange ranges[32];
 	INT measurableCharacterRangeCount;
-	
+
 	GdipCreateStringFormat (10, 11, &format);
 
 	// Count of 1.
+	status = GdipSetStringFormatMeasurableCharacterRanges (format, 1, ranges);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
+	assertEqualInt (measurableCharacterRangeCount, 1);
+
+	// Count of 1 again.
 	status = GdipSetStringFormatMeasurableCharacterRanges (format, 1, ranges);
 	assertEqualInt (status, Ok);
 
@@ -623,7 +934,14 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 
 	GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
 	assertEqualInt (measurableCharacterRangeCount, 0);
-	
+
+	// Count of 32.
+	status = GdipSetStringFormatMeasurableCharacterRanges (format, 32, ranges);
+	assertEqualInt (status, Ok);
+
+	GdipGetStringFormatMeasurableCharacterRangeCount (format, &measurableCharacterRangeCount);
+	assertEqualInt (measurableCharacterRangeCount, 32);
+
 	// Negative tests.
 	status = GdipSetStringFormatMeasurableCharacterRanges (NULL, 0, ranges);
 	assertEqualInt (status, InvalidParameter);
@@ -640,9 +958,7 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 int
 main (int argc, char**argv)
 {
-	GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	STARTUP;
 
 	test_createStringFormat ();
 	test_getGenericDefault ();
@@ -662,9 +978,11 @@ main (int argc, char**argv)
 	test_getStringFormatTabStopCount ();
 	test_setStringFormatDigitSubstitution ();
 	test_getStringFormatDigitSubstitution ();
+	test_setStringFormatFlags ();
+	test_getStringFormatFlags ();
 	test_getStringFormatMeasurableCharacterRangeCount ();
 	test_setStringFormatMeasurableCharacterRanges ();
 
-	GdiplusShutdown (gdiplusToken);
+	SHUTDOWN;
 	return 0;
 }

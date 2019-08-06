@@ -25,22 +25,22 @@
 #ifndef __GRAPHICS_PATHITERATOR_H__
 #define __GRAPHICS_PATHITERATOR_H__
 
-GpStatus GdipCreatePathIter (GpPathIterator **iterator, GpPath *path);
-GpStatus GdipDeletePathIter (GpPathIterator *iterator);
+GpStatus WINGDIPAPI GdipCreatePathIter (GpPathIterator **iterator, GpPath *path);
+GpStatus WINGDIPAPI GdipDeletePathIter (GpPathIterator *iterator);
 
-GpStatus GdipPathIterGetCount (GpPathIterator *iterator, INT *count);
-GpStatus GdipPathIterGetSubpathCount (GpPathIterator *iterator, INT *count);
-GpStatus GdipPathIterCopyData (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT startIndex, INT endIndex);
-GpStatus GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *hasCurve);
+GpStatus WINGDIPAPI GdipPathIterGetCount (GpPathIterator *iterator, INT *count);
+GpStatus WINGDIPAPI GdipPathIterGetSubpathCount (GpPathIterator *iterator, INT *count);
+GpStatus WINGDIPAPI GdipPathIterCopyData (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT startIndex, INT endIndex);
+GpStatus WINGDIPAPI GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *hasCurve);
 
-GpStatus GdipPathIterNextMarkerPath (GpPathIterator *iterator, INT *resultCount, GpPath *path);
-GpStatus GdipPathIterNextMarker (GpPathIterator *iterator, INT *resultCount, INT *startIndex, INT *endIndex);
-GpStatus GdipPathIterNextPathType (GpPathIterator *iterator, INT *resultCount, BYTE *pathType, INT *startIndex, INT *endIndex);
-GpStatus GdipPathIterNextSubpathPath (GpPathIterator *iterator, INT *resultCount, GpPath *path, BOOL *isClosed);
-GpStatus GdipPathIterNextSubpath (GpPathIterator *iterator, INT *resultCount, INT *startIndex, INT *endIndex, BOOL *isClosed);
+GpStatus WINGDIPAPI GdipPathIterNextMarkerPath (GpPathIterator *iterator, INT *resultCount, GpPath *path);
+GpStatus WINGDIPAPI GdipPathIterNextMarker (GpPathIterator *iterator, INT *resultCount, INT *startIndex, INT *endIndex);
+GpStatus WINGDIPAPI GdipPathIterNextPathType (GpPathIterator *iterator, INT *resultCount, BYTE *pathType, INT *startIndex, INT *endIndex);
+GpStatus WINGDIPAPI GdipPathIterNextSubpathPath (GpPathIterator *iterator, INT *resultCount, GpPath *path, BOOL *isClosed);
+GpStatus WINGDIPAPI GdipPathIterNextSubpath (GpPathIterator *iterator, INT *resultCount, INT *startIndex, INT *endIndex, BOOL *isClosed);
 
-GpStatus GdipPathIterEnumerate (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT count);
-GpStatus GdipPathIterRewind (GpPathIterator *iterator);
+GpStatus WINGDIPAPI GdipPathIterEnumerate (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT count);
+GpStatus WINGDIPAPI GdipPathIterRewind (GpPathIterator *iterator);
 
 
 /* missing API

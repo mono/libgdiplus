@@ -39,13 +39,14 @@
 
 #ifdef USE_PANGO_RENDERING
 	#include <pango/pangofc-font.h>
+	#include <pango/pangofc-fontmap.h>
 	#include <pango/pangocairo.h>
 #endif
 
 struct _Font {
-        float			sizeInPixels;
-        FontStyle		style;
-        unsigned char*		face;
+	float			sizeInPixels;
+	FontStyle		style;
+	unsigned char*		face;
 	GpFontFamily		*family;
 	float			emSize;
 	GpUnit			unit;
@@ -53,11 +54,12 @@ struct _Font {
 	PangoFontDescription	*pango;
 #else
 	cairo_font_face_t	*cairofnt;
-	cairo_t			*cairo;
 #endif
 };
 
+GpStatus gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize, INT style, Unit unit, GpFont **font);
 void gdip_font_clear_pattern_cache (void) GDIP_INTERNAL;
+void gdip_delete_system_fonts (void) GDIP_INTERNAL;
 
 #ifdef USE_PANGO_RENDERING
 

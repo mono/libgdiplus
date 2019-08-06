@@ -1,2 +1,2 @@
 *.sh	crlf=input
-
+*.inc	linguist-language=C

@@ -11,7 +11,7 @@
 #define __CUSTOMLINECAP_H__
 
 /* CustomLineCap functions */
-GpStatus WINGDIPAPI GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, float baseInset, GpCustomLineCap **customCap);
+GpStatus WINGDIPAPI GdipCreateCustomLineCap (GpPath *fillPath, GpPath *strokePath, GpLineCap baseCap, REAL baseInset, GpCustomLineCap **customCap);
 GpStatus WINGDIPAPI GdipDeleteCustomLineCap (GpCustomLineCap *customCap);
 GpStatus WINGDIPAPI GdipCloneCustomLineCap (GpCustomLineCap *customCap, GpCustomLineCap **clonedCap);
 GpStatus WINGDIPAPI GdipGetCustomLineCapType (GpCustomLineCap *customCap, CustomLineCapType *capType);
@@ -21,9 +21,9 @@ GpStatus WINGDIPAPI GdipSetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, 
 GpStatus WINGDIPAPI GdipGetCustomLineCapStrokeJoin (GpCustomLineCap *customCap, GpLineJoin *lineJoin);
 GpStatus WINGDIPAPI GdipSetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap baseCap);
 GpStatus WINGDIPAPI GdipGetCustomLineCapBaseCap (GpCustomLineCap *customCap, GpLineCap *baseCap);
-GpStatus WINGDIPAPI GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, float inset);
-GpStatus WINGDIPAPI GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, float *inset);
-GpStatus WINGDIPAPI GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, float widthScale);
-GpStatus WINGDIPAPI GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, float *widthScale);
+GpStatus WINGDIPAPI GdipSetCustomLineCapBaseInset (GpCustomLineCap *customCap, REAL inset);
+GpStatus WINGDIPAPI GdipGetCustomLineCapBaseInset (GpCustomLineCap *customCap, REAL *inset);
+GpStatus WINGDIPAPI GdipSetCustomLineCapWidthScale (GpCustomLineCap *customCap, REAL widthScale);
+GpStatus WINGDIPAPI GdipGetCustomLineCapWidthScale (GpCustomLineCap *customCap, REAL *widthScale);
 
 #endif

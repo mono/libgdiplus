@@ -56,12 +56,6 @@ typedef struct {
 } ColorMatrix;
 
 typedef struct {
-	UINT Flags;
-	UINT Count;
-	ARGB Entries[1];
-} ColorPalette;
-
-typedef struct {
         int X, Y;
 } Point, GpPoint;
 
@@ -76,13 +70,6 @@ typedef struct {
 } PathData, GpPathData;
 
 typedef struct {
-	PROPID	id;
-	ULONG	length;
-	WORD	type;
-	VOID*	value;
-} PropertyItem;
-
-typedef struct {
 	int X, Y, Width, Height;
 } Rect, GpRect;
 
@@ -94,5 +81,7 @@ typedef struct {
 typedef BOOL (*ImageAbort) (void *);
 typedef ImageAbort DrawImageAbort;
 typedef ImageAbort GetThumbnailImageAbort;
+
+typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE*, VOID*);
 
 #endif

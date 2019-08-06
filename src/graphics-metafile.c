@@ -33,19 +33,19 @@
 #define EMFPLUS_FLAGS_USE_INT16		0x4000
 #define EMFPLUS_FLAGS_USE_ARGB		0x8000
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 RectFitInInt16 (int x, int y, int width, int height)
 {
 	return (FIT_IN_INT16(x) && FIT_IN_INT16(y) && FIT_IN_INT16(width) && FIT_IN_INT16(height));
 }
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 GpRectFitInInt16 (GDIPCONST GpRect *rect)
 {
 	return (FIT_IN_INT16(rect->X) && FIT_IN_INT16(rect->Y) && FIT_IN_INT16(rect->Width) && FIT_IN_INT16(rect->Height));
 }
 
-static BOOL
+ATTRIBUTE_USED static BOOL
 GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 {
 	GpRect *r = (GpRect*) rects;
@@ -55,24 +55,6 @@ GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 			return FALSE;
 	}
 	return TRUE;
-}
-
-static GpRectF *
-convert_rects (GDIPCONST GpRect *rects, int count)
-{
-	int i;
-	GpRectF *result = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
-	if (!result)
-		return NULL;
-
-	for (i = 0; i < count; i++) {
-			result [i].X = rects [i].X;
-			result [i].Y = rects [i].Y;
-			result [i].Width = rects [i].Width;
-			result [i].Height = rects [i].Height;
-	}
-
-	return result;
 }
 
 /* DrawArcs - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawArc.html */
@@ -85,42 +67,10 @@ metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float widt
 	return Ok;
 }
 
-GpStatus
-metafile_DrawArcI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_DrawArc (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-	/* TODO */
-	return Ok;
-}
-
 /* DrawBeziers - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawBeziers.html */
 
 GpStatus 
-metafile_DrawBezier (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2, float x3, float y3, 
-	float x4, float y4)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawBezierI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus 
 metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawBeziersI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	/* TODO */
 	return Ok;
@@ -137,26 +87,12 @@ metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF 
 	return Ok;
 }
 
-GpStatus
-metafile_DrawClosedCurve2I (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count, float tension)
-{
-	/* TODO */
-	return Ok;
-}
-
 /*
  * FillClosedCurve - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/FillClosedCurve.html
  */
 
 GpStatus
-metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_FillClosedCurve2I (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, float tension)
+metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, float tension, GpFillMode fillMode)
 {
 	/* TODO */
 	return Ok;
@@ -174,14 +110,6 @@ metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *point
 	return Ok;
 }
 
-GpStatus
-metafile_DrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, int count, int offset, int numOfSegments,
-	float tension)
-{
-	/* TODO */
-	return Ok;
-}
-
 /*
  * DrawEllipse - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawEllipse.html
  */
@@ -189,16 +117,6 @@ metafile_DrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *point
 GpStatus 
 metafile_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
 {	
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawEllipseI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_DrawEllipse (graphics, pen, x, y, width, height);
 	/* TODO */
 	return Ok;
 }
@@ -214,43 +132,12 @@ metafile_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, fl
 	return Ok;
 }
 
-GpStatus
-metafile_FillEllipseI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_FillEllipse (graphics, brush, x, y, width, height);
-	/* TODO */
-	return Ok;
-}
-
 /*
  * DrawLines - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawLines.html
  */
 
-GpStatus
-metafile_DrawLine (GpGraphics *graphics, GpPen *pen, float x1, float y1, float x2, float y2)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawLineI (GpGraphics *graphics, GpPen *pen, int x1, int y1, int x2, int y2)
-{
-	/* TODO */
-	return Ok;
-}
-
 GpStatus 
 metafile_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawLinesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	/* TODO */
 	return Ok;
@@ -289,16 +176,6 @@ metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float widt
 	return Ok;
 }
 
-GpStatus
-metafile_DrawPieI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height, float startAngle, float sweepAngle)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_DrawPie (graphics, pen, x, y, width, height, startAngle, sweepAngle);
-	/* TODO */
-	return Ok;
-}
-
 /*
  * FillPie - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/FillPie.html
  */
@@ -311,30 +188,12 @@ metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float 
 	return Ok;
 }
 
-GpStatus
-metafile_FillPieI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height, 
-	float startAngle, float sweepAngle)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_FillPie (graphics, brush, x, y, width, height, startAngle, sweepAngle);
-	/* TODO */
-	return Ok;
-}
-
 /*
  * DrawPolygon - ?
  */
 
 GpStatus
 metafile_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawPolygonI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPoint *points, int count)
 {
 	/* TODO */
 	return Ok;
@@ -351,55 +210,13 @@ metafile_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *
 	return Ok;
 }
 
-GpStatus
-metafile_FillPolygonI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoint *points, int count, FillMode fillMode)
-{
-	/* TODO */
-	return Ok;
-}
-
 /*
  * DrawRects - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawRects.html
  */
 
 GpStatus
-metafile_DrawRectangle (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
-{
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawRectangleI (GpGraphics *graphics, GpPen *pen, int x, int y, int width, int height)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_DrawRectangleI (graphics, pen, x, y, width, height);
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
 metafile_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
-	/* TODO */
-	return Ok;
-}
-
-GpStatus
-metafile_DrawRectanglesI (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRect *rects, int count)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!GpRectArrayFitInInt16 (rects, count)) {
-		GpStatus status;
-		GpRectF *rf = convert_rects (rects, count);
-		if (!rf)
-			return OutOfMemory;
-
-		status = metafile_DrawRectangles (graphics, pen, rf, count);
-		GdipFree (rf);
-		return status;
-	}
 	/* TODO */
 	return Ok;
 }
@@ -416,37 +233,8 @@ metafile_FillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, 
 }
 
 GpStatus 
-metafile_FillRectangleI (GpGraphics *graphics, GpBrush *brush, int x, int y, int width, int height)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!RectFitInInt16 (x, y, width, height))
-		return metafile_FillRectangle (graphics, brush, x, y, width, height);
-	/* TODO */
-	return Ok;
-}
-
-GpStatus 
 metafile_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
-	/* TODO */
-	return Ok;
-}
-
-GpStatus 
-metafile_FillRectanglesI (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRect *rects, int count)
-{
-	/* every rectangle must fit into a INT16 or we must use the float version */
-	if (!GpRectArrayFitInInt16 (rects, count)) {
-		GpStatus status;
-		GpRectF *rf = convert_rects (rects, count);
-		if (!rf)
-			return OutOfMemory;
-
-		status = metafile_FillRectangles (graphics, brush, rf, count);
-		GdipFree (rf);
-		return status;
-	}
-
 	/* TODO */
 	return Ok;
 }

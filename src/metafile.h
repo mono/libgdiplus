@@ -23,66 +23,64 @@
 #ifndef __METAFILE_H__
 #define __METAFILE_H__
 
-typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE*, void*);
-
 /* function prototypes */
 
-GpStatus GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile);
+GpStatus WINGDIPAPI GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile);
 
-GpStatus GdipCreateMetafileFromEmf (HENHMETAFILE hEmf, BOOL deleteEmf, GpMetafile **metafile);
+GpStatus WINGDIPAPI GdipCreateMetafileFromEmf (HENHMETAFILE hEmf, BOOL deleteEmf, GpMetafile **metafile);
 
-GpStatus GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile);
+GpStatus WINGDIPAPI GdipCreateMetafileFromFile (GDIPCONST WCHAR *file, GpMetafile **metafile);
 
-GpStatus GdipCreateMetafileFromWmfFile (GDIPCONST WCHAR *file, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile);
+GpStatus WINGDIPAPI GdipCreateMetafileFromWmfFile (GDIPCONST WCHAR *file, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, GpMetafile **metafile);
 
-GpStatus GdipCreateMetafileFromStream (void *stream, GpMetafile **metafile);
-GpStatus GdipCreateMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
-	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, 
+GpStatus WINGDIPAPI GdipCreateMetafileFromStream (void *stream, GpMetafile **metafile);
+GpStatus WINGDIPAPI GdipCreateMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc,
 	GpMetafile **metafile);
 
-GpStatus GdipGetMetafileHeaderFromWmf (HMETAFILE hWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header);
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromWmf (HMETAFILE hWmf, GDIPCONST WmfPlaceableFileHeader *wmfPlaceableFileHeader, MetafileHeader *header);
 
-GpStatus GdipGetMetafileHeaderFromEmf (HENHMETAFILE hEmf, MetafileHeader *header);
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromEmf (HENHMETAFILE hEmf, MetafileHeader *header);
 
-GpStatus GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header);
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromFile (GDIPCONST WCHAR *filename, MetafileHeader *header);
 
-GpStatus GdipGetMetafileHeaderFromStream (void *stream, MetafileHeader *header);
-GpStatus GdipGetMetafileHeaderFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
-	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, 
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromStream (void *stream, MetafileHeader *header);
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc,
 	MetafileHeader *header);
 
-GpStatus GdipGetMetafileHeaderFromMetafile (GpMetafile *metafile, MetafileHeader *header);
+GpStatus WINGDIPAPI GdipGetMetafileHeaderFromMetafile (GpMetafile *metafile, MetafileHeader *header);
 
-GpStatus GdipGetHemfFromMetafile (GpMetafile *metafile, HENHMETAFILE *hEmf);
+GpStatus WINGDIPAPI GdipGetHemfFromMetafile (GpMetafile *metafile, HENHMETAFILE *hEmf);
 
-GpStatus GdipGetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT *metafileRasterizationLimitDpi);
+GpStatus WINGDIPAPI GdipGetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT *metafileRasterizationLimitDpi);
 
-GpStatus GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileRasterizationLimitDpi);
+GpStatus WINGDIPAPI GdipSetMetafileDownLevelRasterizationLimit (GpMetafile *metafile, UINT metafileRasterizationLimitDpi);
 
-GpStatus GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordType recordType, UINT flags, UINT dataSize, GDIPCONST BYTE* data);
+GpStatus WINGDIPAPI GdipPlayMetafileRecord (GDIPCONST GpMetafile *metafile, EmfPlusRecordType recordType, UINT flags, UINT dataSize, GDIPCONST BYTE* data);
 
-GpStatus GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit, 
+GpStatus WINGDIPAPI GdipRecordMetafile (HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit,
 	GDIPCONST WCHAR *description, GpMetafile **metafile);
-GpStatus GdipRecordMetafileI (HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit, 
+GpStatus WINGDIPAPI GdipRecordMetafileI (HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit,
 	GDIPCONST WCHAR *description, GpMetafile **metafile);
-GpStatus GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
+GpStatus WINGDIPAPI GdipRecordMetafileFileName (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect,
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile);
-GpStatus GdipRecordMetafileFileNameI (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect, 
+GpStatus WINGDIPAPI GdipRecordMetafileFileNameI (GDIPCONST WCHAR *fileName, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect,
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile);
-GpStatus GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect, 
+GpStatus WINGDIPAPI GdipRecordMetafileStream (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRectF *frameRect,
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile);
-GpStatus GdipRecordMetafileStreamI (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect,
+GpStatus WINGDIPAPI GdipRecordMetafileStreamI (void /* IStream */ *stream, HDC referenceHdc, EmfType type, GDIPCONST GpRect *frameRect,
 	MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, GpMetafile **metafile);
 
 /* extra public (exported) functions in libgdiplus to replace the IStream (COM-based) ones available on Windows */
 
-GpStatus GdipRecordMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
-	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc, 
-	EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, 
+GpStatus WINGDIPAPI GdipRecordMetafileFromDelegate_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc,
+	EmfType type, GDIPCONST GpRectF *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description,
 	GpMetafile **metafile);
-GpStatus GdipRecordMetafileFromDelegateI_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
-	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc, 
-	EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description, 
+GpStatus WINGDIPAPI GdipRecordMetafileFromDelegateI_linux (GetHeaderDelegate getHeaderFunc, GetBytesDelegate getBytesFunc,
+	PutBytesDelegate putBytesFunc, SeekDelegate seekFunc, CloseDelegate closeFunc, SizeDelegate sizeFunc, HDC referenceHdc,
+	EmfType type, GDIPCONST GpRect *frameRect, MetafileFrameUnit frameUnit, GDIPCONST WCHAR *description,
 	GpMetafile **metafile);
 
 #endif
