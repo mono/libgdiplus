@@ -321,6 +321,7 @@ EXTRA_DIST =			\
 	test.ttf \
 	test.wmf \
 	testhelpers.h \
+	lsansuppressions.txt \
 	$(NULL)
 
 #	$(testgdi_SOURCES)
