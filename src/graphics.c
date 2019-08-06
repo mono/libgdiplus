@@ -2513,7 +2513,7 @@ GdipSetPageScale (GpGraphics *graphics, REAL scale)
 GpStatus WINGDIPAPI
 GdipGetPageScale (GpGraphics *graphics, REAL *scale)
 {
-	if (!graphics | !scale)
+	if (!graphics || !scale)
 		return InvalidParameter;
 
 	if (graphics->state == GraphicsStateBusy)
