@@ -283,13 +283,25 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_read_fn (png_ptr, (void *) getBytesFunc, _gdip_png_stream_read_data);
 	}
 
+	png_read_info(png_ptr, info_ptr);
+
+	bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+
 	/* Pass PNG_TRANSFORM_STRIP_16, which basically reduces the color palette from 16-bits to 8-bits
 	 * for 16-bit color depths. The current implementation of libgdiplus doesn't handle bit depths > 8,
 	 * so this acts as a workaround. Net impact is that the quality of the image is slightly reduced instead
 	 * of refusing to process the image (and potentially crashing the application) altogether;
 	 * proper support would mean supporting 16-bit color channels.
 	 * Partially fixes http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
-	png_read_png (png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16, NULL);
+	if (bit_depth == 16) {
+		png_set_strip_16 (png_ptr);
+	}
+
+	if (bit_depth == 2) {
+		png_set_expand (png_ptr);
+	}
+
+	png_read_update_info (png_ptr, info_ptr);
 
 	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 	channels = png_get_channels (png_ptr, info_ptr);
@@ -297,7 +309,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_get_PLTE( png_ptr, info_ptr, &png_palette, &num_palette );
 
 	/* 2bpp is a special case (promoted to 32bpp ARGB by MS GDI+) */
-	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) && 
+	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) &&
 		((color_type == PNG_COLOR_TYPE_PALETTE)	|| (color_type == PNG_COLOR_TYPE_GRAY))) {
 		int		width;
 		int		height;
@@ -318,23 +330,20 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		gdip_align_stride (dest_stride);
 
 		/* Copy image data. */
-		row_pointers = png_get_rows (png_ptr, info_ptr);
-
-		unsigned long long int size = (unsigned long long int)dest_stride * height;
-		if (size > G_MAXINT32) {
-			status = OutOfMemory;
-			goto error;
-		}
-
-		rawdata = GdipAlloc(size);
+		row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+		rawdata = GdipAlloc(dest_stride * height);
 		if (!rawdata) {
 			status = OutOfMemory;
+			free(row_pointers);
 			goto error;
 		}
 
 		for (i=0; i < height; i++) {
-			memcpy (rawdata + i * dest_stride, row_pointers[i], source_stride);
+			row_pointers[i] = rawdata + i * dest_stride;
 		}
+
+		png_read_image(png_ptr, row_pointers);
+		free(row_pointers);
 
 		/* Copy palette. */
 		num_colours = 1 << bit_depth;
@@ -470,7 +479,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		stride = (width * 4);
 		gdip_align_stride (stride);
 
-		row_pointers = png_get_rows (png_ptr, info_ptr);
+		/* Copy image data. */
+		row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
 
 		unsigned long long int size = (unsigned long long int)stride * height;
 		if (size > G_MAXINT32) {
@@ -481,8 +491,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		rawdata = GdipAlloc (size);
 		if (!rawdata) {
 			status = OutOfMemory;
+			free(row_pointers);
 			goto error;
 		}
+
+		for (i = 0; i < height; i++) {
+			row_pointers[i] = rawdata + i * stride;
+		}
+
+		png_read_image(png_ptr, row_pointers);
 
 		rawptr = rawdata;
 		switch (channels) {
@@ -593,6 +610,8 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 				}
 				break;
 		}
+
+		free(row_pointers);
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		if (!result) {
