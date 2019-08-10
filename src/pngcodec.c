@@ -297,8 +297,9 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	 * Partially fixes http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
 	if (bit_depth == 16) {
 		png_set_strip_16 (png_ptr);
-		png_set_gray_to_rgb(png_ptr);
-		png_set_bgr(png_ptr);
+		png_set_gray_to_rgb (png_ptr);
+		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
 		channels = 4;
 	}
 
@@ -308,10 +309,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_expand (png_ptr);
 		png_set_gray_to_rgb (png_ptr);
 		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
 	}
 
 	if (bit_depth == 8 && !(channels == 1 && (color_type == PNG_COLOR_TYPE_PALETTE || color_type == PNG_COLOR_TYPE_GRAY))) {
 		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
 	}
 
 	// Update the image properties after the transformations have been applied.
