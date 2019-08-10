@@ -339,6 +339,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		gdip_align_stride (dest_stride);
 
 		/* Copy image data. */
+		unsigned long long int size = (unsigned long long int)dest_stride * height;
+		if (size > G_MAXINT32) {
+			status = OutOfMemory;
+			goto error;
+		}
+
 		row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
 		if (!row_pointers) {
 			status = OutOfMemory;
