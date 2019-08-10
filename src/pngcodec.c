@@ -310,6 +310,10 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_bgr (png_ptr);
 	}
 
+	if (bit_depth == 8 && !(channels == 1 && (color_type == PNG_COLOR_TYPE_PALETTE || color_type == PNG_COLOR_TYPE_GRAY))) {
+		png_set_bgr (png_ptr);
+	}
+
 	// Update the image properties after the transformations have been applied.
 	// The channels property is not refreshed; the original value will be used
 	// later to set the pixel format.
