@@ -21,7 +21,7 @@ addons:
     - git
 
 install:
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pango pkg-config || true; fi
+- if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/a8ac7ea5fe9339558c9fbe49acaa1a2452bcd4d0/Formula/pango.rb; brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pkg-config || true; fi
 
 script:
 - set -e
