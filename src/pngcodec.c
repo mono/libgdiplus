@@ -253,6 +253,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	int		bit_depth;
 	int		channels;
 	BYTE		color_type;
+	BYTE		original_color_type;
 	int 	num_palette = 0;
 	png_colorp	png_palette = NULL;
 
@@ -286,7 +287,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	png_read_info(png_ptr, info_ptr);
 
 	bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-	color_type = png_get_color_type(png_ptr, info_ptr);
+	original_color_type = png_get_color_type(png_ptr, info_ptr);
 	channels = png_get_channels(png_ptr, info_ptr);
 
 	/* Apply png_set_strip_16, which basically reduces the color palette from 16-bits to 8-bits
@@ -304,15 +305,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	}
 
 	if (bit_depth == 2
-		|| (bit_depth == 4 && color_type != PNG_COLOR_TYPE_PALETTE)
-		|| (bit_depth == 8 && color_type != PNG_COLOR_TYPE_PALETTE)) {
+		|| (bit_depth == 4 && original_color_type != PNG_COLOR_TYPE_PALETTE)
+		|| (bit_depth == 8 && original_color_type != PNG_COLOR_TYPE_PALETTE)) {
 		png_set_expand (png_ptr);
 		png_set_gray_to_rgb (png_ptr);
 		png_set_bgr (png_ptr);
 		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
 	}
 
-	if (bit_depth == 8 && !(channels == 1 && (color_type == PNG_COLOR_TYPE_PALETTE || color_type == PNG_COLOR_TYPE_GRAY))) {
+	if (bit_depth == 8 && !(channels == 1 && (original_color_type == PNG_COLOR_TYPE_PALETTE || original_color_type == PNG_COLOR_TYPE_GRAY))) {
 		png_set_bgr (png_ptr);
 		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
 	}
@@ -569,7 +570,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
 		}
 
-		if (color_type & PNG_COLOR_MASK_ALPHA)
+		if (original_color_type & PNG_COLOR_MASK_ALPHA)
 			 result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
 
 		result->active_bitmap->image_flags |= ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
