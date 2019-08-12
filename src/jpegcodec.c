@@ -556,30 +556,30 @@ add_properties_from_content (ExifContent *content, void *user_data)
 }
 
 static int
-get_exif_tag_value_as_int(ExifData* exif, ExifTag tag)
+get_exif_tag_value_as_int (ExifData* exif, ExifTag tag)
 {
-	ExifEntry* entry = exif_data_get_entry(exif, tag);
+	ExifEntry* entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
 		ExifByteOrder order;
 
-		order = exif_data_get_byte_order(exif);
-		return (int)exif_get_short(entry->data, order);
+		order = exif_data_get_byte_order (exif);
+		return (int)exif_get_short (entry->data, order);
 	}
 
 	return -1;
 }
 
 static int
-get_exif_tag_value_as_resolution(ExifData* exif, ExifTag tag)
+get_exif_tag_value_as_resolution (ExifData* exif, ExifTag tag)
 {
-	ExifEntry* entry = exif_data_get_entry(exif, tag);
+	ExifEntry* entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
 		gchar buf[1024];
 
-		exif_entry_get_value(entry, buf, 1024);
-		return (int)g_ascii_strtoll(buf, NULL, 0);
+		exif_entry_get_value (entry, buf, 1024);
+		return (int)g_ascii_strtoll (buf, NULL, 0);
 	}
 
 	return 0;
@@ -602,10 +602,10 @@ load_exif_data (ExifData *exif_data, GpImage *image)
 
 	/* Get image resolution from the EXIF data if either the x-rolution or y-resolution was not set */
 	if (image->active_bitmap->dpi_horz == 0 || image->active_bitmap->dpi_vert == 0) {
-		int resolution_unit = get_exif_tag_value_as_int(exif_data, EXIF_TAG_RESOLUTION_UNIT);
+		int resolution_unit = get_exif_tag_value_as_int (exif_data, EXIF_TAG_RESOLUTION_UNIT);
 
-		int x_resolution = get_exif_tag_value_as_resolution(exif_data, EXIF_TAG_X_RESOLUTION);
-		int y_resolution = get_exif_tag_value_as_resolution(exif_data, EXIF_TAG_Y_RESOLUTION);
+		int x_resolution = get_exif_tag_value_as_resolution (exif_data, EXIF_TAG_X_RESOLUTION);
+		int y_resolution = get_exif_tag_value_as_resolution (exif_data, EXIF_TAG_Y_RESOLUTION);
 
 		if (resolution_unit == 2) { /* dpi */
 			image->active_bitmap->dpi_horz = x_resolution;
