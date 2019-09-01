@@ -292,6 +292,7 @@ if test x$JPEG != x; then
 else
   jpeg_ok="no (Get it from http://freshmeat.net/projects/libjpeg)"
 fi
+AM_CONDITIONAL(HAVE_LIBJPEG, test x$JPEG != x)
 
 dnl Test for libtiff
 AC_ARG_WITH([libtiff],
