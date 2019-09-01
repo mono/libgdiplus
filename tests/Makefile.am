@@ -41,12 +41,15 @@ noinst_PROGRAMS =			\
 	teststringformat \
 	testtext \
 	testtexturebrush \
-	testtiffcodec \
 	testwmfcodec
 
 if HAVE_LIBJPEG
 noinst_PROGRAMS += testjpegcodec
 endif HAVE_LIBJPEG
+
+if HAVE_LIBTIFF
+noinst_PROGRAMS += testtiffcodec
+endif HAVE_LIBTIFF
 
 #if HAVE_X11
 #noinst_PROGRAMS += testgdi
@@ -364,13 +367,16 @@ TESTS = \
 	teststringformat \
 	testtexturebrush \
 	testtext \
-	testtiffcodec \
 	testwmfcodec \
 	$(NULL)
 
 if HAVE_LIBJPEG
 TESTS += testjpegcodec
 endif HAVE_LIBJPEG
+
+if HAVE_LIBTIFF
+TESTS += testtiffcodec
+endif HAVE_LIBTIFF
 
 if HAVE_X11
 # TESTS += testgdi

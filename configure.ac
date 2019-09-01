@@ -328,6 +328,7 @@ if test x$TIFF != x; then
 else
   tiff_ok="no (Get it from http://www.libtiff.org/)"
 fi
+AM_CONDITIONAL(HAVE_LIBTIFF, test x$TIFF != x)
 
 dnl Test for libgif or libungif
 AC_ARG_WITH([libgif],
