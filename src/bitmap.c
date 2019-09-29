@@ -2046,10 +2046,23 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	case PixelFormat32bppRGB:
 		color |= 0xFF000000; /* force the alpha for Cairo */
 		/* fall through */
-	case PixelFormat32bppARGB:
-	case PixelFormat32bppPARGB: {
+	case PixelFormat32bppARGB: {
 		ARGB *scan = (ARGB *)v;
 		scan[x] = color;
+		break;
+	}
+	case PixelFormat32bppPARGB: {
+		BYTE r, g, b, a;
+		get_pixel_bgra (color, b, g, r, a);
+		if (a < 0xff) {
+			b = pre_multiplied_table [b][a];
+			g = pre_multiplied_table [g][a];
+			r = pre_multiplied_table [r][a];
+			set_pixel_bgra(v, x * 4, b, g, r, a);
+		} else {
+			ARGB *scan = (ARGB *)v;
+			scan[x] = color;
+		}
 		break;
 	}
 	case PixelFormat16bppGrayScale:
@@ -2104,10 +2117,23 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		switch (data->pixel_format) {
 		case PixelFormat16bppGrayScale:
 			return InvalidParameter;
-		case PixelFormat32bppARGB:
-		case PixelFormat32bppPARGB: {
+		case PixelFormat32bppARGB: {
 			ARGB *scan = (ARGB *)v;
 			*color = scan[x];
+			break;
+		}
+		case PixelFormat32bppPARGB: {
+			ARGB *scan = (ARGB *)v;
+			BYTE r, g, b, a;
+			get_pixel_bgra (scan[x], b, g, r, a);
+			if (a < 0xff) {
+				b = pre_multiplied_table_reverse [b][a];
+				g = pre_multiplied_table_reverse [g][a];
+				r = pre_multiplied_table_reverse [r][a];
+				set_pixel_bgra(color, 0, b, g, r, a);
+			} else {
+				*color = scan[x];
+			}
 			break;
 		}
 		case PixelFormat24bppRGB:
