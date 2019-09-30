@@ -1,0 +1,35 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+    ############ LINUX BUILD ############
+    - job: Build_Linux_x64_mono_netcore
+      displayName: Linux x64 mono-netcore
+      timeoutInMinutes: 120
+      pool:
+        name: Hosted Ubuntu 1604
+      steps:
+        - bash: |
+            sudo apt update
+            sudo apt -y install libpango1.0-dev libgif-dev libjpeg-dev libtiff-dev xvfb autoconf libtool automake build-essential gettext cmake git
+          displayName: 'Install Linux dependencies'
+
+        - bash: |
+            export CFLAGS="-ggdb3 -O2"
+            ./autogen.sh --prefix=/tmp/mono-dev --enable-warnaserror
+            make -j4
+          displayName: 'Build'
+
+        - bash: |
+            if [ ! make check ]
+              cat ./tests/test-suite.log
+              exit 1
+            fi
+          displayName: 'Run libgdiplus tests'
+
