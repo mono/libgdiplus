@@ -177,7 +177,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		trans = def;
 	}
 
-	if (imgattr->flags & ImageAttributeFlagsColorKeysEnabled && imgattr->colormatrix) {
+	if (imgattr->flags & ImageAttributeFlagsColorMatrixEnabled && imgattr->colormatrix) {
 		cmatrix = imgattr;
 	} else {
 		cmatrix = def;
