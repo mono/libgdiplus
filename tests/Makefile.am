@@ -35,14 +35,21 @@ noinst_PROGRAMS =			\
 	testhatchbrush \
 	testicocodec \
 	testimageattributes \
-	testjpegcodec testlineargradientbrush \
+	testlineargradientbrush \
 	testmatrix testmetafile testpathgradientbrush \
 	testpen testpng testpngcodec testregion testreversepath testsolidbrush \
 	teststringformat \
 	testtext \
 	testtexturebrush \
-	testtiffcodec \
 	testwmfcodec
+
+if HAVE_LIBJPEG
+noinst_PROGRAMS += testjpegcodec
+endif HAVE_LIBJPEG
+
+if HAVE_LIBTIFF
+noinst_PROGRAMS += testtiffcodec
+endif HAVE_LIBTIFF
 
 #if HAVE_X11
 #noinst_PROGRAMS += testgdi
@@ -347,7 +354,6 @@ TESTS = \
 	testhatchbrush \
 	testicocodec \
 	testimageattributes \
-	testjpegcodec \
 	testlineargradientbrush \
 	testmatrix \
 	testmetafile \
@@ -361,9 +367,16 @@ TESTS = \
 	teststringformat \
 	testtexturebrush \
 	testtext \
-	testtiffcodec \
 	testwmfcodec \
 	$(NULL)
+
+if HAVE_LIBJPEG
+TESTS += testjpegcodec
+endif HAVE_LIBJPEG
+
+if HAVE_LIBTIFF
+TESTS += testtiffcodec
+endif HAVE_LIBTIFF
 
 if HAVE_X11
 # TESTS += testgdi

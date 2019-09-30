@@ -292,6 +292,7 @@ if test x$JPEG != x; then
 else
   jpeg_ok="no (Get it from http://freshmeat.net/projects/libjpeg)"
 fi
+AM_CONDITIONAL(HAVE_LIBJPEG, test x$JPEG != x)
 
 dnl Test for libtiff
 AC_ARG_WITH([libtiff],
@@ -327,6 +328,7 @@ if test x$TIFF != x; then
 else
   tiff_ok="no (Get it from http://www.libtiff.org/)"
 fi
+AM_CONDITIONAL(HAVE_LIBTIFF, test x$TIFF != x)
 
 dnl Test for libgif or libungif
 AC_ARG_WITH([libgif],
