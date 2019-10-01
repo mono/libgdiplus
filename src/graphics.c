@@ -440,6 +440,15 @@ GdipDeleteGraphics (GpGraphics *graphics)
 #endif
 	}
 
+	if (graphics->type == gtMemoryBitmap && graphics->image != NULL) {
+		if (!graphics->surface_ref_data->is_dead) {
+			gdip_bitmap_flush_surface (graphics->image);
+			--graphics->surface_ref_data->reference_count;
+		} else if (--graphics->surface_ref_data->reference_count == 0) {
+			GdipFree (graphics->surface_ref_data);
+		}
+	}
+
 	if (graphics->backend == GraphicsBackEndMetafile) {
 		/* if recording this is where we save the metafile (stream or file) */
 		if (graphics->metafile->recording)

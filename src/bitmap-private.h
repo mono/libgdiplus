@@ -103,6 +103,11 @@ typedef struct {
 	GUID		frame_dimension;	/* GUID describing the frame type */
 } FrameData;
 
+typedef struct _SurfaceReferenceData {
+	unsigned int reference_count; /* Number of external references from GpGraphics objects */
+	BOOL is_dead; /* Keeps track of whether the GpBitmap was disposed */
+} SurfaceReferenceData;
+
 typedef struct _Image {
 	/* Image Description */
 	ImageType     	type;			/* Undefined, Bitmap, MetaFile */
@@ -117,6 +122,7 @@ typedef struct _Image {
 	/* Internal fields */
 	int             cairo_format;
 	cairo_surface_t *surface;
+	SurfaceReferenceData *surface_ref_data;
 } GpBitmap;
 
 
@@ -147,10 +153,14 @@ GpStatus gdip_bitmapdata_property_remove_index (ActiveBitmapData *bitmap_data, i
 GpStatus gdip_bitmapdata_property_find_id (ActiveBitmapData *bitmap_data, PROPID id, int *index) GDIP_INTERNAL;
 
 cairo_surface_t* gdip_bitmap_ensure_surface (GpBitmap *bitmap) GDIP_INTERNAL;
+void gdip_bitmap_flush_surface (GpBitmap *bitmap) GDIP_INTERNAL;
+void gdip_bitmap_invalidate_surface (GpBitmap *bitmap) GDIP_INTERNAL;
 GpBitmap* gdip_convert_indexed_to_rgb (GpBitmap *bitmap) GDIP_INTERNAL;
 
 BOOL gdip_bitmap_format_needs_premultiplication (GpBitmap *bitmap) GDIP_INTERNAL;
 BYTE* gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap) GDIP_INTERNAL;
+void gdip_bitmap_get_premultiplied_scan0_inplace (GpBitmap *bitmap, BYTE *premul) GDIP_INTERNAL;
+void gdip_bitmap_get_premultiplied_scan0_reverse (GpBitmap *bitmap, BYTE *premul) GDIP_INTERNAL;
 
 GpStatus gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated) GDIP_INTERNAL;
 

@@ -610,12 +610,6 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->scan0 = rawdata;
 		result->active_bitmap->reserved = GBD_OWN_SCAN0;
 
-		result->surface = cairo_image_surface_create_for_data ((BYTE*)rawdata,
-			result->cairo_format,
-			result->active_bitmap->width,
-			result->active_bitmap->height,
-			result->active_bitmap->stride);
-
 		if (channels == 3) {
 			result->active_bitmap->pixel_format = PixelFormat24bppRGB;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;

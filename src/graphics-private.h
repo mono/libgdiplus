@@ -118,6 +118,7 @@ typedef struct _Graphics {
 #endif
 #endif
 	void			*image;
+	struct _SurfaceReferenceData *surface_ref_data;
 	int			type; 
 	GpPen*			last_pen;	/* caching pen and brush to avoid unnecessary sets */
 	GpBrush*		last_brush;

@@ -590,10 +590,7 @@ gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index)
 	}
 
 	/* Invalidate the cached surface */
-	if (bitmap->surface != NULL) {
-		cairo_surface_destroy(bitmap->surface);
-		bitmap->surface = NULL;
-	}
+	gdip_bitmap_invalidate_surface (bitmap);
 
 	if ((bitmap->num_of_frames == 0) || (bitmap->frames == NULL)) {
 		bitmap->active_frame = 0;
@@ -1952,6 +1949,8 @@ GdipBitmapLockBits (GpBitmap *bitmap, GDIPCONST GpRect *rect, UINT flags, PixelF
 		}
 	}
 
+	gdip_bitmap_flush_surface (bitmap);
+
 	/* If the user wants the original data to be readable, then convert the bits. */
 	if ((flags & ImageLockModeRead) != 0) {
 		Rect dest_rect = {0, 0, src_rect.Width, src_rect.Height};
@@ -2016,6 +2015,13 @@ GdipBitmapUnlockBits (GpBitmap *bitmap, BitmapData *lockedBitmapData)
 		src_data->palette = NULL;
 	}
 
+	if (bitmap->surface != NULL) {
+		BYTE *surface_scan0 = cairo_image_surface_get_data (bitmap->surface);
+		if (surface_scan0 != bitmap->active_bitmap->scan0) {
+			gdip_bitmap_get_premultiplied_scan0_inplace (bitmap, surface_scan0);
+		}
+	}
+
 	src_data->reserved &= ~GBD_LOCKED;
 	dest_data->reserved &= ~GBD_LOCKED;
 
@@ -2027,6 +2033,7 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 {
 	BYTE *v;
 	ActiveBitmapData *data;
+	PixelFormat pixel_format;
 	
 	if (!bitmap || !bitmap->active_bitmap)
 		return InvalidParameter;
@@ -2040,8 +2047,15 @@ GdipBitmapSetPixel (GpBitmap *bitmap, INT x, INT y, ARGB color)
 	if (x < 0 || x >= data->width || y < 0 || y >= data->height)
 		return InvalidParameter;
 
-	v = (BYTE*)(data->scan0) + y * data->stride;
-	switch (data->pixel_format) {
+	if (bitmap->surface != NULL && gdip_bitmap_format_needs_premultiplication(bitmap)) {
+		v = (BYTE*)(cairo_image_surface_get_data (bitmap->surface)) + y * data->stride;
+		pixel_format = PixelFormat32bppPARGB;
+	} else {
+		v = (BYTE*)(data->scan0) + y * data->stride;
+		pixel_format = data->pixel_format;
+	}
+
+	switch (pixel_format) {
 	case PixelFormat24bppRGB:
 	case PixelFormat32bppRGB:
 		color |= 0xFF000000; /* force the alpha for Cairo */
@@ -2112,9 +2126,18 @@ GdipBitmapGetPixel (GpBitmap *bitmap, INT x, INT y, ARGB *color)
 		if (x < 0 || x >= data->width || y < 0 || y >= data->height)
 			return InvalidParameter;
 
-		BYTE *v = ((BYTE*)data->scan0) + y * data->stride;
+		BYTE *v;
+		PixelFormat pixel_format;
 
-		switch (data->pixel_format) {
+		if (bitmap->surface != NULL && gdip_bitmap_format_needs_premultiplication(bitmap)) {
+			v = (BYTE*)(cairo_image_surface_get_data (bitmap->surface)) + y * data->stride;
+			pixel_format = PixelFormat32bppPARGB;
+		} else {
+			v = (BYTE*)(data->scan0) + y * data->stride;
+			pixel_format = data->pixel_format;
+		}
+
+		switch (pixel_format) {
 		case PixelFormat16bppGrayScale:
 			return InvalidParameter;
 		case PixelFormat32bppARGB: {
@@ -2196,9 +2219,50 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		return NULL;
 	}
 
-	bitmap->surface = cairo_image_surface_create_for_data ((BYTE*)data->scan0, format, 
-		data->width, data->height, data->stride);
+	bitmap->surface_ref_data = (SurfaceReferenceData *)GdipAlloc (sizeof (SurfaceReferenceData));
+	if (bitmap->surface_ref_data == NULL) {
+		return NULL;
+	}
+	bitmap->surface_ref_data->reference_count = 0;
+	bitmap->surface_ref_data->is_dead = FALSE;
+
+	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
+		BYTE *premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
+		if (!premul)
+			return NULL;
+		bitmap->surface = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
+			data->width, data->height, data->stride);
+	} else {
+		bitmap->surface = cairo_image_surface_create_for_data ((BYTE*)data->scan0, format, 
+			data->width, data->height, data->stride);
+	}
+
 	return bitmap->surface;
+}
+
+void gdip_bitmap_flush_surface (GpBitmap *bitmap)
+{
+	if (bitmap->surface != NULL) {
+		BYTE *surface_scan0 = cairo_image_surface_get_data (bitmap->surface);
+		if (surface_scan0 != bitmap->active_bitmap->scan0) {
+			// The surface had to be premultiplied, we need to reverse the transition
+			gdip_bitmap_get_premultiplied_scan0_reverse (bitmap, surface_scan0);
+		}
+	}
+}
+
+void gdip_bitmap_invalidate_surface (GpBitmap *bitmap)
+{
+	if (bitmap->surface != NULL) {
+		gdip_bitmap_flush_surface (bitmap);
+		cairo_surface_destroy (bitmap->surface);
+		bitmap->surface = NULL;
+		if (bitmap->surface_ref_data->reference_count == 0) {
+			GdipFree (bitmap->surface_ref_data);
+		} else {
+			bitmap->surface_ref_data->is_dead = TRUE;
+		}
+	}
 }
 
 BOOL
@@ -2207,19 +2271,12 @@ gdip_bitmap_format_needs_premultiplication (GpBitmap *bitmap)
 	return (bitmap->active_bitmap->pixel_format == PixelFormat32bppARGB);
 }
 
-BYTE*
-gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
+static void
+gdip_bitmap_get_premultiplied_scan0_internal (GpBitmap *bitmap, BYTE *src, BYTE *dest, const BYTE pre_multiplied_table[256][256])
 {
 	ActiveBitmapData *data = bitmap->active_bitmap;
-	unsigned long long int size = (unsigned long long int)data->height * data->stride;
-	if (size > G_MAXINT32)
-		return NULL;
-	BYTE* premul = (BYTE*) GdipAlloc (size);
-	if (!premul)
-		return NULL;
-
-	BYTE *source = (BYTE*)data->scan0;
-	BYTE *target = premul;
+	BYTE *source = src;
+	BYTE *target = dest;
 	int y, x;
 	for (y = 0; y < data->height; y++) {
 		ARGB *sp = (ARGB*) source;
@@ -2242,8 +2299,33 @@ gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
 		source += data->stride;
 		target += data->stride;
 	}
+}
 
+BYTE*
+gdip_bitmap_get_premultiplied_scan0 (GpBitmap *bitmap)
+{
+	ActiveBitmapData *data = bitmap->active_bitmap;
+	unsigned long long int size = (unsigned long long int)data->height * data->stride;
+	if (size > G_MAXINT32)
+		return NULL;
+	BYTE* premul = (BYTE*) GdipAlloc (size);
+	if (!premul)
+		return NULL;
+
+	gdip_bitmap_get_premultiplied_scan0_internal (bitmap, (BYTE*)data->scan0, premul, pre_multiplied_table);
 	return premul;
+}
+
+void
+gdip_bitmap_get_premultiplied_scan0_inplace (GpBitmap *bitmap, BYTE *premul)
+{
+	gdip_bitmap_get_premultiplied_scan0_internal (bitmap, (BYTE*)bitmap->active_bitmap->scan0, premul, pre_multiplied_table);
+}
+
+void
+gdip_bitmap_get_premultiplied_scan0_reverse (GpBitmap *bitmap, BYTE *premul)
+{
+	gdip_bitmap_get_premultiplied_scan0_internal (bitmap, premul, (BYTE*)bitmap->active_bitmap->scan0, pre_multiplied_table_reverse);
 }
 
 GpBitmap *
