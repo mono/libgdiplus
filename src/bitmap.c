@@ -1128,6 +1128,8 @@ GdipCloneBitmapAreaI (INT x, INT y, INT width, INT height, PixelFormat format,
 
 	result->image_format = original->image_format;
 
+	gdip_bitmap_flush_surface (original);
+
 	status = gdip_bitmap_clone_data_rect (original->active_bitmap, &sr, result->active_bitmap, &dr);
 	if (status != Ok) {
 		goto fail;
