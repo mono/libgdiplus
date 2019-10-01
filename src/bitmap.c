@@ -2221,13 +2221,6 @@ gdip_bitmap_ensure_surface (GpBitmap *bitmap)
 		return NULL;
 	}
 
-	bitmap->surface_ref_data = (SurfaceReferenceData *)GdipAlloc (sizeof (SurfaceReferenceData));
-	if (bitmap->surface_ref_data == NULL) {
-		return NULL;
-	}
-	bitmap->surface_ref_data->reference_count = 0;
-	bitmap->surface_ref_data->is_dead = FALSE;
-
 	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
 		BYTE *premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
 		if (!premul)
@@ -2259,11 +2252,6 @@ void gdip_bitmap_invalidate_surface (GpBitmap *bitmap)
 		gdip_bitmap_flush_surface (bitmap);
 		cairo_surface_destroy (bitmap->surface);
 		bitmap->surface = NULL;
-		if (bitmap->surface_ref_data->reference_count == 0) {
-			GdipFree (bitmap->surface_ref_data);
-		} else {
-			bitmap->surface_ref_data->is_dead = TRUE;
-		}
 	}
 }
 

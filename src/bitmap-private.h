@@ -103,11 +103,6 @@ typedef struct {
 	GUID		frame_dimension;	/* GUID describing the frame type */
 } FrameData;
 
-typedef struct _SurfaceReferenceData {
-	unsigned int reference_count; /* Number of external references from GpGraphics objects */
-	BOOL is_dead; /* Keeps track of whether the GpBitmap was disposed */
-} SurfaceReferenceData;
-
 typedef struct _Image {
 	/* Image Description */
 	ImageType     	type;			/* Undefined, Bitmap, MetaFile */
@@ -122,7 +117,6 @@ typedef struct _Image {
 	/* Internal fields */
 	int             cairo_format;
 	cairo_surface_t *surface;
-	SurfaceReferenceData *surface_ref_data;
 } GpBitmap;
 
 

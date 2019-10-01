@@ -331,9 +331,6 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	gfx->orig_bounds.Width = image->active_bitmap->width;
 	gfx->orig_bounds.Height = image->active_bitmap->height;
 
-	image->surface_ref_data->reference_count++;
-	gfx->surface_ref_data = image->surface_ref_data;
-
 	gfx->image = image;
 	gfx->type = gtMemoryBitmap;
 	filter = cairo_pattern_create_for_surface (image->surface);
