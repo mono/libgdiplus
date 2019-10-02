@@ -90,47 +90,34 @@ gdip_texture_new (void)
 static GpStatus
 draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpStatus	status;
 	GpRect		*rect = &brush->rectangle;
 	cairo_t		*ct2;
-	BYTE *premul = NULL;
 
 	if (!rect)
 		return InvalidParameter;
+	if (gdip_bitmap_ensure_surface (bitmap) == NULL)
+		return OutOfMemory;
 
-	gdip_bitmap_ensure_surface (bitmap);
-
-	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
-		if (premul) {
-			ActiveBitmapData *data = bitmap->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
-				data->width, data->height, data->stride);
-		}
-	}
-
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = bitmap->surface;
-
-	/* Use the original as a pattern */
-	pat = cairo_pattern_create_for_surface (original);
+	/* Use the bitmap->surface as a pattern */
+	pat = cairo_pattern_create_for_surface (bitmap->surface);
 	status = gdip_get_pattern_status (pat);
-	if (status != Ok)
-		goto cleanup;
+	if (status != Ok) {
+		return status;
+	}
 
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
-		goto cleanup;
+		return status;
 	}
 
 	/* Draw the texture */
@@ -148,61 +135,40 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
 
-	status = gdip_get_status (cairo_status (ct));
-
-cleanup:
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
-	return status;
+	return gdip_get_status (cairo_status (ct));
 }
 
 static GpStatus
 draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
 	cairo_matrix_t	tempMatrix;
-	BYTE *premul = NULL;
 
 	if (!rect)
 		return InvalidParameter;
+	if (gdip_bitmap_ensure_surface (bitmap) == NULL)
+		return OutOfMemory;
 
-	gdip_bitmap_ensure_surface (bitmap);
-
-	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
-		if (premul) {
-			ActiveBitmapData *data = bitmap->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
-				data->width, data->height, data->stride);
-		}
-	}
-
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = bitmap->surface;
-
-	/* Use the original as a pattern */
-	pat = cairo_pattern_create_for_surface (original);
+	/* Use the bitmap->surface as a pattern */
+	pat = cairo_pattern_create_for_surface (bitmap->surface);
 	status = gdip_get_pattern_status (pat);
 	if (status != Ok)
-		goto cleanup;
+		return status;
 
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						2 * rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		2 * rect->Width, rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
-		goto cleanup;
+		return status;
 	}
 
 	/* Draw left part of the texture */
@@ -234,61 +200,40 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
 
-	status = gdip_get_status (cairo_status (ct));
-
-cleanup:
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
-	return status;
+	return gdip_get_status (cairo_status (ct));
 }
 
 static GpStatus
 draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
 	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
-	BYTE *premul = NULL;
 
 	if (!rect)
 		return InvalidParameter;
+	if (gdip_bitmap_ensure_surface (bitmap) == NULL)
+		return OutOfMemory;
 
-	gdip_bitmap_ensure_surface (bitmap);
-
-	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
-		if (premul) {
-			ActiveBitmapData *data = bitmap->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
-				data->width, data->height, data->stride);
-		}
-	}
-
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = bitmap->surface;
-
-	/* Use the original as a pattern */
-	pat = cairo_pattern_create_for_surface (original);
+	/* Use the bitmap->surface as a pattern */
+	pat = cairo_pattern_create_for_surface (bitmap->surface);
 	status = gdip_get_pattern_status (pat);
 	if (status != Ok)
-		goto cleanup;
+		return status;
 
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, 2 * rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, 2 * rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
-		goto cleanup;
+		return status;
 	}
 
 	/* Draw upper part of the texture */
@@ -317,68 +262,47 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
 		cairo_surface_destroy (texture);
-		goto cleanup;
+		return status;
 	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);	
 
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
 
-	status = gdip_get_status (cairo_status (ct));
-
-cleanup:
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
-	return status;
+	return gdip_get_status (cairo_status (ct));
 }
 
 static GpStatus
 draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
 	GpRect		*rect = &brush->rectangle;
 	GpStatus	status;
 	cairo_t		*ct2;
-	BYTE *premul = NULL;
 
 	if (!rect)
 		return InvalidParameter;
-
-	gdip_bitmap_ensure_surface (bitmap);
-
-	if (gdip_bitmap_format_needs_premultiplication (bitmap)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (bitmap);
-		if (premul) {
-			ActiveBitmapData *data = bitmap->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, 
-				data->width, data->height, data->stride);
-		}
-	}
-
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = bitmap->surface;
+	if (gdip_bitmap_ensure_surface (bitmap) == NULL)
+		return OutOfMemory;
 
 	/* Use the original as a pattern */
-	pat = cairo_pattern_create_for_surface (original);
-	status = gdip_get_pattern_status(pat);
+	pat = cairo_pattern_create_for_surface (bitmap->surface);
+	status = gdip_get_pattern_status (pat);
 	if (status != Ok)
-		goto cleanup;
+		return status;
 
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						2 * rect->Width, 2 * rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		2 * rect->Width, 2 * rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
-		goto cleanup;
+		return status;
 	}
 
 	/* Draw upper left part of the texture */
@@ -435,27 +359,19 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
 		cairo_surface_destroy (texture);
-		goto cleanup;
+		return status;
 	}
 	cairo_pattern_set_extend (brush->pattern, CAIRO_EXTEND_REPEAT);
 
 	cairo_pattern_destroy (pat);
 	cairo_surface_destroy (texture);
 
-	status = gdip_get_status (cairo_status (ct));
-
-cleanup:
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
-	return status;
+	return gdip_get_status (cairo_status (ct));
 }
 
 static GpStatus
 draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpRect		*rect = &brush->rectangle;
@@ -463,11 +379,11 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_t		*ct2;
 
 	/* Original image surface */
-	gdip_bitmap_ensure_surface (bitmap);
-	original = bitmap->surface;
+	if (gdip_bitmap_ensure_surface (bitmap) == NULL)
+		return OutOfMemory;
 
 	/* Use the original as a pattern */
-	pat = cairo_pattern_create_for_surface (original);
+	pat = cairo_pattern_create_for_surface (bitmap->surface);
 	status = gdip_get_pattern_status (pat);
 	if (status != Ok) {
 		return status;
@@ -476,8 +392,9 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, rect->Height);
 	if (!texture) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
@@ -532,8 +449,8 @@ gdip_texture_setup (GpGraphics *graphics, GpBrush *brush)
 		img = gdip_convert_indexed_to_rgb (img);
 		if (!img)
 			return OutOfMemory;
-
-		gdip_bitmap_ensure_surface (img);
+		if (gdip_bitmap_ensure_surface (img) == NULL)
+			return OutOfMemory;
 		dispose_bitmap = TRUE;
 	} else {
 		dispose_bitmap = FALSE;
@@ -664,26 +581,14 @@ static GpStatus
 gdip_texture_create_from_cloned_image (GpImage *image, GpWrapMode wrapMode, GpTexture **texture)
 {
 	GpTexture *result;
-	cairo_surface_t *imageSurface = NULL;
 
 	result = gdip_texture_new ();
 	if (!result)
 		return OutOfMemory;
 
 	result->image = image;
-
-	/* note: we must keep the scan0 alive, so we must use the cloned image (and not the original) see bug #80971 */
-	imageSurface = cairo_image_surface_create_for_data ((BYTE*)result->image->active_bitmap->scan0,
-		result->image->cairo_format, result->image->active_bitmap->width, result->image->active_bitmap->height, result->image->active_bitmap->stride);
-	if (!imageSurface) {
-		GdipDeleteBrush ((GpBrush *) result);
-		return OutOfMemory;
-	}
-
+	gdip_bitmap_ensure_surface (image);
 	result->wrapMode = wrapMode;
-	if (result->image->surface)
-		cairo_surface_destroy (result->image->surface);
-	result->image->surface = imageSurface;
 	result->rectangle.X = 0;
 	result->rectangle.Y = 0;
 	result->rectangle.Width = result->image->active_bitmap->width;

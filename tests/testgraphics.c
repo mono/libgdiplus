@@ -3413,6 +3413,7 @@ static void test_premultiplication ()
 
 	BYTE bpp32ArgbData[] = { 0xFF, 0xFF, 0xFF, 0x80 };
 	ARGB bpp32ArgbPixels[] = { 0x80FFFFFF };
+	ARGB bpp32RgbPixelsPre[] = { 0xFF000000 };
 	ARGB bpp32RgbPixels[] = { 0xFF808080 };
 
 	status = GdipCreateBitmapFromScan0 (1, 1, 4, PixelFormat32bppARGB, bpp32ArgbData, &bitmap);
@@ -3423,6 +3424,7 @@ static void test_premultiplication ()
 	assertEqualInt (status, Ok);
 	status = GdipBitmapSetPixel (bitmapBackground, 0, 0, 0);
 	assertEqualInt (status, Ok);
+	verifyPixels (bitmapBackground, bpp32RgbPixelsPre);
 	GdipGetImageGraphicsContext (bitmapBackground, &graphicsBackground);
 	status = GdipDrawImage (graphicsBackground, (GpImage *)bitmap, 0, 0);
 	assertEqualInt (status, Ok);

@@ -200,11 +200,10 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		if (!bmpdest)
 			return OutOfMemory;
 
-		PixelFormat oldFormat = bitmap->active_bitmap->pixel_format;
-		bitmap->active_bitmap->pixel_format = PixelFormat32bppARGB;
+		gdip_bitmap_flush_surface (bitmap);
+
 		status = gdip_bitmapdata_clone (bitmap->active_bitmap, &bmpdest->frames[0].bitmap, 1);
 		if (status != Ok) {
-			bitmap->active_bitmap->pixel_format = oldFormat;
 			gdip_bitmap_dispose (bmpdest);
 			return OutOfMemory;
 		}

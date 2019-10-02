@@ -172,7 +172,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -187,7 +187,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -202,11 +202,7 @@ static void test_fill ()
 
     status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
     assertEqualInt (status, Ok);
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xAABBCCDC);
-#else
-    assertEqualARGB (color, 0xAA7D8893);
-#endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
     assertEqualInt (status, Ok);
@@ -240,7 +236,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -255,7 +251,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -270,11 +266,7 @@ static void test_fill ()
 
     status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
     assertEqualInt (status, Ok);
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xAABBCCDC);
-#else
-    assertEqualARGB (color, 0xAA7D8893);
-#endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
     assertEqualInt (status, Ok);
@@ -318,7 +310,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -333,7 +325,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -348,11 +340,7 @@ static void test_fill ()
 
     status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
     assertEqualInt (status, Ok);
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xAABBCCDC);
-#else
-    assertEqualARGB (color, 0xAA7D8893);
-#endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
     assertEqualInt (status, Ok);
@@ -386,7 +374,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -401,7 +389,7 @@ static void test_fill ()
 #if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xDDA0303F);
 #else
-    assertEqualARGB (color, 0xDD8B2937);
+    assertEqualARGB (color, 0xDDA02F3F);
 #endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
@@ -416,11 +404,7 @@ static void test_fill ()
 
     status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
     assertEqualInt (status, Ok);
-#if defined(USE_WINDOWS_GDIPLUS)
     assertEqualARGB (color, 0xAABBCCDC);
-#else
-    assertEqualARGB (color, 0xAA7D8893);
-#endif
 
     status = GdipBitmapSetPixel (bitmap, 0, 0, 0x00000000);
     assertEqualInt (status, Ok);
