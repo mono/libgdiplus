@@ -69,8 +69,8 @@ GpStatus WINGDIPAPI GdipAddPathEllipse (GpPath *path, REAL x, REAL y, REAL width
 GpStatus WINGDIPAPI GdipAddPathPie (GpPath *path, REAL x, REAL y, REAL width, REAL height, REAL startAngle, REAL sweepAngle);
 GpStatus WINGDIPAPI GdipAddPathPolygon (GpPath *path, GDIPCONST GpPointF *points, INT count);
 GpStatus WINGDIPAPI GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect);
-GpStatus WINGDIPAPI GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFontFamily *family, INT style, 
-	REAL emSize, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format);
+GpStatus WINGDIPAPI GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFontFamily *family, INT style,
+				       REAL emSize, GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format);
 
 GpStatus WINGDIPAPI GdipAddPathLineI (GpPath *path, INT x1, INT y1, INT x2, INT y2);
 GpStatus WINGDIPAPI GdipAddPathLine2I (GpPath *path, GDIPCONST GpPoint *points, INT count);
@@ -87,15 +87,15 @@ GpStatus WINGDIPAPI GdipAddPathRectanglesI (GpPath *path, GDIPCONST GpRect *rect
 GpStatus WINGDIPAPI GdipAddPathEllipseI (GpPath *path, INT x, INT y, INT width, INT height);
 GpStatus WINGDIPAPI GdipAddPathPieI (GpPath *path, INT x, INT y, INT width, INT height, REAL startAngle, REAL sweepAngle);
 GpStatus WINGDIPAPI GdipAddPathPolygonI (GpPath *path, GDIPCONST GpPoint *points, INT count);
-GpStatus WINGDIPAPI GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFontFamily *family, INT style, 
-	REAL emSize, GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format);
+GpStatus WINGDIPAPI GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFontFamily *family, INT style,
+					REAL emSize, GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format);
 
 GpStatus WINGDIPAPI GdipFlattenPath (GpPath *path, GpMatrix *matrix, REAL flatness);
 GpStatus WINGDIPAPI GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, REAL flatness);
 GpStatus WINGDIPAPI GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, REAL flatness);
-GpStatus WINGDIPAPI GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, GDIPCONST GpPointF *points, INT count, REAL srcx, REAL srcy, 
-	REAL srcwidth, REAL srcheight, WarpMode warpMode, REAL flatness);
-GpStatus WINGDIPAPI GdipTransformPath (GpPath* path, GpMatrix *matrix);
+GpStatus WINGDIPAPI GdipWarpPath (GpPath *nativePath, GpMatrix *matrix, GDIPCONST GpPointF *points, INT count, REAL srcx, REAL srcy,
+				  REAL srcwidth, REAL srcheight, WarpMode warpMode, REAL flatness);
+GpStatus WINGDIPAPI GdipTransformPath (GpPath *path, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, GDIPCONST GpMatrix *matrix, GDIPCONST GpPen *pen);
 GpStatus WINGDIPAPI GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, GDIPCONST GpMatrix *matrix, GDIPCONST GpPen *pen);
 GpStatus WINGDIPAPI GdipIsVisiblePathPoint (GpPath *path, REAL x, REAL y, GpGraphics *graphics, BOOL *result);

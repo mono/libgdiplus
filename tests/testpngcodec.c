@@ -24,31 +24,33 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.png";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'p', 'n', 'g', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'p', 'n', 'g', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
- \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, format, width, height, flags, propertyCount) \
-{ \
-	createFile (buffer, Ok); \
-	/* FIXME: grayscale image flags are incorrect. */ \
-	verifyBitmap (image, pngRawFormat, format, width, height, flags, propertyCount, FALSE); \
-	GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, format, width, height, flags, propertyCount)                          \
+	{                                                                                               \
+		createFile (buffer, Ok);                                                                \
+		/* FIXME: grayscale image flags are incorrect. */                                       \
+		verifyBitmap (image, pngRawFormat, format, width, height, flags, propertyCount, FALSE); \
+		GdipDisposeImage (image);                                                               \
+	}
 
-static void test_valid1bpp()
+static void
+test_valid1bpp ()
 {
+	// clang-format off
 	BYTE grayscale1bpp1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x40, 0x69, 0xC9, 0xB2,
@@ -84,6 +86,7 @@ static void test_valid1bpp()
 		/* IEND*/       0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 #endif
+	// clang-format on
 
 	createFileSuccess (grayscale1bpp1x1Interlaced, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale1bpp1x1NotInterlaced, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
@@ -96,8 +99,10 @@ static void test_valid1bpp()
 #endif
 }
 
-static void test_valid2bpp ()
+static void
+test_valid2bpp ()
 {
+	// clang-format off
 #if defined(USE_WINDOWS_GDIPLUS)
 	BYTE grayscale2bpp1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
@@ -135,6 +140,7 @@ static void test_valid2bpp ()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 #endif
+	// clang-format on
 
 	// FIXME: this causes an AV in libgdiplus when trying to convert this image to 32bpp as we assume
 	// the image has a palette.
@@ -150,8 +156,10 @@ static void test_valid2bpp ()
 #endif
 }
 
-static void test_valid4bpp()
+static void
+test_valid4bpp ()
 {
+	// clang-format off
 	BYTE grayscaleWithAlpha1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x04, 0x00, 0x00, 0x00, 0x01, 0x88, 0x89, 0x46, 0xC2,
@@ -187,6 +195,7 @@ static void test_valid4bpp()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 #endif
+	// clang-format on
 
 	// FIXME: GDI+ converts grayscale alpha 4bpp images to 32bpp.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -204,8 +213,10 @@ static void test_valid4bpp()
 #endif
 }
 
-static void test_valid8bpp ()
+static void
+test_valid8bpp ()
 {
+	// clang-format off
 	BYTE grayscale1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x00, 0x00, 0x00, 0x01, 0x4D, 0x79, 0xAB, 0xC3,
@@ -279,6 +290,7 @@ static void test_valid8bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0D, 'I', 'D', 'A', 'T', 0x18, 0x57, 0x63, 0xF8, 0xCF, 0xC0, 0xB0, 0x1F, 0x00, 0x04, 0xC0, 0x01, 0xBF, 0xBD, 0x98, 0x5E, 0x91,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+	// clang-format on
 
 	// FIXME: GDI+ converts grayscale 8bpp images to 32bpp.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -302,8 +314,10 @@ static void test_valid8bpp ()
 	createFileSuccess (trueColorWithAlpha1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 }
 
-static void test_valid16bpp ()
+static void
+test_valid16bpp ()
 {
+	// clang-format off
 	BYTE grayscale1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x00, 0x00, 0x01, 0x1D, 0xE9, 0x77, 0x80,
@@ -361,14 +375,15 @@ static void test_valid16bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x10, 'I', 'D', 'A', 'T', 0x18, 0x57, 0x63, 0xF8, 0xFF, 0x9F, 0x01, 0x08, 0xEA, 0xFF, 0x03, 0x00, 0x10, 0xF7, 0x03, 0x7D, 0xF1, 0xE9, 0x90, 0xF9,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
-	
+	// clang-format on
+
 	// FIXME: GDI+ converts grayscale 16bpp images to 32bpp.
 #if defined(USE_WINDOWS_GDIPLUS)
 	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
 	PixelFormat expectedTrueColorPixelFormat = PixelFormat32bppARGB;
 #else
-	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed ;
-	PixelFormat expectedTrueColorPixelFormat = PixelFormat24bppRGB ;
+	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed;
+	PixelFormat expectedTrueColorPixelFormat = PixelFormat24bppRGB;
 #endif
 
 	createFileSuccess (grayscale1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
@@ -382,8 +397,10 @@ static void test_valid16bpp ()
 	createFileSuccess (trueColorWithAlpha1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 }
 
-static void test_valid ()
+static void
+test_valid ()
 {
+	// clang-format off
 #if defined(USE_WINDOWS_GDIPLUS)
 	BYTE longIhdrLength[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
@@ -551,6 +568,7 @@ static void test_valid ()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82,
 		/* sRGB */      0x00, 0x00, 0x00, 0x01, 's', 'R', 'G', 'B', 0xFF, 0xAE, 0xCE, 0x1C, 0xE9
 	};
+	// clang-format on
 
 	// FIXME: GDI+ allows long IHDR lengths.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -601,14 +619,17 @@ static void test_valid ()
 	createFileSuccess (iendWithTrailingData, PixelFormat1bppIndexed, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 3);
 }
 
-static void test_invalidHeader ()
+static void
+test_invalidHeader ()
 {
+	// clang-format off
 	BYTE noP[]       = {0x89};
 	BYTE noN[]       = {0x89, 0x50};
 	BYTE noG[]       = {0x89, 0x50, 0x4E};
 	BYTE noCLRF[]    = {0x89, 0x50, 0x4E, 0x47};
 	BYTE shortCLRF[] = {0x89, 0x50, 0x4E, 0x47, 0x0D};
 	BYTE noEOF[]     = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A};
+	// clang-format on
 
 	createFile (noP, OutOfMemory);
 	createFile (noN, OutOfMemory);
@@ -618,8 +639,10 @@ static void test_invalidHeader ()
 	createFile (noEOF, OutOfMemory);
 }
 
-static void test_invalidHeaderChunk()
+static void
+test_invalidHeaderChunk ()
 {
+	// clang-format off
 	BYTE noDataLength[] = {
 		/*Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
 	};
@@ -679,6 +702,7 @@ static void test_invalidHeaderChunk()
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x37, 0x6E, 0xF9, 0x24
 	};
+	// clang-format on
 
 	createFile (noDataLength, OutOfMemory);
 	createFile (shortDataLength, OutOfMemory);
@@ -697,8 +721,10 @@ static void test_invalidHeaderChunk()
 	createFile (noIDAT, OutOfMemory);
 }
 
-static void test_invalidImageData()
+static void
+test_invalidImageData ()
 {
+	// clang-format off
 	BYTE lowerCaseHeaders[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'i', 'h', 'd', 'r', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
@@ -777,6 +803,7 @@ static void test_invalidImageData()
 		/* IDAT */      0x00, 0x00, 0x00, 0x00, 'I', 'D', 'A', 'T', 0x00, 0x00, 0x00, 0x00,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (lowerCaseHeaders, OutOfMemory);
 	createFile (shortIhdrLength, OutOfMemory);
@@ -789,8 +816,10 @@ static void test_invalidImageData()
 	createFile (onlyEmptyIdat, OutOfMemory);
 }
 
-static void test_invalidImageFormat()
+static void
+test_invalidImageFormat ()
 {
+	// clang-format off
 	BYTE indexedNoPalette[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x25, 0xDB, 0x56, 0xCA,
@@ -804,10 +833,12 @@ static void test_invalidImageFormat()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x68, 0x00, 0x00, 0x00, 0x82, 0x00, 0x81, 0xA7, 0x01, 0xBA, 0x10,
 		/* IEND*/       0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
+	// clang-format off
 
 	BYTE invalidBitsPerPixel[] = {0x01, 0x02, 0x04};
 	for (int i = 0; i < sizeof (invalidBitsPerPixel); i++)
 	{
+		// clang-format off
 		BYTE trueColorInvalidBpp[] = {
 			/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 			/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, invalidBitsPerPixel[i], 0x02, 0x00, 0x00, 0x01, 0xE7, 0x70, 0x63, 0x48,
@@ -826,6 +857,7 @@ static void test_invalidImageFormat()
 			/* IDAT */      0x00, 0x00, 0x00, 0x0C, 'I', 'D', 'A', 'T', 0x18, 0x57, 0x63, 0xF8, 0xCF, 0xC0, 0x00, 0x00, 0x03, 0x01, 0x01, 0x00, 0x63, 0x24, 0x55, 0xD3,
 			/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 		};
+		// clang-format on
 
 		createFile (trueColorInvalidBpp, OutOfMemory);
 		createFile (grayscaleWithAlphaInvalidBpp, OutOfMemory);
@@ -837,7 +869,7 @@ static void test_invalidImageFormat()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

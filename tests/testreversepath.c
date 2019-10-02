@@ -25,7 +25,8 @@ using namespace DllExports;
 
 #define C(func) assert (func == Ok)
 
-static void check_reverse_points(const GpPointF *p1, const GpPointF *p2, int count)
+static void
+check_reverse_points (const GpPointF *p1, const GpPointF *p2, int count)
 {
 	p2 += count;
 	while (count--) {
@@ -37,7 +38,7 @@ static void check_reverse_points(const GpPointF *p1, const GpPointF *p2, int cou
 }
 
 static void
-test_gdip_reversepath()
+test_gdip_reversepath ()
 {
 	GpPath *path;
 	int count;
@@ -51,7 +52,7 @@ test_gdip_reversepath()
 	C (GdipCreatePath (FillModeAlternate, &path));
 
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  0);
+	assertEqualInt (count, 0);
 
 	// Reverse an empty path
 	C (GdipReversePath (path));
@@ -61,7 +62,7 @@ test_gdip_reversepath()
 	// Path with one line
 	C (GdipAddPathLine (path, 0, 10, 1, 11));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  2);
+	assertEqualInt (count, 2);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -82,7 +83,7 @@ test_gdip_reversepath()
 	C (GdipAddPathLine (path, 0, 10, 1, 11));
 	C (GdipClosePathFigure (path));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  2);
+	assertEqualInt (count, 2);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -102,7 +103,7 @@ test_gdip_reversepath()
 	// Rectangle
 	C (GdipAddPathRectangle (path, 200, 201, 60, 61));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  4);
+	assertEqualInt (count, 4);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -127,7 +128,7 @@ test_gdip_reversepath()
 	C (GdipAddPathRectangle (path, 200, 201, 60, 61));
 	C (GdipSetPathMarker (path));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  4);
+	assertEqualInt (count, 4);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -148,12 +149,11 @@ test_gdip_reversepath()
 
 	GdipResetPath (path);
 
-
 	// Elipse and rectangle
 	C (GdipAddPathEllipse (path, 50, 51, 50, 100));
 	C (GdipAddPathRectangle (path, 200, 201, 60, 61));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  17);
+	assertEqualInt (count, 17);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[13], PathPointTypeStart);
@@ -181,7 +181,7 @@ test_gdip_reversepath()
 	C (GdipAddPathBezier (path, 5, 6, 7, 8, 9, 10, 11, 12));
 	C (GdipClosePathFigure (path));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  6);
+	assertEqualInt (count, 6);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -213,7 +213,7 @@ test_gdip_reversepath()
 	C (GdipAddPathLine (path, 20, 21, 22, 23));
 	C (GdipAddPathBezier (path, 5, 6, 7, 8, 9, 10, 11, 12));
 	C (GdipGetPointCount (path, &count));
-	assertEqualInt (count,  8);
+	assertEqualInt (count, 8);
 	C (GdipGetPathTypes (path, types, count));
 	C (GdipGetPathPoints (path, points, count));
 	assertEqualInt (types[0], PathPointTypeStart);
@@ -244,11 +244,11 @@ test_gdip_reversepath()
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 
-	test_gdip_reversepath();
+	test_gdip_reversepath ();
 
 	SHUTDOWN;
 	return 0;

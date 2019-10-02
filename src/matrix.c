@@ -46,9 +46,7 @@
 
 */
 
-
 /* private functions */
-
 
 /*
  * In System.Drawing it is often impossible to specify a 'null' matrix.
@@ -57,7 +55,7 @@
  * (e.g. invalidating the bitmap) unless we consider it as a special case.
  */
 BOOL
-gdip_is_matrix_empty (const GpMatrix* matrix)
+gdip_is_matrix_empty (const GpMatrix *matrix)
 {
 	if (!matrix)
 		return TRUE;
@@ -71,26 +69,25 @@ gdip_is_matrix_empty (const GpMatrix* matrix)
 /* GDI+ is more restrictive with matrices which contain boundary values (NaN, Infinity) than
    cairo. This helper function helps you detect these special cases. */
 BOOL
-gdip_is_matrix_with_boundary_values(const GpMatrix* matrix)
+gdip_is_matrix_with_boundary_values (const GpMatrix *matrix)
 {
 	if (!matrix)
 		return TRUE;
 
-	return isnan(matrix->xx) || isnan(matrix->xy) || isnan(matrix->yx) || isnan(matrix->yy) || isnan(matrix->x0) || isnan(matrix->y0)
-		|| isinf(matrix->xx) || isinf(matrix->xy) || isinf(matrix->yx) || isinf(matrix->yy) || isinf(matrix->x0) || isinf(matrix->y0);
+	return isnan (matrix->xx) || isnan (matrix->xy) || isnan (matrix->yx) || isnan (matrix->yy) || isnan (matrix->x0) || isnan (matrix->y0) || isinf (matrix->xx) || isinf (matrix->xy) || isinf (matrix->yx) || isinf (matrix->yy) || isinf (matrix->x0) || isinf (matrix->y0);
 }
 
 /* GDI+ maps values between [ FLT_MAX, Infinity [ to FLT_MAX, instead of Infinity */
 REAL
-gdip_double_to_float(double value)
+gdip_double_to_float (double value)
 {
 	if (value != INFINITY && value > FLT_MAX)
-		return (REAL)FLT_MAX;
+		return (REAL) FLT_MAX;
 
 	if (value != -INFINITY && value < -FLT_MAX)
-		return (REAL)-FLT_MAX;
+		return (REAL) -FLT_MAX;
 
-	return (REAL)value;
+	return (REAL) value;
 }
 
 BOOL
@@ -115,7 +112,7 @@ gdip_matrix_init_from_rect_3points (GpMatrix *matrix, const GpRectF *rect, const
 	if ((rect->Width == 0) || (rect->Height == 0))
 		return OutOfMemory;
 
-	p = (GpPointF*) dstplg;
+	p  = (GpPointF *) dstplg;
 	p0 = p++;
 	p1 = p++;
 	p2 = p;
@@ -199,7 +196,7 @@ GdipCreateMatrix3 (GDIPCONST GpRectF *rect, GDIPCONST GpPointF *dstplg, GpMatrix
 		*matrix = NULL;
 		return status;
 	}
-	
+
 	*matrix = result;
 	return status;
 }
@@ -219,14 +216,14 @@ GdipCreateMatrix3I (GDIPCONST GpRect *rect, GDIPCONST GpPoint *dstplg, GpMatrix 
 
 	gdip_RectF_from_Rect (rect, &rectf);
 
-	pts [0].X = dstplg [0].X;
-	pts [0].Y = dstplg [0].Y;
-	pts [1].X = dstplg [1].X;
-	pts [1].Y = dstplg [1].Y;
-	pts [2].X = dstplg [2].X;
-	pts [2].Y = dstplg [2].Y;
+	pts[0].X = dstplg[0].X;
+	pts[0].Y = dstplg[0].Y;
+	pts[1].X = dstplg[1].X;
+	pts[1].Y = dstplg[1].Y;
+	pts[2].X = dstplg[2].X;
+	pts[2].Y = dstplg[2].Y;
 
-	return GdipCreateMatrix3 (&rectf, (GpPointF*)&pts, matrix);
+	return GdipCreateMatrix3 (&rectf, (GpPointF *) &pts, matrix);
 }
 
 // coverity[+alloc : arg-*1]
@@ -320,7 +317,7 @@ GdipScaleMatrix (GpMatrix *matrix, REAL scaleX, REAL scaleY, GpMatrixOrder order
 {
 	cairo_matrix_t tmp;
 	cairo_matrix_init_scale (&tmp, scaleX, scaleY);
-	return GdipMultiplyMatrix (matrix, &tmp, order);        
+	return GdipMultiplyMatrix (matrix, &tmp, order);
 }
 
 GpStatus WINGDIPAPI
@@ -342,7 +339,7 @@ GdipShearMatrix (GpMatrix *matrix, REAL shearX, REAL shearY, GpMatrixOrder order
 GpStatus WINGDIPAPI
 GdipInvertMatrix (GpMatrix *matrix)
 {
-	if (!matrix || gdip_is_matrix_with_boundary_values(matrix))
+	if (!matrix || gdip_is_matrix_with_boundary_values (matrix))
 		return InvalidParameter;
 
 	return gdip_get_status (cairo_matrix_invert (matrix));
@@ -431,8 +428,7 @@ GdipIsMatrixInvertible (GDIPCONST GpMatrix *matrix, BOOL *result)
 	if (!matrix || !result)
 		return InvalidParameter;
 
-	if (gdip_is_matrix_with_boundary_values (matrix))
-	{
+	if (gdip_is_matrix_with_boundary_values (matrix)) {
 		*result = FALSE;
 		return Ok;
 	}
@@ -462,6 +458,6 @@ GdipIsMatrixEqual (GDIPCONST GpMatrix *matrix, GDIPCONST GpMatrix *matrix2, BOOL
 		return InvalidParameter;
 
 	*result = ((matrix->xx == matrix2->xx) && (matrix->yx == matrix2->yx) && (matrix->xy == matrix2->xy) &&
-		(matrix->yy == matrix2->yy) && (matrix->x0 == matrix2->x0) && (matrix->y0 == matrix2->y0));
+		   (matrix->yy == matrix2->yy) && (matrix->x0 == matrix2->x0) && (matrix->y0 == matrix2->y0));
 	return Ok;
 }

@@ -16,13 +16,13 @@
 
 GpStatus gdip_load_png_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
-GpStatus gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seeknFunc, 
-	GpImage **image) GDIP_INTERNAL;
+GpStatus gdip_load_png_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seeknFunc,
+						   GpImage **image) GDIP_INTERNAL;
 
 GpStatus gdip_save_png_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
 GpStatus gdip_save_png_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image,
-	GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
+						 GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
 ImageCodecInfo *gdip_getcodecinfo_png () GDIP_INTERNAL;
 
@@ -30,8 +30,8 @@ GpStatus gdip_fill_encoder_parameter_list_png (EncoderParameters *buffer, UINT s
 
 typedef struct
 {
-  UINT count;
-  EncoderParameter imageItems;
+	UINT count;
+	EncoderParameter imageItems;
 } PngEncoderParameters;
 
 #endif /* _PNGCODEC_H */

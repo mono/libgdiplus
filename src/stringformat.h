@@ -36,7 +36,7 @@
 GpStatus WINGDIPAPI GdipCreateStringFormat (INT formatAttributes, LANGID language, GpStringFormat **format);
 GpStatus WINGDIPAPI GdipStringFormatGetGenericDefault (GpStringFormat **format);
 GpStatus WINGDIPAPI GdipStringFormatGetGenericTypographic (GpStringFormat **format);
-GpStatus WINGDIPAPI GdipCloneStringFormat (GDIPCONST GpStringFormat* format, GpStringFormat** newFormat);
+GpStatus WINGDIPAPI GdipCloneStringFormat (GDIPCONST GpStringFormat *format, GpStringFormat **newFormat);
 GpStatus WINGDIPAPI GdipDeleteStringFormat (GpStringFormat *format);
 
 GpStatus WINGDIPAPI GdipGetStringFormatAlign (GDIPCONST GpStringFormat *format, StringAlignment *align);

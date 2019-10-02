@@ -40,26 +40,26 @@
 #include "matrix-private.h"
 
 /* _N: normalize to 0.0 .. 1.0 */
-#define ARGB_ALPHA_N(argb)	((double)((argb >> 24) & 0xff) / 255.0)
-#define ARGB_RED_N(argb)	((double)((argb >> 16) & 0xff) / 255.0)
-#define ARGB_GREEN_N(argb)	((double)((argb >>  8) & 0xff) / 255.0)
-#define ARGB_BLUE_N(argb)	((double)((argb)       & 0xff) / 255.0)
+#define ARGB_ALPHA_N(argb) ((double) ((argb >> 24) & 0xff) / 255.0)
+#define ARGB_RED_N(argb) ((double) ((argb >> 16) & 0xff) / 255.0)
+#define ARGB_GREEN_N(argb) ((double) ((argb >> 8) & 0xff) / 255.0)
+#define ARGB_BLUE_N(argb) ((double) ((argb) &0xff) / 255.0)
 
 struct _PathGradient {
-	GpBrush			base;
-	GpPath			*boundary;
-	ARGB			*boundaryColors;
-	int			boundaryColorsCount;
-	GpPointF		center;
-	ARGB			centerColor;
-	GpPointF		focusScales;
-	GpRectF			rectangle;
-	Blend			*blend;
-	InterpolationColors	*presetColors;
-	GpWrapMode		wrapMode;
-	cairo_matrix_t		transform;
-	cairo_pattern_t		*pattern;
-	BOOL		useGammaCorrection;
+	GpBrush base;
+	GpPath *boundary;
+	ARGB *boundaryColors;
+	int boundaryColorsCount;
+	GpPointF center;
+	ARGB centerColor;
+	GpPointF focusScales;
+	GpRectF rectangle;
+	Blend *blend;
+	InterpolationColors *presetColors;
+	GpWrapMode wrapMode;
+	cairo_matrix_t transform;
+	cairo_pattern_t *pattern;
+	BOOL useGammaCorrection;
 };
 
 #include "pathgradientbrush.h"

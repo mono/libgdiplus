@@ -37,10 +37,10 @@ static GpStatus gdip_linear_gradient_destroy (GpBrush *brush);
  * all instances of lineargradient brush.
  */
 
-static BrushClass vtable = { BrushTypeLinearGradient,
-			     gdip_linear_gradient_setup,
-			     gdip_linear_gradient_clone_brush,
-			     gdip_linear_gradient_destroy };
+static BrushClass vtable = {BrushTypeLinearGradient,
+			    gdip_linear_gradient_setup,
+			    gdip_linear_gradient_clone_brush,
+			    gdip_linear_gradient_destroy};
 
 static GpStatus
 gdip_linear_gradient_init (GpLineGradient *linear)
@@ -49,22 +49,22 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 	linear->wrapMode = WrapModeTile;
 	cairo_matrix_init_identity (&linear->matrix);
 	linear->rectangle.X = linear->rectangle.Y = linear->rectangle.Width = linear->rectangle.Height = 0.0f;
-	linear->gammaCorrection = FALSE;
-	linear->angle = 0.0;
-	linear->isAngleScalable = FALSE;
-	linear->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
+	linear->gammaCorrection									       = FALSE;
+	linear->angle										       = 0.0;
+	linear->isAngleScalable									       = FALSE;
+	linear->presetColors									       = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 	if (!linear->presetColors) {
 		return OutOfMemory;
 	}
 
 	linear->presetColors->count = 0;
-	linear->blend = (Blend *) GdipAlloc (sizeof (Blend));
+	linear->blend		    = (Blend *) GdipAlloc (sizeof (Blend));
 	if (!linear->blend) {
 		GdipFree (linear->presetColors);
 		return OutOfMemory;
 	}
 
-	linear->blend->count = 1;
+	linear->blend->count   = 1;
 	linear->blend->factors = (float *) GdipAlloc (sizeof (float));
 	if (!linear->blend->factors) {
 		GdipFree (linear->presetColors);
@@ -80,14 +80,14 @@ gdip_linear_gradient_init (GpLineGradient *linear)
 		return OutOfMemory;
 	}
 
-	linear->blend->factors [0] = 1.0;
+	linear->blend->factors[0]   = 1.0;
 	linear->blend->positions[0] = 0.0;
-	linear->pattern = NULL;
+	linear->pattern		    = NULL;
 
 	return Ok;
 }
 
-static GpLineGradient*
+static GpLineGradient *
 gdip_linear_gradient_new (void)
 {
 	GpLineGradient *result = (GpLineGradient *) GdipAlloc (sizeof (GpLineGradient));
@@ -117,22 +117,22 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 
 	linear = (GpLineGradient *) brush;
 
-	newbrush->base = linear->base;
+	newbrush->base     = linear->base;
 	newbrush->wrapMode = linear->wrapMode;
 	gdip_cairo_matrix_copy (&newbrush->matrix, &linear->matrix);
 	memcpy (&newbrush->rectangle, &linear->rectangle, sizeof (GpRectF));
 	newbrush->gammaCorrection = linear->gammaCorrection;
-	newbrush->angle = linear->angle;
+	newbrush->angle		  = linear->angle;
 	newbrush->isAngleScalable = linear->isAngleScalable;
 	/* cloned brush needs to have its own pattern */
-	newbrush->base.changed = TRUE;
-	newbrush->pattern = NULL;
-	newbrush->lineColors [0] = linear->lineColors [0];
-	newbrush->lineColors [1] = linear->lineColors [1];
-	newbrush->points [0].X = linear->points [0].X;
-	newbrush->points [0].Y = linear->points [0].Y;
-	newbrush->points [1].X = linear->points [1].X;
-	newbrush->points [1].Y = linear->points [1].Y;
+	newbrush->base.changed  = TRUE;
+	newbrush->pattern       = NULL;
+	newbrush->lineColors[0] = linear->lineColors[0];
+	newbrush->lineColors[1] = linear->lineColors[1];
+	newbrush->points[0].X   = linear->points[0].X;
+	newbrush->points[0].Y   = linear->points[0].Y;
+	newbrush->points[1].X   = linear->points[1].X;
+	newbrush->points[1].Y   = linear->points[1].Y;
 
 	newbrush->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 
@@ -142,22 +142,22 @@ gdip_linear_gradient_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	newbrush->presetColors->count = linear->presetColors->count;
 	if (linear->presetColors->count > 0) {
 		newbrush->presetColors->colors = (ARGB *) GdipAlloc (linear->presetColors->count * sizeof (ARGB));
-		if (newbrush->presetColors->colors == NULL) 
+		if (newbrush->presetColors->colors == NULL)
 			goto failure;
 
-		memcpy (newbrush->presetColors->colors, linear->presetColors->colors, 
+		memcpy (newbrush->presetColors->colors, linear->presetColors->colors,
 			linear->presetColors->count * sizeof (ARGB));
 
 		newbrush->presetColors->positions = (float *) GdipAlloc (linear->presetColors->count * sizeof (float));
 		if (!newbrush->presetColors->positions)
 			goto failure;
 
-		memcpy (newbrush->presetColors->positions, linear->presetColors->positions, 
+		memcpy (newbrush->presetColors->positions, linear->presetColors->positions,
 			linear->presetColors->count * sizeof (float));
 	} else {
 		memcpy (newbrush->presetColors, linear->presetColors, sizeof (InterpolationColors));
 	}
-	
+
 	newbrush->blend = (Blend *) GdipAlloc (sizeof (Blend));
 	if (!newbrush->blend)
 		goto failure;
@@ -241,14 +241,14 @@ add_color_stops_from_blend (cairo_pattern_t *pattern, Blend *blend, ARGB *colors
 	eb = colors[1] & 0xFF;
 
 	for (index = 0; index < blend->count; index++) {
-		factor = blend->factors [index];
-		offset = blend->positions [index];
+		factor = blend->factors[index];
+		offset = blend->positions[index];
 
-		cairo_pattern_add_color_stop_rgba (pattern, offset, 
-					      ((sr * (1 - factor)) + (er * factor)) / 255,
-					      ((sg * (1 - factor)) + (eg * factor)) / 255,
-					      ((sb * (1 - factor)) + (eb * factor)) / 255,
-					      ((sa * (1 - factor)) + (ea * factor)) / 255);
+		cairo_pattern_add_color_stop_rgba (pattern, offset,
+						   ((sr * (1 - factor)) + (er * factor)) / 255,
+						   ((sg * (1 - factor)) + (eg * factor)) / 255,
+						   ((sb * (1 - factor)) + (eb * factor)) / 255,
+						   ((sa * (1 - factor)) + (ea * factor)) / 255);
 	}
 }
 
@@ -265,12 +265,12 @@ add_color_stops_from_interpolation_colors (cairo_pattern_t *pattern, Interpolati
 	 * offset values is out of [0.0, 1.0].
 	 */
 	for (index = 0; index < presetColors->count; index++) {
-		color = presetColors->colors [index];
-		a = (color >> 24) & 0xFF;
-		r = (color >> 16) & 0xFF;
-		g = (color >> 8) & 0xFF;
-		b = color & 0xFF;
-		offset = presetColors->positions [index];
+		color  = presetColors->colors[index];
+		a      = (color >> 24) & 0xFF;
+		r      = (color >> 16) & 0xFF;
+		g      = (color >> 8) & 0xFF;
+		b      = color & 0xFF;
+		offset = presetColors->positions[index];
 
 		cairo_pattern_add_color_stop_rgba (pattern, offset, r / 255, g / 255, b / 255, a / 255);
 	}
@@ -313,7 +313,7 @@ create_tile_linear (GpGraphics *graphics, cairo_t *ct, GpLineGradient *linear)
 	if (status != Ok)
 		return status;
 
-	pat = cairo_pattern_create_linear (linear->points [0].X, linear->points [0].Y, linear->points [1].X, linear->points [1].Y);
+	pat    = cairo_pattern_create_linear (linear->points[0].X, linear->points[0].Y, linear->points[1].X, linear->points[1].Y);
 	status = gdip_get_pattern_status (pat);
 	if (status != Ok)
 		return status;
@@ -361,11 +361,11 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 
 		if (linear->wrapMode == WrapModeClamp)
 			return InvalidParameter;
-			
+
 		status = create_tile_linear (graphics, ct, linear);
 
 		if ((status == Ok) && linear->pattern) {
-			
+
 			switch (linear->wrapMode) {
 
 			case WrapModeTile:
@@ -377,10 +377,10 @@ gdip_linear_gradient_setup (GpGraphics *graphics, GpBrush *brush)
 			case WrapModeTileFlipXY:
 				cairo_pattern_set_extend (linear->pattern, CAIRO_EXTEND_REFLECT);
 				break;
-			default :
+			default:
 				return InvalidParameter; // we will never get here but I hate warnings!
 			}
-			
+
 			cairo_set_source (ct, linear->pattern);
 			return gdip_get_status (cairo_status (ct));
 		}
@@ -402,8 +402,8 @@ gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 	GpPointF pts[3];
 	GpRectF *rectf = &linear->rectangle;
 
-	cosAngle = cos (linear->angle);
-	sinAngle = sin (linear->angle);
+	cosAngle    = cos (linear->angle);
+	sinAngle    = sin (linear->angle);
 	absCosAngle = fabs (cosAngle);
 	absSinAngle = fabs (sinAngle);
 
@@ -421,9 +421,9 @@ gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 	cairo_matrix_translate (&linear->matrix, -transX, -transY);
 
 	if (linear->isAngleScalable && !gdip_near_zero (cosAngle) && !gdip_near_zero (sinAngle)) {
-		rectRight = rectf->X + rectf->Width;
+		rectRight  = rectf->X + rectf->Width;
 		rectBottom = rectf->Y + rectf->Height;
-		
+
 		pts[0].X = rectf->X;
 		pts[0].Y = rectf->Y;
 		pts[1].X = rectRight;
@@ -434,28 +434,28 @@ gdip_linear_gradient_setup_initial_matrix (GpLineGradient *linear)
 		GdipTransformMatrixPoints (&linear->matrix, pts, 3);
 
 		if (sinAngle > 0 && cosAngle > 0) {
-			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle));
+			slope    = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle));
 			pts[0].Y = (slope * (pts[0].X - rectf->X)) + rectf->Y;
 			pts[1].X = ((pts[1].Y - rectBottom) / slope) + rectRight;
 			pts[2].X = ((pts[2].Y - rectf->Y) / slope) + rectf->X;
 		} else if (sinAngle > 0 && cosAngle < 0) {
-			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - PI / 2));
+			slope    = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - PI / 2));
 			pts[0].X = ((pts[0].Y - rectBottom) / slope) + rectRight;
 			pts[1].Y = (slope * (pts[1].X - rectRight)) + rectBottom;
 			pts[2].Y = (slope * (pts[2].X - rectf->X)) + rectf->Y;
 		} else if (sinAngle < 0 && cosAngle < 0) {
-			slope = -1.0f / (((rectf->Width / rectf->Height) * tan (linear->angle)));
+			slope    = -1.0f / (((rectf->Width / rectf->Height) * tan (linear->angle)));
 			pts[0].Y = (slope * (pts[0].X - rectRight)) + rectBottom;
 			pts[1].X = ((pts[1].Y - rectf->Y) / slope) + rectf->X;
 			pts[2].X = ((pts[2].Y - rectBottom) / slope) + rectRight;
 		} else {
-			slope = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - 3 * PI / 2));
+			slope    = -1.0f / ((rectf->Width / rectf->Height) * tan (linear->angle - 3 * PI / 2));
 			pts[0].X = ((pts[0].Y - rectf->Y) / slope) + rectf->X;
 			pts[1].Y = (slope * (pts[1].X - rectf->X)) + rectf->Y;
 			pts[2].Y = (slope * (pts[2].X - rectRight)) + rectBottom;
 		}
 
-		gdip_matrix_init_from_rect_3points (&linear->matrix, rectf, (GpPointF*)&pts);
+		gdip_matrix_init_from_rect_3points (&linear->matrix, rectf, (GpPointF *) &pts);
 	}
 }
 
@@ -468,7 +468,7 @@ GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB
 	if (!gdiplusInitialized)
 		return GdiplusNotInitialized;
 
-	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)	
+	if (!point1 || !point2 || !lineGradient || wrapMode == WrapModeClamp)
 		return InvalidParameter;
 
 	p1.X = point1->X;
@@ -503,42 +503,42 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 	if (!linear)
 		return OutOfMemory;
 
-	linear->wrapMode = wrapMode;
-	linear->lineColors [0] = color1;
-	linear->lineColors [1] = color2;
+	linear->wrapMode	= wrapMode;
+	linear->lineColors[0]   = color1;
+	linear->lineColors[1]   = color2;
 	linear->isAngleScalable = FALSE;
 
-	linear->rectangle.Width = point2->X - point1->X;
+	linear->rectangle.Width  = point2->X - point1->X;
 	linear->rectangle.Height = point2->Y - point1->Y;
-	linear->rectangle.X = linear->rectangle.Width < 0 ? point2->X : point1->X;
-	linear->rectangle.Y = linear->rectangle.Height < 0 ? point2->Y : point1->Y;
+	linear->rectangle.X      = linear->rectangle.Width < 0 ? point2->X : point1->X;
+	linear->rectangle.Y      = linear->rectangle.Height < 0 ? point2->Y : point1->Y;
 
 	if (linear->rectangle.Width < 0) {
 		linear->rectangle.Width = -linear->rectangle.Width;
-		xFlipped = TRUE;
+		xFlipped		= TRUE;
 	}
 
 	if (linear->rectangle.Height < 0) {
 		linear->rectangle.Height = -linear->rectangle.Height;
-		yFlipped = TRUE;
+		yFlipped		 = TRUE;
 	}
 
 	if (linear->rectangle.Height == 0) {
 		linear->rectangle.Height = linear->rectangle.Width;
-		linear->rectangle.Y = linear->rectangle.Y - (linear->rectangle.Height / 2.0f);
-		linear->angle = xFlipped ? 180 : 0;
+		linear->rectangle.Y      = linear->rectangle.Y - (linear->rectangle.Height / 2.0f);
+		linear->angle		 = xFlipped ? 180 : 0;
 	}
 
 	else if (linear->rectangle.Width == 0) {
 		linear->rectangle.Width = linear->rectangle.Height;
-		linear->rectangle.X = linear->rectangle.X - (linear->rectangle.Width / 2.0f);
-		linear->angle = yFlipped ? 270 : 90;
+		linear->rectangle.X     = linear->rectangle.X - (linear->rectangle.Width / 2.0f);
+		linear->angle		= yFlipped ? 270 : 90;
 	}
 
 	else {
-		float slope = linear->rectangle.Height / linear->rectangle.Width;
+		float slope       = linear->rectangle.Height / linear->rectangle.Width;
 		float newAngleRad = atan (slope);
-		float newAngle = (newAngleRad / (DEGTORAD));
+		float newAngle    = (newAngleRad / (DEGTORAD));
 
 		if (xFlipped)
 			newAngle = 180 - newAngle;
@@ -549,10 +549,10 @@ GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARG
 		linear->angle = newAngle;
 	}
 
-	linear->points [0].X = linear->rectangle.X;
-	linear->points [0].Y = linear->rectangle.Y;
-	linear->points [1].X = linear->rectangle.X + linear->rectangle.Width;
-	linear->points [1].Y = linear->rectangle.Y;
+	linear->points[0].X = linear->rectangle.X;
+	linear->points[0].Y = linear->rectangle.Y;
+	linear->points[1].X = linear->rectangle.X + linear->rectangle.Width;
+	linear->points[1].Y = linear->rectangle.Y;
 
 	linear->angle = linear->angle * DEGTORAD;
 
@@ -615,7 +615,7 @@ GdipCreateLineBrushFromRect (GDIPCONST GpRectF *rect, ARGB color1, ARGB color2, 
 	}
 
 	return GdipCreateLineBrushFromRectWithAngle (rect, color1, color2,
-		get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
+						     get_angle_from_linear_gradient_mode (mode), TRUE, wrapMode, lineGradient);
 }
 
 // coverity[+alloc : arg-*6]
@@ -631,7 +631,7 @@ GdipCreateLineBrushFromRectWithAngleI (GDIPCONST GpRect *rect, ARGB color1, ARGB
 		return InvalidParameter;
 
 	gdip_RectF_from_Rect (rect, &rectf);
-	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2, angle, 
+	return GdipCreateLineBrushFromRectWithAngle (&rectf, color1, color2, angle,
 						     isAngleScalable, wrapMode, lineGradient);
 }
 
@@ -656,16 +656,16 @@ GdipCreateLineBrushFromRectWithAngle (GDIPCONST GpRectF *rect, ARGB color1, ARGB
 	if (!linear)
 		return OutOfMemory;
 
-	linear->wrapMode = wrapMode;
-	linear->lineColors [0] = color1;
-	linear->lineColors [1] = color2;
-	linear->angle = fmod (angle, 360) * DEGTORAD;
+	linear->wrapMode	= wrapMode;
+	linear->lineColors[0]   = color1;
+	linear->lineColors[1]   = color2;
+	linear->angle		= fmod (angle, 360) * DEGTORAD;
 	linear->isAngleScalable = isAngleScalable;
 
-	linear->points [0].X = rect->X;
-	linear->points [0].Y = rect->Y;
-	linear->points [1].X = rect->X + rect->Width + 1;
-	linear->points [1].Y = rect->Y;
+	linear->points[0].X = rect->X;
+	linear->points[0].Y = rect->Y;
+	linear->points[1].X = rect->X + rect->Width + 1;
+	linear->points[1].Y = rect->Y;
 	memcpy (&linear->rectangle, rect, sizeof (GpRectF));
 
 	gdip_linear_gradient_setup_initial_matrix (linear);
@@ -713,13 +713,13 @@ GdipSetLineBlend (GpLineGradient *brush, GDIPCONST REAL *blend, GDIPCONST REAL *
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blendFactors;
+		brush->blend->factors   = blendFactors;
 		brush->blend->positions = blendPositions;
 	}
 
 	for (int index = 0; index < count; index++) {
-		brush->blend->factors [index] = blend [index];
-		brush->blend->positions [index] = positions [index];
+		brush->blend->factors[index]   = blend[index];
+		brush->blend->positions[index] = positions[index];
 	}
 
 	brush->blend->count = count;
@@ -740,7 +740,7 @@ GdipGetLineBlend (GpLineGradient *brush, REAL *blend, REAL *positions, INT count
 {
 	if (!brush || !blend || !positions || count <= 0)
 		return InvalidParameter;
-		
+
 	if (count < brush->blend->count)
 		return InsufficientBuffer;
 
@@ -750,7 +750,7 @@ GdipGetLineBlend (GpLineGradient *brush, REAL *blend, REAL *positions, INT count
 	 */
 	if (brush->blend->count < 1)
 		return WrongState;
-	
+
 	memcpy (blend, brush->blend->factors, brush->blend->count * sizeof (float));
 
 	// Don't copy anything to positions if the count is one, as positions requires at least 2 values in the array.
@@ -767,7 +767,7 @@ GdipSetLineGammaCorrection (GpLineGradient *brush, BOOL useGammaCorrection)
 		return InvalidParameter;
 
 	brush->gammaCorrection = useGammaCorrection;
-	brush->base.changed = TRUE;
+	brush->base.changed    = TRUE;
 
 	return Ok;
 }
@@ -818,13 +818,13 @@ GdipSetLinePresetBlend (GpLineGradient *brush, GDIPCONST ARGB *blend, GDIPCONST 
 			GdipFree (brush->presetColors->positions);
 		}
 
-		brush->presetColors->colors = blendColors;
+		brush->presetColors->colors    = blendColors;
 		brush->presetColors->positions = blendPositions;
 	}
 
 	for (int index = 0; index < count; index++) {
-		brush->presetColors->colors [index] = blend [index];
-		brush->presetColors->positions [index] = positions [index];
+		brush->presetColors->colors[index]    = blend[index];
+		brush->presetColors->positions[index] = positions[index];
 	}
 
 	brush->presetColors->count = count;
@@ -854,7 +854,7 @@ GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, REAL *positions, INT
 	 */
 	if (brush->presetColors->count < 2)
 		return WrongState;
-	
+
 	memcpy (blend, brush->presetColors->colors, count * sizeof (ARGB));
 	memcpy (positions, brush->presetColors->positions, count * sizeof (float));
 
@@ -869,7 +869,7 @@ GdipSetLineColors (GpLineGradient *brush, ARGB color1, ARGB color2)
 
 	brush->lineColors[0] = color1;
 	brush->lineColors[1] = color2;
-	brush->base.changed = TRUE;
+	brush->base.changed  = TRUE;
 	return Ok;
 }
 
@@ -879,8 +879,8 @@ GdipGetLineColors (GpLineGradient *brush, ARGB *colors)
 	if (!brush || !colors)
 		return InvalidParameter;
 
-	colors [0] = brush->lineColors[0];
-	colors [1] = brush->lineColors[1];
+	colors[0] = brush->lineColors[0];
+	colors[1] = brush->lineColors[1];
 
 	return Ok;
 }
@@ -952,7 +952,7 @@ GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode)
 	if (wrapMode > WrapModeClamp)
 		return Ok;
 
-	brush->wrapMode = wrapMode;
+	brush->wrapMode     = wrapMode;
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -988,7 +988,7 @@ GdipSetLineLinearBlend (GpLineGradient *brush, REAL focus, REAL scale)
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blends;
+		brush->blend->factors   = blends;
 		brush->blend->positions = positions;
 	}
 
@@ -1001,26 +1001,26 @@ GdipSetLineLinearBlend (GpLineGradient *brush, REAL focus, REAL scale)
 
 	/* set the blend colors */
 	if (focus == 0) {
-		brush->blend->positions [0] = focus;
-		brush->blend->factors [0] = scale;
-		brush->blend->positions [1] = 1;
-		brush->blend->factors [1] = 0;
+		brush->blend->positions[0] = focus;
+		brush->blend->factors[0]   = scale;
+		brush->blend->positions[1] = 1;
+		brush->blend->factors[1]   = 0;
 	}
 
 	else if (focus == 1) {
-		brush->blend->positions [0] = 0;
-		brush->blend->factors [0] = 0;
-		brush->blend->positions [1] = focus;
-		brush->blend->factors [1] = scale;
+		brush->blend->positions[0] = 0;
+		brush->blend->factors[0]   = 0;
+		brush->blend->positions[1] = focus;
+		brush->blend->factors[1]   = scale;
 	}
 
 	else {
-		brush->blend->positions [0] = 0;
-		brush->blend->factors [0] = 0;
-		brush->blend->positions [1] = focus;
-		brush->blend->factors [1] = scale;
-		brush->blend->positions [2] = 1;
-		brush->blend->factors [2] = 0;
+		brush->blend->positions[0] = 0;
+		brush->blend->factors[0]   = 0;
+		brush->blend->positions[1] = focus;
+		brush->blend->factors[1]   = scale;
+		brush->blend->positions[2] = 1;
+		brush->blend->factors[2]   = 0;
 	}
 
 	brush->blend->count = count;
@@ -1040,7 +1040,7 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, REAL focus, REAL scale)
 	float sigma;
 	float mean;
 	float fall_off_len = 2.0; /* curve fall off length in terms of SIGMA */
-	float delta; /* distance between two samples */
+	float delta;		  /* distance between two samples */
 
 	/* we get a curve not starting from 0 and not ending at 1.
 	 * so we subtract the starting value and divide by the curve
@@ -1074,7 +1074,7 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, REAL focus, REAL scale)
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blends;
+		brush->blend->factors   = blends;
 		brush->blend->positions = positions;
 	}
 
@@ -1112,97 +1112,97 @@ GdipSetLineSigmaBlend (GpLineGradient *brush, REAL focus, REAL scale)
 	if (focus == 0) {
 		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = 1.0 / fall_off_len;
-		mean = 0.5;
+		mean  = 0.5;
 		delta = 1.0 / 255.0;
 
 		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
-		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		/* set the start */
-		brush->blend->positions [0] = focus;
-		brush->blend->factors [0] = scale;
+		brush->blend->positions[0] = focus;
+		brush->blend->factors[0]   = scale;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = 1.0;
-		brush->blend->factors [count - 1] = 0.0;
+		brush->blend->positions[count - 1] = 1.0;
+		brush->blend->factors[count - 1]   = 0.0;
 	}
 
 	else if (focus == 1) {
 		/* left part of the curve with a complete rise in fall_off_len * SIGMAs */
 		sigma = 1.0 / fall_off_len;
-		mean = 0.5;
+		mean  = 0.5;
 		delta = 1.0 / 255.0;
 
 		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
-		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		/* set the start */
-		brush->blend->positions [0] = 0.0;
-		brush->blend->factors [0] = 0.0;
+		brush->blend->positions[0] = 0.0;
+		brush->blend->factors[0]   = 0.0;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = focus;
-		brush->blend->factors [count - 1] = scale;
+		brush->blend->positions[count - 1] = focus;
+		brush->blend->factors[count - 1]   = scale;
 	}
 
 	else {
 		/* left part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = focus / (2 * fall_off_len);
-		mean = focus / 2.0;
+		mean  = focus / 2.0;
 		delta = focus / 255.0;
 
 		/* set the start */
-		brush->blend->positions [0] = 0.0;
-		brush->blend->factors [0] = 0.0;
+		brush->blend->positions[0] = 0.0;
+		brush->blend->factors[0]   = 0.0;
 
 		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
-		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
-		brush->blend->positions [index] = focus;
-		brush->blend->factors [index] = scale;
+		brush->blend->positions[index] = focus;
+		brush->blend->factors[index]   = scale;
 
 		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = (1.0 - focus) / (2 * fall_off_len);
-		mean = (1.0 + focus) / 2.0;
+		mean  = (1.0 + focus) / 2.0;
 		delta = (1.0 - focus) / 255.0;
 
 		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
-		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
-		index ++;
+		index++;
 		pos = focus + delta;
 
 		for (; index < 510; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = 1.0;
-		brush->blend->factors [count - 1] = 0.0;
+		brush->blend->positions[count - 1] = 1.0;
+		brush->blend->factors[count - 1]   = 0.0;
 	}
 
 	brush->blend->count = count;
@@ -1230,7 +1230,7 @@ GdipMultiplyLineTransform (GpLineGradient *brush, GpMatrix *matrix, GpMatrixOrde
 	if (order == MatrixOrderPrepend)
 		cairo_matrix_multiply (&brush->matrix, matrix, &brush->matrix);
 	else
-		cairo_matrix_multiply (&brush->matrix, &brush->matrix, matrix);       
+		cairo_matrix_multiply (&brush->matrix, &brush->matrix, matrix);
 
 	brush->base.changed = TRUE;
 	return Ok;

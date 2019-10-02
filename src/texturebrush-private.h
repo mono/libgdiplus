@@ -40,12 +40,12 @@
 #include "matrix-private.h"
 
 typedef struct _Texture {
-	GpBrush		base;
-	GpImage		*image;
-	cairo_matrix_t	matrix;
-	GpRect		rectangle;
-	GpWrapMode	wrapMode;
-	cairo_pattern_t	*pattern;
+	GpBrush base;
+	GpImage *image;
+	cairo_matrix_t matrix;
+	GpRect rectangle;
+	GpWrapMode wrapMode;
+	cairo_pattern_t *pattern;
 } Texture;
 
 #include "texturebrush.h"

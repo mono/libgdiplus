@@ -1,0 +1,11 @@
+BasedOnStyle: LLVM
+IndentWidth: 8
+UseTab: Always
+AlwaysBreakAfterDefinitionReturnType: TopLevel
+BreakBeforeBraces: Linux
+SpaceAfterCStyleCast: true
+AllowShortIfStatementsOnASingleLine: true
+SpaceBeforeParens: Always
+ColumnLimit: 0
+SortIncludes: false
+AlignConsecutiveAssignments: true

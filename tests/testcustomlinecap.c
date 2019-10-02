@@ -25,7 +25,8 @@ using namespace DllExports;
 #include <string.h>
 #include "testhelpers.h"
 
-static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, REAL expectedBaseInset)
+static void
+verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, REAL expectedBaseInset)
 {
 	assert (cap && "Expected cap to be initialized.");
 
@@ -64,7 +65,8 @@ static void verifyCustomLineCap (GpCustomLineCap *cap, LineCap expectedBaseCap, 
 	assertEqualFloat (widthScale, 1);
 }
 
-static void test_createCustomLineCap ()
+static void
+test_createCustomLineCap ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -84,18 +86,18 @@ static void test_createCustomLineCap ()
 	verifyCustomLineCap (cap, LineCapFlat, 0);
 	GdipDeleteCustomLineCap (cap);
 
-	status = GdipCreateCustomLineCap (fillPath, NULL, (LineCap)(LineCapFlat - 1), -1, &cap);
+	status = GdipCreateCustomLineCap (fillPath, NULL, (LineCap) (LineCapFlat - 1), -1, &cap);
 	assertEqualInt (status, Ok);
 	verifyCustomLineCap (cap, LineCapFlat, -1);
 	GdipDeleteCustomLineCap (cap);
 
-	status = GdipCreateCustomLineCap (fillPath, strokePath, (LineCap)(LineCapCustom + 1), 100, &cap);
+	status = GdipCreateCustomLineCap (fillPath, strokePath, (LineCap) (LineCapCustom + 1), 100, &cap);
 	assertEqualInt (status, Ok);
 	verifyCustomLineCap (cap, LineCapFlat, 100);
 	GdipDeleteCustomLineCap (cap);
 
 	// Negative tests.
-	cap = (GpCustomLineCap *) 0xCC;
+	cap    = (GpCustomLineCap *) 0xCC;
 	status = GdipCreateCustomLineCap (NULL, NULL, LineCapRoundAnchor, 10, &cap);
 	assertEqualInt (status, InvalidParameter);
 	assert (cap == (GpCustomLineCap *) 0xCC);
@@ -107,7 +109,8 @@ static void test_createCustomLineCap ()
 	GdipDeletePath (strokePath);
 }
 
-static void test_deleteCustomLineCap ()
+static void
+test_deleteCustomLineCap ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -129,7 +132,8 @@ static void test_deleteCustomLineCap ()
 	GdipDeletePath (strokePath);
 }
 
-static void test_cloneCustomLineCap ()
+static void
+test_cloneCustomLineCap ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -161,7 +165,8 @@ static void test_cloneCustomLineCap ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapType ()
+static void
+test_getCustomLineCapType ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -185,7 +190,8 @@ static void test_getCustomLineCapType ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_setCustomLineCapStrokeCaps ()
+static void
+test_setCustomLineCapStrokeCaps ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -242,10 +248,10 @@ static void test_setCustomLineCapStrokeCaps ()
 	status = GdipSetCustomLineCapStrokeCaps (NULL, LineCapArrowAnchor, LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapFlat - 1), LineCapFlat);
+	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap) (LineCapFlat - 1), LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapTriangle + 1), LineCapFlat);
+	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap) (LineCapTriangle + 1), LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapNoAnchor, LineCapFlat);
@@ -269,13 +275,13 @@ static void test_setCustomLineCapStrokeCaps ()
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapAnchorMask, LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap)(LineCapCustom + 1), LineCapFlat);
+	status = GdipSetCustomLineCapStrokeCaps (cap, (LineCap) (LineCapCustom + 1), LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap)(LineCapFlat - 1));
+	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap) (LineCapFlat - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap)(LineCapTriangle + 1));
+	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap) (LineCapTriangle + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, LineCapNoAnchor);
@@ -299,7 +305,7 @@ static void test_setCustomLineCapStrokeCaps ()
 	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, LineCapAnchorMask);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap)(LineCapCustom + 1));
+	status = GdipSetCustomLineCapStrokeCaps (cap, LineCapFlat, (LineCap) (LineCapCustom + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	// Make sure nothing changed.
@@ -312,7 +318,8 @@ static void test_setCustomLineCapStrokeCaps ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapStrokeCaps ()
+static void
+test_getCustomLineCapStrokeCaps ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -340,7 +347,8 @@ static void test_getCustomLineCapStrokeCaps ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_setCustomLineCapStrokeJoin ()
+static void
+test_setCustomLineCapStrokeJoin ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -388,18 +396,18 @@ static void test_setCustomLineCapStrokeJoin ()
 	assertEqualInt (strokeJoin, LineJoinMiterClipped);
 
 	// Invalid value - negative.
-	status = GdipSetCustomLineCapStrokeJoin (cap, (LineJoin)(LineJoinMiter - 1));
+	status = GdipSetCustomLineCapStrokeJoin (cap, (LineJoin) (LineJoinMiter - 1));
 	assertEqualInt (status, Ok);
 
 	GdipGetCustomLineCapStrokeJoin (cap, &strokeJoin);
-	assertEqualInt (strokeJoin, (LineJoin)(LineJoinMiter - 1));
+	assertEqualInt (strokeJoin, (LineJoin) (LineJoinMiter - 1));
 
 	// Invalid value - positive.
-	status = GdipSetCustomLineCapStrokeJoin (cap, (LineJoin)(LineJoinMiterClipped + 1));
+	status = GdipSetCustomLineCapStrokeJoin (cap, (LineJoin) (LineJoinMiterClipped + 1));
 	assertEqualInt (status, Ok);
 
 	GdipGetCustomLineCapStrokeJoin (cap, &strokeJoin);
-	assertEqualInt (strokeJoin, (LineJoin)(LineJoinMiterClipped + 1));
+	assertEqualInt (strokeJoin, (LineJoin) (LineJoinMiterClipped + 1));
 
 	// Negative tests.
 	status = GdipSetCustomLineCapStrokeJoin (NULL, LineJoinMiterClipped);
@@ -410,7 +418,8 @@ static void test_setCustomLineCapStrokeJoin ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapStrokeJoin ()
+static void
+test_getCustomLineCapStrokeJoin ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -434,7 +443,8 @@ static void test_getCustomLineCapStrokeJoin ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_setCustomLineCapBaseCap ()
+static void
+test_setCustomLineCapBaseCap ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -485,7 +495,7 @@ static void test_setCustomLineCapBaseCap ()
 	status = GdipSetCustomLineCapBaseCap (NULL, LineCapFlat);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapBaseCap (cap, (LineCap)(LineCapTriangle + 1));
+	status = GdipSetCustomLineCapBaseCap (cap, (LineCap) (LineCapTriangle + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetCustomLineCapBaseCap (cap, LineCapNoAnchor);
@@ -509,7 +519,7 @@ static void test_setCustomLineCapBaseCap ()
 	status = GdipSetCustomLineCapBaseCap (cap, LineCapAnchorMask);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCustomLineCapBaseCap (cap, (LineCap)(LineCapCustom + 1));
+	status = GdipSetCustomLineCapBaseCap (cap, (LineCap) (LineCapCustom + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	// Make sure nothing changed.
@@ -521,7 +531,8 @@ static void test_setCustomLineCapBaseCap ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapBaseCap ()
+static void
+test_getCustomLineCapBaseCap ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -545,7 +556,8 @@ static void test_getCustomLineCapBaseCap ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_setCustomLineCapBaseInset ()
+static void
+test_setCustomLineCapBaseInset ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -594,7 +606,8 @@ static void test_setCustomLineCapBaseInset ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapBaseInset ()
+static void
+test_getCustomLineCapBaseInset ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -618,7 +631,8 @@ static void test_getCustomLineCapBaseInset ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_setCustomLineCapWidthScale ()
+static void
+test_setCustomLineCapWidthScale ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -667,7 +681,8 @@ static void test_setCustomLineCapWidthScale ()
 	GdipDeleteCustomLineCap (cap);
 }
 
-static void test_getCustomLineCapWidthScale ()
+static void
+test_getCustomLineCapWidthScale ()
 {
 	GpStatus status;
 	GpCustomLineCap *cap;
@@ -692,7 +707,7 @@ static void test_getCustomLineCapWidthScale ()
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

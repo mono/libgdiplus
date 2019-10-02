@@ -24,7 +24,8 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static void test_startup ()
+static void
+test_startup ()
 {
 	GpStatus status;
 	ULONG_PTR gdiplusToken = 0;
@@ -50,14 +51,14 @@ static void test_startup ()
 
 	// Version 2 - no output.
 	gdiplusStartupInput.GdiplusVersion = 2;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	status				   = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	assertEqualInt (status, Ok);
 	assert (gdiplusToken);
 	GdiplusShutdown (gdiplusToken);
 
 	// Version 2 - output.
 	gdiplusStartupInput.GdiplusVersion = 2;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
+	status				   = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
 	assertEqualInt (status, Ok);
 	assert (gdiplusToken);
 	assert (!gdiplusStartupOutput.NotificationHook && !gdiplusStartupOutput.NotificationUnhook);
@@ -66,7 +67,7 @@ static void test_startup ()
 
 	// SuppressBackgroundThread is true.
 	gdiplusStartupInput.SuppressBackgroundThread = TRUE;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
+	status					     = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
 	assertEqualInt (status, Ok);
 	assert (gdiplusToken);
 	assert (gdiplusStartupOutput.NotificationHook && gdiplusStartupOutput.NotificationUnhook);
@@ -89,25 +90,26 @@ static void test_startup ()
 	assertEqualInt (status, InvalidParameter);
 
 	gdiplusStartupInput.GdiplusVersion = 0;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	status				   = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	assertEqualInt (status, UnsupportedGdiplusVersion);
 
 	gdiplusStartupInput.GdiplusVersion = 3;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	status				   = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	assertEqualInt (status, UnsupportedGdiplusVersion);
 
-	gdiplusStartupInput.GdiplusVersion = 1;
+	gdiplusStartupInput.GdiplusVersion	   = 1;
 	gdiplusStartupInput.SuppressBackgroundThread = TRUE;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	status					     = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	gdiplusStartupInput.GdiplusVersion = 3;
+	gdiplusStartupInput.GdiplusVersion	   = 3;
 	gdiplusStartupInput.SuppressBackgroundThread = TRUE;
-	status = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
+	status					     = GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL);
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_shutdown ()
+static void
+test_shutdown ()
 {
 	ULONG_PTR gdiplusToken = 0;
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -130,7 +132,8 @@ static void test_shutdown ()
 	GdiplusShutdown ((ULONG_PTR) 0);
 }
 
-static void test_notificationHook ()
+static void
+test_notificationHook ()
 {
 	GpStatus status;
 	ULONG_PTR gdiplusToken = 0;
@@ -141,7 +144,7 @@ static void test_notificationHook ()
 	GdiplusStartupInput gdiplusStartupInput = {1, NULL, FALSE, FALSE};
 #endif
 	gdiplusStartupInput.SuppressBackgroundThread = TRUE;
-	GdiplusStartupOutput gdiplusStartupOutput = {NULL, NULL};
+	GdiplusStartupOutput gdiplusStartupOutput    = {NULL, NULL};
 
 	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
 
@@ -172,7 +175,8 @@ static void test_notificationHook ()
 	GdiplusShutdown (gdiplusToken);
 }
 
-static void test_notificationUnhook ()
+static void
+test_notificationUnhook ()
 {
 	ULONG_PTR gdiplusToken = 0;
 	ULONG_PTR notificationToken;
@@ -182,7 +186,7 @@ static void test_notificationUnhook ()
 	GdiplusStartupInput gdiplusStartupInput = {1, NULL, FALSE, FALSE};
 #endif
 	gdiplusStartupInput.SuppressBackgroundThread = TRUE;
-	GdiplusStartupOutput gdiplusStartupOutput = {NULL, NULL};
+	GdiplusStartupOutput gdiplusStartupOutput    = {NULL, NULL};
 
 	GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, &gdiplusStartupOutput);
 	GdiplusNotificationHook (&notificationToken);
@@ -220,7 +224,8 @@ static void test_notificationUnhook ()
 	GdiplusShutdown (gdiplusToken);
 }
 
-static void test_alloc()
+static void
+test_alloc ()
 {
 	void *data;
 
@@ -231,7 +236,8 @@ static void test_alloc()
 	GdipFree (data);
 }
 
-static void test_free()
+static void
+test_free ()
 {
 	void *data;
 
@@ -243,7 +249,8 @@ static void test_free()
 	GdipFree (NULL);
 }
 
-static void test_notInitialized ()
+static void
+test_notInitialized ()
 {
 	GpStatus status;
 
@@ -498,7 +505,7 @@ static void test_notInitialized ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	test_startup ();
 	test_shutdown ();

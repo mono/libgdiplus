@@ -23,7 +23,8 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static void test_createMatrix ()
+static void
+test_createMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -39,7 +40,8 @@ static void test_createMatrix ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_createMatrix2 ()
+static void
+test_createMatrix2 ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -54,29 +56,28 @@ static void test_createMatrix2 ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_createMatrix3 ()
+static void
+test_createMatrix3 ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
-	GpRectF rect = {5, 6, 8, 10};
-	GpRectF negativeRect = {-5, -6, -8, -10};
-	GpRectF zeroWidthRect = {1, 2, 0, 4};
+	GpRectF rect	   = {5, 6, 8, 10};
+	GpRectF negativeRect   = {-5, -6, -8, -10};
+	GpRectF zeroWidthRect  = {1, 2, 0, 4};
 	GpRectF zeroHeightRect = {1, 2, 3, 0};
-	GpPointF points[3] = {
+	GpPointF points[3]     = {
 		{12, 14},
 		{-10, 20},
-		{8, 0}
-	};
+		{8, 0}};
 	GpPointF rectPoints[3] = {
-		{5, 6},
-		{13, 6},
-		{5, 16},
+	    {5, 6},
+	    {13, 6},
+	    {5, 16},
 	};
 	GpPointF zeroPoints[3] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 
 	status = GdipCreateMatrix3 (&rect, points, &matrix);
 	assertEqualInt (status, Ok);
@@ -116,41 +117,40 @@ static void test_createMatrix3 ()
 
 	status = GdipCreateMatrix3 (&rect, points, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3 (&zeroWidthRect, points, &matrix);
 	assertEqualInt (status, OutOfMemory);
 	assert (!matrix);
-	
+
 	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3 (&zeroHeightRect, points, &matrix);
 	assertEqualInt (status, OutOfMemory);
 	assert (!matrix);
 }
 
-static void test_createMatrix3I ()
+static void
+test_createMatrix3I ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
-	GpRect rect = {5, 6, 8, 10};
-	GpRect negativeRect = {-5, -6, -8, -10};
-	GpRect zeroWidthRect = {1, 2, 0, 4};
+	GpRect rect	   = {5, 6, 8, 10};
+	GpRect negativeRect   = {-5, -6, -8, -10};
+	GpRect zeroWidthRect  = {1, 2, 0, 4};
 	GpRect zeroHeightRect = {1, 2, 3, 0};
-	GpPoint points[3] = {
+	GpPoint points[3]     = {
 		{12, 14},
 		{-10, 20},
-		{8, 0}
-	};
+		{8, 0}};
 	GpPoint rectPoints[3] = {
-		{5, 6},
-		{13, 6},
-		{5, 16},
+	    {5, 6},
+	    {13, 6},
+	    {5, 16},
 	};
 	GpPoint zeroPoints[3] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 
 	status = GdipCreateMatrix3I (&rect, points, &matrix);
 	assertEqualInt (status, Ok);
@@ -190,19 +190,20 @@ static void test_createMatrix3I ()
 
 	status = GdipCreateMatrix3I (&rect, points, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3I (&zeroWidthRect, points, &matrix);
 	assertEqualInt (status, OutOfMemory);
 	assert (!matrix);
-	
+
 	matrix = (GpMatrix *) 0xCC;
 	status = GdipCreateMatrix3I (&zeroHeightRect, points, &matrix);
 	assertEqualInt (status, OutOfMemory);
 	assert (!matrix);
 }
 
-static void test_cloneMatrix ()
+static void
+test_cloneMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -218,7 +219,7 @@ static void test_cloneMatrix ()
 
 	// Negative tests.
 	clonedMatrix = (GpMatrix *) 0xCC;
-	status = GdipCloneMatrix (NULL, &clonedMatrix);
+	status       = GdipCloneMatrix (NULL, &clonedMatrix);
 	assertEqualInt (status, InvalidParameter);
 	assert (clonedMatrix == (GpMatrix *) 0xCC);
 
@@ -228,7 +229,8 @@ static void test_cloneMatrix ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_deleteMatrix ()
+static void
+test_deleteMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -243,7 +245,8 @@ static void test_deleteMatrix ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_setMatrixElements ()
+static void
+test_setMatrixElements ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -259,7 +262,8 @@ static void test_setMatrixElements ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_multiplyMatrix ()
+static void
+test_multiplyMatrix ()
 {
 	GpStatus status;
 	GpMatrix *originalTransform;
@@ -298,16 +302,16 @@ static void test_multiplyMatrix ()
 	status = GdipMultiplyMatrix (originalTransform, originalTransform, MatrixOrderAppend);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipMultiplyMatrix (originalTransform, originalTransform, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipMultiplyMatrix (originalTransform, originalTransform, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipMultiplyMatrix (originalTransform, originalTransform, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipMultiplyMatrix (originalTransform, originalTransform, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipMultiplyMatrix (originalTransform, NULL, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipMultiplyMatrix (originalTransform, NULL, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipMultiplyMatrix (originalTransform, NULL, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipMultiplyMatrix (originalTransform, NULL, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (originalTransform);
@@ -315,7 +319,8 @@ static void test_multiplyMatrix ()
 	GdipDeleteMatrix (nonInvertibleMatrix);
 }
 
-static void test_translateMatrix ()
+static void
+test_translateMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -327,12 +332,12 @@ static void test_translateMatrix ()
 	status = GdipTranslateMatrix (matrix, 5, 6, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 10, 12);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipTranslateMatrix (matrix, 0, 0, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipTranslateMatrix (matrix, -5, -6, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
@@ -343,12 +348,12 @@ static void test_translateMatrix ()
 	status = GdipTranslateMatrix (matrix, 5, 6, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 28, 40);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipTranslateMatrix (matrix, 0, 0, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipTranslateMatrix (matrix, -5, -6, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -358,16 +363,17 @@ static void test_translateMatrix ()
 	status = GdipTranslateMatrix (NULL, 1, 2, MatrixOrderAppend);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipTranslateMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipTranslateMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipTranslateMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipTranslateMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_scaleMatrix ()
+static void
+test_scaleMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -379,22 +385,22 @@ static void test_scaleMatrix ()
 	status = GdipScaleMatrix (matrix, 0.5, 0.75, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0.5, 1.5, 1.5, 3, 2.5, 4.5);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, 1, 1, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, 0, 0, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0, 0, 0, 0, 0, 0);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, -1, -1, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -1, -2, -3, -4, -5, -6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, -0.5, -0.75, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
@@ -405,17 +411,17 @@ static void test_scaleMatrix ()
 	status = GdipScaleMatrix (matrix, 0.5, 0.75, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0.5, 1, 2.25, 3, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, 1, 1, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, 0, 0, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0, 0, 0, 0, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipScaleMatrix (matrix, -1, -1, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -436,16 +442,17 @@ static void test_scaleMatrix ()
 	status = GdipScaleMatrix (NULL, 1, 2, MatrixOrderAppend);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipScaleMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipScaleMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipScaleMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipScaleMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_rotateMatrix ()
+static void
+test_rotateMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -457,7 +464,7 @@ static void test_rotateMatrix ()
 	status = GdipRotateMatrix (matrix, 630, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -3, -4, 1, 2, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, 360, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
@@ -477,12 +484,12 @@ static void test_rotateMatrix ()
 	status = GdipRotateMatrix (matrix, -90, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 2, -1, 4, -3, 6, -5);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, -360, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, -630, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -493,7 +500,7 @@ static void test_rotateMatrix ()
 	status = GdipRotateMatrix (matrix, 630, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -3, -4, 1, 2, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, 360, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -503,17 +510,17 @@ static void test_rotateMatrix ()
 	status = GdipRotateMatrix (matrix, 90, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 3, 4, -1, -2, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, -90, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -3, -4, 1, 2, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, -360, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipRotateMatrix (matrix, -630, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -523,16 +530,17 @@ static void test_rotateMatrix ()
 	status = GdipRotateMatrix (NULL, 45, MatrixOrderAppend);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipRotateMatrix (matrix, 45, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipRotateMatrix (matrix, 45, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipRotateMatrix (matrix, 45, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipRotateMatrix (matrix, 45, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_shearMatrix ()
+static void
+test_shearMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -544,12 +552,12 @@ static void test_shearMatrix ()
 	status = GdipShearMatrix (matrix, 1, 2, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 3, 4, 7, 10, 11, 16);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipShearMatrix (matrix, 0, 0, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipShearMatrix (matrix, -1, -2, MatrixOrderAppend);
 	assertEqualInt (status, Ok);
@@ -560,12 +568,12 @@ static void test_shearMatrix ()
 	status = GdipShearMatrix (matrix, 1, 2, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 7, 10, 4, 6, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipShearMatrix (matrix, 0, 0, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 2, 3, 4, 5, 6);
-	
+
 	GdipSetMatrixElements (matrix, 1, 2, 3, 4, 5, 6);
 	status = GdipShearMatrix (matrix, -1, -2, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
@@ -575,16 +583,17 @@ static void test_shearMatrix ()
 	status = GdipShearMatrix (NULL, 1, 2, MatrixOrderAppend);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipShearMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderPrepend - 1));
+	status = GdipShearMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderPrepend - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipShearMatrix (matrix, 1, 2, (MatrixOrder)(MatrixOrderAppend + 1));
+	status = GdipShearMatrix (matrix, 1, 2, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_invertMatrix ()
+static void
+test_invertMatrix ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -592,43 +601,43 @@ static void test_invertMatrix ()
 
 	GdipCreateMatrix (&matrix);
 	GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
-	
+
 	// Identity matrix.
 	GdipSetMatrixElements (matrix, 1, 0, 0, 1, 0, 0);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 0, 0, 1, 0, 0);
-	
+
 	// Translate only matrix.
 	GdipSetMatrixElements (matrix, 1, 0, 0, 1, 2, 3);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 1, 0, 0, 1, -2, -3);
-	
+
 	// Scale only matrix.
 	GdipSetMatrixElements (matrix, 2, 0, 0, 4, 0, 0);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0.5f, 0, 0, 0.25f, 0, 0);
-	
+
 	// Shear only matrix.
 	GdipSetMatrixElements (matrix, 1, 2, 3, 1, 0, 0);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -0.2f, 0.4f, 0.6f, -0.2f, 0, 0);
-	
+
 	// Translate and scale only matrix.
 	GdipSetMatrixElements (matrix, 2, 0, 0, 4, 2, 3);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, 0.5f, 0, 0, 0.25f, -1, -0.75f);
-	
+
 	// Translate and shear only matrix.
 	GdipSetMatrixElements (matrix, 1, 2, 3, 1, 2, 3);
 	status = GdipInvertMatrix (matrix);
 	assertEqualInt (status, Ok);
 	verifyMatrix (matrix, -0.2f, 0.4f, 0.6f, -0.2f, -1.4f, -0.2f);
-	
+
 	// Scale and shear only matrix.
 	GdipSetMatrixElements (matrix, 2, 2, 3, 4, 0, 0);
 	status = GdipInvertMatrix (matrix);
@@ -656,12 +665,13 @@ static void test_invertMatrix ()
 	GdipDeleteMatrix (nonInvertibleMatrix);
 }
 
-static void test_transformMatrixPoints ()
+static void
+test_transformMatrixPoints ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
 	GpPointF points[3];
-	
+
 	// Identity matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -679,7 +689,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
-	
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -697,7 +707,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 7);
 	assertEqualFloat (points[2].X, 7);
 	assertEqualFloat (points[2].Y, 9);
-	
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -715,7 +725,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -733,7 +743,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -751,7 +761,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 19);
 	assertEqualFloat (points[2].X, 12);
 	assertEqualFloat (points[2].Y, 27);
-	
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -769,7 +779,7 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 13);
 	assertEqualFloat (points[2].X, 25);
 	assertEqualFloat (points[2].Y, 19);
-	
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -819,13 +829,13 @@ static void test_transformMatrixPoints ()
 	// Negative tests.
 	status = GdipTransformMatrixPoints (NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipTransformMatrixPoints (NULL, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipTransformMatrixPoints (NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipTransformMatrixPoints (NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -847,12 +857,13 @@ static void test_transformMatrixPoints ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_transformMatrixPointsI ()
+static void
+test_transformMatrixPointsI ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
 	GpPoint points[3];
-	
+
 	// Identity matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -870,7 +881,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -888,7 +899,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 7);
 	assertEqualInt (points[2].X, 7);
 	assertEqualInt (points[2].Y, 9);
-	
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -906,7 +917,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -924,7 +935,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -942,7 +953,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 19);
 	assertEqualInt (points[2].X, 12);
 	assertEqualInt (points[2].Y, 27);
-	
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -960,7 +971,7 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 13);
 	assertEqualInt (points[2].X, 25);
 	assertEqualInt (points[2].Y, 19);
-	
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1016,13 +1027,13 @@ static void test_transformMatrixPointsI ()
 	status = GdipTransformMatrixPointsI (NULL, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipTransformMatrixPointsI (NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipTransformMatrixPointsI (NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipTransformMatrixPointsI (matrix, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
@@ -1043,12 +1054,13 @@ static void test_transformMatrixPointsI ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_vectorTransformMatrixPoints ()
+static void
+test_vectorTransformMatrixPoints ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
 	GpPointF points[3];
-	
+
 	// Identity matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1066,7 +1078,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
-	
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1084,7 +1096,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
-	
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1102,7 +1114,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1120,7 +1132,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1138,7 +1150,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1156,7 +1168,7 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1206,13 +1218,13 @@ static void test_vectorTransformMatrixPoints ()
 	// Negative tests.
 	status = GdipVectorTransformMatrixPoints (NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipVectorTransformMatrixPoints (NULL, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipVectorTransformMatrixPoints (NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipVectorTransformMatrixPoints (NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1234,12 +1246,13 @@ static void test_vectorTransformMatrixPoints ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_vectorTransformMatrixPointsI ()
+static void
+test_vectorTransformMatrixPointsI ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
 	GpPoint points[3];
-	
+
 	// Identity matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1257,7 +1270,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1275,7 +1288,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1293,7 +1306,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1311,7 +1324,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1329,7 +1342,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1347,7 +1360,7 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1401,10 +1414,10 @@ static void test_vectorTransformMatrixPointsI ()
 	// This causes a null pointer dereference in GDI+.
 	status = GdipVectorTransformMatrixPointsI (NULL, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipVectorTransformMatrixPointsI (NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipVectorTransformMatrixPointsI (NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1426,7 +1439,8 @@ static void test_vectorTransformMatrixPointsI ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_getMatrixElements ()
+static void
+test_getMatrixElements ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -1442,50 +1456,51 @@ static void test_getMatrixElements ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_isMatrixInvertible ()
+static void
+test_isMatrixInvertible ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
 	BOOL isInvertible;
 
 	GdipCreateMatrix (&matrix);
-	
+
 	// Identity matrix.
 	GdipSetMatrixElements (matrix, 1, 0, 0, 1, 0, 0);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Translate only.
 	GdipSetMatrixElements (matrix, 1, 0, 0, 1, 2, 3);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Scale only.
 	GdipSetMatrixElements (matrix, 2, 0, 0, 4, 0, 0);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Shear only.
 	GdipSetMatrixElements (matrix, 1, 2, 3, 1, 0, 0);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Translate and scale only.
 	GdipSetMatrixElements (matrix, 2, 0, 0, 4, 2, 3);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Translate and shear only.
 	GdipSetMatrixElements (matrix, 1, 2, 3, 1, 2, 3);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Scale and shear only.
 	GdipSetMatrixElements (matrix, 2, 2, 3, 4, 0, 0);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
@@ -1497,13 +1512,13 @@ static void test_isMatrixInvertible ()
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == TRUE);
-	
+
 	// Not invertible.
 	GdipSetMatrixElements (matrix, 123, 24, 82, 16, 47, 30);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
 	assertEqualInt (status, Ok);
 	assert (isInvertible == FALSE);
-	
+
 	// Empty.
 	GdipSetMatrixElements (matrix, 0, 0, 0, 0, 0, 0);
 	status = GdipIsMatrixInvertible (matrix, &isInvertible);
@@ -1520,7 +1535,8 @@ static void test_isMatrixInvertible ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_isMatrixIdentity ()
+static void
+test_isMatrixIdentity ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -1562,7 +1578,8 @@ static void test_isMatrixIdentity ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_isMatrixEqual ()
+static void
+test_isMatrixEqual ()
 {
 	GpStatus status;
 	GpMatrix *matrix;
@@ -1625,7 +1642,7 @@ static void test_isMatrixEqual ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

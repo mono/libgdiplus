@@ -39,26 +39,26 @@
 #include "matrix-private.h"
 
 struct _Pen {
-	ARGB		color;
-	GpBrush		*brush;
-	BOOL		own_brush;
-	float		width;
-	float		miter_limit;
-	GpLineJoin	line_join;
-	GpDashStyle	dash_style;
-	GpLineCap	line_cap;	/* Cairo supports only same kind of end caps for both the ends. */
-	GpLineCap	end_cap;
-	GpDashCap	dash_cap;	/* not supported */
-	int		compound_count;
-	float		*compound_array;
-	GpPenAlignment	mode;
-	float		dash_offset;
-	int		dash_count;
-	BOOL		own_dash_array;	/* flag to mark if pen maintains its own array or global array */
-	float		*dash_array;
-	GpUnit		unit;		/* Always set to UnitWorld. */
-	cairo_matrix_t	matrix;
-	BOOL		changed;	/* flag to mark if pen is changed and needs setup */
+	ARGB color;
+	GpBrush *brush;
+	BOOL own_brush;
+	float width;
+	float miter_limit;
+	GpLineJoin line_join;
+	GpDashStyle dash_style;
+	GpLineCap line_cap; /* Cairo supports only same kind of end caps for both the ends. */
+	GpLineCap end_cap;
+	GpDashCap dash_cap; /* not supported */
+	int compound_count;
+	float *compound_array;
+	GpPenAlignment mode;
+	float dash_offset;
+	int dash_count;
+	BOOL own_dash_array; /* flag to mark if pen maintains its own array or global array */
+	float *dash_array;
+	GpUnit unit; /* Always set to UnitWorld. */
+	cairo_matrix_t matrix;
+	BOOL changed; /* flag to mark if pen is changed and needs setup */
 	GpCustomLineCap *custom_start_cap;
 	GpCustomLineCap *custom_end_cap;
 };

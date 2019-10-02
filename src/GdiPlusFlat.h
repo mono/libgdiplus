@@ -29,8 +29,7 @@
 #define _FLATAPI_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /*
@@ -43,7 +42,7 @@ extern "C"
  * If you ever need a workaround specific to libgdiplus then use the following define
  */
 
-#define MONO_LIBGDIPLUS	1
+#define MONO_LIBGDIPLUS 1
 
 /*
  * public view of internal stuff (curious about them, check in *-private.h files ;-)

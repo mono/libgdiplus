@@ -35,26 +35,26 @@ static GpStatus gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush);
 static GpStatus gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush);
 static GpStatus gdip_pgrad_destroy (GpBrush *brush);
 
-static BrushClass pathgradient_vtable = { BrushTypePathGradient,
-										 gdip_pgrad_setup,
-										 gdip_pgrad_clone_brush,
-										 gdip_pgrad_destroy };
+static BrushClass pathgradient_vtable = {BrushTypePathGradient,
+					 gdip_pgrad_setup,
+					 gdip_pgrad_clone_brush,
+					 gdip_pgrad_destroy};
 
 static GpStatus
 gdip_pathgradient_init (GpPathGradient *pg)
 {
 	gdip_brush_init (&pg->base, &pathgradient_vtable);
-	pg->boundary = NULL;
+	pg->boundary       = NULL;
 	pg->boundaryColors = (ARGB *) GdipAlloc (sizeof (ARGB));
 	if (!pg->boundaryColors) {
 		return OutOfMemory;
 	}
 
-	*(pg->boundaryColors) = 0xFFFFFFFF;
+	*(pg->boundaryColors)   = 0xFFFFFFFF;
 	pg->boundaryColorsCount = 1; /* one default boundary color */
-	pg->focusScales.X = 0.0f;
-	pg->focusScales.Y = 0.0f;
-	pg->wrapMode = WrapModeClamp;
+	pg->focusScales.X       = 0.0f;
+	pg->focusScales.Y       = 0.0f;
+	pg->wrapMode		= WrapModeClamp;
 	cairo_matrix_init_identity (&pg->transform);
 	pg->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
 	if (!pg->presetColors) {
@@ -62,17 +62,17 @@ gdip_pathgradient_init (GpPathGradient *pg)
 		return OutOfMemory;
 	}
 
-	pg->presetColors->count = 0;
-	pg->presetColors->colors = NULL;
+	pg->presetColors->count     = 0;
+	pg->presetColors->colors    = NULL;
 	pg->presetColors->positions = NULL;
-	pg->blend = (Blend *) GdipAlloc (sizeof (Blend));
+	pg->blend		    = (Blend *) GdipAlloc (sizeof (Blend));
 	if (!pg->blend) {
 		GdipFree (pg->boundaryColors);
 		GdipFree (pg->presetColors);
 		return OutOfMemory;
 	}
 
-	pg->blend->count = 1;
+	pg->blend->count   = 1;
 	pg->blend->factors = (float *) GdipAlloc (sizeof (float));
 	if (!pg->blend->factors) {
 		GdipFree (pg->boundaryColors);
@@ -90,19 +90,19 @@ gdip_pathgradient_init (GpPathGradient *pg)
 		return OutOfMemory;
 	}
 
-	pg->blend->factors [0] = 1.0;
+	pg->blend->factors[0]   = 1.0;
 	pg->blend->positions[0] = 0.0;
-	pg->rectangle.X = 0.0;
-	pg->rectangle.Y = 0.0;
-	pg->rectangle.Width = 0.0;
-	pg->rectangle.Height = 0.0;
-	pg->pattern = NULL;
-	pg->useGammaCorrection = FALSE;
+	pg->rectangle.X		= 0.0;
+	pg->rectangle.Y		= 0.0;
+	pg->rectangle.Width     = 0.0;
+	pg->rectangle.Height    = 0.0;
+	pg->pattern		= NULL;
+	pg->useGammaCorrection  = FALSE;
 
 	return Ok;
 }
 
-static GpPathGradient*
+static GpPathGradient *
 gdip_pathgradient_new (void)
 {
 	GpPathGradient *result = (GpPathGradient *) GdipAlloc (sizeof (GpPathGradient));
@@ -144,24 +144,24 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 		newbrush->boundary = NULL;
 	}
 
-	newbrush->boundaryColors = GdipAlloc (sizeof(ARGB) * pgbrush->boundaryColorsCount);
+	newbrush->boundaryColors = GdipAlloc (sizeof (ARGB) * pgbrush->boundaryColorsCount);
 	if (!newbrush->boundaryColors) {
 		GdipDeleteBrush ((GpBrush *) newbrush);
 		return OutOfMemory;
 	}
 
-	memcpy (newbrush->boundaryColors, pgbrush->boundaryColors, sizeof(ARGB) * pgbrush->boundaryColorsCount);
+	memcpy (newbrush->boundaryColors, pgbrush->boundaryColors, sizeof (ARGB) * pgbrush->boundaryColorsCount);
 	newbrush->boundaryColorsCount = pgbrush->boundaryColorsCount;
-	newbrush->focusScales = pgbrush->focusScales;
-	newbrush->center = pgbrush->center;
-	newbrush->centerColor = pgbrush->centerColor;
-	newbrush->wrapMode = pgbrush->wrapMode;
-	newbrush->useGammaCorrection = pgbrush->useGammaCorrection;
+	newbrush->focusScales	 = pgbrush->focusScales;
+	newbrush->center	      = pgbrush->center;
+	newbrush->centerColor	 = pgbrush->centerColor;
+	newbrush->wrapMode	    = pgbrush->wrapMode;
+	newbrush->useGammaCorrection  = pgbrush->useGammaCorrection;
 	gdip_cairo_matrix_copy (&newbrush->transform, &pgbrush->transform);
 
-	newbrush->rectangle.X = pgbrush->rectangle.X;
-	newbrush->rectangle.Y = pgbrush->rectangle.Y;
-	newbrush->rectangle.Width = pgbrush->rectangle.Width;
+	newbrush->rectangle.X      = pgbrush->rectangle.X;
+	newbrush->rectangle.Y      = pgbrush->rectangle.Y;
+	newbrush->rectangle.Width  = pgbrush->rectangle.Width;
 	newbrush->rectangle.Height = pgbrush->rectangle.Height;
 
 	newbrush->presetColors = (InterpolationColors *) GdipAlloc (sizeof (InterpolationColors));
@@ -178,7 +178,7 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 			return OutOfMemory;
 		}
 
-		memcpy (newbrush->presetColors->colors, pgbrush->presetColors->colors, 
+		memcpy (newbrush->presetColors->colors, pgbrush->presetColors->colors,
 			pgbrush->presetColors->count * sizeof (ARGB));
 
 		newbrush->presetColors->positions = (float *) GdipAlloc (pgbrush->presetColors->count * sizeof (float));
@@ -187,7 +187,7 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 			return OutOfMemory;
 		}
 
-		memcpy (newbrush->presetColors->positions, pgbrush->presetColors->positions, 
+		memcpy (newbrush->presetColors->positions, pgbrush->presetColors->positions,
 			pgbrush->presetColors->count * sizeof (float));
 	} else {
 		memcpy (newbrush->presetColors, pgbrush->presetColors, sizeof (InterpolationColors));
@@ -219,12 +219,12 @@ gdip_pgrad_clone_brush (GpBrush *brush, GpBrush **clonedBrush)
 	} else {
 		memcpy (newbrush->blend, pgbrush->blend, sizeof (Blend));
 	}
-	
+
 	/* Let the clone to create its own pattern */
 	newbrush->base.changed = TRUE;
-	newbrush->pattern = NULL;
+	newbrush->pattern      = NULL;
 
-	*clonedBrush = (GpBrush *) newbrush;    
+	*clonedBrush = (GpBrush *) newbrush;
 
 	return Ok;
 }
@@ -260,7 +260,7 @@ gdip_pgrad_destroy (GpBrush *brush)
 		GdipFree (pgbrush->blend);
 		pgbrush->blend = NULL;
 	}
-	
+
 	if (pgbrush->presetColors) {
 		if (pgbrush->presetColors->count > 0) {
 			GdipFree (pgbrush->presetColors->colors);
@@ -292,14 +292,14 @@ add_color_stops_from_blend (cairo_pattern_t *pattern, Blend *blend, ARGB color1,
 	eb = color2 & 0xFF;
 
 	for (index = 0; index < blend->count; index++) {
-		factor = blend->factors [index];
-		offset = blend->positions [index];
+		factor = blend->factors[index];
+		offset = blend->positions[index];
 
-		cairo_pattern_add_color_stop_rgba (pattern, offset, 
-					      ((sr * (1 - factor)) + (er * factor)) / 255,
-					      ((sg * (1 - factor)) + (eg * factor)) / 255,
-					      ((sb * (1 - factor)) + (eb * factor)) / 255,
-					      ((sa * (1 - factor)) + (ea * factor)) / 255);
+		cairo_pattern_add_color_stop_rgba (pattern, offset,
+						   ((sr * (1 - factor)) + (er * factor)) / 255,
+						   ((sg * (1 - factor)) + (eg * factor)) / 255,
+						   ((sb * (1 - factor)) + (eb * factor)) / 255,
+						   ((sa * (1 - factor)) + (ea * factor)) / 255);
 	}
 }
 
@@ -316,12 +316,12 @@ add_color_stops_from_interpolation_colors (cairo_pattern_t *pattern, Interpolati
 	 * offset values is out of [0.0, 1.0].
 	 */
 	for (index = 0; index < presetColors->count; index++) {
-		color = presetColors->colors [index];
-		a = (color >> 24) & 0xFF;
-		r = (color >> 16) & 0xFF;
-		g = (color >> 8) & 0xFF;
-		b = color & 0xFF;
-		offset = presetColors->positions [index];
+		color  = presetColors->colors[index];
+		a      = (color >> 24) & 0xFF;
+		r      = (color >> 16) & 0xFF;
+		g      = (color >> 8) & 0xFF;
+		b      = color & 0xFF;
+		offset = presetColors->positions[index];
 
 		cairo_pattern_add_color_stop_rgba (pattern, offset, r / 255, g / 255, b / 255, a / 255);
 	}
@@ -339,7 +339,7 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 	pgbrush = (GpPathGradient *) brush;
 
 	if (pgbrush->boundary == NULL)
-		return Ok;              /* do nothing */
+		return Ok; /* do nothing */
 
 	/* We create the new pattern for brush, if the brush is changed
 	 * or if pattern has not been created yet.
@@ -360,8 +360,8 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 
 		/* Set the start radius as r and the end radius as 0 so that the center is the end "circle".
 		 * That way interpolation and blend positions go the right direction (edge to center).*/
-		pat = cairo_pattern_create_radial (pgbrush->center.X, pgbrush->center.Y, r,
-			pgbrush->center.X, pgbrush->center.Y, 0.0f);
+		pat    = cairo_pattern_create_radial (pgbrush->center.X, pgbrush->center.Y, r,
+						      pgbrush->center.X, pgbrush->center.Y, 0.0f);
 		status = gdip_get_pattern_status (pat);
 		if (status != Ok)
 			return status;
@@ -381,16 +381,16 @@ gdip_pgrad_setup (GpGraphics *graphics, GpBrush *brush)
 			add_color_stops_from_interpolation_colors (pat, pgbrush->presetColors);
 		} else {
 			cairo_pattern_add_color_stop_rgba (pat, 1.0f,
-				ARGB_RED_N (pgbrush->centerColor),
-				ARGB_GREEN_N (pgbrush->centerColor),
-				ARGB_BLUE_N (pgbrush->centerColor),
-				ARGB_ALPHA_N (pgbrush->centerColor));
+							   ARGB_RED_N (pgbrush->centerColor),
+							   ARGB_GREEN_N (pgbrush->centerColor),
+							   ARGB_BLUE_N (pgbrush->centerColor),
+							   ARGB_ALPHA_N (pgbrush->centerColor));
 
 			/* if a single other boundary color is present, then we can do the a real radial */
 			if (pgbrush->boundaryColorsCount == 1) {
 				ARGB c = pgbrush->boundaryColors[0];
 				cairo_pattern_add_color_stop_rgba (pat, 0.0f,
-					ARGB_RED_N (c), ARGB_GREEN_N (c), ARGB_BLUE_N (c), ARGB_ALPHA_N (c));
+								   ARGB_RED_N (c), ARGB_GREEN_N (c), ARGB_BLUE_N (c), ARGB_ALPHA_N (c));
 			} else {
 				/* FIXME: otherwise we (solid-)fill with the centerColor */
 			}
@@ -454,9 +454,9 @@ gdip_rect_expand_by (GpRectF *rect, const GpPointF *point)
 	else if (point->Y > y1)
 		y1 = point->Y;
 
-	rect->X = x0;
-	rect->Y = y0;
-	rect->Width = (x1 - x0);
+	rect->X      = x0;
+	rect->Y      = y0;
+	rect->Width  = (x1 - x0);
 	rect->Height = (y1 - y0);
 }
 
@@ -495,10 +495,10 @@ GdipCreatePathGradient (GDIPCONST GpPointF *points, INT count, GpWrapMode wrapMo
 		return status;
 	}
 
-	gp->wrapMode = wrapMode;
-	gp->center = gdip_get_center (points, count);
+	gp->wrapMode    = wrapMode;
+	gp->center      = gdip_get_center (points, count);
 	gp->centerColor = 0xFF000000;
-    
+
 	/* set the bounding rectangle */
 	point = gp->boundary->points[0];
 	/* set the first point as the edge of the rectangle */
@@ -572,13 +572,13 @@ GdipCreatePathGradientFromPath (GDIPCONST GpPath *path, GpPathGradient **polyGra
 		return status;
 	}
 
-	gp->center = gdip_get_center (path->points, path->count);
+	gp->center      = gdip_get_center (path->points, path->count);
 	gp->centerColor = 0xFFFFFFFF;
 
 	/* set the bounding rectangle */
 	/* set the first point as the edge of the rectangle */
-	gp->rectangle.X = path->points [0].X;
-	gp->rectangle.Y = path->points [0].Y;
+	gp->rectangle.X = path->points[0].X;
+	gp->rectangle.Y = path->points[0].Y;
 	for (int i = 1; i < path->count; i++) {
 		gdip_rect_expand_by (&gp->rectangle, &path->points[i]);
 	}
@@ -603,7 +603,7 @@ GdipSetPathGradientCenterColor (GpPathGradient *brush, ARGB colors)
 	if (!brush)
 		return InvalidParameter;
 
-	brush->centerColor = colors;
+	brush->centerColor  = colors;
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -639,14 +639,14 @@ GdipSetPathGradientSurroundColorsWithCount (GpPathGradient *brush, GDIPCONST ARG
 	boundaryColorsCount = *count;
 	if ((boundaryColorsCount < 1) || (boundaryColorsCount > brush->boundary->count))
 		return InvalidParameter;
-	
+
 	/* If all the colors are equal then GDI+ collapses them into a single element array */
-	if (boundaryColorsCount > 1 && gdip_all_colors_equal(colors, boundaryColorsCount)) {
+	if (boundaryColorsCount > 1 && gdip_all_colors_equal (colors, boundaryColorsCount)) {
 		boundaryColorsCount = 1;
 	}
 
 	if (boundaryColorsCount != brush->boundaryColorsCount) {
-		ARGB *boundaryColors = (ARGB *) GdipAlloc (sizeof(ARGB) * boundaryColorsCount);
+		ARGB *boundaryColors = (ARGB *) GdipAlloc (sizeof (ARGB) * boundaryColorsCount);
 		if (!boundaryColors)
 			return OutOfMemory;
 
@@ -699,9 +699,9 @@ GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *point
 {
 	if (!brush || !point)
 		return InvalidParameter;
-	
-	brush->center.X = point->X;
-	brush->center.Y = point->Y;
+
+	brush->center.X     = point->X;
+	brush->center.Y     = point->Y;
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -759,7 +759,7 @@ GdipSetPathGradientGammaCorrection (GpPathGradient *brush, BOOL useGammaCorrecti
 }
 
 GpStatus WINGDIPAPI
-GdipGetPathGradientGammaCorrection(GpPathGradient *brush, BOOL *useGammaCorrection)
+GdipGetPathGradientGammaCorrection (GpPathGradient *brush, BOOL *useGammaCorrection)
 {
 	if (!brush || !useGammaCorrection)
 		return InvalidParameter;
@@ -773,7 +773,7 @@ GdipGetPathGradientSurroundColorCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush || !count)
 		return InvalidParameter;
-	
+
 	*count = brush->boundary->count;
 	return Ok;
 }
@@ -783,7 +783,7 @@ GdipGetPathGradientBlendCount (GpPathGradient *brush, INT *count)
 {
 	if (!brush || !count)
 		return InvalidParameter;
-	
+
 	*count = brush->blend->count;
 	return Ok;
 }
@@ -798,7 +798,7 @@ GdipGetPathGradientBlend (GpPathGradient *brush, REAL *blend, REAL *positions, I
 		return InsufficientBuffer;
 
 	memcpy (blend, brush->blend->factors, brush->blend->count * sizeof (float));
-	
+
 	// Don't copy anything to positions if the count is one, as positions requires at least 2 values in the array.
 	if (brush->blend->count > 1)
 		memcpy (positions, brush->blend->positions, brush->blend->count * sizeof (float));
@@ -835,13 +835,13 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONS
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blendFactors;
+		brush->blend->factors   = blendFactors;
 		brush->blend->positions = blendPositions;
 	}
 
 	for (int index = 0; index < count; index++) {
-		brush->blend->factors [index] = blend [index];
-		brush->blend->positions [index] = positions [index];
+		brush->blend->factors[index]   = blend[index];
+		brush->blend->positions[index] = positions[index];
 	}
 
 	brush->blend->count = count;
@@ -850,8 +850,8 @@ GdipSetPathGradientBlend (GpPathGradient *brush, GDIPCONST REAL *blend, GDIPCONS
 	if (brush->presetColors->count != 0) {
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
-		brush->presetColors->count = 0;
-		brush->presetColors->colors = NULL;
+		brush->presetColors->count     = 0;
+		brush->presetColors->colors    = NULL;
 		brush->presetColors->positions = NULL;
 	}
 
@@ -875,7 +875,7 @@ GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, REAL *positi
 {
 	if (!brush || !blend)
 		return InvalidParameter;
-	
+
 	if (count < 0)
 		return OutOfMemory;
 
@@ -884,7 +884,7 @@ GdipGetPathGradientPresetBlend (GpPathGradient *brush, ARGB *blend, REAL *positi
 
 	if (brush->presetColors->count == 0)
 		return GenericError;
-	
+
 	if (brush->presetColors->count != count)
 		return InvalidParameter;
 
@@ -920,13 +920,13 @@ GdipSetPathGradientPresetBlend (GpPathGradient *brush, GDIPCONST ARGB *blend, GD
 			GdipFree (brush->presetColors->positions);
 		}
 
-		brush->presetColors->colors = blendColors;
+		brush->presetColors->colors    = blendColors;
 		brush->presetColors->positions = blendPositions;
 	}
 
 	for (int index = 0; index < count; index++) {
-		brush->presetColors->colors [index] = blend [index];
-		brush->presetColors->positions [index] = positions [index];
+		brush->presetColors->colors[index]    = blend[index];
+		brush->presetColors->positions[index] = positions[index];
 	}
 
 	brush->presetColors->count = count;
@@ -953,7 +953,7 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 	float sigma;
 	float mean;
 	float fall_off_len = 2.0; /* curve fall off length in terms of SIGMA */
-	float delta; /* distance between two samples */
+	float delta;		  /* distance between two samples */
 
 	/* we get a curve not starting from 0 and not ending at 1.
 	 * so we subtract the starting value and divide by the curve
@@ -987,7 +987,7 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blends;
+		brush->blend->factors   = blends;
 		brush->blend->positions = positions;
 	}
 
@@ -1005,11 +1005,11 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
-		brush->presetColors->count = 1;
-		brush->presetColors->colors = presetColors;
+		brush->presetColors->count     = 1;
+		brush->presetColors->colors    = presetColors;
 		brush->presetColors->positions = presetPositions;
 	}
-	brush->presetColors->colors [0] = 0x00000000;
+	brush->presetColors->colors[0]    = 0x00000000;
 	brush->presetColors->positions[0] = 0.0;
 
 	/* Set the blend colors. We use integral of the Normal Distribution,
@@ -1039,97 +1039,97 @@ GdipSetPathGradientSigmaBlend (GpPathGradient *brush, REAL focus, REAL scale)
 	if (focus == 0) {
 		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = 1.0 / fall_off_len;
-		mean = 0.5;
+		mean  = 0.5;
 		delta = 1.0 / 255.0;
 
 		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
-		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		/* set the start */
-		brush->blend->positions [0] = focus;
-		brush->blend->factors [0] = scale;
+		brush->blend->positions[0] = focus;
+		brush->blend->factors[0]   = scale;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = 1.0;
-		brush->blend->factors [count - 1] = 0.0;
+		brush->blend->positions[count - 1] = 1.0;
+		brush->blend->factors[count - 1]   = 0.0;
 	}
 
 	else if (focus == 1) {
 		/* left part of the curve with a complete rise in fall_off_len * SIGMAs */
 		sigma = 1.0 / fall_off_len;
-		mean = 0.5;
+		mean  = 0.5;
 		delta = 1.0 / 255.0;
 
 		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
-		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		/* set the start */
-		brush->blend->positions [0] = 0.0;
-		brush->blend->factors [0] = 0.0;
+		brush->blend->positions[0] = 0.0;
+		brush->blend->factors[0]   = 0.0;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = focus;
-		brush->blend->factors [count - 1] = scale;
+		brush->blend->positions[count - 1] = focus;
+		brush->blend->factors[count - 1]   = scale;
 	}
 
 	else {
 		/* left part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = focus / (2 * fall_off_len);
-		mean = focus / 2.0;
+		mean  = focus / 2.0;
 		delta = focus / 255.0;
 
 		/* set the start */
-		brush->blend->positions [0] = 0.0;
-		brush->blend->factors [0] = 0.0;
+		brush->blend->positions[0] = 0.0;
+		brush->blend->factors[0]   = 0.0;
 
 		curve_bottom = 0.5 * (1.0 + gdip_erf (0.0, sigma, mean));
-		curve_top = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 + gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
 		for (index = 1, pos = delta; index < 255; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 + gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
-		brush->blend->positions [index] = focus;
-		brush->blend->factors [index] = scale;
+		brush->blend->positions[index] = focus;
+		brush->blend->factors[index]   = scale;
 
 		/* right part of the curve with a complete fall in fall_off_len * SIGMAs */
 		sigma = (1.0 - focus) / (2 * fall_off_len);
-		mean = (1.0 + focus) / 2.0;
+		mean  = (1.0 + focus) / 2.0;
 		delta = (1.0 - focus) / 255.0;
 
 		curve_bottom = 0.5 * (1.0 - gdip_erf (1.0, sigma, mean));
-		curve_top = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
+		curve_top    = 0.5 * (1.0 - gdip_erf (focus, sigma, mean));
 		curve_height = curve_top - curve_bottom;
 
-		index ++;
+		index++;
 		pos = focus + delta;
 
 		for (; index < 510; index++, pos += delta) {
-			brush->blend->positions [index] = pos;
-			brush->blend->factors [index] = (scale / curve_height) * 
-				(0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
+			brush->blend->positions[index] = pos;
+			brush->blend->factors[index]   = (scale / curve_height) *
+						       (0.5 * (1.0 - gdip_erf (pos, sigma, mean)) - curve_bottom);
 		}
 
 		/* set the end */
-		brush->blend->positions [count - 1] = 1.0;
-		brush->blend->factors [count - 1] = 0.0;
+		brush->blend->positions[count - 1] = 1.0;
+		brush->blend->factors[count - 1]   = 0.0;
 	}
 
 	brush->blend->count = count;
@@ -1169,7 +1169,7 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 			GdipFree (brush->blend->positions);
 		}
 
-		brush->blend->factors = blends;
+		brush->blend->factors   = blends;
 		brush->blend->positions = positions;
 	}
 
@@ -1187,35 +1187,35 @@ GdipSetPathGradientLinearBlend (GpPathGradient *brush, REAL focus, REAL scale)
 
 		GdipFree (brush->presetColors->colors);
 		GdipFree (brush->presetColors->positions);
-		brush->presetColors->count = 1;
-		brush->presetColors->colors = presetColors;
+		brush->presetColors->count     = 1;
+		brush->presetColors->colors    = presetColors;
 		brush->presetColors->positions = presetPositions;
 	}
-	brush->presetColors->colors [0] = 0x00000000;
+	brush->presetColors->colors[0]    = 0x00000000;
 	brush->presetColors->positions[0] = 0.0;
 
 	/* set the blend colors */
 	if (focus == 0) {
-		brush->blend->positions [0] = focus;
-		brush->blend->factors [0] = scale;
-		brush->blend->positions [1] = 1;
-		brush->blend->factors [1] = 0;
+		brush->blend->positions[0] = focus;
+		brush->blend->factors[0]   = scale;
+		brush->blend->positions[1] = 1;
+		brush->blend->factors[1]   = 0;
 	}
 
 	else if (focus == 1) {
-		brush->blend->positions [0] = 0;
-		brush->blend->factors [0] = 0;
-		brush->blend->positions [1] = focus;
-		brush->blend->factors [1] = scale;
+		brush->blend->positions[0] = 0;
+		brush->blend->factors[0]   = 0;
+		brush->blend->positions[1] = focus;
+		brush->blend->factors[1]   = scale;
 	}
 
 	else {
-		brush->blend->positions [0] = 0;
-		brush->blend->factors [0] = 0;
-		brush->blend->positions [1] = focus;
-		brush->blend->factors [1] = scale;
-		brush->blend->positions [2] = 1;
-		brush->blend->factors [2] = 0;
+		brush->blend->positions[0] = 0;
+		brush->blend->factors[0]   = 0;
+		brush->blend->positions[1] = focus;
+		brush->blend->factors[1]   = scale;
+		brush->blend->positions[2] = 1;
+		brush->blend->factors[2]   = 0;
 	}
 
 	brush->blend->count = count;
@@ -1243,7 +1243,7 @@ GdipSetPathGradientWrapMode (GpPathGradient *brush, GpWrapMode wrapMode)
 	if (wrapMode > WrapModeClamp)
 		return Ok;
 
-	brush->wrapMode = wrapMode;
+	brush->wrapMode     = wrapMode;
 	brush->base.changed = TRUE;
 	return Ok;
 }
@@ -1378,6 +1378,6 @@ GdipSetPathGradientFocusScales (GpPathGradient *brush, REAL xScale, REAL yScale)
 
 	brush->focusScales.X = xScale;
 	brush->focusScales.Y = yScale;
-	brush->base.changed = TRUE;
+	brush->base.changed  = TRUE;
 	return Ok;
 }

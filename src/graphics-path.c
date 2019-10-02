@@ -23,7 +23,7 @@
  *      Ravindra (rkumar@novell.com)
  *	    Sebastien Pouliot  <sebastien@ximian.com>
  */
- 
+
 #include "graphics-path-private.h"
 #include "matrix-private.h"
 #include "font-private.h"
@@ -31,7 +31,7 @@
 #include "fontfamily.h"
 
 #ifdef USE_PANGO_RENDERING
-	#include "text-pango-private.h"
+#include "text-pango-private.h"
 #endif
 
 BOOL
@@ -47,11 +47,11 @@ gdip_path_ensure_size (GpPath *path, int size)
 		if (!new_types)
 			return FALSE;
 		path->types = new_types;
-		new_points = gdip_realloc (path->points, size * sizeof (GpPointF));
+		new_points  = gdip_realloc (path->points, size * sizeof (GpPointF));
 		if (!new_points)
 			return FALSE;
 		path->points = new_points;
-		path->size = size;
+		path->size   = size;
 	}
 
 	return TRUE;
@@ -93,7 +93,7 @@ gdip_get_first_point_type (GpPath *path)
 {
 	PathPointType type;
 
-	/* check for a new figure flag or an empty path */ 
+	/* check for a new figure flag or an empty path */
 	if (path->start_new_fig || (path->count == 0))
 		return PathPointTypeStart;
 
@@ -121,7 +121,7 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 			if ((lastPoint.X == x) && (lastPoint.Y == y)) {
 				/* types need not be identical but must handle closed subpaths */
 				if (!gdip_path_closed (path)) {
-					if ((type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath) 
+					if ((type & PathPointTypeCloseSubpath) == PathPointTypeCloseSubpath)
 						path->types[path->count - 1] |= PathPointTypeCloseSubpath;
 					return;
 				}
@@ -139,10 +139,10 @@ append (GpPath *path, float x, float y, PathPointType type, BOOL compress)
 
 	/* all external APIs resize the buffers beforehand and fail gracefully */
 	if (!gdip_path_ensure_size (path, path->count + 1))
-		g_assert(FALSE);
+		g_assert (FALSE);
 
 	path->points[path->count] = pt;
-	path->types[path->count] = t;
+	path->types[path->count]  = t;
 	path->count++;
 	path->start_new_fig = FALSE;
 }
@@ -167,32 +167,32 @@ append_curve (GpPath *path, const GpPointF *points, GpPointF *tangents, int offs
 	int i;
 	PathPointType ptype = ((type == CURVE_CLOSE) || (path->count == 0)) ? PathPointTypeStart : PathPointTypeLine;
 
-	append_point (path, points [offset], ptype, TRUE);
+	append_point (path, points[offset], ptype, TRUE);
 	for (i = offset; i < offset + length; i++) {
 		int j = i + 1;
 
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
+		double x1 = points[i].X + tangents[i].X;
+		double y1 = points[i].Y + tangents[i].Y;
 
-		double x2 = points [j].X - tangents [j].X;
-		double y2 = points [j].Y - tangents [j].Y;
+		double x2 = points[j].X - tangents[j].X;
+		double y2 = points[j].Y - tangents[j].Y;
 
-		double x3 = points [j].X;
-		double y3 = points [j].Y;
+		double x3 = points[j].X;
+		double y3 = points[j].Y;
 
 		append_bezier (path, x1, y1, x2, y2, x3, y3);
 	}
 
 	if (type == CURVE_CLOSE) {
 		/* complete (close) the curve using the first point */
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
+		double x1 = points[i].X + tangents[i].X;
+		double y1 = points[i].Y + tangents[i].Y;
 
-		double x2 = points [0].X - tangents [0].X;
-		double y2 = points [0].Y - tangents [0].Y;
+		double x2 = points[0].X - tangents[0].X;
+		double y2 = points[0].Y - tangents[0].Y;
 
-		double x3 = points [0].X;
-		double y3 = points [0].Y;
+		double x3 = points[0].X;
+		double y3 = points[0].Y;
 
 		append_bezier (path, x1, y1, x2, y2, x3, y3);
 		GdipClosePathFigure (path);
@@ -203,7 +203,7 @@ static BOOL
 gdip_validate_path_types (const BYTE *types, INT count)
 {
 	const BYTE *currentType = types;
-	INT remaining = count;
+	INT remaining		= count;
 
 	if (count == 1)
 		return TRUE;
@@ -272,11 +272,11 @@ GdipCreatePath (FillMode fillMode, GpPath **path)
 	if (!result)
 		return OutOfMemory;
 
-	result->fill_mode = fillMode;
-	result->size = 0;
-	result->points = NULL;
-	result->types = NULL;
-	result->count = 0;
+	result->fill_mode     = fillMode;
+	result->size	  = 0;
+	result->points	= NULL;
+	result->types	 = NULL;
+	result->count	 = 0;
 	result->start_new_fig = TRUE;
 
 	*path = result;
@@ -306,9 +306,9 @@ GdipCreatePath2 (GDIPCONST GpPointF *points, GDIPCONST BYTE *types, INT count, F
 		return OutOfMemory;
 
 	result->fill_mode = fillMode;
-	result->count = count;
-	result->size = (count + 63) & ~63;
-	result->points = GdipAlloc (sizeof (GpPointF) * result->size);
+	result->count     = count;
+	result->size      = (count + 63) & ~63;
+	result->points    = GdipAlloc (sizeof (GpPointF) * result->size);
 	if (!result->points) {
 		GdipFree (result);
 		return OutOfMemory;
@@ -349,7 +349,7 @@ GdipCreatePath2I (GDIPCONST GpPoint *points, GDIPCONST BYTE *types, INT count, F
 	pt = convert_points (points, count);
 	if (!pt)
 		return OutOfMemory;
-	
+
 	s = GdipCreatePath2 (pt, types, count, fillMode, path);
 
 	GdipFree (pt);
@@ -371,8 +371,8 @@ GdipClonePath (GpPath *path, GpPath **clonePath)
 		return OutOfMemory;
 
 	result->fill_mode = path->fill_mode;
-	result->count = path->count;
-	result->size = path->size;
+	result->count     = path->count;
+	result->size      = path->size;
 
 	if (path->points) {
 		result->points = GdipAlloc (sizeof (GpPointF) * result->size);
@@ -429,16 +429,16 @@ GdipResetPath (GpPath *path)
 	if (path == NULL)
 		return InvalidParameter;
 
-	path->count = 0;
-	path->fill_mode = FillModeAlternate;
+	path->count	 = 0;
+	path->fill_mode     = FillModeAlternate;
 	path->start_new_fig = TRUE;
-	path->size = 0;
+	path->size	  = 0;
 	if (path->points != NULL)
 		GdipFree (path->points);
 	if (path->types != NULL)
 		GdipFree (path->types);
 	path->points = NULL;
-	path->types = NULL;
+	path->types  = NULL;
 
 	return Ok;
 }
@@ -607,13 +607,13 @@ static void
 reverse_subpath_adjust_flags (int start, int end, BYTE *types, BOOL *prev_had_marker)
 {
 	BYTE prev_last;
-	
+
 	/* Copy all but PathPointTypeStart */
 	if (end != start)
 		memmove (types + start, types + start + 1, (end - start) * sizeof (BYTE));
 
 	/* Append PathPointTypeStart */
-	prev_last = types[end];
+	prev_last  = types[end];
 	types[end] = PathPointTypeStart;
 
 	/* Remove potential flags from our future start point */
@@ -627,7 +627,7 @@ reverse_subpath_adjust_flags (int start, int end, BYTE *types, BOOL *prev_had_ma
 		types[start] |= PathPointTypePathMarker;
 	else
 		types[start] &= ~PathPointTypePathMarker;
-	
+
 	*prev_had_marker = ((prev_last & PathPointTypePathMarker) == PathPointTypePathMarker);
 }
 
@@ -635,7 +635,7 @@ GpStatus WINGDIPAPI
 GdipReversePath (GpPath *path)
 {
 	int length, i;
-	int start = 0;
+	int start	    = 0;
 	BOOL prev_had_marker = FALSE;
 
 	if (!path)
@@ -661,11 +661,11 @@ GdipReversePath (GpPath *path)
 
 	/* Then reverse the resulting array */
 	for (i = 0; i < (length >> 1); i++) {
-		BYTE *a = path->types + i;
-		BYTE *b = path->types + length - i - 1;
+		BYTE *a   = path->types + i;
+		BYTE *b   = path->types + length - i - 1;
 		BYTE temp = *a;
-		*a = *b;
-		*b = temp;
+		*a	= *b;
+		*b	= temp;
 	}
 
 	/* PathPoints reversal
@@ -673,15 +673,15 @@ GdipReversePath (GpPath *path)
 	 */
 	for (i = 0; i < (length >> 1); i++) {
 		GpPointF *first = path->points + i;
-		GpPointF *last = path->points + length - i - 1;
+		GpPointF *last  = path->points + length - i - 1;
 
 		GpPointF temp;
-		temp.X = first->X;
-		temp.Y = first->Y;
+		temp.X   = first->X;
+		temp.Y   = first->Y;
 		first->X = last->X;
 		first->Y = last->Y;
-		last->X = temp.X;
-		last->Y = temp.Y;
+		last->X  = temp.X;
+		last->Y  = temp.Y;
 	}
 
 	return Ok;
@@ -726,7 +726,7 @@ GdipAddPathLine2 (GpPath *path, const GpPointF *points, int count)
 		return OutOfMemory;
 
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
-	for (i = 0, tmp = (GpPointF*) points; i < count; i++, tmp++)
+	for (i = 0, tmp = (GpPointF *) points; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
 
 	return Ok;
@@ -747,13 +747,13 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 
 	/* angles in radians */
 	float alpha = startAngle * PI / 180;
-	float beta = endAngle * PI / 180;
+	float beta  = endAngle * PI / 180;
 
 	/* adjust angles for ellipses */
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
-	beta = atan2 (rx * sin (beta), ry * cos (beta));
+	beta  = atan2 (rx * sin (beta), ry * cos (beta));
 
-	if (fabs (beta - alpha) > M_PI){
+	if (fabs (beta - alpha) > M_PI) {
 		if (beta > alpha)
 			beta -= 2 * PI;
 		else
@@ -765,9 +765,9 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
 	sin_alpha = sin (alpha);
-	sin_beta = sin (beta);
+	sin_beta  = sin (beta);
 	cos_alpha = cos (alpha);
-	cos_beta = cos (beta);
+	cos_beta  = cos (beta);
 
 	/* move to the starting point if we're not continuing a curve */
 	if (start) {
@@ -778,12 +778,12 @@ append_arc (GpPath *path, BOOL start, float x, float y, float width, float heigh
 	}
 
 	append_bezier (path,
-		cx + rx * (cos_alpha - bcp * sin_alpha),
-		cy + ry * (sin_alpha + bcp * cos_alpha),
-		cx + rx * (cos_beta  + bcp * sin_beta),
-		cy + ry * (sin_beta  - bcp * cos_beta),
-		cx + rx *  cos_beta,
-		cy + ry *  sin_beta);
+		       cx + rx * (cos_alpha - bcp * sin_alpha),
+		       cy + ry * (sin_alpha + bcp * cos_alpha),
+		       cx + rx * (cos_beta + bcp * sin_beta),
+		       cy + ry * (sin_beta - bcp * cos_beta),
+		       cx + rx * cos_beta,
+		       cy + ry * sin_beta);
 }
 
 static int
@@ -798,7 +798,7 @@ count_arcs_points (GpPath *path, float x, float y, float width, float height, fl
 	if (fabs (sweepAngle) >= 360)
 		return 13;
 
-	endAngle = startAngle + sweepAngle;
+	endAngle  = startAngle + sweepAngle;
 	increment = (endAngle < startAngle) ? -90 : 90;
 
 	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
@@ -821,10 +821,9 @@ count_arcs_points (GpPath *path, float x, float y, float width, float height, fl
 		count += 3;
 		drawn += additional;
 	}
-		
+
 	return count;
 }
-
 
 static VOID
 append_arcs (GpPath *path, float x, float y, float width, float height, float startAngle, float sweepAngle)
@@ -840,7 +839,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 		return;
 	}
 
-	endAngle = startAngle + sweepAngle;
+	endAngle  = startAngle + sweepAngle;
 	increment = (endAngle < startAngle) ? -90 : 90;
 
 	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
@@ -851,7 +850,7 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 
 		if (enough)
 			return;
-		
+
 		additional = endAngle - current; /* otherwise, add the remainder */
 		if (fabs (additional) > 90) {
 			additional = increment;
@@ -863,15 +862,15 @@ append_arcs (GpPath *path, float x, float y, float width, float height, float st
 			enough = TRUE;
 		}
 
-		append_arc (path, (i == 0),           /* only move to the starting pt in the 1st iteration */
-			    x, y, width, height,      /* bounding rectangle */
+		append_arc (path, (i == 0),      /* only move to the starting pt in the 1st iteration */
+			    x, y, width, height, /* bounding rectangle */
 			    current, current + additional);
 		drawn += additional;
 	}
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathArc (GpPath *path, REAL x, REAL y, 
+GdipAddPathArc (GpPath *path, REAL x, REAL y,
 		REAL width, REAL height, REAL startAngle, REAL sweepAngle)
 {
 	int point_count;
@@ -890,9 +889,9 @@ GdipAddPathArc (GpPath *path, REAL x, REAL y,
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathBezier (GpPath *path, 
-		float x1, float y1, float x2, float y2, 
-		float x3, float y3, float x4, float y4)
+GdipAddPathBezier (GpPath *path,
+		   float x1, float y1, float x2, float y2,
+		   float x3, float y3, float x4, float y4)
 {
 	if (!path)
 		return InvalidParameter;
@@ -961,8 +960,8 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count, 
-	int offset, int numberOfSegments, float tension)
+GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
+		   int offset, int numberOfSegments, float tension)
 {
 	GpPointF *tangents;
 
@@ -1052,9 +1051,9 @@ GdipAddPathRectangles (GpPath *path, const GpRectF *rects, int count)
 		return OutOfMemory;
 
 	for (i = 0; i < count; i++) {
-		float x = rects[i].X;
-		float y = rects[i].Y;
-		float width = rects[i].Width;
+		float x      = rects[i].X;
+		float y      = rects[i].Y;
+		float width  = rects[i].Width;
 		float height = rects[i].Height;
 		GdipAddPathRectangle (path, x, y, width, height);
 	}
@@ -1080,28 +1079,28 @@ GdipAddPathEllipse (GpPath *path, float x, float y, float width, float height)
 	append (path, cx + rx, cy, PathPointTypeStart, FALSE);
 
 	/* quadrant I */
-	append_bezier (path, 
-		cx + rx, cy - C1 * ry, 
-		cx + C1 * rx, cy - ry, 
-		cx, cy - ry);
+	append_bezier (path,
+		       cx + rx, cy - C1 * ry,
+		       cx + C1 * rx, cy - ry,
+		       cx, cy - ry);
 
 	/* quadrant II */
 	append_bezier (path,
-		cx - C1 * rx, cy - ry, 
-		cx - rx, cy - C1 * ry, 
-		cx - rx, cy);
+		       cx - C1 * rx, cy - ry,
+		       cx - rx, cy - C1 * ry,
+		       cx - rx, cy);
 
 	/* quadrant III */
 	append_bezier (path,
-		cx - rx, cy + C1 * ry, 
-		cx - C1 * rx, cy + ry, 
-		cx, cy + ry);
+		       cx - rx, cy + C1 * ry,
+		       cx - C1 * rx, cy + ry,
+		       cx, cy + ry);
 
 	/* quadrant IV */
 	append_bezier (path,
-		cx + C1 * rx, cy + ry, 
-		cx + rx, cy + C1 * ry, 
-		cx + rx, cy);
+		       cx + C1 * rx, cy + ry,
+		       cx + rx, cy + C1 * ry,
+		       cx + rx, cy);
 
 	/* close the path */
 	GdipClosePathFigure (path);
@@ -1124,9 +1123,9 @@ GdipAddPathPie (GpPath *path, REAL x, REAL y, REAL width, REAL height, REAL star
 
 	/* center */
 	int cx = x + rx;
-	int cy = y + ry;	
+	int cy = y + ry;
 
-	/* angles in radians */        
+	/* angles in radians */
 	float alpha = startAngle * PI / 180;
 
 	/* adjust angle for ellipses */
@@ -1174,7 +1173,7 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 	/* note: polygon points are never compressed (i.e. removed if identical) */
 
 	append_point (path, *tmp, PathPointTypeStart, FALSE);
-	tmp ++;
+	tmp++;
 
 	for (i = 1; i < count; i++, tmp++)
 		append_point (path, *tmp, PathPointTypeLine, FALSE);
@@ -1183,8 +1182,8 @@ GdipAddPathPolygon (GpPath *path, const GpPointF *points, int count)
 	 * Add a line from the last point back to the first point if
 	 * they're not the same
 	 */
-	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
-		append_point (path, points [0], PathPointTypeLine, FALSE);
+	if (points[0].X != points[count - 1].X && points[0].Y != points[count - 1].Y)
+		append_point (path, points[0], PathPointTypeLine, FALSE);
 
 	/* close the path */
 	return GdipClosePathFigure (path);
@@ -1206,17 +1205,17 @@ GdipAddPathPath (GpPath *path, GDIPCONST GpPath *addingPath, BOOL connect)
 	 * it can't be connected.
 	 */
 	path->types[path->count] = connect ? gdip_get_first_point_type (path) : PathPointTypeStart;
-	path->start_new_fig = FALSE;
+	path->start_new_fig      = FALSE;
 	path->count += addingPath->count;
 
 	return Ok;
 }
 
 /* MonoTODO - deal with layoutRect, format... */
-GpStatus WINGDIPAPI 
-GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length, 
-	GDIPCONST GpFontFamily *family, int style, float emSize,
-	GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format)
+GpStatus WINGDIPAPI
+GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
+		   GDIPCONST GpFontFamily *family, int style, float emSize,
+		   GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *format)
 {
 	cairo_surface_t *cs;
 	cairo_t *cr;
@@ -1231,8 +1230,8 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	if (length == 0) {
 		return Ok;
 	} else if (length == -1) {
-		const WCHAR * ptr = string;
-		length = 0;
+		const WCHAR *ptr = string;
+		length		 = 0;
 		while (*ptr != 0) {
 			length++;
 			ptr++;
@@ -1265,87 +1264,92 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 
 #ifdef USE_PANGO_RENDERING
 	{
-	GpRectF box;
-	GpPointF box_offset;
-	PangoLayout* layout; 
-	GpStringFormat *string_format;
+		GpRectF box;
+		GpPointF box_offset;
+		PangoLayout *layout;
+		GpStringFormat *string_format;
 
-	if (format == NULL) {
-		status = GdipCreateStringFormat (StringFormatFlagsNoClip, 0, &string_format);
-	}
-	else if (!(format->formatFlags & StringFormatFlagsNoClip)) {
-		status = GdipCloneStringFormat (format, &string_format);
-		if (status == Ok)
-			string_format->formatFlags |= StringFormatFlagsNoClip;
-	} else {
-		status = Ok;
-		string_format = (GpStringFormat *) format;
-	}
+		if (format == NULL) {
+			status = GdipCreateStringFormat (StringFormatFlagsNoClip, 0, &string_format);
+		} else if (!(format->formatFlags & StringFormatFlagsNoClip)) {
+			status = GdipCloneStringFormat (format, &string_format);
+			if (status == Ok)
+				string_format->formatFlags |= StringFormatFlagsNoClip;
+		} else {
+			status	= Ok;
+			string_format = (GpStringFormat *) format;
+		}
 
-	if (status != Ok) {
-		GdipDeleteFont (font);
-		GdipFree (utf8);
-		cairo_destroy (cr);
-		cairo_surface_destroy (cs);
-		return status;
-	}
+		if (status != Ok) {
+			GdipDeleteFont (font);
+			GdipFree (utf8);
+			cairo_destroy (cr);
+			cairo_surface_destroy (cs);
+			return status;
+		}
 
-	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
-	cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y);
-	pango_cairo_layout_path (cr, layout);
-	g_object_unref (layout);
-	
-	if (string_format != format)
-		GdipDeleteStringFormat (string_format);
+		layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
+		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y);
+		pango_cairo_layout_path (cr, layout);
+		g_object_unref (layout);
 
-	// If our Cairo context had a current point before laying out the path, Pango will have moved us back there.
-	// We don't want that when we process the path below, so clear it if set.
-	if (cairo_has_current_point(cr))
-		cairo_new_sub_path(cr);
+		if (string_format != format)
+			GdipDeleteStringFormat (string_format);
 
+		// If our Cairo context had a current point before laying out the path, Pango will have moved us back there.
+		// We don't want that when we process the path below, so clear it if set.
+		if (cairo_has_current_point (cr))
+			cairo_new_sub_path (cr);
 	}
 #else
 	{
-	BYTE *utf8 = (BYTE*) utf16_to_utf8 (string, length);
-	if (!utf8) {
-		GdipDeleteFont (font);
-		cairo_destroy (cr);
-		cairo_surface_destroy (cs);
-		return OutOfMemory;
-	}
+		BYTE *utf8 = (BYTE *) utf16_to_utf8 (string, length);
+		if (!utf8) {
+			GdipDeleteFont (font);
+			cairo_destroy (cr);
+			cairo_surface_destroy (cs);
+			return OutOfMemory;
+		}
 
-	cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
+		cairo_move_to (cr, layoutRect->X, layoutRect->Y + font->sizeInPixels);
 
-	cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
-	cairo_set_font_size (cr, font->sizeInPixels);
-	/* TODO - deal with layoutRect, format... ideally we would be calling a subset
+		cairo_set_font_face (cr, gdip_get_cairo_font_face (font));
+		cairo_set_font_size (cr, font->sizeInPixels);
+		/* TODO - deal with layoutRect, format... ideally we would be calling a subset
 	   of GdipDrawString that already does everything *and* preserve the whole path */
-	cairo_text_path (cr, (const char *) utf8);
+		cairo_text_path (cr, (const char *) utf8);
 
-	GdipFree (utf8);
+		GdipFree (utf8);
 	}
 #endif
 
 	/* get the font data from the cairo path and translate it as a gdi+ path */
 	status = Ok;
-	cp = cairo_copy_path (cr);
+	cp     = cairo_copy_path (cr);
 	if (cp) {
 		int i;
 		int count = 0;
-		for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
+		for (i = 0; i < cp->num_data; i += cp->data[i].header.length) {
 			cairo_path_data_t *data = &cp->data[i];
 			switch (data->header.type) {
-			case CAIRO_PATH_MOVE_TO: count++; break;
-			case CAIRO_PATH_LINE_TO: count++; break;
-			case CAIRO_PATH_CURVE_TO: count += 3; break;
-			case CAIRO_PATH_CLOSE_PATH: break;
+			case CAIRO_PATH_MOVE_TO:
+				count++;
+				break;
+			case CAIRO_PATH_LINE_TO:
+				count++;
+				break;
+			case CAIRO_PATH_CURVE_TO:
+				count += 3;
+				break;
+			case CAIRO_PATH_CLOSE_PATH:
+				break;
 			}
 		}
 
 		if (gdip_path_ensure_size (path, path->count + count)) {
-			for (i=0; i < cp->num_data; i += cp->data[i].header.length) {
-				PathPointType type = PathPointTypeStart;
-				int dataLength = cp->data[i].header.length;
+			for (i = 0; i < cp->num_data; i += cp->data[i].header.length) {
+				PathPointType type      = PathPointTypeStart;
+				int dataLength		= cp->data[i].header.length;
 				cairo_path_data_t *data = &cp->data[i];
 
 				if ((i < cp->num_data - dataLength) && (cp->data[i + dataLength].header.type == CAIRO_PATH_CLOSE_PATH))
@@ -1385,8 +1389,8 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 
 GpStatus WINGDIPAPI
 GdipAddPathStringI (GpPath *path, GDIPCONST WCHAR *string, int length,
-	GDIPCONST GpFontFamily *family, int style, float emSize,
-	GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
+		    GDIPCONST GpFontFamily *family, int style, float emSize,
+		    GDIPCONST GpRect *layoutRect, GDIPCONST GpStringFormat *format)
 {
 	GpRectF rect;
 
@@ -1404,7 +1408,7 @@ GdipAddPathLineI (GpPath *path, int x1, int y1, int x2, int y2)
 }
 
 GpStatus WINGDIPAPI
-GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
+GdipAddPathLine2I (GpPath *path, const GpPoint *points, int count)
 {
 	GpPoint *tmp;
 	int i;
@@ -1416,7 +1420,7 @@ GdipAddPathLine2I (GpPath* path, const GpPoint *points, int count)
 		return OutOfMemory;
 
 	/* only the first point can be compressed (i.e. removed if identical to previous) */
-	for (i = 0, tmp = (GpPoint*) points; i < count; i++, tmp++)
+	for (i = 0, tmp = (GpPoint *) points; i < count; i++, tmp++)
 		append (path, tmp->X, tmp->Y, PathPointTypeLine, (i == 0));
 
 	return Ok;
@@ -1450,7 +1454,7 @@ GdipAddPathBeziersI (GpPath *path, const GpPoint *points, int count)
 	if (!gdip_path_ensure_size (path, path->count + count))
 		return OutOfMemory;
 
-	tmp = (GpPoint*) points;
+	tmp = (GpPoint *) points;
 	append (path, tmp->X, tmp->Y, PathPointTypeLine, TRUE);
 	tmp++;
 
@@ -1546,10 +1550,10 @@ GdipAddPathRectanglesI (GpPath *path, const GpRect *rects, int count)
 		return InvalidParameter;
 
 	for (i = 0; i < count; i++) {
-		float x = (float) rects[i].X;
-		float y = (float) rects[i].Y;
-		float width =  (float) rects[i].Width;
-		float height =  (float) rects[i].Height;
+		float x      = (float) rects[i].X;
+		float y      = (float) rects[i].Y;
+		float width  = (float) rects[i].Width;
+		float height = (float) rects[i].Height;
 		GdipAddPathRectangle (path, x, y, width, height);
 	}
 
@@ -1593,8 +1597,8 @@ GdipAddPathPolygonI (GpPath *path, const GpPoint *points, int count)
 	 * Add a line from the last point back to the first point if
 	 * they're not the same
 	 */
-	if (points [0].X != points [count - 1].X && points [0].Y != points [count - 1].Y)
-		append (path, points [0].X, points [0].Y, PathPointTypeLine, FALSE);
+	if (points[0].X != points[count - 1].X && points[0].Y != points[count - 1].Y)
+		append (path, points[0].X, points[0].Y, PathPointTypeLine, FALSE);
 
 	/* close the path */
 	return GdipClosePathFigure (path);
@@ -1610,15 +1614,15 @@ nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, fl
 	float f2, f2_q;
 	float x00t, y00t, x0tt, y0tt, xttt, yttt, x1tt, y1tt, x11t, y11t;
 
-	dx1_0 = x1 - x0;
-	dy1_0 = y1 - y0;
-	dx2_0 = x2 - x0;
-	dy2_0 = y2 - y0;
-	dx3_0 = x3 - x0;
-	dy3_0 = y3 - y0;
-	dx2_3 = x3 - x2;
-	dy2_3 = y3 - y2;
-	f2 = flatness;
+	dx1_0  = x1 - x0;
+	dy1_0  = y1 - y0;
+	dx2_0  = x2 - x0;
+	dy2_0  = y2 - y0;
+	dx3_0  = x3 - x0;
+	dy3_0  = y3 - y0;
+	dx2_3  = x3 - x2;
+	dy2_3  = y3 - y2;
+	f2     = flatness;
 	d3_0_2 = dx3_0 * dx3_0 + dy3_0 * dy3_0;
 	if (d3_0_2 < f2) {
 		float d1_0_2, d2_0_2;
@@ -1642,12 +1646,11 @@ nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, fl
 	if ((v2_q < 0.0) && ((v2_q * v2_q) > f2_q)) goto subdivide;
 	if (s1_q >= s2_q) goto subdivide;
 
- nosubdivide:
-	{
+nosubdivide : {
 	append (flat_path, x3, y3, PathPointTypeLine, FALSE);
 	return TRUE;
-	}
- subdivide:
+}
+subdivide:
 	/* things gets *VERY* memory intensive without a limit */
 	if (level >= FLATTEN_RECURSION_LIMIT)
 		return FALSE;
@@ -1663,8 +1666,8 @@ nr_curve_flatten (float x0, float y0, float x1, float y1, float x2, float y2, fl
 	xttt = (x0tt + x1tt) * 0.5;
 	yttt = (y0tt + y1tt) * 0.5;
 
-	if (!nr_curve_flatten (x0, y0, x00t, y00t, x0tt, y0tt, xttt, yttt, flatness, level+1, flat_path)) return FALSE;
-	if (!nr_curve_flatten (xttt, yttt, x1tt, y1tt, x11t, y11t, x3, y3, flatness, level+1, flat_path)) return FALSE;
+	if (!nr_curve_flatten (x0, y0, x00t, y00t, x0tt, y0tt, xttt, yttt, flatness, level + 1, flat_path)) return FALSE;
+	if (!nr_curve_flatten (xttt, yttt, x1tt, y1tt, x11t, y11t, x3, y3, flatness, level + 1, flat_path)) return FALSE;
 	return TRUE;
 }
 
@@ -1677,10 +1680,10 @@ gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GpPath *f
 	if ((index <= 0) || (index + 2 >= path->count))
 		return FALSE; /* bad path data */
 
-	start = path->points[index - 1];
-	first = path->points[index];
+	start  = path->points[index - 1];
+	first  = path->points[index];
 	second = path->points[index + 1];
-	end = path->points[index + 2];
+	end    = path->points[index + 2];
 
 	if (!gdip_path_ensure_size (path, path->count + (1 << FLATTEN_RECURSION_LIMIT)))
 		return FALSE;
@@ -1695,7 +1698,7 @@ gdip_convert_bezier_to_lines (GpPath *path, int index, float flatness, GpPath *f
 	return TRUE;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 {
 	GpStatus status = Ok;
@@ -1723,7 +1726,7 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	/* Iterate the current path and replace each bezier with multiple lines */
 	for (i = 0; i < path->count; i++) {
 		GpPointF point = path->points[i];
-		BYTE type = path->types[i];
+		BYTE type      = path->types[i];
 
 		/* PathPointTypeBezier3 has the same value as PathPointTypeBezier */
 		if ((type & PathPointTypeBezier) == PathPointTypeBezier) {
@@ -1734,7 +1737,7 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 				GdipResetPath (flat_path);
 
 				if (!gdip_path_ensure_size (flat_path, flat_path->count + 4)) {
-					GdipDeletePath (flat_path);					
+					GdipDeletePath (flat_path);
 					return OutOfMemory;
 				}
 
@@ -1751,12 +1754,12 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 			i += 2;
 		} else {
 			if (!gdip_path_ensure_size (flat_path, flat_path->count + 1)) {
-				GdipDeletePath (flat_path);					
+				GdipDeletePath (flat_path);
 				return OutOfMemory;
 			}
 
 			/* no change required, just copy the point */
-			append_point(flat_path, point, type, FALSE);
+			append_point (flat_path, point, type, FALSE);
 		}
 	}
 
@@ -1764,13 +1767,13 @@ GdipFlattenPath (GpPath *path, GpMatrix *matrix, float flatness)
 	if (path->points != NULL)
 		GdipFree (path->points);
 	if (path->types != NULL)
-		GdipFree (path->types);	
+		GdipFree (path->types);
 
 	/* transfer new path informations */
 	path->points = flat_path->points;
-	path->types = flat_path->types;
-	path->count = flat_path->count;
-	path->size = flat_path->size;
+	path->types  = flat_path->types;
+	path->count  = flat_path->count;
+	path->size   = flat_path->size;
 	GdipFree (flat_path);
 
 	/* note: no error code is given for excessive recursion */
@@ -1794,7 +1797,7 @@ gdip_prepare_path (GpPath *path, GpMatrix *matrix, float flatness)
 }
 
 /* MonoTODO - doesn't seems to be exposed in System.Drawing.dll */
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 {
 	GpStatus status;
@@ -1816,7 +1819,7 @@ GdipWindingModeOutline (GpPath *path, GpMatrix *matrix, float flatness)
 }
 
 /* MonoTODO */
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 {
 	static int called = 0;
@@ -1846,10 +1849,10 @@ GdipWidenPath (GpPath *nativePath, GpPen *pen, GpMatrix *matrix, float flatness)
 }
 
 /* MonoTODO */
-GpStatus WINGDIPAPI 
-GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count, 
-		float srcx, float srcy, float srcwidth, float srcheight,
-		WarpMode warpMode, float flatness)
+GpStatus WINGDIPAPI
+GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
+	      float srcx, float srcy, float srcwidth, float srcheight,
+	      WarpMode warpMode, float flatness)
 {
 	static int called = 0;
 	GpStatus status;
@@ -1879,8 +1882,8 @@ GdipWarpPath (GpPath *path, GpMatrix *matrix, const GpPointF *points, int count,
 	return Ok;
 }
 
-GpStatus WINGDIPAPI 
-GdipTransformPath (GpPath* path, GpMatrix *matrix)
+GpStatus WINGDIPAPI
+GdipTransformPath (GpPath *path, GpMatrix *matrix)
 {
 	if (!path)
 		return InvalidParameter;
@@ -1895,7 +1898,7 @@ GdipTransformPath (GpPath* path, GpMatrix *matrix)
 	return GdipTransformMatrixPoints (matrix, path->points, path->count);
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
 	GpStatus status;
@@ -1907,9 +1910,9 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 
 	// Paths with zero or one points are empty.
 	if (path->count <= 1) {
-		bounds->X = 0.0f;
-		bounds->Y = 0.0f;
-		bounds->Width = 0.0f;
+		bounds->X      = 0.0f;
+		bounds->Y      = 0.0f;
+		bounds->Width  = 0.0f;
 		bounds->Height = 0.0f;
 		return Ok;
 	}
@@ -1924,25 +1927,25 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 	 */
 
 	/* note: only the matrix is applied if no curves are present in the path */
-	status = GdipFlattenPath (workpath, (GpMatrix*)matrix, 25.0f);
+	status = GdipFlattenPath (workpath, (GpMatrix *) matrix, 25.0f);
 	if (status != Ok) {
 		GdipDeletePath (workpath);
 		return status;
 	}
 
-	points = workpath->points[0];
-	bounds->X = points.X;		/* keep minimum X here */
-	bounds->Y = points.Y;		/* keep minimum Y here */
+	points    = workpath->points[0];
+	bounds->X = points.X; /* keep minimum X here */
+	bounds->Y = points.Y; /* keep minimum Y here */
 	if (workpath->count == 1) {
 		/* special case #2 - Only one element */
-		bounds->Width = 0.0f;
+		bounds->Width  = 0.0f;
 		bounds->Height = 0.0f;
 		GdipDeletePath (workpath);
 		return Ok;
 	}
 
-	bounds->Width = points.X;	/* keep maximum X here */
-	bounds->Height = points.Y;	/* keep maximum Y here */
+	bounds->Width  = points.X; /* keep maximum X here */
+	bounds->Height = points.Y; /* keep maximum Y here */
 
 	for (int i = 1; i < workpath->count; i++) {
 		points = workpath->points[i];
@@ -1964,7 +1967,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 		/* in calculation the pen's width is at least 1.0 */
 		float width = (pen->width < 1.0f) ? 1.0f : pen->width;
 		float halfw = (width / 2);
-		
+
 		bounds->X -= halfw;
 		bounds->Y -= halfw;
 		bounds->Width += width;
@@ -1975,7 +1978,7 @@ GdipGetPathWorldBounds (GpPath *path, GpRectF *bounds, const GpMatrix *matrix, c
 	return Ok;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, const GpPen *pen)
 {
 	GpRectF rect;
@@ -1986,20 +1989,20 @@ GdipGetPathWorldBoundsI (GpPath *path, GpRect *bounds, const GpMatrix *matrix, c
 
 	status = GdipGetPathWorldBounds (path, &rect, matrix, pen);
 	if (status != Ok)
-		return status;	
+		return status;
 
-	bounds->X = (int) rect.X;
-	bounds->Y = (int) rect.Y;
-	bounds->Width = (int) rect.Width;
+	bounds->X      = (int) rect.X;
+	bounds->Y      = (int) rect.Y;
+	bounds->Width  = (int) rect.Width;
 	bounds->Height = (int) rect.Height;
 	return Ok;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BOOL *result)
 {
-	GpStatus status = Ok;
-	cairo_surface_t* s = NULL;
+	GpStatus status    = Ok;
+	cairo_surface_t *s = NULL;
 	GpGraphics *g;
 	GpUnit page_unit = UnitPixel;
 
@@ -2019,7 +2022,7 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BO
 	cairo_new_path (g->ct);
 	/* unit tests shows that PageUnit isn't consireded (well x, y are probably considered to be the same unit format ) */
 	g->page_unit = UnitPixel;
-	status = gdip_plot_path (g, path, FALSE);
+	status       = gdip_plot_path (g, path, FALSE);
 	if (status == Ok) {
 		cairo_set_fill_rule (g->ct, gdip_convert_fill_mode (path->fill_mode));
 		cairo_set_antialias (g->ct, CAIRO_ANTIALIAS_NONE);
@@ -2041,17 +2044,17 @@ GdipIsVisiblePathPoint (GpPath *path, float x, float y, GpGraphics *graphics, BO
 	return status;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipIsVisiblePathPointI (GpPath *path, int x, int y, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsVisiblePathPoint (path, x, y, graphics, result);
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
-	GpStatus status = Ok;
-	cairo_surface_t* s = NULL;
+	GpStatus status    = Ok;
+	cairo_surface_t *s = NULL;
 	GpGraphics *g;
 	GpUnit page_unit = UnitPixel;
 
@@ -2071,7 +2074,7 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 	cairo_new_path (g->ct);
 	/* unit tests shows that PageUnit isn't consireded (well x, y are probably considered to be the same unit format ) */
 	g->page_unit = UnitPixel;
-	status = gdip_plot_path (g, path, FALSE);
+	status       = gdip_plot_path (g, path, FALSE);
 	if (status == Ok) {
 		/* we must fight around cairo AA */
 		cairo_set_antialias (g->ct, CAIRO_ANTIALIAS_NONE);
@@ -2094,7 +2097,7 @@ GdipIsOutlineVisiblePathPoint (GpPath *path, float x, float y, GpPen *pen, GpGra
 	return status;
 }
 
-GpStatus WINGDIPAPI 
+GpStatus WINGDIPAPI
 GdipIsOutlineVisiblePathPointI (GpPath *path, int x, int y, GpPen *pen, GpGraphics *graphics, BOOL *result)
 {
 	return GdipIsOutlineVisiblePathPoint (path, x, y, pen, graphics, result);

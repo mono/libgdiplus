@@ -21,18 +21,18 @@ using namespace DllExports;
 #endif
 
 static void
-test_gdip_clip()
+test_gdip_clip ()
 {
-	GpBitmap *bitmap = 0;
+	GpBitmap *bitmap       = 0;
 	GpBitmap *other_bitmap = 0;
 	GpGraphics *graphics;
 	GpRegion *clip;
 	GpPath *path;
 	GpPath *other_path;
-	static const int width = 100;
+	static const int width  = 100;
 	static const int height = 100;
-	BYTE *scan0 = (BYTE*) GdipAlloc (width * height * 4);
-	BOOL is_infinite = 0;
+	BYTE *scan0		= (BYTE *) GdipAlloc (width * height * 4);
+	BOOL is_infinite	= 0;
 	GpRectF rect;
 	GpRect recti;
 
@@ -41,13 +41,13 @@ test_gdip_clip()
 	memset (&bm, 0, sizeof (bm));
 	memset (&other_bm, 0, sizeof (other_bm));
 
-	rect.X = 0.;
-	rect.Y = 0.;
-	rect.Width = width;
-	rect.Height = height;
-	recti.X = 0;
-	recti.Y = 0;
-	recti.Width = width;
+	rect.X       = 0.;
+	rect.Y       = 0.;
+	rect.Width   = width;
+	rect.Height  = height;
+	recti.X      = 0;
+	recti.Y      = 0;
+	recti.Width  = width;
 	recti.Height = height;
 
 	// Create bitmap
@@ -60,10 +60,10 @@ test_gdip_clip()
 
 	// Check the clipping region is infinite
 
-	C (GdipCreateRegion(&clip));
+	C (GdipCreateRegion (&clip));
 
 	C (GdipGetClip (graphics, clip));
-	C (GdipIsInfiniteRegion(clip, graphics, &is_infinite));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
 	assert (is_infinite);
 
 	// Create a path
@@ -82,10 +82,10 @@ test_gdip_clip()
 	// Clear the clipped image (foreground)
 	C (GdipGraphicsClear (graphics, 0x8000ff00));
 	// Reset the clip
-	C (GdipResetClip(graphics));
+	C (GdipResetClip (graphics));
 
 	// Clone the image for future use
-	C (GdipCloneBitmapArea (0., 0., (float)width, (float)height, PixelFormat32bppARGB, bitmap, &other_bitmap));
+	C (GdipCloneBitmapArea (0., 0., (float) width, (float) height, PixelFormat32bppARGB, bitmap, &other_bitmap));
 
 	// Set the path as the clipping region
 	C (GdipSetClipPath (graphics, path, CombineModeExclude));
@@ -122,7 +122,7 @@ test_gdip_clip()
 	assert (bm.Width == other_bm.Width);
 	assert (bm.Height == other_bm.Height);
 	{
-		ARGB *p = (ARGB *) bm.Scan0;
+		ARGB *p       = (ARGB *) bm.Scan0;
 		ARGB *other_p = (ARGB *) other_bm.Scan0;
 		for (int i = 0; i < width * height; ++i)
 			assert (*p++ == *other_p++);
@@ -139,48 +139,48 @@ test_gdip_clip()
 }
 
 static void
-test_gdip_clip_transform()
+test_gdip_clip_transform ()
 {
 	GpBitmap *bitmap = 0;
 	GpGraphics *graphics;
 	GpRegion *clip;
 	GpPath *path;
 	GpRectF bounds;
-	static const int width = 100;
+	static const int width  = 100;
 	static const int height = 100;
-	BYTE *scan0 = (BYTE*) GdipAlloc (width * height * 4);
-	BOOL is_infinite = 0;
+	BYTE *scan0		= (BYTE *) GdipAlloc (width * height * 4);
+	BOOL is_infinite	= 0;
 
 	C (GdipCreateBitmapFromScan0 (100, 100, 100 * 4, PixelFormat32bppARGB, scan0, &bitmap));
 	C (GdipGetImageGraphicsContext (bitmap, &graphics));
 
 	// Check the clipping region is infinite
-	C (GdipCreateRegion(&clip));
-	C (GdipGetClip(graphics, clip));
-	C (GdipIsInfiniteRegion(clip, graphics, &is_infinite));
+	C (GdipCreateRegion (&clip));
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
 	assert (is_infinite);
 
 	// Transform the world
-	C (GdipTranslateWorldTransform(graphics, 50.f, 0.f, MatrixOrderAppend));
+	C (GdipTranslateWorldTransform (graphics, 50.f, 0.f, MatrixOrderAppend));
 
 	// Test setting clip as rectangle
-	C (GdipSetClipRect(graphics, 10, 10, 60, 60, CombineModeReplace));
-	C (GdipGetClipBounds(graphics, &bounds));
+	C (GdipSetClipRect (graphics, 10, 10, 60, 60, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
 	assert (bounds.X == 10);
 	assert (bounds.Y == 10);
 	assert (bounds.Width == 60);
 	assert (bounds.Height == 60);
 
 	// Test setting clip as path with rectangle
-	C (GdipCreatePath(FillModeWinding, &path));
-	C (GdipAddPathRectangle(path, 10, 10, 60, 60));
-	C (GdipGetPathWorldBounds(path, &bounds, NULL, NULL));
+	C (GdipCreatePath (FillModeWinding, &path));
+	C (GdipAddPathRectangle (path, 10, 10, 60, 60));
+	C (GdipGetPathWorldBounds (path, &bounds, NULL, NULL));
 	assert (bounds.X == 10);
 	assert (bounds.Y == 10);
 	assert (bounds.Width == 60);
 	assert (bounds.Height == 60);
-	C (GdipSetClipPath(graphics, path, CombineModeReplace));
-	C (GdipGetClipBounds(graphics, &bounds));
+	C (GdipSetClipPath (graphics, path, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
 	assert (bounds.X == 10);
 	assert (bounds.Y == 10);
 	assert (bounds.Width == 60);
@@ -205,7 +205,7 @@ test_gdip_clip_path ()
 
 	C (GdipSetClipRect (graphics, 0, 0, 612, 792, CombineModeIntersect));
 
-	GpRectF rc = { 100, 100, 50, 50 };
+	GpRectF rc = {100, 100, 50, 50};
 	GpPath *path;
 	C (GdipCreatePath (FillModeAlternate, &path));
 	{
@@ -239,10 +239,9 @@ test_gdip_clip_path ()
 	//C (GdipSaveImageToFile (bitmap, filePath, &png_clsid, NULL));
 
 	GpPoint points[] = {
-		{ rc.X, rc.Y },
-		{ rc.X + rc.Width / 2, rc.Y + rc.Height / 2 },
-		{ rc.X + rc.Width - 1, rc.Y + rc.Height - 1 }
-	};
+	    {rc.X, rc.Y},
+	    {rc.X + rc.Width / 2, rc.Y + rc.Height / 2},
+	    {rc.X + rc.Width - 1, rc.Y + rc.Height - 1}};
 	for (int i = 0; i < sizeof (points) / sizeof (points[0]); i += 2) {
 		GpPoint *pt = &points[i];
 
@@ -256,12 +255,12 @@ test_gdip_clip_path ()
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 
-	test_gdip_clip();
-	test_gdip_clip_transform();
+	test_gdip_clip ();
+	test_gdip_clip_transform ();
 	test_gdip_clip_path ();
 
 	SHUTDOWN;

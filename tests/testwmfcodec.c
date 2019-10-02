@@ -24,30 +24,32 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.wmf";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'w', 'm', 'f', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'w', 'm', 'f', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
- \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, x, y, width, height, dimensionWidth, dimensionHeight) \
-{ \
-	createFile (buffer, Ok); \
-	verifyMetafile (image, wmfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight) \
-	GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, x, y, width, height, dimensionWidth, dimensionHeight)                    \
+	{                                                                                                  \
+		createFile (buffer, Ok);                                                                   \
+		verifyMetafile (image, wmfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight) \
+		    GdipDisposeImage (image);                                                              \
+	}
 
-static void test_valid ()
+static void
+test_valid ()
 {
+	// clang-format off
 	BYTE singleEOFRecord[] = {
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x58, 0xF0, 0xCE, 0xF2, 0xA8, 0x0F, 0x32, 0x0d, 0xE8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF5, 0x54,
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -109,6 +111,7 @@ static void test_valid ()
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
 		/* META_EOF */         0x03, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFileSuccess (singleEOFRecord, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 	createFileSuccess (nonZeroHandle, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
@@ -124,11 +127,13 @@ static void test_valid ()
 	createFileSuccess (nonDIBVersionNumber, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 }
 
-static void test_invalidDataCorruptingGdiPlus ()
+static void
+test_invalidDataCorruptingGdiPlus ()
 {
 	// GDI+ produces some really strange results - including negative sizes - if the checksum is invalid.
 	// We probably don't want to emulate this behaviour.
 #if defined(USE_WINDOWS_GDIPLUS)
+	// clang-format off
 	BYTE invalidChecksum[] = {
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x58, 0xF0, 0xCE, 0xF2, 0xA8, 0x0F, 0x32, 0x0d, 0xE8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -144,23 +149,26 @@ static void test_invalidDataCorruptingGdiPlus ()
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
 		/* META_EOF */         0x03, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (invalidChecksum, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 
 	createFile (zeroWidth, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 
 	createFile (zeroHeight, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 #endif
 }
 
-static void test_invalidFileSize()
+static void
+test_invalidFileSize ()
 {
+	// clang-format off
 	BYTE equalToHeaderFileSizeWithoutExtraData[] = {
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x58, 0xF0, 0xCE, 0xF2, 0xA8, 0x0F, 0x32, 0x0d, 0xE8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF5, 0x54,
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -175,14 +183,17 @@ static void test_invalidFileSize()
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
 		/* META_EOF */         0x03, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFileSuccess (equalToHeaderFileSizeWithoutExtraData, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 	createFileSuccess (equalToHeaderFileSizeWithExtraData, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 	createFileSuccess (tooLargeFileSize, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 }
 
-static void test_invalidPlaceableHeader ()
+static void
+test_invalidPlaceableHeader ()
 {
+	// clang-format off
 	BYTE shortKey1[]     = {0xD7};
 	BYTE shortKey2[]     = {0xD7, 0xCD};
 	BYTE shortKey3[]     = {0xD7, 0xCD, 0xC6};
@@ -202,6 +213,7 @@ static void test_invalidPlaceableHeader ()
 	BYTE shortReserved[] = {0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x06, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00};
 	BYTE noChecksum[]    = {0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x06, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00};
 	BYTE shortChecksum[] = {0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x06, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x50};
+	// clang-format on
 
 	createFile (shortKey1, OutOfMemory);
 	createFile (shortKey2, OutOfMemory);
@@ -224,8 +236,10 @@ static void test_invalidPlaceableHeader ()
 	createFile (shortChecksum, OutOfMemory);
 }
 
-static void test_invalidMetafileHeader ()
+static void
+test_invalidMetafileHeader ()
 {
+	// clang-format off
 	BYTE noType[] = {
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x06, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x50, 0x11
 	};
@@ -281,6 +295,7 @@ static void test_invalidMetafileHeader ()
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x06, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x50, 0x11,
 		/* Metafile Header */  0x01, 0x00, 0x09, 0x00, 0x00, 0x03, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (noType, OutOfMemory);
 	createFile (shortType, OutOfMemory);
@@ -298,8 +313,10 @@ static void test_invalidMetafileHeader ()
 	createFile (shortNoParameters, OutOfMemory);
 }
 
-static void test_invalidImageData()
+static void
+test_invalidImageData ()
 {
+	// clang-format off
 	BYTE zeroFileType[] = {
 		/* Placeable Header */ 0xD7, 0xCD, 0xC6, 0x9A, 0x00, 0x00, 0x58, 0xF0, 0xCE, 0xF2, 0xA8, 0x0F, 0x32, 0x0d, 0xE8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF5, 0x54,
 		/* Metafile Header */  0x00, 0x00, 0x09, 0x00, 0x00, 0x03, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -379,6 +396,7 @@ static void test_invalidImageData()
 		/* Random */           0x03, 0x00, 0x00, 0x00, 0x00, 0x01
 	};
 #endif
+	// clang-format on
 
 	createFile (zeroFileType, OutOfMemory);
 	createFile (invalidFileType, OutOfMemory);
@@ -402,7 +420,7 @@ static void test_invalidImageData()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

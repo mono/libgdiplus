@@ -23,7 +23,8 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, StringTrimming expectedTrimming)
+static void
+verifyStringFormat (GpStringFormat *format, INT expectedAttributes, StringTrimming expectedTrimming)
 {
 	GpStatus status;
 	INT flags;
@@ -43,7 +44,7 @@ static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, 
 	assertEqualInt (flags, expectedAttributes);
 
 	status = GdipGetStringFormatAlign (format, &align);
-	assertEqualInt (status,Ok);
+	assertEqualInt (status, Ok);
 	assertEqualInt (align, StringAlignmentNear);
 
 	status = GdipGetStringFormatDigitSubstitution (format, &language, &digitSubstitution);
@@ -76,7 +77,8 @@ static void verifyStringFormat (GpStringFormat *format, INT expectedAttributes, 
 	assertEqualInt (measurableCharacterRangeCount, 0);
 }
 
-static void test_createStringFormat ()
+static void
+test_createStringFormat ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -104,7 +106,8 @@ static void test_createStringFormat ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getGenericDefault ()
+static void
+test_getGenericDefault ()
 {
 	GpStatus status;
 	GpStringFormat *format1;
@@ -152,7 +155,8 @@ static void test_getGenericDefault ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getGenericTypographic ()
+static void
+test_getGenericTypographic ()
 {
 	GpStatus status;
 	GpStringFormat *format1;
@@ -195,7 +199,8 @@ static void test_getGenericTypographic ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_deleteStringFormat ()
+static void
+test_deleteStringFormat ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -210,7 +215,8 @@ static void test_deleteStringFormat ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_cloneStringFormat ()
+static void
+test_cloneStringFormat ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -233,7 +239,8 @@ static void test_cloneStringFormat ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatAlign ()
+static void
+test_setStringFormatAlign ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -273,16 +280,17 @@ static void test_setStringFormatAlign ()
 	status = GdipSetStringFormatAlign (NULL, StringAlignmentCenter);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatAlign (format, (StringAlignment)(StringAlignmentNear - 1));
+	status = GdipSetStringFormatAlign (format, (StringAlignment) (StringAlignmentNear - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatAlign (format, (StringAlignment)(StringAlignmentFar + 1));
+	status = GdipSetStringFormatAlign (format, (StringAlignment) (StringAlignmentFar + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatAlign ()
+static void
+test_getStringFormatAlign ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -300,7 +308,8 @@ static void test_getStringFormatAlign ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatLineAlign ()
+static void
+test_setStringFormatLineAlign ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -340,16 +349,17 @@ static void test_setStringFormatLineAlign ()
 	status = GdipSetStringFormatLineAlign (NULL, StringAlignmentCenter);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatLineAlign (format, (StringAlignment)(StringAlignmentNear - 1));
+	status = GdipSetStringFormatLineAlign (format, (StringAlignment) (StringAlignmentNear - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatLineAlign (format, (StringAlignment)(StringAlignmentFar + 1));
+	status = GdipSetStringFormatLineAlign (format, (StringAlignment) (StringAlignmentFar + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatLineAlign ()
+static void
+test_getStringFormatLineAlign ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -367,7 +377,8 @@ static void test_getStringFormatLineAlign ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatTrimming ()
+static void
+test_setStringFormatTrimming ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -428,16 +439,17 @@ static void test_setStringFormatTrimming ()
 	status = GdipSetStringFormatTrimming (NULL, StringTrimmingEllipsisCharacter);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatTrimming (format, (StringTrimming)(StringTrimmingNone - 1));
+	status = GdipSetStringFormatTrimming (format, (StringTrimming) (StringTrimmingNone - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatTrimming (format, (StringTrimming)(StringTrimmingEllipsisPath + 1));
+	status = GdipSetStringFormatTrimming (format, (StringTrimming) (StringTrimmingEllipsisPath + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatTrimming ()
+static void
+test_getStringFormatTrimming ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -455,7 +467,8 @@ static void test_getStringFormatTrimming ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatHotkeyPrefix ()
+static void
+test_setStringFormatHotkeyPrefix ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -495,16 +508,17 @@ static void test_setStringFormatHotkeyPrefix ()
 	status = GdipSetStringFormatHotkeyPrefix (NULL, HotkeyPrefixNone);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatHotkeyPrefix (format, (HotkeyPrefix)(HotkeyPrefixNone - 1));
+	status = GdipSetStringFormatHotkeyPrefix (format, (HotkeyPrefix) (HotkeyPrefixNone - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetStringFormatHotkeyPrefix (format, (HotkeyPrefix)(HotkeyPrefixHide + 1));
+	status = GdipSetStringFormatHotkeyPrefix (format, (HotkeyPrefix) (HotkeyPrefixHide + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatHotkeyPrefix ()
+static void
+test_getStringFormatHotkeyPrefix ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -522,14 +536,15 @@ static void test_getStringFormatHotkeyPrefix ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatTabStops ()
+static void
+test_setStringFormatTabStops ()
 {
 	GpStatus status;
 	GpStringFormat *format;
 	REAL firstTabOffset;
-	REAL tabStops1[4] = {1, 0, 2, 3};
-	REAL tabStops2[4] = {3, 2, 0, 1};
-	REAL oneTabStop[1] = {0};
+	REAL tabStops1[4]		= {1, 0, 2, 3};
+	REAL tabStops2[4]		= {3, 2, 0, 1};
+	REAL oneTabStop[1]		= {0};
 	REAL negativeValueInTabStops[4] = {1, -1};
 	REAL formatTabStops[4];
 
@@ -601,7 +616,7 @@ static void test_setStringFormatTabStops ()
 
 	// Negative value in tab stops.
 	formatTabStops[0] = 10;
-	status = GdipSetStringFormatTabStops (format, 40, 4, negativeValueInTabStops);
+	status		  = GdipSetStringFormatTabStops (format, 40, 4, negativeValueInTabStops);
 	assertEqualInt (status, NotImplemented);
 
 	status = GdipGetStringFormatTabStops (format, 4, &firstTabOffset, formatTabStops);
@@ -612,12 +627,13 @@ static void test_setStringFormatTabStops ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatTabStops ()
+static void
+test_getStringFormatTabStops ()
 {
 	GpStatus status;
 	GpStringFormat *format;
-	REAL firstTabOffset = 10;
-	REAL tabStops[4] = {1, 2, 3, 4};
+	REAL firstTabOffset    = 10;
+	REAL tabStops[4]       = {1, 2, 3, 4};
 	REAL formatTabStops[5] = {-1, -2, -3, -4, -5};
 
 	GdipCreateStringFormat (10, 11, &format);
@@ -679,7 +695,8 @@ static void test_getStringFormatTabStops ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatTabStopCount ()
+static void
+test_getStringFormatTabStopCount ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -697,7 +714,8 @@ static void test_getStringFormatTabStopCount ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatDigitSubstitution ()
+static void
+test_setStringFormatDigitSubstitution ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -763,20 +781,20 @@ static void test_setStringFormatDigitSubstitution ()
 	assertEqualInt (substitute, StringDigitSubstituteTraditional);
 
 	// Invalid value - negative.
-	status = GdipSetStringFormatDigitSubstitution (format, 0, (StringDigitSubstitute)(StringDigitSubstituteUser - 1));
+	status = GdipSetStringFormatDigitSubstitution (format, 0, (StringDigitSubstitute) (StringDigitSubstituteUser - 1));
 	assertEqualInt (status, Ok);
 
 	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
 	assertEqualInt (language, 0);
-	assertEqualInt (substitute, (StringDigitSubstitute)(StringDigitSubstituteUser - 1));
+	assertEqualInt (substitute, (StringDigitSubstitute) (StringDigitSubstituteUser - 1));
 
 	// Invalid value - positive.
-	status = GdipSetStringFormatDigitSubstitution (format, 0, (StringDigitSubstitute)(StringDigitSubstituteTraditional + 1));
+	status = GdipSetStringFormatDigitSubstitution (format, 0, (StringDigitSubstitute) (StringDigitSubstituteTraditional + 1));
 	assertEqualInt (status, Ok);
 
 	GdipGetStringFormatDigitSubstitution (format, &language, &substitute);
 	assertEqualInt (language, 0);
-	assertEqualInt (substitute, (StringDigitSubstitute)(StringDigitSubstituteTraditional + 1));
+	assertEqualInt (substitute, (StringDigitSubstitute) (StringDigitSubstituteTraditional + 1));
 
 	// Negative tests.
 	status = GdipSetStringFormatDigitSubstitution (NULL, 0, StringDigitSubstituteNational);
@@ -785,7 +803,8 @@ static void test_setStringFormatDigitSubstitution ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatDigitSubstitution ()
+static void
+test_getStringFormatDigitSubstitution ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -815,7 +834,8 @@ static void test_getStringFormatDigitSubstitution ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatFlags ()
+static void
+test_setStringFormatFlags ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -858,7 +878,8 @@ static void test_setStringFormatFlags ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatFlags ()
+static void
+test_getStringFormatFlags ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -876,7 +897,8 @@ static void test_getStringFormatFlags ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_getStringFormatMeasurableCharacterRangeCount ()
+static void
+test_getStringFormatMeasurableCharacterRangeCount ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -894,7 +916,8 @@ static void test_getStringFormatMeasurableCharacterRangeCount ()
 	GdipDeleteStringFormat (format);
 }
 
-static void test_setStringFormatMeasurableCharacterRanges ()
+static void
+test_setStringFormatMeasurableCharacterRanges ()
 {
 	GpStatus status;
 	GpStringFormat *format;
@@ -956,7 +979,7 @@ static void test_setStringFormatMeasurableCharacterRanges ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

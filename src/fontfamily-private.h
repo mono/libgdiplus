@@ -39,12 +39,12 @@
 
 struct _FontFamily {
 	struct _FontCollection *collection;
-	FcPattern*	pattern;
-	BOOL		allocated;
-	short 		height;
-	short 		linespacing;
-	short		celldescent;
-	short		cellascent;
+	FcPattern *pattern;
+	BOOL allocated;
+	short height;
+	short linespacing;
+	short celldescent;
+	short cellascent;
 };
 
 #include "fontfamily.h"

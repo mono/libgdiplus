@@ -56,17 +56,17 @@ typedef struct {
 } ColorMatrix;
 
 typedef struct {
-        int X, Y;
+	int X, Y;
 } Point, GpPoint;
 
 typedef struct {
-        float X, Y;
+	float X, Y;
 } PointF, GpPointF;
 
 typedef struct {
-        int Count;
-        PointF *Points;
-        BYTE *Types;
+	int Count;
+	PointF *Points;
+	BYTE *Types;
 } PathData, GpPathData;
 
 typedef struct {
@@ -82,6 +82,6 @@ typedef BOOL (*ImageAbort) (void *);
 typedef ImageAbort DrawImageAbort;
 typedef ImageAbort GetThumbnailImageAbort;
 
-typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE*, VOID*);
+typedef BOOL (*EnumerateMetafileProc) (EmfPlusRecordType, UINT, UINT, const BYTE *, VOID *);
 
 #endif

@@ -10,10 +10,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,28 +22,27 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 #include "graphics-private.h"
 #include "graphics-cairo-private.h"
 
 #include <cairo-features.h>
 
-#define	NO_CAIRO_AA
+#define NO_CAIRO_AA
 
 #define MAX_GRAPHICS_STATE_STACK 512
 
-#define SRCCOPY             (DWORD)0x00CC0020
+#define SRCCOPY (DWORD) 0x00CC0020
 
 BOOL
 BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc, int nXSrc, int nYSrc, DWORD dwRop)
 {
 	if (dwRop != SRCCOPY)
 		return FALSE;
-	GpGraphics *src = (GpGraphics *) hdcSrc;
+	GpGraphics *src  = (GpGraphics *) hdcSrc;
 	GpGraphics *dest = (GpGraphics *) hdcDest;
 
-	cairo_t *cr = dest->ct;
-	cairo_surface_t *src_surface = cairo_get_target(src->ct);
+	cairo_t *cr		     = dest->ct;
+	cairo_surface_t *src_surface = cairo_get_target (src->ct);
 
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 	cairo_set_source_surface (cr, src_surface, nXDest - nXSrc, nYDest - nYSrc);
@@ -52,4 +51,3 @@ BitBlt (HDC hdcDest, int nXDest, int nYDest, int nWidth, int nHeight, HDC hdcSrc
 
 	return TRUE;
 }
-

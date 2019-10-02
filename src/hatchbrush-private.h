@@ -40,19 +40,19 @@
 #define HATCH_SIZE 7
 #define LINE_WIDTH 1
 
-#define gdip_hatch_get_width(hbr)	(hatches_const[hbr->hatchStyle][0])
-#define gdip_hatch_get_height(hbr)	(hatches_const[hbr->hatchStyle][1])
-#define gdip_hatch_get_line_width(hbr)	(hatches_const[hbr->hatchStyle][2])
+#define gdip_hatch_get_width(hbr) (hatches_const[hbr->hatchStyle][0])
+#define gdip_hatch_get_height(hbr) (hatches_const[hbr->hatchStyle][1])
+#define gdip_hatch_get_line_width(hbr) (hatches_const[hbr->hatchStyle][2])
 
-#define gdip_cairo_pixel(ct,x,y)	cairo_rectangle (ct, x, y, 1, 1)
+#define gdip_cairo_pixel(ct, x, y) cairo_rectangle (ct, x, y, 1, 1)
 
 typedef struct _Hatch {
-	GpBrush		base;
-	GpHatchStyle	hatchStyle;
-	ARGB		foreColor;
-	ARGB		backColor;
-	cairo_pattern_t	*pattern;
-	BOOL		alpha;
+	GpBrush base;
+	GpHatchStyle hatchStyle;
+	ARGB foreColor;
+	ARGB backColor;
+	cairo_pattern_t *pattern;
+	BOOL alpha;
 } Hatch;
 
 #include "hatchbrush.h"

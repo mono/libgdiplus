@@ -20,8 +20,8 @@ GpStatus gdip_load_jpeg_image_from_stream_delegate (dstream_t *loader, GpImage *
 
 GpStatus gdip_save_jpeg_image_to_file (FILE *fp, GpImage *image, GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
-GpStatus gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image, 
-	GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
+GpStatus gdip_save_jpeg_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image,
+						  GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
 ImageCodecInfo *gdip_getcodecinfo_jpeg () GDIP_INTERNAL;
 

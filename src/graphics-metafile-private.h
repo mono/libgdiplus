@@ -26,17 +26,17 @@
 #include "gdiplus-private.h"
 #include "matrix-private.h"
 
-GpStatus metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
-	float sweepAngle) GDIP_INTERNAL;
+GpStatus metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle,
+			   float sweepAngle) GDIP_INTERNAL;
 
 GpStatus metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
 
-GpStatus metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, 
-	float tension) GDIP_INTERNAL;
-GpStatus metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	float tension, GpFillMode fillMode) GDIP_INTERNAL;
-GpStatus metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, 
-	int numOfSegments, float tension) GDIP_INTERNAL;
+GpStatus metafile_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count,
+				    float tension) GDIP_INTERNAL;
+GpStatus metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count,
+				    float tension, GpFillMode fillMode) GDIP_INTERNAL;
+GpStatus metafile_DrawCurve3 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, int offset,
+			      int numOfSegments, float tension) GDIP_INTERNAL;
 
 GpStatus metafile_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height) GDIP_INTERNAL;
 GpStatus metafile_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height) GDIP_INTERNAL;
@@ -50,14 +50,14 @@ GpStatus metafile_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONS
 GpStatus metafile_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path) GDIP_INTERNAL;
 GpStatus metafile_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path) GDIP_INTERNAL;
 
-GpStatus metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
-GpStatus metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
+GpStatus metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height,
+			   float startAngle, float sweepAngle) GDIP_INTERNAL;
+GpStatus metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height,
+			   float startAngle, float sweepAngle) GDIP_INTERNAL;
 
 GpStatus metafile_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
-GpStatus metafile_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	FillMode fillMode) GDIP_INTERNAL;
+GpStatus metafile_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count,
+			       FillMode fillMode) GDIP_INTERNAL;
 
 GpStatus metafile_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region) GDIP_INTERNAL;
 
@@ -74,8 +74,8 @@ GpStatus metafile_SetTextRenderingHint (GpGraphics *graphics, TextRenderingHint 
 
 GpStatus metafile_ResetClip (GpGraphics *graphics) GDIP_INTERNAL;
 GpStatus metafile_SetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode) GDIP_INTERNAL;
-GpStatus metafile_SetClipRect (GpGraphics *graphics, float x, float y, float width, float height, 
-	CombineMode combineMode) GDIP_INTERNAL;
+GpStatus metafile_SetClipRect (GpGraphics *graphics, float x, float y, float width, float height,
+			       CombineMode combineMode) GDIP_INTERNAL;
 GpStatus metafile_SetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMode) GDIP_INTERNAL;
 GpStatus metafile_TranslateClip (GpGraphics *graphics, float dx, float dy) GDIP_INTERNAL;
 

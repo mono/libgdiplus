@@ -28,14 +28,14 @@
 
 /* internal (private) API for regions path trees */
 
-#define REGION_TAG_PATH		1
-#define REGION_TAG_TREE		2
+#define REGION_TAG_PATH 1
+#define REGION_TAG_TREE 2
 
 typedef struct GpPathTree {
-	CombineMode		mode;
-	GpPath*			path;
-	struct GpPathTree*	branch1;
-	struct GpPathTree*	branch2;
+	CombineMode mode;
+	GpPath *path;
+	struct GpPathTree *branch1;
+	struct GpPathTree *branch2;
 } GpPathTree;
 
 void gdip_region_clear_tree (GpPathTree *tree) GDIP_INTERNAL;

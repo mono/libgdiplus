@@ -26,15 +26,20 @@ using namespace DllExports;
 #include "../config.h"
 #endif
 
-#define ok(expected, ...) if (!(expected)) { printf(__VA_ARGS__); assert(expected); }
-#define expect(expected, got) ok((got) == (expected), "Expected %d, got %d\n", (INT)(expected), (INT)(got))
-#define expectf_(expected, got, precision) ok(fabs((expected) - (got)) <= (precision), "Expected %f, got %f\n", (expected), (got))
-#define expectf(expected, got) expectf_((expected), (got), 0.001)
+#define ok(expected, ...)             \
+	if (!(expected)) {            \
+		printf (__VA_ARGS__); \
+		assert (expected);    \
+	}
+#define expect(expected, got) ok ((got) == (expected), "Expected %d, got %d\n", (INT) (expected), (INT) (got))
+#define expectf_(expected, got, precision) ok (fabs ((expected) - (got)) <= (precision), "Expected %f, got %f\n", (expected), (got))
+#define expectf(expected, got) expectf_ ((expected), (got), 0.001)
 #define set_rect_empty(r) (r)->X = (r)->Y = (r)->Width = (r)->Height = 0
 
 #if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
 
-static void test_measure_string(void)
+static void
+test_measure_string (void)
 {
 	GpStringFormat *format;
 	GpImage *image;
@@ -43,10 +48,10 @@ static void test_measure_string(void)
 	GpFont *font;
 	GpStatus status;
 	GpRectF rect, bounds, saved_bounds;
-	const WCHAR teststring1[] = { 'M', '\n', '\n', 'M', 0 };
-	const WCHAR teststring2[] = { ' ', L'\u2003', ' ', 0 }; // Space, em space, space
-	const WCHAR teststring3[] = { L'\u2003', L'\u2003', L'\u2003', 0 }; // em spaces
-	const WCHAR teststringdots[] = { 't','h','i','s',' ','i','s',' ','r','e','a','l','l','y',' ','l','o','n','g',' ','t','e','x','t','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.','.',' ','w','i','t','h',' ','a',' ','l','o','t',' ','o',' ','p','e','r','i','o','d','s','.' };
+	const WCHAR teststring1[]    = {'M', '\n', '\n', 'M', 0};
+	const WCHAR teststring2[]    = {' ', L'\u2003', ' ', 0};	     // Space, em space, space
+	const WCHAR teststring3[]    = {L'\u2003', L'\u2003', L'\u2003', 0}; // em spaces
+	const WCHAR teststringdots[] = {'t', 'h', 'i', 's', ' ', 'i', 's', ' ', 'r', 'e', 'a', 'l', 'l', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 't', 'e', 'x', 't', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', ' ', 'w', 'i', 't', 'h', ' ', 'a', ' ', 'l', 'o', 't', ' ', 'o', ' ', 'p', 'e', 'r', 'i', 'o', 'd', 's', '.'};
 	int glyphs;
 	int lines;
 	const SHORT fontSize = 10;
@@ -63,9 +68,9 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	ok (graphics != NULL, "Expected graphics to be initialized\n");
 
-	rect.X = 5.0;
-	rect.Y = 5.0;
-	rect.Width = 200.0;
+	rect.X      = 5.0;
+	rect.Y      = 5.0;
+	rect.Width  = 200.0;
 	rect.Height = 200.0;
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, &glyphs, &lines);
@@ -106,7 +111,7 @@ static void test_measure_string(void)
 	expect (1, lines);
 
 	// Try again with StringFormatFlagsLineLimit set. Should still fit.
-	status = GdipSetStringFormatFlags(format, StringFormatFlagsLineLimit);
+	status = GdipSetStringFormatFlags (format, StringFormatFlagsLineLimit);
 	expect (Ok, status);
 	set_rect_empty (&bounds);
 	status = GdipMeasureString (graphics, teststring1, 2, font, &rect, format, &bounds, &glyphs, &lines);
@@ -136,7 +141,7 @@ static void test_measure_string(void)
 	expect (0, lines);
 
 	// Clear LineLimit flag
-	status = GdipSetStringFormatFlags(format, 0);
+	status = GdipSetStringFormatFlags (format, 0);
 	expect (Ok, status);
 
 	// Without LineLimit, it should fit the line successfully.
@@ -155,7 +160,7 @@ static void test_measure_string(void)
 	expect (1, lines);
 
 	// Set rect large again.
-	rect.Width = 200.0;
+	rect.Width  = 200.0;
 	rect.Height = 200.0;
 
 	// Use the Generic Typographic string format for below, to prevent Windows adding extra space.
@@ -169,7 +174,7 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	expect (3, glyphs); // Should be reported despite being trimmed
 	expect (1, lines);
-	expectf_(fontSize * 0.4, bounds.Width, fontSize * 0.3); // neither the expected value nor the precision is particularly accurate, but should be OK.
+	expectf_ (fontSize * 0.4, bounds.Width, fontSize * 0.3); // neither the expected value nor the precision is particularly accurate, but should be OK.
 
 	// Check measuring a string with only whitespace, that starts with non-space whitespace
 	set_rect_empty (&bounds);
@@ -177,7 +182,7 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	expect (3, glyphs); // Should be reported despite being trimmed
 	expect (1, lines);
-	expectf ((double)fontSize, bounds.Width); // An em-space should be the same width as the font size.
+	expectf ((double) fontSize, bounds.Width); // An em-space should be the same width as the font size.
 
 	// MonoTests.System.Drawing.GraphicsTest.MeasureString_Wrapping_Dots
 	GdipDeleteStringFormat (format);
@@ -185,9 +190,9 @@ static void test_measure_string(void)
 	expect (Ok, status);
 	GdipSetStringFormatAlign (format, StringAlignmentCenter);
 	set_rect_empty (&rect);
-	rect.Width = 80;
+	rect.Width  = 80;
 	rect.Height = 10000;
-	status = GdipMeasureString (graphics, teststringdots, sizeof(teststringdots) / sizeof(teststringdots[0]), font, &rect, format, &bounds, &glyphs, &lines);
+	status      = GdipMeasureString (graphics, teststringdots, sizeof (teststringdots) / sizeof (teststringdots[0]), font, &rect, format, &bounds, &glyphs, &lines);
 	expect (Ok, status);
 	ok (bounds.Width <= 80, "GdipMeasureString is overstepping boundaries (%f <= 80)\n", bounds.Width);
 
@@ -200,7 +205,8 @@ static void test_measure_string(void)
 
 #endif
 
-static void test_measure_string_alignment(void)
+static void
+test_measure_string_alignment (void)
 {
 	GpStringFormat *format;
 	GpImage *image;
@@ -210,11 +216,10 @@ static void test_measure_string_alignment(void)
 	GpStatus status;
 	GpRectF rect, bounds;
 	GpRegion *region;
-	const WCHAR teststring1[] = { 'M', 0 };
+	const WCHAR teststring1[] = {'M', 0};
 	INT i;
-	static const CharacterRange character_range = { 0, 1 };
-	static const struct test_data
-	{
+	static const CharacterRange character_range = {0, 1};
+	static const struct test_data {
 		INT flags;
 		StringAlignment alignment, line_alignment;
 		REAL x_xx, x_x0;
@@ -222,38 +227,36 @@ static void test_measure_string_alignment(void)
 		REAL right_xx, right_x0;
 		REAL bottom_yy, bottom_y0;
 	} td[] =
-	{
-		{ 0, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0 },
-		{ 0, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0 },
-		{ 0, StringAlignmentFar, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, 1.0, 0 },
-		{ 0, StringAlignmentNear, StringAlignmentCenter, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50 },
-		{ 0, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
-		{ 0, StringAlignmentFar, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
-		{ 0, StringAlignmentNear, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100 },
-		{ 0, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
-		{ 0, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
+	    {
+		{0, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0},
+		{0, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0},
+		{0, StringAlignmentFar, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, 1.0, 0},
+		{0, StringAlignmentNear, StringAlignmentCenter, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50},
+		{0, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50},
+		{0, StringAlignmentFar, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50},
+		{0, StringAlignmentNear, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100},
+		{0, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100},
+		{0, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100},
 
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentCenter, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentFar, -1.0, 200, 0, 0, 0, 200, 1.0, 0 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentNear, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentFar, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentNear, 0, 0, -1.0, 100, 1.0, 0, 0, 100 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentCenter, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
-		{ StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
+		{StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0},
+		{StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentCenter, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0},
+		{StringFormatFlagsDirectionVertical, StringAlignmentNear, StringAlignmentFar, -1.0, 200, 0, 0, 0, 200, 1.0, 0},
+		{StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentNear, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50},
+		{StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50},
+		{StringFormatFlagsDirectionVertical, StringAlignmentCenter, StringAlignmentFar, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50},
+		{StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentNear, 0, 0, -1.0, 100, 1.0, 0, 0, 100},
+		{StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentCenter, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100},
+		{StringFormatFlagsDirectionVertical, StringAlignmentFar, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100},
 
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, 1.0, 0 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentCenter, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 }
-	};
-
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentNear, 0, 0, 0, 0, 1.0, 0, 1.0, 0},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentNear, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentNear, -1.0, 200, 0, 0, 0, 200, 1.0, 0},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentCenter, 0, 0, -0.5, 50, 1.0, 0, 0.5, 50},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100},
+		{StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100}};
 
 	status = GdipCreateStringFormat (0, 0, &format);
 	expect (Ok, status);
@@ -271,14 +274,14 @@ static void test_measure_string_alignment(void)
 
 	GdipSetStringFormatMeasurableCharacterRanges (format, 1, &character_range);
 
-	for (i = 0; i < sizeof(td) / sizeof(td[0]); i++) {
+	for (i = 0; i < sizeof (td) / sizeof (td[0]); i++) {
 		GdipSetStringFormatFlags (format, td[i].flags);
 		GdipSetStringFormatAlign (format, td[i].alignment);
 		GdipSetStringFormatLineAlign (format, td[i].line_alignment);
 
-		rect.X = 5.0;
-		rect.Y = 10.0;
-		rect.Width = 200.0;
+		rect.X      = 5.0;
+		rect.Y      = 10.0;
+		rect.Width  = 200.0;
 		rect.Height = 100.0;
 		set_rect_empty (&bounds);
 		status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
@@ -307,7 +310,7 @@ static void test_measure_string_alignment(void)
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

@@ -36,19 +36,19 @@
  */
 
 /* coverity[+alloc : arg-*5] */
-GpStatus 
-GdipGetPostScriptGraphicsContext (char* filename, int width, int height, double dpix, double dpiy, GpGraphics **graphics)
+GpStatus
+GdipGetPostScriptGraphicsContext (char *filename, int width, int height, double dpix, double dpiy, GpGraphics **graphics)
 {
 	GpGraphics *gfx;
 	cairo_surface_t *surface;
-	
+
 	if (!graphics)
 		return InvalidParameter;
 
 	surface = cairo_ps_surface_create (filename, (double) width, (double) height);
 	cairo_surface_set_fallback_resolution (surface, dpix, dpiy);
 
-	gfx = gdip_graphics_new (surface);
+	gfx	= gdip_graphics_new (surface);
 	gfx->dpi_x = dpix;
 	gfx->dpi_y = dpiy;
 	cairo_surface_destroy (surface);
@@ -58,8 +58,8 @@ GdipGetPostScriptGraphicsContext (char* filename, int width, int height, double 
 	return Ok;
 }
 
-GpStatus 
-GdipGetPostScriptSavePage (GpGraphics* graphics) 
+GpStatus
+GdipGetPostScriptSavePage (GpGraphics *graphics)
 {
 	if (!graphics)
 		return InvalidParameter;

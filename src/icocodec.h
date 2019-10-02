@@ -29,17 +29,17 @@
 /* Information about the icon format can be found @ http://www.daubnet.com/formats/ICO.html */
 
 typedef struct {
-	BYTE	bWidth;
-	BYTE	bHeight;
-	BYTE	bColorCount;
-	BYTE	bReserved;
-	WORD	wPlanes;
-	WORD	wBitCount;
-	DWORD	dwBytesInRes;
-	DWORD	dwImageOffset;
+	BYTE bWidth;
+	BYTE bHeight;
+	BYTE bColorCount;
+	BYTE bReserved;
+	WORD wPlanes;
+	WORD wBitCount;
+	DWORD dwBytesInRes;
+	DWORD dwImageOffset;
 } ICONDIRENTRY;
 
-#define gdip_read_ico_data	gdip_read_bmp_data
+#define gdip_read_ico_data gdip_read_bmp_data
 
 GpStatus gdip_load_ico_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
@@ -47,6 +47,6 @@ GpStatus gdip_load_ico_image_from_stream_delegate (dstream_t *loader, GpImage **
 
 /* no save functions as the ICO "codec" is a decoder only */
 
-ImageCodecInfo* gdip_getcodecinfo_ico () GDIP_INTERNAL;
+ImageCodecInfo *gdip_getcodecinfo_ico () GDIP_INTERNAL;
 
 #endif

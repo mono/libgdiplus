@@ -37,10 +37,9 @@
  * temporary, ARGB32 bitmap (32 times bigger, i.e. 8MB) may be allocated when 
  * converting the path into the region bitmap.
  */
-#define REGION_MAX_BITMAP_SIZE		(2 * 1024 * 1024 >> 3)
+#define REGION_MAX_BITMAP_SIZE (2 * 1024 * 1024 >> 3)
 
-#define SHAPE_SIZE(shape)		(((shape)->Width * (shape)->Height) >> 3)
-
+#define SHAPE_SIZE(shape) (((shape)->Width * (shape)->Height) >> 3)
 
 typedef struct {
 	int X;
@@ -51,10 +50,9 @@ typedef struct {
 	BOOL reduced;
 } GpRegionBitmap;
 
-
 void gdip_region_bitmap_ensure (GpRegion *region) GDIP_INTERNAL;
-GpRegionBitmap* gdip_region_bitmap_from_path (GpPath *path) GDIP_INTERNAL;
-GpRegionBitmap* gdip_region_bitmap_clone (GpRegionBitmap *bitmap) GDIP_INTERNAL;
+GpRegionBitmap *gdip_region_bitmap_from_path (GpPath *path) GDIP_INTERNAL;
+GpRegionBitmap *gdip_region_bitmap_clone (GpRegionBitmap *bitmap) GDIP_INTERNAL;
 
 void gdip_region_bitmap_free (GpRegionBitmap *bitmap) GDIP_INTERNAL;
 void gdip_region_bitmap_invalidate (GpRegion *region) GDIP_INTERNAL;
@@ -70,6 +68,6 @@ void gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink) GDIP
 
 cairo_surface_t *gdip_region_bitmap_to_cairo_surface (GpRegionBitmap *bitmap) GDIP_INTERNAL;
 
-GpRegionBitmap* gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode) GDIP_INTERNAL;
+GpRegionBitmap *gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, CombineMode combineMode) GDIP_INTERNAL;
 
 #endif

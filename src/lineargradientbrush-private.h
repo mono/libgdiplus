@@ -39,21 +39,21 @@
 #include "brush-private.h"
 #include "matrix-private.h"
 
-#define DEFAULT_GRADIENT_ANGLE	45.0f
+#define DEFAULT_GRADIENT_ANGLE 45.0f
 
 typedef struct _LineGradient {
-	GpBrush			base;
-	ARGB			lineColors [2];
-	GpPointF		points [2];
-	GpRectF			rectangle;
-	GpMatrix		matrix;
-	GpWrapMode		wrapMode;
-	float			angle;
-	Blend			*blend;
-	InterpolationColors	*presetColors;
-	cairo_pattern_t		*pattern;
-	BOOL			isAngleScalable;
-	BOOL			gammaCorrection; /* FIXME: Not used */
+	GpBrush base;
+	ARGB lineColors[2];
+	GpPointF points[2];
+	GpRectF rectangle;
+	GpMatrix matrix;
+	GpWrapMode wrapMode;
+	float angle;
+	Blend *blend;
+	InterpolationColors *presetColors;
+	cairo_pattern_t *pattern;
+	BOOL isAngleScalable;
+	BOOL gammaCorrection; /* FIXME: Not used */
 } LineGradient;
 
 #include "lineargradientbrush.h"

@@ -37,27 +37,26 @@
 #include "stringformat-private.h"
 
 #define PANGO_MAX (G_MAXINT / PANGO_SCALE)
-#define MAKE_SAFE_FOR_PANGO(x)	((x) == G_MAXINT32 ? 0 :((x) > G_MAXINT/PANGO_SCALE ? G_MAXINT/PANGO_SCALE : ((x) < G_MININT/PANGO_SCALE ? G_MININT/PANGO_SCALE : (x))))
+#define MAKE_SAFE_FOR_PANGO(x) ((x) == G_MAXINT32 ? 0 : ((x) > G_MAXINT / PANGO_SCALE ? G_MAXINT / PANGO_SCALE : ((x) < G_MININT / PANGO_SCALE ? G_MININT / PANGO_SCALE : (x))))
 
-#define	GDIP_WINDOWS_ACCELERATOR	'&'
+#define GDIP_WINDOWS_ACCELERATOR '&'
 
-#define text_DrawString			pango_DrawString
-#define text_MeasureString		pango_MeasureString
-#define text_MeasureCharacterRanges	pango_MeasureCharacterRanges
+#define text_DrawString pango_DrawString
+#define text_MeasureString pango_MeasureString
+#define text_MeasureCharacterRanges pango_MeasureCharacterRanges
 
-
-PangoLayout* gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, INT **charsRemoved);
+PangoLayout *gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
+				      GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, INT **charsRemoved);
 
 GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
+			   GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 
 GpStatus pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
-	GDIP_INTERNAL;
+			      GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
+    GDIP_INTERNAL;
 
 GpStatus pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions) GDIP_INTERNAL;
+				       GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif
 

@@ -38,22 +38,22 @@
 #include "gdiplus-private.h"
 
 #ifdef USE_PANGO_RENDERING
-	#include <pango/pangofc-font.h>
-	#include <pango/pangofc-fontmap.h>
-	#include <pango/pangocairo.h>
+#include <pango/pangofc-font.h>
+#include <pango/pangofc-fontmap.h>
+#include <pango/pangocairo.h>
 #endif
 
 struct _Font {
-	float			sizeInPixels;
-	FontStyle		style;
-	unsigned char*		face;
-	GpFontFamily		*family;
-	float			emSize;
-	GpUnit			unit;
+	float sizeInPixels;
+	FontStyle style;
+	unsigned char *face;
+	GpFontFamily *family;
+	float emSize;
+	GpUnit unit;
 #ifdef USE_PANGO_RENDERING
-	PangoFontDescription	*pango;
+	PangoFontDescription *pango;
 #else
-	cairo_font_face_t	*cairofnt;
+	cairo_font_face_t *cairofnt;
 #endif
 };
 
@@ -63,11 +63,11 @@ void gdip_delete_system_fonts (void) GDIP_INTERNAL;
 
 #ifdef USE_PANGO_RENDERING
 
-PangoFontDescription* gdip_get_pango_font_description (GpFont *font);
+PangoFontDescription *gdip_get_pango_font_description (GpFont *font);
 
 #else
 
-cairo_font_face_t* gdip_get_cairo_font_face (GpFont *font);
+cairo_font_face_t *gdip_get_cairo_font_face (GpFont *font);
 
 #endif
 

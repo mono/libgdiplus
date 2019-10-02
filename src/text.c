@@ -28,9 +28,9 @@
 #include "gdiplus-private.h"
 
 #ifdef USE_PANGO_RENDERING
-	#include "text-pango-private.h"
+#include "text-pango-private.h"
 #else
-	#include "text-cairo-private.h"
+#include "text-cairo-private.h"
 #endif
 
 #include "text-metafile-private.h"
@@ -41,14 +41,14 @@
 
 GpStatus WINGDIPAPI
 GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
-	GDIPCONST GpStringFormat *stringFormat, GpBrush *brush)
+		GDIPCONST GpStringFormat *stringFormat, GpBrush *brush)
 {
 	GDIPCONST WCHAR *ptr = NULL;
 
 	if (length == 0) {
 		return Ok;
 	} else if (length == -1) {
-		ptr = string;
+		ptr    = string;
 		length = 0;
 		while (*ptr != 0) {
 			length++;
@@ -71,7 +71,7 @@ GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPC
 
 GpStatus WINGDIPAPI
 GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font, GDIPCONST RectF *layoutRect,
-	GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
+		   GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
 {
 	GDIPCONST WCHAR *ptr = NULL;
 
@@ -84,7 +84,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GD
 				boundingBox->X = 0;
 				boundingBox->Y = 0;
 			}
-			boundingBox->Width = 0;
+			boundingBox->Width  = 0;
 			boundingBox->Height = 0;
 		}
 		if (linesFilled) {
@@ -95,7 +95,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GD
 		}
 		return Ok;
 	} else if (length == -1) {
-		ptr = string;
+		ptr    = string;
 		length = 0;
 		while (*ptr != 0) {
 			length++;
@@ -111,7 +111,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GD
 	/* a metafile-based graphics returns the correct measures but doesn't record anything */
 	case GraphicsBackEndMetafile:
 		return text_MeasureString (graphics, string, length, font, layoutRect, stringFormat, boundingBox,
-			codepointsFitted, linesFilled);
+					   codepointsFitted, linesFilled);
 	default:
 		return GenericError;
 	}
@@ -119,7 +119,7 @@ GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GD
 
 GpStatus WINGDIPAPI
 GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font,
-	GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, INT regionCount, GpRegion **regions)
+			    GDIPCONST GpRectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, INT regionCount, GpRegion **regions)
 {
 	/* note: a NULL format is invalid */
 	if (!graphics || !string || (length == 0) || !font || !layoutRect || !stringFormat || !regions)
@@ -140,7 +140,7 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, INT l
 	/* a metafile-based graphics returns the correct measures but doesn't record anything */
 	case GraphicsBackEndMetafile:
 		return text_MeasureCharacterRanges (graphics, string, length, font, layoutRect, stringFormat, regionCount,
-			regions);
+						    regions);
 	default:
 		return GenericError;
 	}
@@ -148,14 +148,14 @@ GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, INT l
 
 GpStatus WINGDIPAPI
 GdipDrawDriverString (GpGraphics *graphics, GDIPCONST UINT16 *text, INT length, GDIPCONST GpFont *font,
-	GDIPCONST GpBrush *brush, GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix)
+		      GDIPCONST GpBrush *brush, GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix)
 {
 	return NotImplemented;
 }
 
 GpStatus WINGDIPAPI
 GdipMeasureDriverString (GpGraphics *graphics, GDIPCONST UINT16 *text, INT length, GDIPCONST GpFont *font,
-	GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix, RectF *boundingBox)
+			 GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix, RectF *boundingBox)
 {
 	return NotImplemented;
 }
