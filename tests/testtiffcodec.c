@@ -25,29 +25,30 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.tif";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 't', 'i', 'f', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 't', 'i', 'f', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
- \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, width, height, flags, propertyCount) \
-{ \
-	createFile (buffer, Ok); \
-	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, width, height, flags, propertyCount, TRUE); \
-	GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, width, height, flags, propertyCount)                                              \
+	{                                                                                                           \
+		createFile (buffer, Ok);                                                                            \
+		verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, width, height, flags, propertyCount, TRUE); \
+		GdipDisposeImage (image);                                                                           \
+	}
 
-static void test_valid ()
+static void
+test_valid ()
 {
 	// clang-format off
 	BYTE validData24bpp[] = {
@@ -125,7 +126,8 @@ static void test_valid ()
 	createFileSuccess (invalidNextIFDOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
 }
 
-static void test_units ()
+static void
+test_units ()
 {
 	// clang-format off
 	BYTE invalidXResolutionOffset[] = {
@@ -284,7 +286,8 @@ static void test_units ()
 	createFileSuccess (noYResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 13);
 }
 
-static void test_validGdiplus ()
+static void
+test_validGdiplus ()
 {
 	// clang-format off
 	BYTE missingBitsPerSampleTag[] = {
@@ -430,7 +433,8 @@ static void test_validGdiplus ()
 #endif
 }
 
-static void test_invalidHeader ()
+static void
+test_invalidHeader ()
 {
 	// clang-format off
 	BYTE noVersionNumberLE[]    = {0x49, 0x49};
@@ -531,7 +535,8 @@ static void test_invalidHeader ()
 	createFile (invalidOffsetLE, OutOfMemory);
 }
 
-static void test_invalidFileDirectory ()
+static void
+test_invalidFileDirectory ()
 {
 	// clang-format off
 	BYTE noNumberOfEntriesLE[] = {
@@ -619,7 +624,8 @@ static void test_invalidFileDirectory ()
 #endif
 }
 
-static void test_invalidTag ()
+static void
+test_invalidTag ()
 {
 	// clang-format off
 	BYTE noTagIdLE[] = {
@@ -746,7 +752,8 @@ static void test_invalidTag ()
 	createFile (invalidDataOffsetLE, OutOfMemory);
 }
 
-static void test_missingTag ()
+static void
+test_missingTag ()
 {
 	// clang-format off
 	BYTE missingImageWidthTag[] = {
@@ -828,7 +835,8 @@ static void test_missingTag ()
 	createFile (missingStripOffsetsTag, OutOfMemory);
 }
 
-static void test_invalidSpecificTag ()
+static void
+test_invalidSpecificTag ()
 {
 	// clang-format off
 	BYTE zeroImageWidth[] = {
@@ -966,7 +974,7 @@ static void test_invalidSpecificTag ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

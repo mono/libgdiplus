@@ -26,7 +26,8 @@ using namespace DllExports;
 #include <wchar.h>
 #include "testhelpers.h"
 
-static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL expectedWidth, BOOL expectedIsFilled)
+static void
+verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL expectedWidth, BOOL expectedIsFilled)
 {
 	assert (cap && "Expected cap to be initialized.");
 
@@ -85,7 +86,8 @@ static void verifyArrowCap (GpAdjustableArrowCap *cap, REAL expectedHeight, REAL
 	assertEqualFloat (widthScale, 1);
 }
 
-static void test_createAdjustableArrowCap ()
+static void
+test_createAdjustableArrowCap ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -140,7 +142,8 @@ static void test_createAdjustableArrowCap ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_cloneAdjustableArrowCap ()
+static void
+test_cloneAdjustableArrowCap ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -167,7 +170,8 @@ static void test_cloneAdjustableArrowCap ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_deleteAdjustableArrowCap ()
+static void
+test_deleteAdjustableArrowCap ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -182,7 +186,8 @@ static void test_deleteAdjustableArrowCap ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_setAdjustableArrowCapHeight ()
+static void
+test_setAdjustableArrowCapHeight ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -267,7 +272,8 @@ static void test_setAdjustableArrowCapHeight ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_getAdjustableArrowCapHeight ()
+static void
+test_getAdjustableArrowCapHeight ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -285,7 +291,8 @@ static void test_getAdjustableArrowCapHeight ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_setAdjustableArrowCapWidth ()
+static void
+test_setAdjustableArrowCapWidth ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -369,7 +376,8 @@ static void test_setAdjustableArrowCapWidth ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_getAdjustableArrowCapWidth ()
+static void
+test_getAdjustableArrowCapWidth ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -387,7 +395,8 @@ static void test_getAdjustableArrowCapWidth ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_setAdjustableArrowCapMiddleInset ()
+static void
+test_setAdjustableArrowCapMiddleInset ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -476,7 +485,8 @@ static void test_setAdjustableArrowCapMiddleInset ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_getAdjustableArrowCapMiddleInset ()
+static void
+test_getAdjustableArrowCapMiddleInset ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -494,7 +504,8 @@ static void test_getAdjustableArrowCapMiddleInset ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_setAdjustableArrowCapFillState ()
+static void
+test_setAdjustableArrowCapFillState ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -549,7 +560,8 @@ static void test_setAdjustableArrowCapFillState ()
 	GdipDeleteCustomLineCap ((GpCustomLineCap *) cap);
 }
 
-static void test_getAdjustableArrowCapFillState ()
+static void
+test_getAdjustableArrowCapFillState ()
 {
 	GpStatus status;
 	GpAdjustableArrowCap *cap;
@@ -568,7 +580,7 @@ static void test_getAdjustableArrowCapFillState ()
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

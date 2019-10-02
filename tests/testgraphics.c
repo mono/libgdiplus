@@ -23,14 +23,15 @@ using namespace DllExports;
 #include <assert.h>
 #include "testhelpers.h"
 
-static GpGraphics *getImageGraphics (GpImage **image)
+static GpGraphics *
+getImageGraphics (GpImage **image)
 {
 	GpStatus status;
 	WCHAR *filePath;
 	GpGraphics *graphics;
 
 	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, image);
+	status   = GdipLoadImageFromFile (filePath, image);
 	assertEqualInt (status, Ok);
 
 	freeWchar (filePath);
@@ -42,26 +43,27 @@ static GpGraphics *getImageGraphics (GpImage **image)
 }
 
 #if defined(USE_WINDOWS_GDIPLUS)
-	HWND hwnd;
+HWND hwnd;
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK
+WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch(msg)
-	{
-		case WM_CLOSE:
-			DestroyWindow(hwnd);
+	switch (msg) {
+	case WM_CLOSE:
+		DestroyWindow (hwnd);
 		break;
-		case WM_DESTROY:
-			PostQuitMessage(0);
+	case WM_DESTROY:
+		PostQuitMessage (0);
 		break;
-		default:
-			return DefWindowProc(hwnd, msg, wParam, lParam);
+	default:
+		return DefWindowProc (hwnd, msg, wParam, lParam);
 	}
 	return 0;
 }
 #endif
 
-static void test_createFromHDC()
+static void
+test_createFromHDC ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -111,7 +113,7 @@ static void test_createFromHDC()
 
 		status = GdipCreateFromHDC (hdc, &graphics);
 		assertEqualInt (status, Ok);
-	
+
 		GdipGetRenderingOrigin (graphics, &x, &y);
 		assertEqualInt (10, x);
 		assertEqualInt (20, y);
@@ -132,7 +134,8 @@ static void test_createFromHDC()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_createFromHDC2()
+static void
+test_createFromHDC2 ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -167,7 +170,7 @@ static void test_createFromHDC2()
 	status = GdipGetTextRenderingHint (graphicsOriginal, &textRenderingHint);
 	assertEqualInt (status, Ok);
 	assertEqualInt (textRenderingHint, TextRenderingHintClearTypeGridFit);
-	
+
 #if defined(USE_WINDOWS_GDIPLUS)
 	{
 		HDC hdc;
@@ -182,7 +185,7 @@ static void test_createFromHDC2()
 
 		status = GdipCreateFromHDC2 (hdc, NULL, &graphics);
 		assertEqualInt (status, Ok);
-	
+
 		GdipGetRenderingOrigin (graphics, &x, &y);
 		assertEqualInt (10, x);
 		assertEqualInt (20, y);
@@ -203,7 +206,8 @@ static void test_createFromHDC2()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_createFromHWND()
+static void
+test_createFromHWND ()
 {
 	GpStatus status;
 	GpGraphics *graphics;
@@ -222,7 +226,7 @@ static void test_createFromHWND()
 	assert (graphics != NULL);
 
 	GdipDeleteGraphics (graphics);
-	
+
 	status = GdipCreateFromHWND (hwnd, &graphics);
 	assertEqualInt (status, Ok);
 	assert (graphics != NULL);
@@ -241,7 +245,8 @@ static void test_createFromHWND()
 #endif
 }
 
-static void test_createFromHWNDICM()
+static void
+test_createFromHWNDICM ()
 {
 	GpStatus status;
 	GpGraphics *graphics;
@@ -255,19 +260,20 @@ static void test_createFromHWNDICM()
 	status = GdipCreateFromHWNDICM (0, &graphics);
 	assertEqualInt (status, Ok);
 	assert (graphics != NULL);
-	
+
 	status = GdipCreateFromHWNDICM (hwnd, &graphics);
 	assertEqualInt (status, Ok);
 	assert (graphics != NULL);
 
 	GdipDeleteGraphics (graphics);
 #else
-  status = GdipCreateFromHWNDICM (0, &graphics);
+	status = GdipCreateFromHWNDICM (0, &graphics);
 	assertEqualInt (status, NotImplemented);
 #endif
 }
 
-static void test_hdc ()
+static void
+test_hdc ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -312,7 +318,8 @@ static void test_hdc ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_compositingMode ()
+static void
+test_compositingMode ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -320,9 +327,9 @@ static void test_compositingMode ()
 	CompositingMode mode;
 
 	graphics = getImageGraphics (&image);
-	
+
 	// Default get.
-	status = GdipGetCompositingMode(graphics, &mode);
+	status = GdipGetCompositingMode (graphics, &mode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, CompositingModeSourceOver);
 
@@ -330,7 +337,7 @@ static void test_compositingMode ()
 	status = GdipSetCompositingMode (graphics, CompositingModeSourceOver);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetCompositingMode(graphics, &mode);
+	status = GdipGetCompositingMode (graphics, &mode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, CompositingModeSourceOver);
 
@@ -338,7 +345,7 @@ static void test_compositingMode ()
 	status = GdipSetCompositingMode (graphics, CompositingModeSourceCopy);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetCompositingMode(graphics, &mode);
+	status = GdipGetCompositingMode (graphics, &mode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, CompositingModeSourceCopy);
 
@@ -346,7 +353,7 @@ static void test_compositingMode ()
 	status = GdipSetCompositingMode (graphics, (CompositingMode) (CompositingModeSourceCopy + 1));
 	assertEqualInt (status, Ok);
 
-	status = GdipGetCompositingMode(graphics, &mode);
+	status = GdipGetCompositingMode (graphics, &mode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, (CompositingMode) (CompositingModeSourceCopy + 1));
 
@@ -354,7 +361,7 @@ static void test_compositingMode ()
 	status = GdipSetCompositingMode (graphics, (CompositingMode) (CompositingModeSourceOver - 1));
 	assertEqualInt (status, Ok);
 
-	status = GdipGetCompositingMode(graphics, &mode);
+	status = GdipGetCompositingMode (graphics, &mode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (mode, (CompositingMode) (CompositingModeSourceOver - 1));
 
@@ -386,7 +393,8 @@ static void test_compositingMode ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_compositingQuality ()
+static void
+test_compositingQuality ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -394,7 +402,7 @@ static void test_compositingQuality ()
 	CompositingQuality quality;
 
 	graphics = getImageGraphics (&image);
-	
+
 	// Default get.
 	status = GdipGetCompositingQuality (graphics, &quality);
 	assertEqualInt (status, Ok);
@@ -465,7 +473,7 @@ static void test_compositingQuality ()
 	assertEqualInt (quality, (CompositingQuality) (CompositingQualityInvalid - 1));
 
 	// Negative tests.
-	status = GdipGetCompositingQuality(NULL, &quality);
+	status = GdipGetCompositingQuality (NULL, &quality);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipGetCompositingQuality (graphics, NULL);
@@ -483,7 +491,7 @@ static void test_compositingQuality ()
 	status = GdipGetCompositingQuality (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetCompositingQuality(graphics, CompositingQualityAssumeLinear);
+	status = GdipSetCompositingQuality (graphics, CompositingQualityAssumeLinear);
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -492,7 +500,8 @@ static void test_compositingQuality ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_renderingOrigin ()
+static void
+test_renderingOrigin ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -501,7 +510,7 @@ static void test_renderingOrigin ()
 	int y;
 
 	graphics = getImageGraphics (&image);
-	
+
 	// Default get.
 	status = GdipGetRenderingOrigin (graphics, &x, &y);
 	assertEqualInt (status, Ok);
@@ -545,19 +554,19 @@ static void test_renderingOrigin ()
 	status = GdipGetRenderingOrigin (graphics, &x, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetRenderingOrigin(NULL, 0, 0);
+	status = GdipSetRenderingOrigin (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
-	status = GdipGetRenderingOrigin(graphics, &x, &y);
+	status = GdipGetRenderingOrigin (graphics, &x, &y);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipGetRenderingOrigin(graphics, NULL, &y);
+	status = GdipGetRenderingOrigin (graphics, NULL, &y);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetRenderingOrigin(graphics, &x, NULL);
+	status = GdipGetRenderingOrigin (graphics, &x, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetRenderingOrigin (graphics, 1, 2);
@@ -569,7 +578,8 @@ static void test_renderingOrigin ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_textRenderingHint ()
+static void
+test_textRenderingHint ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -641,22 +651,22 @@ static void test_textRenderingHint ()
 	status = GdipSetTextRenderingHint (NULL, TextRenderingHintAntiAlias);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintClearTypeGridFit + 1));
+	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint) (TextRenderingHintClearTypeGridFit + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
 	GdipGetDC (graphics, &hdc);
 
-	status = GdipGetTextRenderingHint(graphics, &textRenderingHint);
+	status = GdipGetTextRenderingHint (graphics, &textRenderingHint);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipGetTextRenderingHint(graphics, NULL);
+	status = GdipGetTextRenderingHint (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextRenderingHint (graphics, TextRenderingHintClearTypeGridFit);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint)(TextRenderingHintClearTypeGridFit + 1));
+	status = GdipSetTextRenderingHint (graphics, (TextRenderingHint) (TextRenderingHintClearTypeGridFit + 1));
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -665,7 +675,8 @@ static void test_textRenderingHint ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_textContrast ()
+static void
+test_textContrast ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -702,7 +713,7 @@ static void test_textContrast ()
 	status = GdipGetTextContrast (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetTextContrast(NULL, 1);
+	status = GdipSetTextContrast (NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetTextContrast (graphics, -1);
@@ -732,7 +743,8 @@ static void test_textContrast ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_smoothingMode ()
+static void
+test_smoothingMode ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -755,10 +767,10 @@ static void test_smoothingMode ()
 	assertEqualInt (smoothingMode, SmoothingModeNone);
 
 	// HighSpeed -> None
-	status = GdipSetSmoothingMode(graphics, SmoothingModeHighSpeed);
+	status = GdipSetSmoothingMode (graphics, SmoothingModeHighSpeed);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetSmoothingMode(graphics, &smoothingMode);
+	status = GdipGetSmoothingMode (graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, SmoothingModeNone);
 
@@ -771,26 +783,26 @@ static void test_smoothingMode ()
 	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
 
 	// SmoothingModeNone.
-	status = GdipSetSmoothingMode(graphics, SmoothingModeNone);
+	status = GdipSetSmoothingMode (graphics, SmoothingModeNone);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetSmoothingMode(graphics, &smoothingMode);
+	status = GdipGetSmoothingMode (graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, SmoothingModeNone);
 
 	// SmoothingModeAntiAlias.
-	status = GdipSetSmoothingMode(graphics, SmoothingModeAntiAlias);
+	status = GdipSetSmoothingMode (graphics, SmoothingModeAntiAlias);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetSmoothingMode(graphics, &smoothingMode);
+	status = GdipGetSmoothingMode (graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, SmoothingModeAntiAlias);
 
 	// SmoothingModeAntiAlias8x8.
-	status = GdipSetSmoothingMode(graphics, (SmoothingMode) (SmoothingModeAntiAlias + 1));
+	status = GdipSetSmoothingMode (graphics, (SmoothingMode) (SmoothingModeAntiAlias + 1));
 	assertEqualInt (status, Ok);
 
-	status = GdipGetSmoothingMode(graphics, &smoothingMode);
+	status = GdipGetSmoothingMode (graphics, &smoothingMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (smoothingMode, (SmoothingMode) (SmoothingModeAntiAlias + 1));
 
@@ -837,7 +849,8 @@ static void test_smoothingMode ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_pixelOffsetMode ()
+static void
+test_pixelOffsetMode ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -860,10 +873,10 @@ static void test_pixelOffsetMode ()
 	assertEqualInt (pixelOffsetMode, PixelOffsetModeDefault);
 
 	// PixelOffsetModeHighSpeed.
-	status = GdipSetPixelOffsetMode(graphics, PixelOffsetModeHighSpeed);
+	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeHighSpeed);
 	assertEqualInt (status, Ok);
 
-	status = GdipGetPixelOffsetMode(graphics, &pixelOffsetMode);
+	status = GdipGetPixelOffsetMode (graphics, &pixelOffsetMode);
 	assertEqualInt (status, Ok);
 	assertEqualInt (pixelOffsetMode, PixelOffsetModeHighSpeed);
 
@@ -898,16 +911,16 @@ static void test_pixelOffsetMode ()
 	status = GdipGetPixelOffsetMode (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetPixelOffsetMode(NULL, PixelOffsetModeDefault);
+	status = GdipSetPixelOffsetMode (NULL, PixelOffsetModeDefault);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeInvalid);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeInvalid - 1));
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode) (PixelOffsetModeInvalid - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeHalf + 1));
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode) (PixelOffsetModeHalf + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
@@ -922,13 +935,13 @@ static void test_pixelOffsetMode ()
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeDefault);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeInvalid - 1));
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode) (PixelOffsetModeInvalid - 1));
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipSetPixelOffsetMode (graphics, PixelOffsetModeInvalid);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode)(PixelOffsetModeHalf + 1));
+	status = GdipSetPixelOffsetMode (graphics, (PixelOffsetMode) (PixelOffsetModeHalf + 1));
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -937,7 +950,8 @@ static void test_pixelOffsetMode ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_interpolationMode ()
+static void
+test_interpolationMode ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -960,7 +974,7 @@ static void test_interpolationMode ()
 	assertEqualInt (interpolationMode, InterpolationModeBilinear);
 
 	// LowQuality -> NearestNeighbor
-	status = GdipSetInterpolationMode(graphics, InterpolationModeLowQuality);
+	status = GdipSetInterpolationMode (graphics, InterpolationModeLowQuality);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetInterpolationMode (graphics, &interpolationMode);
@@ -1031,10 +1045,10 @@ static void test_interpolationMode ()
 	status = GdipSetInterpolationMode (graphics, InterpolationModeInvalid);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeInvalid - 1));
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode) (InterpolationModeInvalid - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeHighQualityBicubic + 1));
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode) (InterpolationModeHighQualityBicubic + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
@@ -1052,10 +1066,10 @@ static void test_interpolationMode ()
 	status = GdipSetInterpolationMode (graphics, InterpolationModeInvalid);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeInvalid - 1));
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode) (InterpolationModeInvalid - 1));
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipSetInterpolationMode (graphics, (InterpolationMode)(InterpolationModeHighQualityBicubic + 1));
+	status = GdipSetInterpolationMode (graphics, (InterpolationMode) (InterpolationModeHighQualityBicubic + 1));
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -1064,7 +1078,8 @@ static void test_interpolationMode ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_transform ()
+static void
+test_transform ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1083,7 +1098,7 @@ static void test_transform ()
 
 	status = GdipCreateMatrix2 (123, 24, 82, 16, 47, 30, &nonInvertibleMatrix);
 	assertEqualInt (status, Ok);
-	
+
 	// Default get.
 	status = GdipGetWorldTransform (graphics, matrix);
 	assertEqualInt (status, Ok);
@@ -1142,7 +1157,8 @@ static void test_transform ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_pageUnit ()
+static void
+test_pageUnit ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1209,14 +1225,14 @@ static void test_pageUnit ()
 	status = GdipSetPageUnit (NULL, UnitDisplay);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipSetPageUnit (graphics, (Unit)(UnitWorld - 1));
+	status = GdipSetPageUnit (graphics, (Unit) (UnitWorld - 1));
 	assertEqualInt (status, InvalidParameter);
 
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipSetPageUnit (graphics, (Unit)(UnitMillimeter + 1));
+	status = GdipSetPageUnit (graphics, (Unit) (UnitMillimeter + 1));
 	assertEqualInt (status, InvalidParameter);
 #else
-	status = GdipSetPageUnit (graphics, (Unit)(UnitCairoPoint + 1));
+	status = GdipSetPageUnit (graphics, (Unit) (UnitCairoPoint + 1));
 	assertEqualInt (status, InvalidParameter);
 #endif
 
@@ -1239,10 +1255,10 @@ static void test_pageUnit ()
 	assertEqualInt (status, ObjectBusy);
 
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipSetPageUnit (graphics, (Unit)(UnitMillimeter + 1));
+	status = GdipSetPageUnit (graphics, (Unit) (UnitMillimeter + 1));
 	assertEqualInt (status, ObjectBusy);
 #else
-	status = GdipSetPageUnit (graphics, (Unit)(UnitCairoPoint + 1));
+	status = GdipSetPageUnit (graphics, (Unit) (UnitCairoPoint + 1));
 	assertEqualInt (status, ObjectBusy);
 #endif
 
@@ -1252,7 +1268,8 @@ static void test_pageUnit ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_pageScale ()
+static void
+test_pageScale ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1328,7 +1345,8 @@ static void test_pageScale ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_dpiX ()
+static void
+test_dpiX ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1357,13 +1375,14 @@ static void test_dpiX ()
 	status = GdipGetDpiX (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	GdipReleaseDC(graphics, hdc);
+	GdipReleaseDC (graphics, hdc);
 
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_dpiY ()
+static void
+test_dpiY ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1384,7 +1403,7 @@ static void test_dpiY ()
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
-	GdipGetDC(graphics, &hdc);
+	GdipGetDC (graphics, &hdc);
 
 	status = GdipGetDpiY (graphics, &dpiY);
 	assertEqualInt (status, ObjectBusy);
@@ -1398,7 +1417,8 @@ static void test_dpiY ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_flush ()
+static void
+test_flush ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1412,10 +1432,10 @@ static void test_flush ()
 	status = GdipFlush (graphics, FlushIntentionSync);
 	assertEqualInt (status, Ok);
 
-	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionFlush - 1));
+	status = GdipFlush (graphics, (FlushIntention) (FlushIntentionFlush - 1));
 	assertEqualInt (status, Ok);
 
-	status = GdipFlush (graphics, (FlushIntention)(FlushIntentionSync + 1));
+	status = GdipFlush (graphics, (FlushIntention) (FlushIntentionSync + 1));
 	assertEqualInt (status, Ok);
 
 	// Negative tests.
@@ -1434,7 +1454,8 @@ static void test_flush ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_delete ()
+static void
+test_delete ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1459,7 +1480,8 @@ static void test_delete ()
 	GdipDisposeImage (image);
 }
 
-static void test_rotateWorldTransform ()
+static void
+test_rotateWorldTransform ()
 {
 	GpStatus status;
 	GpMatrix *transform;
@@ -1515,7 +1537,7 @@ static void test_rotateWorldTransform ()
 	// Negative tests.
 	status = GdipRotateWorldTransform (NULL, 0, MatrixOrderAppend);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipRotateWorldTransform (graphics, 0, (MatrixOrder) (MatrixOrderAppend + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1536,7 +1558,8 @@ static void test_rotateWorldTransform ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_resetClip ()
+static void
+test_resetClip ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1572,7 +1595,8 @@ static void test_resetClip ()
 	GdipDisposeImage (image);
 }
 
-static void test_getClip ()
+static void
+test_getClip ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1589,13 +1613,13 @@ static void test_getClip ()
 	// Default get - no transform.
 	status = GdipGetClip (graphics, clip);
 	assertEqualInt (status, Ok);
-	
+
 	GdipGetRegionBounds (clip, graphics, &bounds);
 	assertEqualFloat (bounds.X, -4194304);
 	assertEqualFloat (bounds.Y, -4194304);
 	assertEqualFloat (bounds.Width, 8388608);
 	assertEqualFloat (bounds.Height, 8388608);
-	
+
 	// Default get - translate transform.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 	status = GdipGetClip (graphics, clip);
@@ -1606,9 +1630,9 @@ static void test_getClip ()
 	assertEqualFloat (bounds.Y, -4194304);
 	assertEqualFloat (bounds.Width, 8388608);
 	assertEqualFloat (bounds.Height, 8388608);
-	
+
 	GdipResetWorldTransform (graphics);
-	
+
 	// Default get - complex transform.
 	GdipSetWorldTransform (graphics, transform);
 	status = GdipGetClip (graphics, clip);
@@ -1619,7 +1643,7 @@ static void test_getClip ()
 	assertEqualFloat (bounds.Y, -4194304);
 	assertEqualFloat (bounds.Width, 8388608);
 	assertEqualFloat (bounds.Height, 8388608);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - no transform.
@@ -1658,7 +1682,7 @@ static void test_getClip ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Custom clip - no transform.
@@ -1721,7 +1745,8 @@ static void test_getClip ()
 	GdipDeleteMatrix (transform);
 }
 
-static void test_getClipBounds ()
+static void
+test_getClipBounds ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1791,7 +1816,7 @@ static void test_getClipBounds ()
 	assertEqualFloat (bounds.Y, 20);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - complex transform.
@@ -1804,7 +1829,7 @@ static void test_getClipBounds ()
 	assertEqualFloat (bounds.Y, -2);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip rect - no transform.
@@ -1826,7 +1851,7 @@ static void test_getClipBounds ()
 	assertEqualFloat (bounds.Y, 20);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip rect - complex transform.
@@ -1839,7 +1864,7 @@ static void test_getClipBounds ()
 	assertEqualFloat (bounds.Y, -2);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Custom clip - no transform.
@@ -1900,7 +1925,8 @@ static void test_getClipBounds ()
 	GdipDeleteRegion (emptyRegion);
 }
 
-static void test_getClipBoundsI ()
+static void
+test_getClipBoundsI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1911,7 +1937,7 @@ static void test_getClipBoundsI ()
 
 	graphics = getImageGraphics (&image);
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &transform);
-	
+
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
@@ -1922,7 +1948,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Y, -4194304);
 	assertEqualInt (bounds.Width, 8388608);
 	assertEqualInt (bounds.Height, 8388608);
-	
+
 	// Default get - translate transform.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 	status = GdipGetClipBoundsI (graphics, &bounds);
@@ -1970,7 +1996,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Y, 20);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - complex transform.
@@ -1983,7 +2009,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Y, -2);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip rect - no transform.
@@ -2005,7 +2031,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Y, 20);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip rect - complex transform.
@@ -2018,7 +2044,7 @@ static void test_getClipBoundsI ()
 	assertEqualInt (bounds.Y, -2);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Custom clip - no transform.
@@ -2079,7 +2105,8 @@ static void test_getClipBoundsI ()
 	GdipDeleteRegion (emptyRegion);
 }
 
-static void test_getVisibleClipBounds ()
+static void
+test_getVisibleClipBounds ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2097,7 +2124,7 @@ static void test_getVisibleClipBounds ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 100);
 	assertEqualFloat (bounds.Height, 68);
-	
+
 	// Default get - translate transform.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 	status = GdipGetVisibleClipBounds (graphics, &bounds);
@@ -2178,7 +2205,7 @@ static void test_getVisibleClipBounds ()
 	assertEqualFloat (bounds.Y, 40);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Custom clip - complex transform.
@@ -2220,7 +2247,8 @@ static void test_getVisibleClipBounds ()
 	GdipDeleteMatrix (transform);
 }
 
-static void test_getVisibleClipBoundsI ()
+static void
+test_getVisibleClipBoundsI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2238,7 +2266,7 @@ static void test_getVisibleClipBoundsI ()
 	assertEqualInt (bounds.Y, 0);
 	assertEqualInt (bounds.Width, 100);
 	assertEqualInt (bounds.Height, 68);
-	
+
 	// Default get - translate transform.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
 	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
@@ -2249,7 +2277,7 @@ static void test_getVisibleClipBoundsI ()
 	assertEqualInt (bounds.Height, 68);
 
 	GdipResetWorldTransform (graphics);
-	
+
 	// Default get - complex transform.
 	GdipSetWorldTransform (graphics, transform);
 	status = GdipGetVisibleClipBoundsI (graphics, &bounds);
@@ -2283,7 +2311,7 @@ static void test_getVisibleClipBoundsI ()
 	assertEqualInt (bounds.Y, 20);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Empty clip - complex transform.
@@ -2296,7 +2324,7 @@ static void test_getVisibleClipBoundsI ()
 	assertEqualInt (bounds.Y, -2);
 	assertEqualInt (bounds.Width, 0);
 	assertEqualInt (bounds.Height, 0);
-	
+
 	GdipResetWorldTransform (graphics);
 
 	// Custom clip - no transform.
@@ -2358,7 +2386,8 @@ static void test_getVisibleClipBoundsI ()
 	GdipDeleteMatrix (transform);
 }
 
-static void test_isClipEmpty ()
+static void
+test_isClipEmpty ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2439,7 +2468,8 @@ static void test_isClipEmpty ()
 	GdipDisposeImage (image);
 }
 
-static void test_isVisibleClipEmpty ()
+static void
+test_isVisibleClipEmpty ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2520,7 +2550,8 @@ static void test_isVisibleClipEmpty ()
 	GdipDisposeImage (image);
 }
 
-static void test_setClipGraphics ()
+static void
+test_setClipGraphics ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2529,7 +2560,7 @@ static void test_setClipGraphics ()
 	GpRegion *clip;
 	GpRectF bounds;
 
-	graphics = getImageGraphics (&image);
+	graphics      = getImageGraphics (&image);
 	otherGraphics = getImageGraphics (&image);
 	GdipCreateRegion (&clip);
 
@@ -2544,7 +2575,7 @@ static void test_setClipGraphics ()
 	assertEqualFloat (bounds.X, 10);
 	assertEqualFloat (bounds.Y, 20);
 	assertEqualFloat (bounds.Width, 30);
-	assertEqualFloat (bounds.Height, 40);	
+	assertEqualFloat (bounds.Height, 40);
 
 	// Source graphics transformed.
 	GdipTranslateWorldTransform (graphics, -10, -20, MatrixOrderAppend);
@@ -2618,7 +2649,8 @@ static void test_setClipGraphics ()
 	GdipDisposeImage (image);
 }
 
-static void test_setClipHrgn ()
+static void
+test_setClipHrgn ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2627,7 +2659,7 @@ static void test_setClipHrgn ()
 	HRGN hrgn;
 	GpRectF bounds;
 
-	graphics = getImageGraphics (&image);
+	graphics     = getImageGraphics (&image);
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
 	GdipGetRegionHRgn (region, graphics, &hrgn);
@@ -2687,7 +2719,8 @@ static void test_setClipHrgn ()
 	GdipDeleteRegion (region);
 }
 
-static void test_setClipRect ()
+static void
+test_setClipRect ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2718,7 +2751,7 @@ static void test_setClipRect ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2736,7 +2769,7 @@ static void test_setClipRect ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -2747,14 +2780,14 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-	
+
 	// Zero width, positive height.
 	status = GdipSetClipRect (graphics, 10, 20, 0, 40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2765,14 +2798,14 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Zero width, zero height.
 	status = GdipSetClipRect (graphics, 10, 20, 0, 0, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2783,14 +2816,14 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Zero width, negative height.
 	status = GdipSetClipRect (graphics, 10, 20, 0, -40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2801,14 +2834,14 @@ static void test_setClipRect ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Negative width, positive height.
 	status = GdipSetClipRect (graphics, 10, 20, -30, 40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -2826,7 +2859,7 @@ static void test_setClipRect ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2844,7 +2877,7 @@ static void test_setClipRect ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -2893,7 +2926,8 @@ static void test_setClipRect ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_setClipRectI ()
+static void
+test_setClipRectI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2924,7 +2958,7 @@ static void test_setClipRectI ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2942,7 +2976,7 @@ static void test_setClipRectI ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -2953,14 +2987,14 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, -20);
 	assertEqualFloat (bounds.Width, 30);
 	assertEqualFloat (bounds.Height, 40);
-	
+
 	// Zero width, positive height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, 40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2971,14 +3005,14 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Zero width, zero height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, 0, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -2989,14 +3023,14 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Zero width, negative height.
 	status = GdipSetClipRectI (graphics, 10, 20, 0, -40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -3007,14 +3041,14 @@ static void test_setClipRectI ()
 	assertEqualFloat (bounds.Y, 0);
 	assertEqualFloat (bounds.Width, 0);
 	assertEqualFloat (bounds.Height, 0);
-	
+
 	// Negative width, positive height.
 	status = GdipSetClipRectI (graphics, 10, 20, -30, 40, CombineModeReplace);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -3032,7 +3066,7 @@ static void test_setClipRectI ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 0);
@@ -3050,7 +3084,7 @@ static void test_setClipRectI ()
 
 	status = GdipGetClip (graphics, region);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipGetRegionScansCount (region, &scansCount, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scansCount, 1);
@@ -3099,7 +3133,8 @@ static void test_setClipRectI ()
 	GdipDeleteMatrix (matrix);
 }
 
-static void test_setClipRegion ()
+static void
+test_setClipRegion ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3107,7 +3142,7 @@ static void test_setClipRegion ()
 	GpGraphics *graphics;
 	GpRectF bounds;
 
-	graphics = getImageGraphics (&image);
+	graphics     = getImageGraphics (&image);
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
 
@@ -3164,7 +3199,8 @@ static void test_setClipRegion ()
 	GdipDisposeImage (image);
 }
 
-static void test_setClipPath ()
+static void
+test_setClipPath ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3203,7 +3239,7 @@ static void test_setClipPath ()
 	// Negative tests.
 	status = GdipSetClipPath (NULL, path, CombineModeReplace);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipSetClipPath (graphics, NULL, CombineModeReplace);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3215,7 +3251,7 @@ static void test_setClipPath ()
 
 	status = GdipSetClipPath (graphics, path, CombineModeReplace);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipSetClipPath (graphics, NULL, CombineModeReplace);
 	assertEqualInt (status, ObjectBusy);
 
@@ -3229,7 +3265,8 @@ static void test_setClipPath ()
 	GdipDeletePath (path);
 }
 
-static void test_translateClip ()
+static void
+test_translateClip ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3289,7 +3326,8 @@ static void test_translateClip ()
 	GdipDisposeImage (image);
 }
 
-static void test_translateClipI ()
+static void
+test_translateClipI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3349,17 +3387,18 @@ static void test_translateClipI ()
 	GdipDisposeImage (image);
 }
 
-static void test_region_mask()
+static void
+test_region_mask ()
 {
 	ARGB color;
 	GpStatus status;
-	GpBitmap* bitmap = NULL;
-	GpGraphics* graphics = NULL;
-	GpPath* rectPath = NULL;
-	GpPath* polyPath = NULL;
-	GpRegion* region = NULL;
-	GpSolidFill* brush = NULL;
-	static GpPoint polyPoints[] = { { 100, 100 }, { 200,  75 }, { 300, 100 }, { 325, 200 }, { 300, 300 }, { 200, 325 }, { 100, 300 }, {  75, 200 } };
+	GpBitmap *bitmap	    = NULL;
+	GpGraphics *graphics	= NULL;
+	GpPath *rectPath	    = NULL;
+	GpPath *polyPath	    = NULL;
+	GpRegion *region	    = NULL;
+	GpSolidFill *brush	  = NULL;
+	static GpPoint polyPoints[] = {{100, 100}, {200, 75}, {300, 100}, {325, 200}, {300, 300}, {200, 325}, {100, 300}, {75, 200}};
 
 	status = GdipCreateBitmapFromScan0 (400, 400, 0, PixelFormat32bppARGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
@@ -3373,7 +3412,7 @@ static void test_region_mask()
 
 	status = GdipCreatePath (FillModeAlternate, &polyPath);
 	assertEqualInt (status, Ok);
-	GdipAddPathPolygonI (polyPath, polyPoints, sizeof(polyPoints) / sizeof(polyPoints[0]));
+	GdipAddPathPolygonI (polyPath, polyPoints, sizeof (polyPoints) / sizeof (polyPoints[0]));
 
 	status = GdipCreateRegion (&region);
 	assertEqualInt (status, Ok);
@@ -3387,14 +3426,14 @@ static void test_region_mask()
 	GdipFillRegion (graphics, brush, region);
 
 	status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
-	assertEqualInt(status, Ok);
-	assertEqualInt(color, 0xFF808080);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0xFF808080);
 	status = GdipBitmapGetPixel (bitmap, 50, 50, &color);
-	assertEqualInt(status, Ok);
-	assertEqualInt(color, 0xFF00FF00);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0xFF00FF00);
 	status = GdipBitmapGetPixel (bitmap, 200, 200, &color);
-	assertEqualInt(status, Ok);
-	assertEqualInt(color, 0xFF808080);
+	assertEqualInt (status, Ok);
+	assertEqualInt (color, 0xFF808080);
 
 	GdipDeleteGraphics (graphics);
 	GdipDeletePath (rectPath);
@@ -3404,17 +3443,18 @@ static void test_region_mask()
 	GdipDisposeImage (bitmap);
 }
 
-static void test_premultiplication ()
+static void
+test_premultiplication ()
 {
 	GpStatus status;
 	GpBitmap *bitmap;
 	GpBitmap *bitmapBackground;
 	GpGraphics *graphicsBackground;
 
-	BYTE bpp32ArgbData[] = { 0xFF, 0xFF, 0xFF, 0x80 };
-	ARGB bpp32ArgbPixels[] = { 0x80FFFFFF };
-	ARGB bpp32RgbPixelsPre[] = { 0xFF000000 };
-	ARGB bpp32RgbPixels[] = { 0xFF808080 };
+	BYTE bpp32ArgbData[]     = {0xFF, 0xFF, 0xFF, 0x80};
+	ARGB bpp32ArgbPixels[]   = {0x80FFFFFF};
+	ARGB bpp32RgbPixelsPre[] = {0xFF000000};
+	ARGB bpp32RgbPixels[]    = {0xFF808080};
 
 	status = GdipCreateBitmapFromScan0 (1, 1, 4, PixelFormat32bppARGB, bpp32ArgbData, &bitmap);
 	assertEqualInt (status, Ok);
@@ -3426,7 +3466,7 @@ static void test_premultiplication ()
 	assertEqualInt (status, Ok);
 	verifyPixels (bitmapBackground, bpp32RgbPixelsPre);
 	GdipGetImageGraphicsContext (bitmapBackground, &graphicsBackground);
-	status = GdipDrawImage (graphicsBackground, (GpImage *)bitmap, 0, 0);
+	status = GdipDrawImage (graphicsBackground, (GpImage *) bitmap, 0, 0);
 	assertEqualInt (status, Ok);
 	GdipDeleteGraphics (graphicsBackground);
 	verifyPixels (bitmapBackground, bpp32RgbPixels);
@@ -3434,7 +3474,8 @@ static void test_premultiplication ()
 	GdipDisposeImage ((GpImage *) bitmap);
 }
 
-static void test_world_transform_in_container ()
+static void
+test_world_transform_in_container ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3498,7 +3539,8 @@ static void test_world_transform_in_container ()
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_world_transform_respects_page_unit_document ()
+static void
+test_world_transform_respects_page_unit_document ()
 {
 	GpStatus status;
 	GpBitmap *bitmap;
@@ -3520,7 +3562,7 @@ static void test_world_transform_respects_page_unit_document ()
 	assertEqualInt (status, Ok);
 
 	const ARGB FillColor = 0xFF000000;
-	status = GdipCreateSolidFill (FillColor, &brush);
+	status		     = GdipCreateSolidFill (FillColor, &brush);
 	assertEqualInt (status, Ok);
 
 	REAL rectX = 360;
@@ -3529,44 +3571,44 @@ static void test_world_transform_respects_page_unit_document ()
 	status = GdipSetWorldTransform (graphics, matrix);
 	assertEqualInt (status, Ok);
 
-	REAL rectWidth = 74;
+	REAL rectWidth  = 74;
 	REAL rectHeight = 72;
-	status = GdipFillRectangle (graphics, brush, 0, 0, rectWidth, rectHeight);
+	status		= GdipFillRectangle (graphics, brush, 0, 0, rectWidth, rectHeight);
 	assertEqualInt (status, Ok);
 
 #if !defined(USE_WINDOWS_GDIPLUS)
 	REAL points[] = {
-		rectX + 2,
-		rectY + 2,
-		rectX + rectWidth / 2,
-		rectY + rectHeight / 2,
-		rectX + rectWidth - 1,
-		rectY + rectHeight - 1
-	};
+	    rectX + 2,
+	    rectY + 2,
+	    rectX + rectWidth / 2,
+	    rectY + rectHeight / 2,
+	    rectX + rectWidth - 1,
+	    rectY + rectHeight - 1};
 	for (int i = 0; i < ARRAY_SIZE (points); i += 2) {
 		ARGB color;
-		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * 72 / 300.0f), (int)(points[i + 1] * 72 / 300.0f), &color);
+		status = GdipBitmapGetPixel (bitmap, (int) (points[i] * 72 / 300.0f), (int) (points[i + 1] * 72 / 300.0f), &color);
 		assertEqualInt (status, Ok);
 		assertEqualARGB (color, FillColor);
 	}
 #endif
 
-	GdipDisposeImage ((GpImage *)bitmap);
+	GdipDisposeImage ((GpImage *) bitmap);
 	GdipDeleteGraphics (graphics);
 	GdipDeleteBrush (brush);
 }
 
-static void test_world_transform_respects_page_unit_point ()
+static void
+test_world_transform_respects_page_unit_point ()
 {
 	GpStatus status;
 	GpBitmap *bitmap;
 	GpGraphics *graphics;
 	GpSolidFill *brush;
 	const float TargetResolution = 300;
-	double scaleFactor = TargetResolution / 72;
+	double scaleFactor	   = TargetResolution / 72;
 
 	// Test Graphics with UnitPoint and 72 dpi
-	status = GdipCreateBitmapFromScan0 ((int)(612 * scaleFactor), (int)(792 * scaleFactor), 0, PixelFormat32bppARGB, NULL, &bitmap);
+	status = GdipCreateBitmapFromScan0 ((int) (612 * scaleFactor), (int) (792 * scaleFactor), 0, PixelFormat32bppARGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
 
 	status = GdipBitmapSetResolution (bitmap, TargetResolution, TargetResolution);
@@ -3579,44 +3621,44 @@ static void test_world_transform_respects_page_unit_point ()
 	assertEqualInt (status, Ok);
 
 	const ARGB FillColor = 0xFF000000;
-	status = GdipCreateSolidFill (FillColor, &brush);
+	status		     = GdipCreateSolidFill (FillColor, &brush);
 	assertEqualInt (status, Ok);
 
-	REAL rectX = 360;
-	REAL rectY = 111;
-	REAL rectWidth = 74;
+	REAL rectX      = 360;
+	REAL rectY      = 111;
+	REAL rectWidth  = 74;
 	REAL rectHeight = 72;
-	status = GdipTranslateWorldTransform (graphics, rectX, rectY, MatrixOrderPrepend);
+	status		= GdipTranslateWorldTransform (graphics, rectX, rectY, MatrixOrderPrepend);
 	assertEqualInt (status, Ok);
 
 	status = GdipFillRectangle (graphics, brush, 0, 0, rectWidth, rectHeight);
 	assertEqualInt (status, Ok);
 
 	REAL points[] = {
-		rectX,
-		rectY,
-		rectX + rectWidth / 2,
-		rectY + rectHeight / 2,
-		rectX + rectWidth - 1,
-		rectY + rectHeight - 1
-	};
+	    rectX,
+	    rectY,
+	    rectX + rectWidth / 2,
+	    rectY + rectHeight / 2,
+	    rectX + rectWidth - 1,
+	    rectY + rectHeight - 1};
 	for (int i = 0; i < ARRAY_SIZE (points); i += 2) {
 		ARGB color;
-		status = GdipBitmapGetPixel (bitmap,(int) points[i], (int) points[i + 1], &color);
+		status = GdipBitmapGetPixel (bitmap, (int) points[i], (int) points[i + 1], &color);
 		assertEqualInt (status, Ok);
 		assertEqualARGB (color, 0);
 
-		status = GdipBitmapGetPixel (bitmap, (int)(points[i] * scaleFactor) + 1, (int)(points[i + 1] * scaleFactor) + 1, &color);
+		status = GdipBitmapGetPixel (bitmap, (int) (points[i] * scaleFactor) + 1, (int) (points[i + 1] * scaleFactor) + 1, &color);
 		assertEqualInt (status, Ok);
 		assertEqualARGB (color, FillColor);
 	}
 
-	GdipDisposeImage ((GpImage *)bitmap);
+	GdipDisposeImage ((GpImage *) bitmap);
 	GdipDeleteGraphics (graphics);
 	GdipDeleteBrush (brush);
 }
 
-static void test_saveGraphics ()
+static void
+test_saveGraphics ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3640,19 +3682,20 @@ static void test_saveGraphics ()
 
 	status = GdipSaveGraphics (graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDisposeImage (image);
 	GdipDeleteGraphics (graphics);
 }
 
-static void test_restoreGraphics ()
+static void
+test_restoreGraphics ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GraphicsState state;
-	RectF clipBounds1 = { 1, 2, 3, 4 };
-	RectF clipBounds2 = { 2, 3, 4, 5 };
+	RectF clipBounds1 = {1, 2, 3, 4};
+	RectF clipBounds2 = {2, 3, 4, 5};
 	CompositingMode compositingMode;
 	CompositingQuality compositingQuality;
 	InterpolationMode interpolationMode;
@@ -3715,7 +3758,7 @@ static void test_restoreGraphics ()
 
 	status = GdipSaveGraphics (graphics, &state);
 	assertEqualInt (status, Ok);
-	
+
 	// Change.
 	GdipSetClipRect (graphics, 2, 3, 4, 5, CombineModeReplace);
 	GdipSetCompositingMode (graphics, CompositingModeSourceOver);
@@ -3771,7 +3814,7 @@ static void test_restoreGraphics ()
 	GdipGetTextRenderingHint (graphics, &textRenderingHint);
 	GdipGetWorldTransform (graphics, worldTransform);
 	assertEqualRect (clipBounds2, clipBounds1);
-	assertEqualInt (compositingMode, CompositingModeSourceCopy);	
+	assertEqualInt (compositingMode, CompositingModeSourceCopy);
 	assertEqualInt (compositingQuality, CompositingQualityAssumeLinear);
 	assertEqualInt (interpolationMode, InterpolationModeBicubic);
 	assertEqualInt (pageUnit, UnitInch);
@@ -3796,22 +3839,22 @@ static void test_restoreGraphics ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
-	
+
 #if defined(USE_WINDOWS_GDIPLUS)
 	WNDCLASS wc;
 	HINSTANCE hInstance = GetModuleHandle (NULL);
 
-	wc.style         = 0;
+	wc.style	 = 0;
 	wc.lpfnWndProc   = WndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = hInstance;
-	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.hIcon	 = LoadIcon (NULL, IDI_APPLICATION);
+	wc.hCursor       = LoadCursor (NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
 	wc.lpszMenuName  = NULL;
 	wc.lpszClassName = L"Window_Class";
 

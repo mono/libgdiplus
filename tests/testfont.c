@@ -24,16 +24,18 @@ using namespace DllExports;
 #include <string.h>
 #include "testhelpers.h"
 
-static HDC getEmptyHDC ()
+static HDC
+getEmptyHDC ()
 {
 #if defined(USE_WINDOWS_GDIPLUS)
 	return CreateCompatibleDC (NULL);
 #else
-	return (HDC)1;
+	return (HDC) 1;
 #endif
 }
 
-static void *readFile (const char *fileName, int *memoryLength)
+static void *
+readFile (const char *fileName, int *memoryLength)
 {
 	void *buffer = NULL;
 	size_t length;
@@ -57,7 +59,8 @@ static void *readFile (const char *fileName, int *memoryLength)
 	return buffer;
 }
 
-static void verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expectedStyle, Unit expectedUnit)
+static void
+verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expectedStyle, Unit expectedUnit)
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -83,14 +86,15 @@ static void verifyFont (GpFont *font, GpFontFamily *originalFamily, INT expected
 	assertEqualInt (status, Ok);
 	assertEqualInt (unit, expectedUnit);
 
-	status = GdipGetFontStyle(font, &style);
+	status = GdipGetFontStyle (font, &style);
 	assertEqualInt (status, Ok);
 	assertEqualInt (style, expectedStyle);
 
 	GdipDeleteFontFamily (family);
 }
 
-static void test_newPrivateFontCollection ()
+static void
+test_newPrivateFontCollection ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
@@ -101,7 +105,7 @@ static void test_newPrivateFontCollection ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  0);
+	assertEqualInt (count, 0);
 
 	// Negative tests.
 	status = GdipNewPrivateFontCollection (NULL);
@@ -110,12 +114,13 @@ static void test_newPrivateFontCollection ()
 	GdipDeletePrivateFontCollection (&collection);
 }
 
-static void test_deletePrivateFontCollection ()
+static void
+test_deletePrivateFontCollection ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
 
-	GdipNewPrivateFontCollection(&collection);
+	GdipNewPrivateFontCollection (&collection);
 
 	status = GdipDeletePrivateFontCollection (&collection);
 	assertEqualInt (status, Ok);
@@ -126,13 +131,14 @@ static void test_deletePrivateFontCollection ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getFontCollectionFamilyCount ()
+static void
+test_getFontCollectionFamilyCount ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
 	INT count;
 
-	GdipNewPrivateFontCollection(&collection);
+	GdipNewPrivateFontCollection (&collection);
 
 	// Negative tests.
 	status = GdipGetFontCollectionFamilyCount (NULL, &count);
@@ -144,7 +150,8 @@ static void test_getFontCollectionFamilyCount ()
 	GdipDeletePrivateFontCollection (&collection);
 }
 
-static void test_getFontCollectionFamilyList ()
+static void
+test_getFontCollectionFamilyList ()
 {
 	GpStatus status;
 	WCHAR *fontFile;
@@ -153,7 +160,7 @@ static void test_getFontCollectionFamilyList ()
 	INT numFound;
 
 	fontFile = createWchar ("test.ttf");
-	GdipNewPrivateFontCollection(&collection);
+	GdipNewPrivateFontCollection (&collection);
 
 	//Empty list.
 	status = GdipGetFontCollectionFamilyList (collection, 10, families, &numFound);
@@ -190,7 +197,8 @@ static void test_getFontCollectionFamilyList ()
 	freeWchar (fontFile);
 }
 
-static void test_privateAddFontFile ()
+static void
+test_privateAddFontFile ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
@@ -204,10 +212,10 @@ static void test_privateAddFontFile ()
 	WCHAR name[LF_FACESIZE];
 
 	GdipNewPrivateFontCollection (&collection);
-	ttfFile = createWchar ("test.ttf");
-	otfFile = createWchar ("test.otf");
+	ttfFile     = createWchar ("test.ttf");
+	otfFile     = createWchar ("test.otf");
 	invalidFile = createWchar ("test.bmp");
-	noSuchFile = createWchar ("noSuchFile.ttf");
+	noSuchFile  = createWchar ("noSuchFile.ttf");
 
 	// Valid TTF file.
 	status = GdipPrivateAddFontFile (collection, ttfFile);
@@ -215,7 +223,7 @@ static void test_privateAddFontFile ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  1);
+	assertEqualInt (count, 1);
 
 	status = GdipGetFontCollectionFamilyList (collection, 2, families, &numFound);
 	assertEqualInt (status, Ok);
@@ -235,7 +243,7 @@ static void test_privateAddFontFile ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  1);
+	assertEqualInt (count, 1);
 
 	status = GdipGetFontCollectionFamilyList (collection, 2, families, &numFound);
 	assertEqualInt (status, Ok);
@@ -255,7 +263,7 @@ static void test_privateAddFontFile ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  0);
+	assertEqualInt (count, 0);
 
 	// Negative tests.
 	status = GdipPrivateAddFontFile (NULL, ttfFile);
@@ -274,7 +282,8 @@ static void test_privateAddFontFile ()
 	freeWchar (noSuchFile);
 }
 
-static void test_privateAddMemoryFont ()
+static void
+test_privateAddMemoryFont ()
 {
 	GpStatus status;
 	GpFontCollection *collection;
@@ -295,7 +304,7 @@ static void test_privateAddMemoryFont ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  1);
+	assertEqualInt (count, 1);
 
 	status = GdipGetFontCollectionFamilyList (collection, 2, families, &numFound);
 	assertEqualInt (status, Ok);
@@ -317,7 +326,7 @@ static void test_privateAddMemoryFont ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  1);
+	assertEqualInt (count, 1);
 
 	status = GdipGetFontCollectionFamilyList (collection, 2, families, &numFound);
 	assertEqualInt (status, Ok);
@@ -338,7 +347,7 @@ static void test_privateAddMemoryFont ()
 
 	status = GdipGetFontCollectionFamilyCount (collection, &count);
 	assertEqualInt (status, Ok);
-	assertEqualInt (count,  0);
+	assertEqualInt (count, 0);
 
 	// Negative tests.
 	status = GdipPrivateAddMemoryFont (NULL, &invalidMemory, 1);
@@ -356,7 +365,8 @@ static void test_privateAddMemoryFont ()
 	GdipDeletePrivateFontCollection (&collection);
 }
 
-static void test_newInstalledFontCollection ()
+static void
+test_newInstalledFontCollection ()
 {
 	GpStatus status;
 	GpFontCollection *collection1;
@@ -381,7 +391,8 @@ static void test_newInstalledFontCollection ()
 	assert (count1 == count2 && "Expected the FontCollection count to remain constant over multiple calls.");
 }
 
-static void test_createFontFromDC ()
+static void
+test_createFontFromDC ()
 {
 	GpStatus status;
 	GpFont *font;
@@ -400,8 +411,8 @@ static void test_createFontFromDC ()
 #endif
 }
 
-
-static void test_createFontFromLogfontA ()
+static void
+test_createFontFromLogfontA ()
 {
 	GpStatus status;
 	GpFont *font;
@@ -420,18 +431,18 @@ static void test_createFontFromLogfontA ()
 	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
 	nativeFamilyNameA = charFromWchar (nativeFamilyNameW);
 
-	logfont.lfHeight = 10;
-	logfont.lfWidth = 11;
-	logfont.lfEscapement = 0;
-	logfont.lfOrientation = 1;
-	logfont.lfWeight = 700;
-	logfont.lfItalic = TRUE;
-	logfont.lfUnderline = TRUE;
-	logfont.lfStrikeOut = TRUE;
-	logfont.lfCharSet = 0;
-	logfont.lfOutPrecision = 1;
-	logfont.lfClipPrecision = 2;
-	logfont.lfQuality = 4;
+	logfont.lfHeight	 = 10;
+	logfont.lfWidth		 = 11;
+	logfont.lfEscapement     = 0;
+	logfont.lfOrientation    = 1;
+	logfont.lfWeight	 = 700;
+	logfont.lfItalic	 = TRUE;
+	logfont.lfUnderline      = TRUE;
+	logfont.lfStrikeOut      = TRUE;
+	logfont.lfCharSet	= 0;
+	logfont.lfOutPrecision   = 1;
+	logfont.lfClipPrecision  = 2;
+	logfont.lfQuality	= 4;
 	logfont.lfPitchAndFamily = 0x50;
 	strcpy (logfont.lfFaceName, nativeFamilyNameA);
 
@@ -441,7 +452,7 @@ static void test_createFontFromLogfontA ()
 	GdipGetFontStyle (font, &style);
 	assertEqualInt (style, 15);
 
-	GdipGetFontUnit(font, &unit);
+	GdipGetFontUnit (font, &unit);
 	assertEqualInt (unit, UnitWorld);
 
 	status = GdipGetFamily (font, &family);
@@ -468,7 +479,8 @@ static void test_createFontFromLogfontA ()
 	freeChar (nativeFamilyNameA);
 }
 
-static void test_createFontFromLogfontW ()
+static void
+test_createFontFromLogfontW ()
 {
 	GpStatus status;
 	GpFont *font;
@@ -487,18 +499,18 @@ static void test_createFontFromLogfontW ()
 	GdipGetFamilyName (nativeFamily, nativeFamilyNameW, 0);
 	nativeFamilyNameA = charFromWchar (nativeFamilyNameW);
 
-	logfont.lfHeight = 10;
-	logfont.lfWidth = 11;
-	logfont.lfEscapement = 0;
-	logfont.lfOrientation = 1;
-	logfont.lfWeight = 700;
-	logfont.lfItalic = TRUE;
-	logfont.lfUnderline = TRUE;
-	logfont.lfStrikeOut = TRUE;
-	logfont.lfCharSet = 0;
-	logfont.lfOutPrecision = 1;
-	logfont.lfClipPrecision = 2;
-	logfont.lfQuality = 4;
+	logfont.lfHeight	 = 10;
+	logfont.lfWidth		 = 11;
+	logfont.lfEscapement     = 0;
+	logfont.lfOrientation    = 1;
+	logfont.lfWeight	 = 700;
+	logfont.lfItalic	 = TRUE;
+	logfont.lfUnderline      = TRUE;
+	logfont.lfStrikeOut      = TRUE;
+	logfont.lfCharSet	= 0;
+	logfont.lfOutPrecision   = 1;
+	logfont.lfClipPrecision  = 2;
+	logfont.lfQuality	= 4;
 	logfont.lfPitchAndFamily = 0x50;
 	memcpy ((void *) logfont.lfFaceName, (void *) nativeFamilyNameW, LF_FACESIZE * sizeof (WCHAR));
 
@@ -508,7 +520,7 @@ static void test_createFontFromLogfontW ()
 	GdipGetFontStyle (font, &style);
 	assertEqualInt (style, 15);
 
-	GdipGetFontUnit(font, &unit);
+	GdipGetFontUnit (font, &unit);
 	assertEqualInt (unit, UnitWorld);
 
 	status = GdipGetFamily (font, &family);
@@ -535,7 +547,8 @@ static void test_createFontFromLogfontW ()
 	freeChar (nativeFamilyNameA);
 }
 
-static void test_createFont ()
+static void
+test_createFont ()
 {
 	GpStatus status;
 	GpFont *font;
@@ -564,14 +577,14 @@ static void test_createFont ()
 	status = GdipCreateFont (family, 10, 10, UnitDisplay, &font);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipCreateFont (family, 10, 10, (Unit)(UnitWorld - 1), &font);
+	status = GdipCreateFont (family, 10, 10, (Unit) (UnitWorld - 1), &font);
 	assertEqualInt (status, InvalidParameter);
 
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipCreateFont (family, 10, 10, (Unit)(UnitMillimeter + 1), &font);
+	status = GdipCreateFont (family, 10, 10, (Unit) (UnitMillimeter + 1), &font);
 	assertEqualInt (status, InvalidParameter);
 #else
-	status = GdipCreateFont (family, 10, 10, (Unit)(UnitCairoPoint + 1), &font);
+	status = GdipCreateFont (family, 10, 10, (Unit) (UnitCairoPoint + 1), &font);
 	assertEqualInt (status, InvalidParameter);
 #endif
 
@@ -579,7 +592,8 @@ static void test_createFont ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_cloneFont ()
+static void
+test_cloneFont ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -605,7 +619,8 @@ static void test_cloneFont ()
 	GdipDeleteFont (clonedFont);
 }
 
-static void test_deleteFont ()
+static void
+test_deleteFont ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -625,7 +640,8 @@ static void test_deleteFont ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_getFamily ()
+static void
+test_getFamily ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -646,7 +662,8 @@ static void test_getFamily ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getFontStyle ()
+static void
+test_getFontStyle ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -667,7 +684,8 @@ static void test_getFontStyle ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getFontSize ()
+static void
+test_getFontSize ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -691,7 +709,8 @@ static void test_getFontSize ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getFontUnit ()
+static void
+test_getFontUnit ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -712,7 +731,8 @@ static void test_getFontUnit ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getFontHeight ()
+static void
+test_getFontHeight ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -740,7 +760,8 @@ static void test_getFontHeight ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getFontHeightGivenDPI ()
+static void
+test_getFontHeightGivenDPI ()
 {
 	GpStatus status;
 	GpFontFamily *originalFamily;
@@ -768,7 +789,8 @@ static void test_getFontHeightGivenDPI ()
 	GdipDeleteFontFamily (originalFamily);
 }
 
-static void test_getLogfontA ()
+static void
+test_getLogfontA ()
 {
 	GpStatus status;
 	GpBitmap *image;
@@ -813,7 +835,8 @@ static void test_getLogfontA ()
 	GdipDisposeImage ((GpImage *) image);
 }
 
-static void test_getLogfontW ()
+static void
+test_getLogfontW ()
 {
 	GpStatus status;
 	GpBitmap *image;
@@ -858,11 +881,12 @@ static void test_getLogfontW ()
 	GdipDisposeImage ((GpImage *) image);
 }
 
-static const WCHAR Tahoma[] = {'T', 'a', 'h', 'o', 'm', 'a', 0};
+static const WCHAR Tahoma[]       = {'T', 'a', 'h', 'o', 'm', 'a', 0};
 static const WCHAR CodeNewRoman[] = {'C', 'o', 'd', 'e', ' ', 'N', 'e', 'w', ' ', 'R', 'o', 'm', 'a', 'n', 0};
-static const WCHAR NoSuchFont[] = {'A', 'B', 'C', 0};
+static const WCHAR NoSuchFont[]   = {'A', 'B', 'C', 0};
 
-static void verifyFontFamily (GpFontFamily *family, const char *expectedName, UINT16 expectedCellAscent, UINT16 expectedCellDescent, UINT16 expectedLineSpacing, const char *alternateExpectedName, UINT16 alternateCellAscent, UINT16 alternateCellDescent, UINT16 alternateLineSpacing)
+static void
+verifyFontFamily (GpFontFamily *family, const char *expectedName, UINT16 expectedCellAscent, UINT16 expectedCellDescent, UINT16 expectedLineSpacing, const char *alternateExpectedName, UINT16 alternateCellAscent, UINT16 alternateCellDescent, UINT16 alternateLineSpacing)
 {
 	GpStatus status;
 	WCHAR name[LF_FACESIZE];
@@ -894,7 +918,8 @@ static void verifyFontFamily (GpFontFamily *family, const char *expectedName, UI
 	GdipDeleteFontFamily (family);
 }
 
-static void test_createFontFamilyFromName ()
+static void
+test_createFontFamilyFromName ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -937,7 +962,8 @@ static void test_createFontFamilyFromName ()
 	freeWchar (fontName);
 }
 
-static void test_cloneFontFamily ()
+static void
+test_cloneFontFamily ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -959,7 +985,8 @@ static void test_cloneFontFamily ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_deleteFontFamily ()
+static void
+test_deleteFontFamily ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -974,13 +1001,14 @@ static void test_deleteFontFamily ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getGenericFontFamilySansSerif ()
+static void
+test_getGenericFontFamilySansSerif ()
 {
 	GpStatus status;
 	GpFontFamily *family1;
 	GpFontFamily *family2;
 
-	status = GdipGetGenericFontFamilySansSerif  (&family1);
+	status = GdipGetGenericFontFamilySansSerif (&family1);
 	assertEqualInt (status, Ok);
 	assert (family1);
 
@@ -996,17 +1024,18 @@ static void test_getGenericFontFamilySansSerif ()
 	GdipDeleteFontFamily (family2);
 }
 
-static void test_getGenericFontFamilySerif ()
+static void
+test_getGenericFontFamilySerif ()
 {
 	GpStatus status;
 	GpFontFamily *family1;
 	GpFontFamily *family2;
 
-	status = GdipGetGenericFontFamilySerif  (&family1);
+	status = GdipGetGenericFontFamilySerif (&family1);
 	assertEqualInt (status, Ok);
 	assert (family1);
 
-	status = GdipGetGenericFontFamilySerif  (&family2);
+	status = GdipGetGenericFontFamilySerif (&family2);
 	assertEqualInt (status, Ok);
 	assert (family2 && family1 == family2);
 
@@ -1018,17 +1047,18 @@ static void test_getGenericFontFamilySerif ()
 	GdipDeleteFontFamily (family2);
 }
 
-static void test_getGenericFontFamilyMonospace ()
+static void
+test_getGenericFontFamilyMonospace ()
 {
 	GpStatus status;
 	GpFontFamily *family1;
 	GpFontFamily *family2;
 
-	status = GdipGetGenericFontFamilyMonospace  (&family1);
+	status = GdipGetGenericFontFamilyMonospace (&family1);
 	assertEqualInt (status, Ok);
 	assert (family1);
 
-	status = GdipGetGenericFontFamilyMonospace  (&family2);
+	status = GdipGetGenericFontFamilyMonospace (&family2);
 	assertEqualInt (status, Ok);
 	assert (family2 && family1 == family2);
 
@@ -1040,7 +1070,8 @@ static void test_getGenericFontFamilyMonospace ()
 	GdipDeleteFontFamily (family2);
 }
 
-static void test_getFamilyName ()
+static void
+test_getFamilyName ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1050,7 +1081,7 @@ static void test_getFamilyName ()
 
 	status = GdipGetFamilyName (family, name, 57920);
 	assertEqualInt (status, Ok);
-	assert (stringsEqual(name, "Tahoma") || stringsEqual (name, "DejaVu Sans"));
+	assert (stringsEqual (name, "Tahoma") || stringsEqual (name, "DejaVu Sans"));
 
 	// Negative tests.
 	status = GdipGetFamilyName (NULL, name, 1);
@@ -1065,7 +1096,8 @@ static void test_getFamilyName ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_isStyleAvailable ()
+static void
+test_isStyleAvailable ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1095,7 +1127,8 @@ static void test_isStyleAvailable ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_getEmHeight ()
+static void
+test_getEmHeight ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1113,7 +1146,8 @@ static void test_getEmHeight ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_getCellAscent ()
+static void
+test_getCellAscent ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1131,7 +1165,8 @@ static void test_getCellAscent ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_getCellDescent ()
+static void
+test_getCellDescent ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1149,7 +1184,8 @@ static void test_getCellDescent ()
 	GdipDeleteFontFamily (family);
 }
 
-static void test_getLineSpacing ()
+static void
+test_getLineSpacing ()
 {
 	GpStatus status;
 	GpFontFamily *family;
@@ -1168,7 +1204,7 @@ static void test_getLineSpacing ()
 }
 
 int
-main(int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

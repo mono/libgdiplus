@@ -23,66 +23,69 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static void test_getBrushType ()
+static void
+test_getBrushType ()
 {
-    GpStatus status;
-    GpSolidFill *brush;
-    GpBrushType brushType;
+	GpStatus status;
+	GpSolidFill *brush;
+	GpBrushType brushType;
 
-    GdipCreateSolidFill (1, &brush);
+	GdipCreateSolidFill (1, &brush);
 
-    // Negative tests.
-    status = GdipGetBrushType (NULL, &brushType);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipGetBrushType (NULL, &brushType);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipGetBrushType ((GpBrush *) brush, NULL);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipGetBrushType ((GpBrush *) brush, NULL);
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeleteBrush ((GpBrush *) brush);
+	GdipDeleteBrush ((GpBrush *) brush);
 }
 
-static void test_clone ()
+static void
+test_clone ()
 {
-    GpStatus status;
-    GpSolidFill *brush;
-    GpBrush *clone;
+	GpStatus status;
+	GpSolidFill *brush;
+	GpBrush *clone;
 
-    GdipCreateSolidFill (1, &brush);
+	GdipCreateSolidFill (1, &brush);
 
-    // Negative tests.
-    status = GdipCloneBrush (NULL, &clone);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipCloneBrush (NULL, &clone);
+	assertEqualInt (status, InvalidParameter);
 
-    status = GdipCloneBrush ((GpBrush *) brush, NULL);
-    assertEqualInt (status, InvalidParameter);
+	status = GdipCloneBrush ((GpBrush *) brush, NULL);
+	assertEqualInt (status, InvalidParameter);
 
-    GdipDeleteBrush ((GpBrush *) brush);
+	GdipDeleteBrush ((GpBrush *) brush);
 }
 
-static void test_delete ()
+static void
+test_delete ()
 {
-    GpStatus status;
-    GpSolidFill *brush;
+	GpStatus status;
+	GpSolidFill *brush;
 
-    GdipCreateSolidFill (1, &brush);
+	GdipCreateSolidFill (1, &brush);
 
-    status = GdipDeleteBrush ((GpBrush *) brush);
-    assertEqualInt (status, Ok);
+	status = GdipDeleteBrush ((GpBrush *) brush);
+	assertEqualInt (status, Ok);
 
-    // Negative tests.
-    status = GdipDeleteBrush (NULL);
-    assertEqualInt (status, InvalidParameter);
+	// Negative tests.
+	status = GdipDeleteBrush (NULL);
+	assertEqualInt (status, InvalidParameter);
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
-    STARTUP;
+	STARTUP;
 
-    test_getBrushType ();
-    test_clone ();
-    test_delete ();
+	test_getBrushType ();
+	test_clone ();
+	test_delete ();
 
-    SHUTDOWN;
-    return 0;
+	SHUTDOWN;
+	return 0;
 }

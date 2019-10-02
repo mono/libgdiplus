@@ -24,29 +24,30 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.wmf";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'w', 'm', 'f', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'w', 'm', 'f', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
- \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, x, y, width, height, dimensionWidth, dimensionHeight) \
-{ \
-	createFile (buffer, Ok); \
-	verifyMetafile (image, wmfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight) \
-	GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, x, y, width, height, dimensionWidth, dimensionHeight)                    \
+	{                                                                                                  \
+		createFile (buffer, Ok);                                                                   \
+		verifyMetafile (image, wmfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight) \
+		    GdipDisposeImage (image);                                                              \
+	}
 
-static void test_valid ()
+static void
+test_valid ()
 {
 	// clang-format off
 	BYTE singleEOFRecord[] = {
@@ -126,7 +127,8 @@ static void test_valid ()
 	createFileSuccess (nonDIBVersionNumber, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 }
 
-static void test_invalidDataCorruptingGdiPlus ()
+static void
+test_invalidDataCorruptingGdiPlus ()
 {
 	// GDI+ produces some really strange results - including negative sizes - if the checksum is invalid.
 	// We probably don't want to emulate this behaviour.
@@ -151,19 +153,20 @@ static void test_invalidDataCorruptingGdiPlus ()
 
 	createFile (invalidChecksum, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 
 	createFile (zeroWidth, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 
 	createFile (zeroHeight, Ok);
 	verifyImage (image, ImageTypeMetafile, emfRawFormat, PixelFormat32bppRGB, 0, 0, 2, 2, -0.005236f, -0.004651f, -0.104166f, -0.092590f, 327683, 0, TRUE);
-	GdipDisposeImage(image);
+	GdipDisposeImage (image);
 #endif
 }
 
-static void test_invalidFileSize()
+static void
+test_invalidFileSize ()
 {
 	// clang-format off
 	BYTE equalToHeaderFileSizeWithoutExtraData[] = {
@@ -187,7 +190,8 @@ static void test_invalidFileSize()
 	createFileSuccess (tooLargeFileSize, -4008, -3378, 8016, 6756, 20360.638672f, 17160.2383f);
 }
 
-static void test_invalidPlaceableHeader ()
+static void
+test_invalidPlaceableHeader ()
 {
 	// clang-format off
 	BYTE shortKey1[]     = {0xD7};
@@ -232,7 +236,8 @@ static void test_invalidPlaceableHeader ()
 	createFile (shortChecksum, OutOfMemory);
 }
 
-static void test_invalidMetafileHeader ()
+static void
+test_invalidMetafileHeader ()
 {
 	// clang-format off
 	BYTE noType[] = {
@@ -308,7 +313,8 @@ static void test_invalidMetafileHeader ()
 	createFile (shortNoParameters, OutOfMemory);
 }
 
-static void test_invalidImageData()
+static void
+test_invalidImageData ()
 {
 	// clang-format off
 	BYTE zeroFileType[] = {
@@ -414,7 +420,7 @@ static void test_invalidImageData()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

@@ -22,31 +22,32 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.gif";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'g', 'i', 'f', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'g', 'i', 'f', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
- \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, expectedWidth, expectedHeight) \
-{ \
-  createFile(buffer, Ok); \
-  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE); \
-  GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, expectedWidth, expectedHeight)                                                                                                                             \
+	{                                                                                                                                                                                    \
+		createFile (buffer, Ok);                                                                                                                                                     \
+		verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE); \
+		GdipDisposeImage (image);                                                                                                                                                    \
+	}
 
-static void test_validData ()
+static void
+test_validData ()
 {
-  GpImage *image;
+	GpImage *image;
 
 	// clang-format off
 	BYTE localColorTable89[]                     = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
@@ -72,34 +73,35 @@ static void test_validData ()
 	BYTE commentControlBlock[]                   = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFE, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 	// clang-format on
 
-  createFileSuccess (localColorTable89, 3, 5);
-  createFileSuccess (globalColorTable89, 3, 5);
-  createFileSuccess (localAndGlobalColorTable89, 3, 5);
-  createFileSuccess (localColorTable87, 3, 5);
-  createFileSuccess (globalColorTable87, 3, 5);
-  createFileSuccess (localAndGlobalColorTable87, 3, 5);
-  createFileSuccess (extraData, 3, 5);
-  createFileSuccess (noColorTables, 3, 5);
-  createFileSuccess (emptyExtensionBlock, 3, 5);
-  createFileSuccess (unknownExtensionBlock87, 3, 5);
-  createFileSuccess (unknownExtensionBlock89, 3, 5);
-  createFileSuccess (graphicsControlBlock, 3, 5);
+	createFileSuccess (localColorTable89, 3, 5);
+	createFileSuccess (globalColorTable89, 3, 5);
+	createFileSuccess (localAndGlobalColorTable89, 3, 5);
+	createFileSuccess (localColorTable87, 3, 5);
+	createFileSuccess (globalColorTable87, 3, 5);
+	createFileSuccess (localAndGlobalColorTable87, 3, 5);
+	createFileSuccess (extraData, 3, 5);
+	createFileSuccess (noColorTables, 3, 5);
+	createFileSuccess (emptyExtensionBlock, 3, 5);
+	createFileSuccess (unknownExtensionBlock87, 3, 5);
+	createFileSuccess (unknownExtensionBlock89, 3, 5);
+	createFileSuccess (graphicsControlBlock, 3, 5);
 
-  // FIXME: it appears that GDI+ allows a graphics control extension block without a
-  // terminating 0 byte.
+	// FIXME: it appears that GDI+ allows a graphics control extension block without a
+	// terminating 0 byte.
 #if defined(USE_WINDOWS_GDIPLUS)
-  createFileSuccess (graphicsControlBlockMissingTerminator, 3, 5);
+	createFileSuccess (graphicsControlBlockMissingTerminator, 3, 5);
 #endif
 
-  createFileSuccess (severalGraphicsControlBlocks, 3, 5);
-  createFileSuccess (misplacedGraphicsControlBlock, 3, 5);
-  createFileSuccess (plainTextControlBlock, 3, 5);
-  createFileSuccess (invalidTextControlBlock, 3, 5);
-  createFileSuccess (applicationTextControlBlock, 3, 5);
-  createFileSuccess (commentControlBlock, 3, 5);
+	createFileSuccess (severalGraphicsControlBlocks, 3, 5);
+	createFileSuccess (misplacedGraphicsControlBlock, 3, 5);
+	createFileSuccess (plainTextControlBlock, 3, 5);
+	createFileSuccess (invalidTextControlBlock, 3, 5);
+	createFileSuccess (applicationTextControlBlock, 3, 5);
+	createFileSuccess (commentControlBlock, 3, 5);
 }
 
-static void test_invalidHeader ()
+static void
+test_invalidHeader ()
 {
 	// clang-format off
 	BYTE noScreenWidth87[]        = {'G', 'I', 'F', '8', '7', 'a'};
@@ -117,22 +119,23 @@ static void test_invalidHeader ()
 	BYTE unknownChunk[]           = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '_'};
 	// clang-format on
 
-  createFile (noScreenWidth87, OutOfMemory);
-  createFile (noScreenWidth89, OutOfMemory);
-  createFile (shortScreenWidth, OutOfMemory);
-  createFile (noScreenHeight, OutOfMemory);
-  createFile (shortScreenHeight, OutOfMemory);
-  createFile (noColorTableFlags, OutOfMemory);
-  createFile (noBackgroundColor, OutOfMemory);
-  createFile (noPixelAspectRatio, OutOfMemory);
-  createFile (noGlobalColorTable, OutOfMemory);
-  createFile (shortGlobalColorTable, OutOfMemory);
-  createFile (smallGlobalColorTable, OutOfMemory);
-  createFile (noRecords, OutOfMemory);
-  createFile (unknownChunk, OutOfMemory);
+	createFile (noScreenWidth87, OutOfMemory);
+	createFile (noScreenWidth89, OutOfMemory);
+	createFile (shortScreenWidth, OutOfMemory);
+	createFile (noScreenHeight, OutOfMemory);
+	createFile (shortScreenHeight, OutOfMemory);
+	createFile (noColorTableFlags, OutOfMemory);
+	createFile (noBackgroundColor, OutOfMemory);
+	createFile (noPixelAspectRatio, OutOfMemory);
+	createFile (noGlobalColorTable, OutOfMemory);
+	createFile (shortGlobalColorTable, OutOfMemory);
+	createFile (smallGlobalColorTable, OutOfMemory);
+	createFile (noRecords, OutOfMemory);
+	createFile (unknownChunk, OutOfMemory);
 }
 
-static void test_invalidImageRecord ()
+static void
+test_invalidImageRecord ()
 {
 	// clang-format off
 	BYTE noImageLeft[]            = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, ','};
@@ -175,53 +178,54 @@ static void test_invalidImageRecord ()
 #endif
 	// clang-format on
 
-  createFile (noImageLeft, OutOfMemory);
-  createFile (shortImageLeft, OutOfMemory);
-  createFile (noImageTop, OutOfMemory);
-  createFile (shortImageTop, OutOfMemory);
-  createFile (noImageWidth, OutOfMemory);
-  createFile (shortImageWidth, OutOfMemory);
-  createFile (noImageHeight, OutOfMemory);
-  createFile (shortImageHeight, OutOfMemory);
-  createFile (noImagePacked, OutOfMemory);
-  createFile (noLocalColorTable, OutOfMemory);
-  createFile (shortLocalColorTable, OutOfMemory);
-  createFile (smallLocalColorTable, OutOfMemory);
-  createFile (noCodeSizeWithTable, OutOfMemory);
-  createFile (noCodeSizeNoTable, OutOfMemory);
-  createFile (noData, OutOfMemory);
-  createFile (noColorTables, OutOfMemory);
+	createFile (noImageLeft, OutOfMemory);
+	createFile (shortImageLeft, OutOfMemory);
+	createFile (noImageTop, OutOfMemory);
+	createFile (shortImageTop, OutOfMemory);
+	createFile (noImageWidth, OutOfMemory);
+	createFile (shortImageWidth, OutOfMemory);
+	createFile (noImageHeight, OutOfMemory);
+	createFile (shortImageHeight, OutOfMemory);
+	createFile (noImagePacked, OutOfMemory);
+	createFile (noLocalColorTable, OutOfMemory);
+	createFile (shortLocalColorTable, OutOfMemory);
+	createFile (smallLocalColorTable, OutOfMemory);
+	createFile (noCodeSizeWithTable, OutOfMemory);
+	createFile (noCodeSizeNoTable, OutOfMemory);
+	createFile (noData, OutOfMemory);
+	createFile (noColorTables, OutOfMemory);
 
-  // This causes GDI+ to crash.
+	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (noImageDataWithTable, OutOfMemory);
-  createFile (noImageDataTerminator, OutOfMemory);
-  createFile (noCompressedData, OutOfMemory);
-  createFile (notEnoughImageData, OutOfMemory);
-  createFile (noTerminator, OutOfMemory);
-  createFile (invalidCompression, OutOfMemory);
+	createFile (noImageDataWithTable, OutOfMemory);
+	createFile (noImageDataTerminator, OutOfMemory);
+	createFile (noCompressedData, OutOfMemory);
+	createFile (notEnoughImageData, OutOfMemory);
+	createFile (noTerminator, OutOfMemory);
+	createFile (invalidCompression, OutOfMemory);
 #endif
 
-  createFile (zeroHeaderWidth, OutOfMemory);
-  createFile (zeroHeaderHeight, OutOfMemory);
-  // This causes GDI+ to crash.
+	createFile (zeroHeaderWidth, OutOfMemory);
+	createFile (zeroHeaderHeight, OutOfMemory);
+	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (invalidImageLeft, OutOfMemory);
-  createFile (invalidImageTop, OutOfMemory);
+	createFile (invalidImageLeft, OutOfMemory);
+	createFile (invalidImageTop, OutOfMemory);
 #endif
-  createFile (zeroImageWidth, OutOfMemory);
-  createFile (zeroImageHeight, OutOfMemory);
+	createFile (zeroImageWidth, OutOfMemory);
+	createFile (zeroImageHeight, OutOfMemory);
 
-  // This causes GDI+ to crash.
+	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
-  createFile (invalidImageWidth, OutOfMemory);
-  createFile (invalidImageHeight, OutOfMemory);
-  createFile (invalidImageLeftWidth, OutOfMemory);
-  createFile (invalidImageTopHeight, OutOfMemory);
+	createFile (invalidImageWidth, OutOfMemory);
+	createFile (invalidImageHeight, OutOfMemory);
+	createFile (invalidImageLeftWidth, OutOfMemory);
+	createFile (invalidImageTopHeight, OutOfMemory);
 #endif
 }
 
-static void test_invalidExtensionRecord ()
+static void
+test_invalidExtensionRecord ()
 {
 	// clang-format off
 	BYTE noExtensionLabel[]              = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!'};
@@ -230,24 +234,24 @@ static void test_invalidExtensionRecord ()
 	BYTE multipleGraphicsControlBlocks[] = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xF9, 0x04, 0, 0, 0, 0, 0x04, 0, 0, 0, 0, 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 	// clang-format on
 
-  createFile (noExtensionLabel, OutOfMemory);
-  createFile (noExtensionSize, OutOfMemory);
-  createFile (noExtensionContent, OutOfMemory);
-  createFile (multipleGraphicsControlBlocks, OutOfMemory);
+	createFile (noExtensionLabel, OutOfMemory);
+	createFile (noExtensionSize, OutOfMemory);
+	createFile (noExtensionContent, OutOfMemory);
+	createFile (multipleGraphicsControlBlocks, OutOfMemory);
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 
-  test_validData ();
-  test_invalidHeader ();
-  test_invalidImageRecord ();
-  test_invalidExtensionRecord ();
+	test_validData ();
+	test_invalidHeader ();
+	test_invalidImageRecord ();
+	test_invalidExtensionRecord ();
 
-  deleteFile (file);
+	deleteFile (file);
 
-  SHUTDOWN;
-  return 0;
+	SHUTDOWN;
+	return 0;
 }

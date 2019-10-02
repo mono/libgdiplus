@@ -26,7 +26,8 @@ using namespace DllExports;
 GpImage *image;
 GpGraphics *graphics;
 
-static void test_createRegion ()
+static void
+test_createRegion ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -41,7 +42,8 @@ static void test_createRegion ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_createRegionRect ()
+static void
+test_createRegionRect ()
 {
 	GpStatus status;
 	GpRectF normalRect = {1, 2, 3, 4};
@@ -53,98 +55,98 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
 	verifyRegionScans (region, &normalRect, sizeof (normalRect));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, > infinite height.
 	GpRectF greaterThanInfiniteGreaterThanInfiniteHeightRect = {1, 2, 8388609.0f, 8388609.0f};
-	status = GdipCreateRegionRect (&greaterThanInfiniteGreaterThanInfiniteHeightRect, &region);
+	status							 = GdipCreateRegionRect (&greaterThanInfiniteGreaterThanInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388609.0f, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, infinite height.
 	GpRectF greaterThanInfiniteInfiniteHeightRect = {1, 2, 8388609.0f, 8388608.0f};
-	status = GdipCreateRegionRect (&greaterThanInfiniteInfiniteHeightRect, &region);
+	status					      = GdipCreateRegionRect (&greaterThanInfiniteInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388609.0f, 8388608.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, positive height.
 	GpRectF greaterThanInfinitePositiveHeightRect = {1, 2, 8388609.0f, 4};
-	status = GdipCreateRegionRect (&greaterThanInfinitePositiveHeightRect, &region);
+	status					      = GdipCreateRegionRect (&greaterThanInfinitePositiveHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388609.0f, 4, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, zero height.
 	GpRectF greaterThanInfiniteZeroHeightRect = {1, 2, 8388609.0f, 0};
-	status = GdipCreateRegionRect (&greaterThanInfiniteZeroHeightRect, &region);
+	status					  = GdipCreateRegionRect (&greaterThanInfiniteZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388609.0f, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, negative height.
 	GpRectF greaterThanInfiniteNegativeHeightRect = {1, 2, 8388609.0f, -4};
-	status = GdipCreateRegionRect (&greaterThanInfiniteNegativeHeightRect, &region);
+	status					      = GdipCreateRegionRect (&greaterThanInfiniteNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388609.0f, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, > infinite height.
 	GpRectF infiniteWidthGreaterThanInfiniteHeightRect = {1, 2, 8388608.0f, 8388609.0f};
-	status = GdipCreateRegionRect (&infiniteWidthGreaterThanInfiniteHeightRect, &region);
+	status						   = GdipCreateRegionRect (&infiniteWidthGreaterThanInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388608.0f, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, infinite height.
 	GpRectF infiniteWidthInfiniteHeightRect = {1, 2, 8388608.0f, 8388608.0f};
-	status = GdipCreateRegionRect (&infiniteWidthInfiniteHeightRect, &region);
+	status					= GdipCreateRegionRect (&infiniteWidthInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388608.0f, 8388608.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, positive height.
 	GpRectF infiniteWidthPositiveHeightRect = {1, 2, 8388608.0f, 4};
-	status = GdipCreateRegionRect (&infiniteWidthPositiveHeightRect, &region);
+	status					= GdipCreateRegionRect (&infiniteWidthPositiveHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388608.0f, 4, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, zero height.
 	GpRectF infiniteWidthZeroHeightRect = {1, 2, 8388608.0f, 0};
-	status = GdipCreateRegionRect (&infiniteWidthZeroHeightRect, &region);
+	status				    = GdipCreateRegionRect (&infiniteWidthZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388608.0f, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, negative height.
 	GpRectF infiniteWidthNegativeHeightRect = {1, 2, 8388608.0f, -4};
-	status = GdipCreateRegionRect (&infiniteWidthNegativeHeightRect, &region);
+	status					= GdipCreateRegionRect (&infiniteWidthNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 8388608.0f, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Positive width, > infinite height.
 	GpRectF positiveWidthGreaterThanInfiniteHeightRect = {1, 2, 3, 8388609.0f};
-	status = GdipCreateRegionRect (&positiveWidthGreaterThanInfiniteHeightRect, &region);
+	status						   = GdipCreateRegionRect (&positiveWidthGreaterThanInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Positive width, infinite height.
 	GpRectF positiveWidthInfiniteHeightRect = {1, 2, 3, 8388608.0f};
-	status = GdipCreateRegionRect (&positiveWidthInfiniteHeightRect, &region);
+	status					= GdipCreateRegionRect (&positiveWidthInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 8388608.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
@@ -152,7 +154,7 @@ static void test_createRegionRect ()
 
 	// Positive width, zero height.
 	GpRectF positiveWidthZeroHeightRect = {1, 2, 3, 0};
-	status = GdipCreateRegionRect (&positiveWidthZeroHeightRect, &region);
+	status				    = GdipCreateRegionRect (&positiveWidthZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -160,7 +162,7 @@ static void test_createRegionRect ()
 
 	// Positive width, negative height.
 	GpRectF positiveWidthNegativeHeightRect = {1, 2, 3, -4};
-	status = GdipCreateRegionRect (&positiveWidthNegativeHeightRect, &region);
+	status					= GdipCreateRegionRect (&positiveWidthNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -168,7 +170,7 @@ static void test_createRegionRect ()
 
 	// Zero width, > infinite height.
 	GpRectF zeroWidthGreaterThanInfiniteHeightRect = {1, 2, 0, 8388609.0f};
-	status = GdipCreateRegionRect (&zeroWidthGreaterThanInfiniteHeightRect, &region);
+	status					       = GdipCreateRegionRect (&zeroWidthGreaterThanInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 8388609.0f, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -176,7 +178,7 @@ static void test_createRegionRect ()
 
 	// Zero width, infinite height.
 	GpRectF zeroWidthInfiniteHeightRect = {1, 2, 0, 8388608.0f};
-	status = GdipCreateRegionRect (&zeroWidthInfiniteHeightRect, &region);
+	status				    = GdipCreateRegionRect (&zeroWidthInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 8388608.0f, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -184,7 +186,7 @@ static void test_createRegionRect ()
 
 	// Zero width, positive height.
 	GpRectF zeroWidthPositiveHeightRect = {1, 2, 0, 4};
-	status = GdipCreateRegionRect (&zeroWidthPositiveHeightRect, &region);
+	status				    = GdipCreateRegionRect (&zeroWidthPositiveHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -192,7 +194,7 @@ static void test_createRegionRect ()
 
 	// Zero width, zero height.
 	GpRectF zeroWidthZeroHeightRect = {1, 2, 0, 0};
-	status = GdipCreateRegionRect (&zeroWidthZeroHeightRect, &region);
+	status				= GdipCreateRegionRect (&zeroWidthZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -200,7 +202,7 @@ static void test_createRegionRect ()
 
 	// Zero width, Negative height.
 	GpRectF zeroWidthNegativeHeightRect = {1, 2, 0, -4};
-	status = GdipCreateRegionRect (&zeroWidthNegativeHeightRect, &region);
+	status				    = GdipCreateRegionRect (&zeroWidthNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -208,7 +210,7 @@ static void test_createRegionRect ()
 
 	// Negative width, > infinite height.
 	GpRectF negativeWidthGreaterThanInfiniteHeightRect = {1, 2, -3, 8388609.0f};
-	status = GdipCreateRegionRect (&negativeWidthGreaterThanInfiniteHeightRect, &region);
+	status						   = GdipCreateRegionRect (&negativeWidthGreaterThanInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 8388609.0f, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -216,7 +218,7 @@ static void test_createRegionRect ()
 
 	// Negative width, infinite height.
 	GpRectF negativeWidthInfiniteHeightRect = {1, 2, -3, 8388608.0f};
-	status = GdipCreateRegionRect (&negativeWidthInfiniteHeightRect, &region);
+	status					= GdipCreateRegionRect (&negativeWidthInfiniteHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 8388608.0f, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -224,7 +226,7 @@ static void test_createRegionRect ()
 
 	// Negative width, positive height.
 	GpRectF negativeWidthPositiveHeightRect = {1, 2, -3, 4};
-	status = GdipCreateRegionRect (&negativeWidthPositiveHeightRect, &region);
+	status					= GdipCreateRegionRect (&negativeWidthPositiveHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -232,7 +234,7 @@ static void test_createRegionRect ()
 
 	// Negative width, zero height.
 	GpRectF negativeWidthZeroHeightRect = {1, 2, -3, 0};
-	status = GdipCreateRegionRect (&negativeWidthZeroHeightRect, &region);
+	status				    = GdipCreateRegionRect (&negativeWidthZeroHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -240,7 +242,7 @@ static void test_createRegionRect ()
 
 	// Negative width, negative height.
 	GpRectF negativeWidthNegativeHeightRect = {1, 2, -3, -4};
-	status = GdipCreateRegionRect (&negativeWidthNegativeHeightRect, &region);
+	status					= GdipCreateRegionRect (&negativeWidthNegativeHeightRect, &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
@@ -254,14 +256,15 @@ static void test_createRegionRect ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_createRegionRectI ()
+static void
+test_createRegionRectI ()
 {
 	GpStatus status;
-	GpRect normalRect = {1, 2, 3, 4};
-	GpRect negativeWidthRect = {1, 2, -3, 4};
+	GpRect normalRect	 = {1, 2, 3, 4};
+	GpRect negativeWidthRect  = {1, 2, -3, 4};
 	GpRect negativeHeightRect = {1, 2, 3, -4};
-	GpRect zeroRect = {0, 0, 0, 0};
-	GpRect infiniteRect = {-4194304, -4194304, 8388608, 8388608};
+	GpRect zeroRect		  = {0, 0, 0, 0};
+	GpRect infiniteRect       = {-4194304, -4194304, 8388608, 8388608};
 	GpRegion *region;
 
 	// Normal.
@@ -304,7 +307,8 @@ static void test_createRegionRectI ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_createRegionPath ()
+static void
+test_createRegionPath ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -342,12 +346,11 @@ static void test_createRegionPath ()
 	// Infinite path - polygon.
 	GdipCreatePath (FillModeWinding, &path);
 	PointF polygonPoints[] = {
-		{-4194304, -4194304},
-		{-4194304, 4194304},
-		{4194304, 4194304},
-		{4194304, -4194304},
-		{-4194304, -4194304}
-	};
+	    {-4194304, -4194304},
+	    {-4194304, 4194304},
+	    {4194304, 4194304},
+	    {4194304, -4194304},
+	    {-4194304, -4194304}};
 	GdipAddPathPolygon (path, polygonPoints, 5);
 
 	status = GdipCreateRegionPath (path, &region);
@@ -364,9 +367,8 @@ static void test_createRegionPath ()
 	// Empty path - curve.
 	GdipCreatePath (FillModeWinding, &path);
 	PointF emptyCurvePoints[] = {
-		{10, 10},
-		{20, 20}
-	};
+	    {10, 10},
+	    {20, 20}};
 	status = GdipAddPathCurve (path, emptyCurvePoints, 2);
 
 	status = GdipCreateRegionPath (path, &region);
@@ -378,9 +380,8 @@ static void test_createRegionPath ()
 	// Not infinite path - curve.
 	GdipCreatePath (FillModeWinding, &path);
 	PointF infiniteCurvePoints[] = {
-		{-4194304.0f, -4194304.0f},
-		{4194304.0f, 4194304.0f}
-	};
+	    {-4194304.0f, -4194304.0f},
+	    {4194304.0f, 4194304.0f}};
 	status = GdipAddPathCurve (path, infiniteCurvePoints, 2);
 
 	status = GdipCreateRegionPath (path, &region);
@@ -398,7 +399,8 @@ static void test_createRegionPath ()
 	GdipDeletePath (path);
 }
 
-static void test_createRegionRgnData ()
+static void
+test_createRegionRgnData ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -603,70 +605,70 @@ static void test_createRegionRgnData ()
 	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	// Empty.
 	status = GdipCreateRegionRgnData (emptyRegionData, sizeof (emptyRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	// Rect.
 	status = GdipCreateRegionRgnData (rectMagicNumber2, sizeof (rectMagicNumber2), &region);
 	assertEqualInt (status, Ok);
-	GpRectF expectedRect = { 1, 2, 3, 4 };
+	GpRectF expectedRect = {1, 2, 3, 4};
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectMagicNumber1, sizeof (rectMagicNumber1), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectEmpty, sizeof (rectEmpty), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectInfinite, sizeof (rectInfinite), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (zeroWidthRectRegionData, sizeof (zeroWidthRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
-	
+
 	status = GdipCreateRegionRgnData (zeroHeightRectRegionData, sizeof (zeroHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
-	
+
 	status = GdipCreateRegionRgnData (zeroWidthAndHeightRectRegionData, sizeof (zeroWidthAndHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (negativeWidthRectRegionData, sizeof (negativeWidthRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (negativeHeightRectRegionData, sizeof (negativeHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	// Path.
@@ -675,7 +677,7 @@ static void test_createRegionRgnData ()
 	status = GdipCreateRegionRgnData (pathData, sizeof (pathData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 #endif
 
@@ -720,14 +722,15 @@ static void test_createRegionRgnData ()
 	assertEqualInt (status, GenericError);
 }
 
-static void test_getRegionData ()
+static void
+test_getRegionData ()
 {
 	GpRegion *region;
 	GpPath *path;
 	GpStatus status;
 	BYTE buffer[1024];
 	UINT sizeFilled;
-	
+
 	// clang-format off
 	BYTE infiniteRegionData[] = {
 		/* -- RegionHeader -- */
@@ -861,6 +864,7 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0xC0
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE pathRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x30, 0x00, 0x00, 0x00,
@@ -883,6 +887,7 @@ static void test_getRegionData ()
 		/* LineTo */    0x01,
 		/* CloseLine */ 0x81,
 	};
+#endif
 	// clang-format on
 
 	// Infinite region.
@@ -895,13 +900,13 @@ static void test_getRegionData ()
 	GdipSetEmpty (region);
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Infinite Rect.
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GdipCreateRegionRect (&infiniteRect, &region);
 	verifyRegionData (region, infiniteRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Empty Rect.
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GdipCreateRegionRect (&emptyRect, &region);
@@ -913,19 +918,19 @@ static void test_getRegionData ()
 	GdipCreateRegionRect (&rect, &region);
 	verifyRegionData (region, nonEmptyRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Width Rect.
 	GpRectF zeroWidthRect = {1, 2, 0, 4};
 	GdipCreateRegionRect (&zeroWidthRect, &region);
 	verifyRegionData (region, zeroWidthRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Height Rect.
 	GpRectF zeroHeightRect = {1, 2, 3, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
 	verifyRegionData (region, zeroHeightRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Width and Height Rect.
 	GpRectF zeroWidthAndHeightRect = {1, 2, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
@@ -937,7 +942,7 @@ static void test_getRegionData ()
 	GdipCreateRegionRect (&negativeWidthRect, &region);
 	verifyRegionData (region, negativeWidthRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Negative Height Rect.
 	GpRectF negativeHeightRect = {1, 2, 3, -4};
 	GdipCreateRegionRect (&negativeHeightRect, &region);
@@ -955,38 +960,39 @@ static void test_getRegionData ()
 	GdipDeletePath (path);
 
 	// Negative tests.
-	status = GdipGetRegionData (NULL, buffer, sizeof(buffer), &sizeFilled);
+	status = GdipGetRegionData (NULL, buffer, sizeof (buffer), &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetRegionData (region, NULL, sizeof(buffer), &sizeFilled);
+	status = GdipGetRegionData (region, NULL, sizeof (buffer), &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionData (region, buffer, 0, &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionData (region, buffer, 1, &sizeFilled);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetRegionData (region, buffer, 2, &sizeFilled);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetRegionData (region, buffer, sizeof (buffer), NULL);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteRegion (region);
 }
 
-static void test_getRegionDataReplace ()
+static void
+test_getRegionDataReplace ()
 {
 	GpRegion *region;
 	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
-	GpRectF rect2 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
+	GpRectF rect2 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
@@ -1011,7 +1017,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1028,13 +1034,13 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Rect.
 	GdipCreateRegion (&region);
 	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Empty Region + Infinite Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1043,7 +1049,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1053,7 +1059,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Rect Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegionRect (&rect1, &other);
@@ -1069,7 +1075,7 @@ static void test_getRegionDataReplace ()
 	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Rect Region + Infinite Region.
 	GdipCreateRegionRect (&rect1, &region);
 	GdipCreateRegion (&other);
@@ -1077,7 +1083,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Rect Region + Empty Region.
 	GdipCreateRegionRect (&rect1, &region);
 	GdipCreateRegion (&other);
@@ -1086,7 +1092,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Rect Region + Rect Region.
 	GdipCreateRegionRect (&rect2, &region);
 	GdipCreateRegionRect (&rect1, &other);
@@ -1100,7 +1106,7 @@ static void test_getRegionDataReplace ()
 	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Path Region + Infinite Region.
 	GdipCreateRegionPath (path, &region);
 	GdipCreateRegion (&other);
@@ -1108,7 +1114,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Path Region + Empty Region.
 	GdipCreateRegionPath (path, &region);
 	GdipCreateRegion (&other);
@@ -1117,7 +1123,7 @@ static void test_getRegionDataReplace ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Path Region + Rect Region.
 	GdipCreateRegionPath (path, &region);
 	GdipCreateRegionRect (&rect1, &other);
@@ -1135,16 +1141,17 @@ static void test_getRegionDataReplace ()
 	GdipDeletePath (path);
 }
 
-static void test_getRegionDataUnion ()
+static void
+test_getRegionDataUnion ()
 {
 	GpRegion *region;
 	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
@@ -1169,7 +1176,7 @@ static void test_getRegionDataUnion ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1186,19 +1193,19 @@ static void test_getRegionDataUnion ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Rect.
 	GdipCreateRegion (&region);
 	GdipCombineRegionRect (region, &rect1, CombineModeUnion);
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Infinite Region + Path.
 	GdipCreateRegion (&region);
 	GdipCombineRegionPath (region, path, CombineModeUnion);
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Empty Region + Infinite Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1207,7 +1214,7 @@ static void test_getRegionDataUnion ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1217,7 +1224,7 @@ static void test_getRegionDataUnion ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Rect Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegionRect (&rect1, &other);
@@ -1233,7 +1240,7 @@ static void test_getRegionDataUnion ()
 	GdipCombineRegionRect (region, &rect1, CombineModeUnion);
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Rect Region + Infinite Region.
 	GdipCreateRegionRect (&rect1, &region);
 	GdipCreateRegion (&other);
@@ -1241,7 +1248,7 @@ static void test_getRegionDataUnion ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Rect Region + Empty Region.
 	GdipCreateRegionRect (&rect1, &region);
 	GdipCreateRegion (&other);
@@ -1262,16 +1269,17 @@ static void test_getRegionDataUnion ()
 	GdipDeletePath (path);
 }
 
-static void test_getRegionDataComplement ()
+static void
+test_getRegionDataComplement ()
 {
 	GpRegion *region;
 	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
@@ -1296,7 +1304,7 @@ static void test_getRegionDataComplement ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1321,19 +1329,19 @@ static void test_getRegionDataComplement ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Infinite Region + Rect.
 	GdipCreateRegion (&region);
 	GdipCombineRegionRect (region, &rect1, CombineModeComplement);
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Infinite Region + Path.
 	GdipCreateRegion (&region);
 	GdipCombineRegionPath (region, path, CombineModeComplement);
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Empty Region + Infinite Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1342,7 +1350,7 @@ static void test_getRegionDataComplement ()
 	verifyRegionData (region, infiniteRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Empty Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegion (&other);
@@ -1352,7 +1360,7 @@ static void test_getRegionDataComplement ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Empty Region + Rect Region.
 	GdipCreateRegion (&region);
 	GdipCreateRegionRect (&rect1, &other);
@@ -1368,7 +1376,7 @@ static void test_getRegionDataComplement ()
 	GdipCombineRegionRect (region, &rect1, CombineModeComplement);
 	verifyRegionData (region, rectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Rect Region + Empty Region.
 	GdipCreateRegionRect (&rect1, &region);
 	GdipCreateRegion (&other);
@@ -1377,7 +1385,7 @@ static void test_getRegionDataComplement ()
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (other);
-	
+
 	// Path Region + Empty Region.
 	GdipCreateRegionPath (path, &region);
 	GdipCreateRegion (&other);
@@ -1390,7 +1398,8 @@ static void test_getRegionDataComplement ()
 	GdipDeletePath (path);
 }
 
-static void test_getRegionDataSize()
+static void
+test_getRegionDataSize ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -1401,14 +1410,15 @@ static void test_getRegionDataSize()
 	// Negative tests.
 	status = GdipGetRegionDataSize (NULL, &bufferSize);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionDataSize (region, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeleteRegion (region);
 }
 
-static void test_cloneRegion ()
+static void
+test_cloneRegion ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -1418,7 +1428,7 @@ static void test_cloneRegion ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipCloneRegion (region, &clone);
 	assertEqualInt (status, Ok);
 	verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
@@ -1428,13 +1438,13 @@ static void test_cloneRegion ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipCloneRegion (region, &clone);
 	assertEqualInt (status, Ok);
 	verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -1462,7 +1472,8 @@ static void test_cloneRegion ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_deleteRegion ()
+static void
+test_deleteRegion ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -1471,7 +1482,7 @@ static void test_deleteRegion ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipDeleteRegion (region);
 	assertEqualInt (status, Ok);
 
@@ -1479,10 +1490,10 @@ static void test_deleteRegion ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipDeleteRegion (region);
 	assertEqualInt (status, Ok);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -1501,7 +1512,8 @@ static void test_deleteRegion ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_setInfinite ()
+static void
+test_setInfinite ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -1510,7 +1522,7 @@ static void test_setInfinite ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipSetInfinite (region);
 	assertEqualInt (status, Ok);
 	verifyInfiniteRegion (region);
@@ -1520,12 +1532,12 @@ static void test_setInfinite ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipSetInfinite (region);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 	assertEqualInt (status, Ok);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -1548,7 +1560,8 @@ static void test_setInfinite ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_setEmpty ()
+static void
+test_setEmpty ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -1557,7 +1570,7 @@ static void test_setEmpty ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipSetEmpty (region);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 	assertEqualInt (status, Ok);
@@ -1567,12 +1580,12 @@ static void test_setEmpty ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipSetEmpty (region);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 	assertEqualInt (status, Ok);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -1595,7 +1608,8 @@ static void test_setEmpty ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getRegionBounds ()
+static void
+test_getRegionBounds ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -1614,7 +1628,8 @@ static void test_getRegionBounds ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_isEmptyRegion ()
+static void
+test_isEmptyRegion ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -1633,7 +1648,8 @@ static void test_isEmptyRegion ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_isEqualRegion ()
+static void
+test_isEqualRegion ()
 {
 	GpStatus status;
 	GpRegion *infiniteRegion1;
@@ -1683,7 +1699,7 @@ static void test_isEqualRegion ()
 
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GdipCreateRegionRect (&infiniteRect, &infiniteRectRegion1);
-	
+
 	GdipCreateRegionRect (&infiniteRect, &infiniteRectRegion2);
 
 	GdipCreateRegion (&emptyRegion1);
@@ -1694,27 +1710,27 @@ static void test_isEqualRegion ()
 
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion1);
-	
+
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion2);
-	
+
 	GpRectF zeroWidthRect = {1, 2, 0, 4};
 	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion1);
 
 	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion2);
-	
+
 	GpRectF zeroHeightRect = {1, 2, 3, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion1);
-	
+
 	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion2);
-	
+
 	GpRectF negativeWidthRect = {1, 2, -1, 4};
 	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion1);
-	
+
 	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion2);
-	
+
 	GpRectF negativeHeightRect = {1, 2, 3, -1};
 	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion1);
-	
+
 	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion2);
 
 	GpRectF rect1 = {1, 2, 3, 4};
@@ -1739,32 +1755,32 @@ static void test_isEqualRegion ()
 	GpRectF multiRect1_2 = {6, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect1_1, &multiRectRegion1);
 	GdipCombineRegionRect (multiRectRegion1, &multiRect1_2, CombineModeUnion);
-	
+
 	GpRectF multiRect2_1 = {1, 2, 3, 4};
 	GpRectF multiRect2_2 = {6, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect2_1, &multiRectRegion2);
 	GdipCombineRegionRect (multiRectRegion2, &multiRect2_2, CombineModeUnion);
-	
+
 	GpRectF multiRect3_1 = {1, 2, 3, 4};
 	GpRectF multiRect3_2 = {7, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect3_1, &multiRectRegion3);
 	GdipCombineRegionRect (multiRectRegion3, &multiRect3_2, CombineModeUnion);
-	
+
 	GpRectF multiRect4_1 = {1, 2, 3, 4};
 	GpRectF multiRect4_2 = {6, 8, 8, 9};
 	GdipCreateRegionRect (&multiRect4_1, &multiRectRegion4);
 	GdipCombineRegionRect (multiRectRegion4, &multiRect4_2, CombineModeUnion);
-	
+
 	GpRectF multiRect5_1 = {1, 2, 3, 4};
 	GpRectF multiRect5_2 = {6, 7, 9, 9};
 	GdipCreateRegionRect (&multiRect5_1, &multiRectRegion5);
 	GdipCombineRegionRect (multiRectRegion5, &multiRect5_2, CombineModeUnion);
-	
+
 	GpRectF multiRect6_1 = {1, 2, 3, 4};
 	GpRectF multiRect6_2 = {6, 7, 8, 10};
 	GdipCreateRegionRect (&multiRect6_1, &multiRectRegion6);
 	GdipCombineRegionRect (multiRectRegion6, &multiRect6_2, CombineModeUnion);
-	
+
 	GpPath *emptyPath;
 	GdipCreatePath (FillModeAlternate, &emptyPath);
 	GdipCreateRegionPath (emptyPath, &emptyPathRegion1);
@@ -1777,32 +1793,32 @@ static void test_isEqualRegion ()
 	GdipCreateRegionPath (infinitePath, &infinitePathRegion1);
 
 	GdipCreateRegionPath (infinitePath, &infinitePathRegion2);
-	
+
 	GpPath *path1;
 	GdipCreatePath (FillModeAlternate, &path1);
 	GdipAddPathRectangle (path1, 1, 2, 3, 4);
 	GdipCreateRegionPath (path1, &pathRegion1);
-	
+
 	GpPath *path2;
 	GdipCreatePath (FillModeAlternate, &path2);
 	GdipAddPathRectangle (path2, 1, 2, 3, 4);
 	GdipCreateRegionPath (path2, &pathRegion2);
-	
+
 	GpPath *path3;
 	GdipCreatePath (FillModeAlternate, &path3);
 	GdipAddPathRectangle (path3, 2, 2, 3, 4);
 	GdipCreateRegionPath (path3, &pathRegion3);
-	
+
 	GpPath *path4;
 	GdipCreatePath (FillModeAlternate, &path4);
 	GdipAddPathRectangle (path4, 1, 3, 3, 4);
 	GdipCreateRegionPath (path4, &pathRegion4);
-	
+
 	GpPath *path5;
 	GdipCreatePath (FillModeAlternate, &path5);
 	GdipAddPathRectangle (path5, 1, 2, 4, 4);
 	GdipCreateRegionPath (path5, &pathRegion5);
-	
+
 	GpPath *path6;
 	GdipCreatePath (FillModeAlternate, &path6);
 	GdipAddPathRectangle (path6, 1, 2, 3, 5);
@@ -1812,11 +1828,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1828,31 +1844,31 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -1869,7 +1885,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1901,15 +1917,15 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -1930,7 +1946,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1987,7 +2003,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2011,11 +2027,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2031,11 +2047,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Rectangular region - zero width.
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2044,7 +2060,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2072,11 +2088,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2092,11 +2108,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Rectangular region - zero height.
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2105,7 +2121,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2133,11 +2149,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2153,7 +2169,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2166,7 +2182,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2194,11 +2210,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2214,7 +2230,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2227,7 +2243,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2255,11 +2271,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2275,7 +2291,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2288,11 +2304,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, rectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2300,43 +2316,43 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2344,19 +2360,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2364,7 +2380,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2373,75 +2389,75 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Path region - infinite.
 	status = GdipIsEqualRegion (infinitePathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2551,7 +2567,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyPathRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyPathRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2568,7 +2584,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, pathRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2584,19 +2600,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2612,19 +2628,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2668,7 +2684,8 @@ static void test_isEqualRegion ()
 	GdipDeleteRegion (pathRegion6);
 }
 
-static void test_isInfiniteRegion ()
+static void
+test_isInfiniteRegion ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -2687,7 +2704,8 @@ static void test_isInfiniteRegion ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_isVisibleRegionPoint ()
+static void
+test_isVisibleRegionPoint ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -2840,7 +2858,8 @@ static void test_isVisibleRegionPoint ()
 	GdipDeleteRegion (region);
 }
 
-static void test_isVisibleRegionPointI ()
+static void
+test_isVisibleRegionPointI ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -2921,7 +2940,7 @@ static void test_isVisibleRegionPointI ()
 	status = GdipIsVisibleRegionPointI (region, 0, 0, graphics, &isVisible);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isVisible, FALSE);
-	
+
 	status = GdipIsVisibleRegionPointI (region, 10, 20, graphics, &isVisible);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isVisible, FALSE);
@@ -2985,7 +3004,8 @@ static void test_isVisibleRegionPointI ()
 	GdipDeleteRegion (region);
 }
 
-static void test_isVisibleRegionRect ()
+static void
+test_isVisibleRegionRect ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -3210,7 +3230,8 @@ static void test_isVisibleRegionRect ()
 	GdipDeleteRegion (region);
 }
 
-static void test_isVisibleRegionRectI ()
+static void
+test_isVisibleRegionRectI ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -3435,7 +3456,8 @@ static void test_isVisibleRegionRectI ()
 	GdipDeleteRegion (region);
 }
 
-static void test_getRegionScansCount ()
+static void
+test_getRegionScansCount ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -3448,7 +3470,7 @@ static void test_getRegionScansCount ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3458,16 +3480,16 @@ static void test_getRegionScansCount ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
@@ -3475,7 +3497,7 @@ static void test_getRegionScansCount ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3494,7 +3516,8 @@ static void test_getRegionScansCount ()
 	GdipDeleteRegion (region);
 }
 
-static void test_getRegionScans ()
+static void
+test_getRegionScans ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -3520,58 +3543,58 @@ static void test_getRegionScans ()
 	// Rect region - non null rects.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 10, 20, 30, 40);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, translateMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 20, 31, 30, 40);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, scaleMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 50, 120, 150, 240);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, translateScaleMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 60, 131, 150, 240);
 	assertEqualInt (count, 1);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, complexMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 162);
 
 	// Rect region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, translateMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, scaleMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, translateScaleMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, complexMatrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 162);
@@ -3580,17 +3603,17 @@ static void test_getRegionScans ()
 	// Rect region < 0.5 - non null rects.
 	GpRectF lessThanPointFiveRect = {10.2f, 20.2f, 30.2f, 40.2f};
 	GdipCreateRegionRect (&lessThanPointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 11, 21, 30, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region == 0.5 - non null rects.
 	GpRectF pointFiveRect = {10.5f, 20.5f, 30.5f, 40.5f};
 	GdipCreateRegionRect (&pointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (scans[0].X, 11);
@@ -3599,11 +3622,11 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region > 0.5 - non null rects.
 	GpRectF greaterThanPointFiveRect = {10.6f, 20.6f, 30.6f, 40.6f};
 	GdipCreateRegionRect (&greaterThanPointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (scans[0].X, 11);
@@ -3612,57 +3635,57 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width - non null rects.
 	GpRectF zeroWidthRect = {10, 20, 0, 40};
-	status = GdipCreateRegionRect (&zeroWidthRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScans (region, scans, &count, matrix);
+	status		      = GdipCreateRegionRect (&zeroWidthRect, &region);
+	count		      = 0xFF;
+	status		      = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero height - non null rects.
 	GpRectF zeroHeightRect = {10, 20, 30, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width and height - non null rects.
 	GpRectF zeroWidthAndHeightRect = {10, 20, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width - non null rects.
 	GpRectF negativeWidthRect = {10, 20, -30, 40};
-	status = GdipCreateRegionRect (&negativeWidthRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScans (region, scans, &count, matrix);
+	status			  = GdipCreateRegionRect (&negativeWidthRect, &region);
+	count			  = 0xFF;
+	status			  = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative height - non null rects.
 	GpRectF negativeHeightRect = {10, 20, 30, -40};
-	status = GdipCreateRegionRect (&negativeHeightRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScans (region, scans, &count, matrix);
+	status			   = GdipCreateRegionRect (&negativeHeightRect, &region);
+	count			   = 0xFF;
+	status			   = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width and height - non null rects.
 	GpRectF negativeWidthAndHeightRect = {10, 20, 30, -40};
-	status = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScans (region, scans, &count, matrix);
+	status				   = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
+	count				   = 0xFF;
+	status				   = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
@@ -3671,8 +3694,8 @@ static void test_getRegionScans ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (scans[0].X, 10);
@@ -3682,19 +3705,19 @@ static void test_getRegionScans ()
 	assertEqualInt (count, 1);
 
 	// Path region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region < 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.2f, 20.2f, 30.2f, 40.2f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -3707,16 +3730,16 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Width, 30);
 	assertEqualFloat (scans[0].Height, 40);
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region == 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.5f, 20.5f, 30.5f, 40.5f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/430
@@ -3737,16 +3760,16 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[1].Height, 39);
 	assertEqualInt (count, 2);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region > 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.6f, 20.6f, 30.6f, 40.6f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (scans[0].X, 11);
@@ -3760,21 +3783,21 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 39);
 #endif
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region - non null rects.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 
 	// Empty region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
@@ -3782,8 +3805,8 @@ static void test_getRegionScans ()
 
 	// Infinite region - non null rects.
 	GdipCreateRegion (&region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (scans[0].X, -4194304);
@@ -3793,7 +3816,7 @@ static void test_getRegionScans ()
 	assertEqualInt (count, 1);
 
 	// Infinite region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScans (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3816,7 +3839,8 @@ static void test_getRegionScans ()
 	GdipDeleteRegion (region);
 }
 
-static void test_getRegionScansI ()
+static void
+test_getRegionScansI ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -3830,8 +3854,8 @@ static void test_getRegionScansI ()
 	// Rect region - non null rects.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, 10);
@@ -3841,7 +3865,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (count, 1);
 
 	// Rect region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3850,7 +3874,7 @@ static void test_getRegionScansI ()
 	// Rect region < 0.5 - non null rects.
 	GpRectF lessThanPointFiveRect = {10.2f, 20.2f, 30.2f, 40.2f};
 	GdipCreateRegionRect (&lessThanPointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, 11);
@@ -3859,11 +3883,11 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region == 0.5 - non null rects.
 	GpRectF pointFiveRect = {10.5f, 20.5f, 30.5f, 40.5f};
 	GdipCreateRegionRect (&pointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, 11);
@@ -3872,11 +3896,11 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region > 0.5 - non null rects.
 	GpRectF greaterThanPointFiveRect = {10.6f, 20.6f, 30.6f, 40.6f};
 	GdipCreateRegionRect (&greaterThanPointFiveRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, 11);
@@ -3885,57 +3909,57 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width - non null rects.
 	GpRectF zeroWidthRect = {10, 20, 0, 40};
-	status = GdipCreateRegionRect (&zeroWidthRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	status		      = GdipCreateRegionRect (&zeroWidthRect, &region);
+	count		      = 0xFF;
+	status		      = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero height - non null rects.
 	GpRectF zeroHeightRect = {10, 20, 30, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width and height - non null rects.
 	GpRectF zeroWidthAndHeightRect = {10, 20, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width - non null rects.
 	GpRectF negativeWidthRect = {10, 20, -30, 40};
-	status = GdipCreateRegionRect (&negativeWidthRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	status			  = GdipCreateRegionRect (&negativeWidthRect, &region);
+	count			  = 0xFF;
+	status			  = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative height - non null rects.
 	GpRectF negativeHeightRect = {10, 20, 30, -40};
-	status = GdipCreateRegionRect (&negativeHeightRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	status			   = GdipCreateRegionRect (&negativeHeightRect, &region);
+	count			   = 0xFF;
+	status			   = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width and height - non null rects.
 	GpRectF negativeWidthAndHeightRect = {10, 20, 30, -40};
-	status = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	count = 0xFF;
-	status = GdipGetRegionScansI (region, scans, &count, matrix);
+	status				   = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
+	count				   = 0xFF;
+	status				   = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
@@ -3944,8 +3968,8 @@ static void test_getRegionScansI ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, 10);
@@ -3955,19 +3979,19 @@ static void test_getRegionScansI ()
 	assertEqualInt (count, 1);
 
 	// Path region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region < 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.2f, 20.2f, 30.2f, 40.2f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	// FIXME: these are incorrect.
@@ -3978,16 +4002,16 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Width, 30);
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region == 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.5f, 20.5f, 30.5f, 40.5f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/430
@@ -3998,16 +4022,16 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region > 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.6f, 20.6f, 30.6f, 40.6f);
 	GdipCreateRegionPath (path, &region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	// FIXME: these are incorrect: https://github.com/mono/libgdiplus/issues/430
@@ -4018,21 +4042,21 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region - non null rects.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 
 	// Empty region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
@@ -4040,8 +4064,8 @@ static void test_getRegionScansI ()
 
 	// Infinite region - non null rects.
 	GdipCreateRegion (&region);
-	
-	count = 0xFF;
+
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (scans[0].X, -4194304);
@@ -4051,7 +4075,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (count, 1);
 
 	// Infinite region - null rects.
-	count = 0xFF;
+	count  = 0xFF;
 	status = GdipGetRegionScansI (region, NULL, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -4070,7 +4094,8 @@ static void test_getRegionScansI ()
 	GdipDeleteRegion (region);
 }
 
-static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF * scans, INT scansCount, const char *file, const char *function, int line)
+static void
+verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
 {
 	GpStatus status = GdipCombineRegionRegion (region, region2, mode);
 	assertEqualIntImpl (status, Ok, NULL, file, function, line);
@@ -4082,7 +4107,8 @@ static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *regio
 #define verifyCombineRegionWithRegion(region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
 
-static void verifyCombineRegionWithRectImpl (GpRegion *region, RectF *rect, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
+static void
+verifyCombineRegionWithRectImpl (GpRegion *region, RectF *rect, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
 {
 	GpRegion *clone;
 	GdipCloneRegion (region, &clone);
@@ -4103,7 +4129,8 @@ static void verifyCombineRegionWithRectImpl (GpRegion *region, RectF *rect, Comb
 #define verifyCombineRegionWithRect(region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 	verifyCombineRegionWithRectImpl (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
 
-static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
+static void
+verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
 {
 	GpRegion *clone;
 	GdipCloneRegion (region, &clone);
@@ -4124,130 +4151,131 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
 #define verifyCombineRegionWithPath(region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 	verifyCombineRegionWithPathImpl (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
 
-#define verifyCombineInfiniteWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
- \
-	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineInfiniteWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                 \
+	{                                                                                                                           \
+		GpRegion *region;                                                                                                   \
+		GdipCreateRegion (&region);                                                                                         \
+                                                                                                                                    \
+		verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                          \
+	}
 
-#define verifyCombineInfiniteWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
- \
-	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineInfiniteWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                 \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegion (&region);                                                                                    \
+                                                                                                                               \
+		verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombineInfiniteWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
- \
-	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineInfiniteWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                 \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegion (&region);                                                                                    \
+                                                                                                                               \
+		verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombineEmptyWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
-	GdipSetEmpty (region); \
- \
- 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineEmptyWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                    \
+	{                                                                                                                           \
+		GpRegion *region;                                                                                                   \
+		GdipCreateRegion (&region);                                                                                         \
+		GdipSetEmpty (region);                                                                                              \
+                                                                                                                                    \
+		verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                          \
+	}
 
-#define verifyCombineEmptyWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
-	GdipSetEmpty (region); \
- \
- 	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineEmptyWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                    \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegion (&region);                                                                                    \
+		GdipSetEmpty (region);                                                                                         \
+                                                                                                                               \
+		verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombineEmptyWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegion (&region); \
-	GdipSetEmpty (region); \
- \
- 	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineEmptyWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                    \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegion (&region);                                                                                    \
+		GdipSetEmpty (region);                                                                                         \
+                                                                                                                               \
+		verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombineRectWithRegion(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionRect (rect, &region); \
- \
- 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineRectWithRegion(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                           \
+		GpRegion *region;                                                                                                   \
+		GdipCreateRegionRect (rect, &region);                                                                               \
+                                                                                                                                    \
+		verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                          \
+	}
 
-#define verifyCombineRectWithRect(rect, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionRect (rect, &region); \
- \
- 	verifyCombineRegionWithRect (region, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineRectWithRect(rect, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                       \
+		GpRegion *region;                                                                                               \
+		GdipCreateRegionRect (rect, &region);                                                                           \
+                                                                                                                                \
+		verifyCombineRegionWithRect (region, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                      \
+	}
 
-#define verifyCombineRects(rects, rectsCount, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionRect (rects, &region); \
-	int _c = rectsCount / sizeof (GpRectF); \
- \
-	for (int _i = 1; _i < _c - 1; _i++) \
-		GdipCombineRegionRect (region, &rects[_i], mode); \
-	verifyCombineRegionWithRect (region, &rects[_c - 1], mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineRects(rects, rectsCount, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)                         \
+	{                                                                                                                                \
+		GpRegion *region;                                                                                                        \
+		GdipCreateRegionRect (rects, &region);                                                                                   \
+		int _c = rectsCount / sizeof (GpRectF);                                                                                  \
+                                                                                                                                         \
+		for (int _i = 1; _i < _c - 1; _i++)                                                                                      \
+			GdipCombineRegionRect (region, &rects[_i], mode);                                                                \
+		verifyCombineRegionWithRect (region, &rects[_c - 1], mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                               \
+	}
 
-#define verifyCombineRectWithPath(rect, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionRect (rect, &region); \
- \
- 	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombineRectWithPath(rect, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegionRect (rect, &region);                                                                          \
+                                                                                                                               \
+		verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombinePathWithRegion(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionPath (path, &region); \
- \
- 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombinePathWithRegion(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                           \
+		GpRegion *region;                                                                                                   \
+		GdipCreateRegionPath (path, &region);                                                                               \
+                                                                                                                                    \
+		verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                          \
+	}
 
-#define verifyCombinePathWithRect(path, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionPath (path, &region); \
- \
- 	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombinePathWithRect(path, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                      \
+		GpRegion *region;                                                                                              \
+		GdipCreateRegionPath (path, &region);                                                                          \
+                                                                                                                               \
+		verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                     \
+	}
 
-#define verifyCombinePathWithPath(path, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
-{ \
-	GpRegion *region; \
-	GdipCreateRegionPath (path, &region); \
- \
- 	verifyCombineRegionWithPath (region, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
-	GdipDeleteRegion (region); \
-} \
+#define verifyCombinePathWithPath(path, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount)               \
+	{                                                                                                                       \
+		GpRegion *region;                                                                                               \
+		GdipCreateRegionPath (path, &region);                                                                           \
+                                                                                                                                \
+		verifyCombineRegionWithPath (region, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+		GdipDeleteRegion (region);                                                                                      \
+	}
 
-static GpPath *createPathFromRect(RectF *rect)
+static GpPath *
+createPathFromRect (RectF *rect)
 {
 	GpPath *path;
 	GdipCreatePath (FillModeAlternate, &path);
@@ -4255,7 +4283,8 @@ static GpPath *createPathFromRect(RectF *rect)
 	return path;
 }
 
-static void test_combineReplace ()
+static void
+test_combineReplace ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -4331,7 +4360,8 @@ static void test_combineReplace ()
 	GdipDeletePath (path2);
 }
 
-static void test_combineIntersect ()
+static void
+test_combineIntersect ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -4343,68 +4373,68 @@ static void test_combineIntersect ()
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
-	RectF rect = {10, 20, 30, 40};
-	RectF superRect = {0, 10, 50, 60};
-	RectF subRect = {15, 25, 20, 30};
-	RectF intersectLeftRect = {0, 20, 30, 40};
-	RectF intersectTopRect = {10, 10, 30, 40};
-	RectF intersectRightRect = {20, 20, 30, 40};
-	RectF intersectBottomRect = {10, 30, 30, 40};
-	RectF intersectTopLeftRect = {0, 10, 30, 40};
-	RectF intersectTopRightRect = {20, 10, 30, 40};
-	RectF intersectBottomRightRect = {20, 30, 30, 40};
-	RectF intersectBottomLeftRect = {0, 30, 30, 40};
-	RectF touchingLeftRect = {-20, 20, 30, 40};
-	RectF touchingTopRect = {10, -20, 30, 40};
-	RectF touchingRightRect = {40, 20, 30, 40};
-	RectF touchingBottomRect = {10, 60, 30, 40};
-	RectF touchingTopLeftRect = {-20, -20, 30, 40};
-	RectF touchingTopRightRect = {40, -20, 30, 40};
-	RectF touchingBottomRightRect = {40, 60, 30, 40};
-	RectF touchingBottomLeftRect = {-20, 60, 30, 40};
-	RectF noIntersectLeftRect = {-21, 20, 30, 40};
-	RectF noIntersectTopRect = {10, -21, 30, 40};
-	RectF noIntersectRightRect = {41, 20, 30, 40};
-	RectF noIntersectBottomRect = {10, 61, 30, 40};
-	RectF noIntersectTopLeftRect = {-21, -21, 30, 40};
-	RectF noIntersectTopRightRect = {41, -21, 30, 40};
+	RectF rect			 = {10, 20, 30, 40};
+	RectF superRect			 = {0, 10, 50, 60};
+	RectF subRect			 = {15, 25, 20, 30};
+	RectF intersectLeftRect		 = {0, 20, 30, 40};
+	RectF intersectTopRect		 = {10, 10, 30, 40};
+	RectF intersectRightRect	 = {20, 20, 30, 40};
+	RectF intersectBottomRect	= {10, 30, 30, 40};
+	RectF intersectTopLeftRect       = {0, 10, 30, 40};
+	RectF intersectTopRightRect      = {20, 10, 30, 40};
+	RectF intersectBottomRightRect   = {20, 30, 30, 40};
+	RectF intersectBottomLeftRect    = {0, 30, 30, 40};
+	RectF touchingLeftRect		 = {-20, 20, 30, 40};
+	RectF touchingTopRect		 = {10, -20, 30, 40};
+	RectF touchingRightRect		 = {40, 20, 30, 40};
+	RectF touchingBottomRect	 = {10, 60, 30, 40};
+	RectF touchingTopLeftRect	= {-20, -20, 30, 40};
+	RectF touchingTopRightRect       = {40, -20, 30, 40};
+	RectF touchingBottomRightRect    = {40, 60, 30, 40};
+	RectF touchingBottomLeftRect     = {-20, 60, 30, 40};
+	RectF noIntersectLeftRect	= {-21, 20, 30, 40};
+	RectF noIntersectTopRect	 = {10, -21, 30, 40};
+	RectF noIntersectRightRect       = {41, 20, 30, 40};
+	RectF noIntersectBottomRect      = {10, 61, 30, 40};
+	RectF noIntersectTopLeftRect     = {-21, -21, 30, 40};
+	RectF noIntersectTopRightRect    = {41, -21, 30, 40};
 	RectF noIntersectBottomRightRect = {41, 61, 30, 40};
-	RectF noIntersectBottomLeftRect = {-21, 61, 30, 40};
-	RectF emptyRect = {0, 0, 0, 0};
-	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
-	RectF negativeRect = {20, 30, -10, -10};
+	RectF noIntersectBottomLeftRect  = {-21, 61, 30, 40};
+	RectF emptyRect			 = {0, 0, 0, 0};
+	RectF infiniteRect		 = {-4194304, -4194304, 8388608, 8388608};
+	RectF negativeRect		 = {20, 30, -10, -10};
 	GdipCreateRegionRect (&rect, &rectRegion);
 
-	GpPath *path = createPathFromRect (&rect);
-	GpPath *superPath = createPathFromRect (&superRect);
-	GpPath *subPath = createPathFromRect (&subRect);
-	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
-	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
-	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
-	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
-	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
-	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
-	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
-	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
-	GpPath *touchingLeftPath = createPathFromRect (&touchingLeftRect);
-	GpPath *touchingTopPath = createPathFromRect (&touchingTopRect);
-	GpPath *touchingRightPath = createPathFromRect (&touchingRightRect);
-	GpPath *touchingBottomPath = createPathFromRect (&touchingBottomRect);
-	GpPath *touchingTopLeftPath = createPathFromRect (&touchingTopLeftRect);
-	GpPath *touchingTopRightPath = createPathFromRect (&touchingTopRightRect);
-	GpPath *touchingBottomRightPath = createPathFromRect (&touchingBottomRightRect);
-	GpPath *touchingBottomLeftPath = createPathFromRect (&touchingBottomLeftRect);
-	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
-	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
-	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
-	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
-	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
-	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *path			   = createPathFromRect (&rect);
+	GpPath *superPath		   = createPathFromRect (&superRect);
+	GpPath *subPath			   = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath	  = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath	   = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath	 = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath	= createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath       = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath      = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath   = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath    = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *touchingLeftPath	   = createPathFromRect (&touchingLeftRect);
+	GpPath *touchingTopPath		   = createPathFromRect (&touchingTopRect);
+	GpPath *touchingRightPath	  = createPathFromRect (&touchingRightRect);
+	GpPath *touchingBottomPath	 = createPathFromRect (&touchingBottomRect);
+	GpPath *touchingTopLeftPath	= createPathFromRect (&touchingTopLeftRect);
+	GpPath *touchingTopRightPath       = createPathFromRect (&touchingTopRightRect);
+	GpPath *touchingBottomRightPath    = createPathFromRect (&touchingBottomRightRect);
+	GpPath *touchingBottomLeftPath     = createPathFromRect (&touchingBottomLeftRect);
+	GpPath *noIntersectLeftPath	= createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath	 = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath       = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath      = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath     = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath    = createPathFromRect (&noIntersectTopRightRect);
 	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
-	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
-	GpPath *emptyPath = createPathFromRect (&emptyRect);
-	GpPath *infinitePath = createPathFromRect (&infiniteRect);
-	GpPath *negativePath = createPathFromRect (&negativeRect);
+	GpPath *noIntersectBottomLeftPath  = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath		   = createPathFromRect (&emptyRect);
+	GpPath *infinitePath		   = createPathFromRect (&infiniteRect);
+	GpPath *negativePath		   = createPathFromRect (&negativeRect);
 
 	GdipCreateRegionPath (path, &pathRegion);
 
@@ -4413,7 +4443,7 @@ static void test_combineIntersect ()
 
 	// Infinite + Empty = Empty.
 	verifyCombineInfiniteWithRegion (emptyRegion, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Infinite + Infinite Rect = Infinite.
 	verifyCombineInfiniteWithRect (&infiniteRect, CombineModeIntersect, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -4422,7 +4452,7 @@ static void test_combineIntersect ()
 
 	// Infinite + Rect = Rect.
 	verifyCombineInfiniteWithRect (&rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite + Negative Rect = Rect.
 	{
 		GpRegion *region;
@@ -4470,7 +4500,7 @@ static void test_combineIntersect ()
 
 	// Empty + Rect = Rect.
 	verifyCombineEmptyWithRect (&rect, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Empty + Infinite Rect = Empty.
 	verifyCombineEmptyWithPath (infinitePath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -4494,7 +4524,7 @@ static void test_combineIntersect ()
 
 	// Infinite Rect + Rect = Rect.
 	verifyCombineRectWithRect (&infiniteRect, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite Path = Infinite.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/411
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -4745,7 +4775,7 @@ static void test_combineIntersect ()
 
 	// Rect + No Intersect Bottom Left = Empty.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Infinite Path + Infinite = Infinite.
 	verifyCombinePathWithRegion (infinitePath, infiniteRegion, CombineModeIntersect, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -4760,7 +4790,7 @@ static void test_combineIntersect ()
 
 	// Infinite Path + Rect = Rect.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Path + Infinite Path = Infinite.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/411
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -4946,7 +4976,7 @@ static void test_combineIntersect ()
 
 	// Path + Intersect Bottom Left = Calculation.
 	verifyCombinePathWithPath (path, intersectBottomLeftPath, CombineModeIntersect, 10, 30, 20, 30, FALSE, FALSE, &intersectBottomLeftScan, sizeof (intersectBottomLeftScan));
-	
+
 	// Path + Touching Left = Empty.
 	verifyCombinePathWithPath (path, touchingLeftPath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -5031,7 +5061,8 @@ static void test_combineIntersect ()
 	GdipDeletePath (negativePath);
 }
 
-static void test_combineUnion ()
+static void
+test_combineUnion ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -5236,36 +5267,36 @@ static void test_combineUnion ()
 
 	GdipCreateRegionRect (&rect, &rectRegion);
 
-	GpPath *path = createPathFromRect (&rect);
-	GpPath *superPath = createPathFromRect (&superRect);
-	GpPath *subPath = createPathFromRect (&subRect);
-	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
-	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
-	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
-	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
-	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
-	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
-	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
-	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
-	GpPath *touchingLeftPath = createPathFromRect (&touchingLeftRect);
-	GpPath *touchingTopPath = createPathFromRect (&touchingTopRect);
-	GpPath *touchingRightPath = createPathFromRect (&touchingRightRect);
-	GpPath *touchingBottomPath = createPathFromRect (&touchingBottomRect);
-	GpPath *touchingTopLeftPath = createPathFromRect (&touchingTopLeftRect);
-	GpPath *touchingTopRightPath = createPathFromRect (&touchingTopRightRect);
-	GpPath *touchingBottomRightPath = createPathFromRect (&touchingBottomRightRect);
-	GpPath *touchingBottomLeftPath = createPathFromRect (&touchingBottomLeftRect);
-	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
-	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
-	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
-	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
-	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
-	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *path			   = createPathFromRect (&rect);
+	GpPath *superPath		   = createPathFromRect (&superRect);
+	GpPath *subPath			   = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath	  = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath	   = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath	 = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath	= createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath       = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath      = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath   = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath    = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *touchingLeftPath	   = createPathFromRect (&touchingLeftRect);
+	GpPath *touchingTopPath		   = createPathFromRect (&touchingTopRect);
+	GpPath *touchingRightPath	  = createPathFromRect (&touchingRightRect);
+	GpPath *touchingBottomPath	 = createPathFromRect (&touchingBottomRect);
+	GpPath *touchingTopLeftPath	= createPathFromRect (&touchingTopLeftRect);
+	GpPath *touchingTopRightPath       = createPathFromRect (&touchingTopRightRect);
+	GpPath *touchingBottomRightPath    = createPathFromRect (&touchingBottomRightRect);
+	GpPath *touchingBottomLeftPath     = createPathFromRect (&touchingBottomLeftRect);
+	GpPath *noIntersectLeftPath	= createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath	 = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath       = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath      = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath     = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath    = createPathFromRect (&noIntersectTopRightRect);
 	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
-	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
-	GpPath *emptyPath = createPathFromRect (&emptyRect);
-	GpPath *infinitePath = createPathFromRect (&infiniteRect);
-	GpPath *negativePath = createPathFromRect (&negativeRect);
+	GpPath *noIntersectBottomLeftPath  = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath		   = createPathFromRect (&emptyRect);
+	GpPath *infinitePath		   = createPathFromRect (&infiniteRect);
+	GpPath *negativePath		   = createPathFromRect (&negativeRect);
 
 	GdipCreateRegionPath (path, &pathRegion);
 
@@ -5283,7 +5314,7 @@ static void test_combineUnion ()
 
 	// Infinite + Rect = Infinite.
 	verifyCombineInfiniteWithRect (&rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	verifyCombineInfiniteWithRect (&negativeRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5322,7 +5353,7 @@ static void test_combineUnion ()
 
 	// Empty + Path = Path.
 	verifyCombineEmptyWithPath (path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&infiniteRect, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5346,7 +5377,7 @@ static void test_combineUnion ()
 
 	// Infinite Rect + Path = Infinite.
 	verifyCombineRectWithPath (&infiniteRect, path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Empty Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&emptyRect, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5406,7 +5437,7 @@ static void test_combineUnion ()
 
 	// Rect + Intersect Top = Calculation.
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, intersectTopScansRect, sizeof (intersectTopScansRect));
-	
+
 	// Rect + Intersect Right = Calculation.
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
@@ -5448,7 +5479,7 @@ static void test_combineUnion ()
 
 	// Rect + Touching Bottom Left = Both.
 	verifyCombineRectWithRect (&rect, &touchingBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Rect + No Intersect Left = Both.
 	verifyCombineRectWithRect (&rect, &noIntersectLeftRect, CombineModeUnion, -21, 20, 61, 40, FALSE, FALSE, noIntersectLeftScans, sizeof (noIntersectLeftScans));
 
@@ -5460,7 +5491,7 @@ static void test_combineUnion ()
 
 	// Rect + No Intersect Bottom = Both.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 81, FALSE, FALSE, noIntersectBottomScans, sizeof (noIntersectBottomScans));
-	
+
 	// Rect + Intersect Left Narrow = Calculation.
 	verifyCombineRectWithRect (&rect, &intersectLeftNarrowRect, CombineModeUnion, -30, 20, 70, 40, FALSE, FALSE, intersectLeftNarrowScans, sizeof (intersectLeftNarrowScans));
 
@@ -5516,39 +5547,33 @@ static void test_combineUnion ()
 
 	// Rect + No Intersect Top Left = Both.
 	RectF noIntersectTopLeftScans[] = {
-		noIntersectTopLeftRect,
-		rect
-	};
+	    noIntersectTopLeftRect,
+	    rect};
 	verifyCombineRectWithRect (&rect, &noIntersectTopLeftRect, CombineModeUnion, -21, -21, 61, 81, FALSE, FALSE, noIntersectTopLeftScans, sizeof (noIntersectTopLeftScans));
 
 	// Rect + No Intersect Top Right = Both.
 	RectF noIntersectTopRightScans[] = {
-		noIntersectTopRightRect,
-		rect
-	};
+	    noIntersectTopRightRect,
+	    rect};
 	verifyCombineRectWithRect (&rect, &noIntersectTopRightRect, CombineModeUnion, 10, -21, 61, 81, FALSE, FALSE, noIntersectTopRightScans, sizeof (noIntersectTopRightScans));
 
 	// Rect + No Intersect Bottom Right = Both.
 	RectF noIntersectBottomRightScans[] = {
-		rect,
-		noIntersectBottomRightRect
-	};
+	    rect,
+	    noIntersectBottomRightRect};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRightRect, CombineModeUnion, 10, 20, 61, 81, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
 
 	// Rect + No Intersect Bottom Left = Both.
 	RectF noIntersectBottomLeftScans[] = {
-		rect,
-		noIntersectBottomLeftRect
-	};
+	    rect,
+	    noIntersectBottomLeftRect};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeUnion, -21, 20, 61, 81, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
 	// No Intersect Top Rect + No Intersect Bottom Right = Both.
 	RectF noIntersectTopAndBottomRight[] = {
-		touchingTopRect,
-		touchingBottomRightRect
-	};
+	    touchingTopRect,
+	    touchingBottomRightRect};
 	verifyCombineRectWithRect (&touchingTopRect, &touchingBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
-
 
 	// Rect + Infinite Path = Infinite.
 	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
@@ -5670,7 +5695,7 @@ static void test_combineUnion ()
 
 	// Infinite Path + Rect = Infinite.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Infinite Path + Infinite Path = Infinite.
 	verifyCombinePathWithPath (infinitePath, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5682,7 +5707,7 @@ static void test_combineUnion ()
 
 	// Infinite Path + Path = Infinite.
 	verifyCombinePathWithPath (infinitePath, path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Empty Path + Infinite = Infinite.
 	verifyCombinePathWithRegion (emptyPath, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5742,7 +5767,7 @@ static void test_combineUnion ()
 
 	// Path + Intersect Top = Calculation.
 	verifyCombinePathWithRect (path, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
-	
+
 	// Path + Intersect Right = Calculation.
 	verifyCombinePathWithRect (path, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
@@ -5887,7 +5912,7 @@ static void test_combineUnion ()
 
 	// Path + Touching Bottom Left = Both.
 	verifyCombinePathWithPath (path, touchingBottomLeftPath, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Path + No Intersect Left = Calculation.
 	// FIXME: scans are wrong: https://github.com/mono/libgdiplus/issues/413
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -5958,7 +5983,8 @@ static void test_combineUnion ()
 	GdipDeletePath (negativePath);
 }
 
-static void test_combineXor ()
+static void
+test_combineXor ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -5970,68 +5996,68 @@ static void test_combineXor ()
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
-	RectF rect = {10, 20, 30, 40};
-	RectF superRect = {0, 10, 50, 60};
-	RectF subRect = {15, 25, 20, 30};
-	RectF intersectLeftRect = {0, 20, 30, 40};
-	RectF intersectTopRect = {10, 10, 30, 40};
-	RectF intersectRightRect = {20, 20, 30, 40};
-	RectF intersectBottomRect = {10, 30, 30, 40};
-	RectF intersectTopLeftRect = {0, 10, 30, 40};
-	RectF intersectTopRightRect = {20, 10, 30, 40};
-	RectF intersectBottomRightRect = {20, 30, 30, 40};
-	RectF intersectBottomLeftRect = {0, 30, 30, 40};
-	RectF touchingLeftRect = {-20, 20, 30, 40};
-	RectF touchingTopRect = {10, -20, 30, 40};
-	RectF touchingRightRect = {40, 20, 30, 40};
-	RectF touchingBottomRect = {10, 60, 30, 40};
-	RectF touchingTopLeftRect = {-20, -20, 30, 40};
-	RectF touchingTopRightRect = {40, -20, 30, 40};
-	RectF touchingBottomRightRect = {40, 60, 30, 40};
-	RectF touchingBottomLeftRect = {-20, 60, 30, 40};
-	RectF noIntersectLeftRect = {-21, 20, 30, 40};
-	RectF noIntersectTopRect = {10, -21, 30, 40};
-	RectF noIntersectRightRect = {41, 20, 30, 40};
-	RectF noIntersectBottomRect = {10, 61, 30, 40};
-	RectF noIntersectTopLeftRect = {-21, -21, 30, 40};
-	RectF noIntersectTopRightRect = {41, -21, 30, 40};
+	RectF rect			 = {10, 20, 30, 40};
+	RectF superRect			 = {0, 10, 50, 60};
+	RectF subRect			 = {15, 25, 20, 30};
+	RectF intersectLeftRect		 = {0, 20, 30, 40};
+	RectF intersectTopRect		 = {10, 10, 30, 40};
+	RectF intersectRightRect	 = {20, 20, 30, 40};
+	RectF intersectBottomRect	= {10, 30, 30, 40};
+	RectF intersectTopLeftRect       = {0, 10, 30, 40};
+	RectF intersectTopRightRect      = {20, 10, 30, 40};
+	RectF intersectBottomRightRect   = {20, 30, 30, 40};
+	RectF intersectBottomLeftRect    = {0, 30, 30, 40};
+	RectF touchingLeftRect		 = {-20, 20, 30, 40};
+	RectF touchingTopRect		 = {10, -20, 30, 40};
+	RectF touchingRightRect		 = {40, 20, 30, 40};
+	RectF touchingBottomRect	 = {10, 60, 30, 40};
+	RectF touchingTopLeftRect	= {-20, -20, 30, 40};
+	RectF touchingTopRightRect       = {40, -20, 30, 40};
+	RectF touchingBottomRightRect    = {40, 60, 30, 40};
+	RectF touchingBottomLeftRect     = {-20, 60, 30, 40};
+	RectF noIntersectLeftRect	= {-21, 20, 30, 40};
+	RectF noIntersectTopRect	 = {10, -21, 30, 40};
+	RectF noIntersectRightRect       = {41, 20, 30, 40};
+	RectF noIntersectBottomRect      = {10, 61, 30, 40};
+	RectF noIntersectTopLeftRect     = {-21, -21, 30, 40};
+	RectF noIntersectTopRightRect    = {41, -21, 30, 40};
 	RectF noIntersectBottomRightRect = {41, 61, 30, 40};
-	RectF noIntersectBottomLeftRect = {-21, 61, 30, 40};
-	RectF emptyRect = {0, 0, 0, 0};
-	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
-	RectF negativeRect = {20, 30, -10, -10};
+	RectF noIntersectBottomLeftRect  = {-21, 61, 30, 40};
+	RectF emptyRect			 = {0, 0, 0, 0};
+	RectF infiniteRect		 = {-4194304, -4194304, 8388608, 8388608};
+	RectF negativeRect		 = {20, 30, -10, -10};
 	GdipCreateRegionRect (&rect, &rectRegion);
 
-	GpPath *path = createPathFromRect (&rect);
-	GpPath *superPath = createPathFromRect (&superRect);
-	GpPath *subPath = createPathFromRect (&subRect);
-	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
-	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
-	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
-	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
-	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
-	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
-	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
-	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
-	GpPath *touchingLeftPath = createPathFromRect (&touchingLeftRect);
-	GpPath *touchingTopPath = createPathFromRect (&touchingTopRect);
-	GpPath *touchingRightPath = createPathFromRect (&touchingRightRect);
-	GpPath *touchingBottomPath = createPathFromRect (&touchingBottomRect);
-	GpPath *touchingTopLeftPath = createPathFromRect (&touchingTopLeftRect);
-	GpPath *touchingTopRightPath = createPathFromRect (&touchingTopRightRect);
-	GpPath *touchingBottomRightPath = createPathFromRect (&touchingBottomRightRect);
-	GpPath *touchingBottomLeftPath = createPathFromRect (&touchingBottomLeftRect);
-	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
-	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
-	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
-	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
-	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
-	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *path			   = createPathFromRect (&rect);
+	GpPath *superPath		   = createPathFromRect (&superRect);
+	GpPath *subPath			   = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath	  = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath	   = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath	 = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath	= createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath       = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath      = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath   = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath    = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *touchingLeftPath	   = createPathFromRect (&touchingLeftRect);
+	GpPath *touchingTopPath		   = createPathFromRect (&touchingTopRect);
+	GpPath *touchingRightPath	  = createPathFromRect (&touchingRightRect);
+	GpPath *touchingBottomPath	 = createPathFromRect (&touchingBottomRect);
+	GpPath *touchingTopLeftPath	= createPathFromRect (&touchingTopLeftRect);
+	GpPath *touchingTopRightPath       = createPathFromRect (&touchingTopRightRect);
+	GpPath *touchingBottomRightPath    = createPathFromRect (&touchingBottomRightRect);
+	GpPath *touchingBottomLeftPath     = createPathFromRect (&touchingBottomLeftRect);
+	GpPath *noIntersectLeftPath	= createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath	 = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath       = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath      = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath     = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath    = createPathFromRect (&noIntersectTopRightRect);
 	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
-	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
-	GpPath *emptyPath = createPathFromRect (&emptyRect);
-	GpPath *infinitePath = createPathFromRect (&infiniteRect);
-	GpPath *negativePath = createPathFromRect (&negativeRect);
+	GpPath *noIntersectBottomLeftPath  = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath		   = createPathFromRect (&emptyRect);
+	GpPath *infinitePath		   = createPathFromRect (&infiniteRect);
+	GpPath *negativePath		   = createPathFromRect (&negativeRect);
 
 	GdipCreateRegionPath (path, &pathRegion);
 
@@ -6060,7 +6086,7 @@ static void test_combineXor ()
 	};
 	// clang-format on
 	verifyCombineInfiniteWithRect (&rect, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	{
 		GpRegion *region;
@@ -6088,7 +6114,7 @@ static void test_combineXor ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite + Infinite Path = Empty
 	// FIXME: shoud be infinite: https://github.com/mono/libgdiplus/issues/342
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -6129,7 +6155,7 @@ static void test_combineXor ()
 
 	// Empty + Path = Path.
 	verifyCombineEmptyWithPath (path, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite = Empty.
 	verifyCombineRectWithRegion (&infiniteRect, infiniteRegion, CombineModeXor, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -6339,9 +6365,8 @@ static void test_combineXor ()
 	RectF touchingLeftScans[] = {{-20, 20, 60, 40}};
 #else
 	RectF touchingLeftScans[] = {
-		rect,
-		touchingLeftRect
-	};
+	    rect,
+	    touchingLeftRect};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingLeftRect, CombineModeXor, -20, 20, 60, 40, FALSE, FALSE, touchingLeftScans, sizeof (touchingLeftScans));
 
@@ -6351,9 +6376,8 @@ static void test_combineXor ()
 	RectF touchingTopScans[] = {{10, -20, 30, 80}};
 #else
 	RectF touchingTopScans[] = {
-		rect,
-		touchingTopRect
-	};
+	    rect,
+	    touchingTopRect};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingTopRect, CombineModeXor, 10, -20, 30, 80, FALSE, FALSE, touchingTopScans, sizeof (touchingTopScans));
 
@@ -6363,9 +6387,8 @@ static void test_combineXor ()
 	RectF touchingRightScans[] = {{10, 20, 60, 40}};
 #else
 	RectF touchingRightScans[] = {
-		rect,
-		touchingRightRect
-	};
+	    rect,
+	    touchingRightRect};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingRightRect, CombineModeXor, 10, 20, 60, 40, FALSE, FALSE, touchingRightScans, sizeof (touchingRightScans));
 
@@ -6374,7 +6397,7 @@ static void test_combineXor ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	RectF touchingBottomScans[] = {{10, 20, 30, 80}};
 #else
-	RectF touchingBottomScans[] = {{10, 20, 30, 40}, {10, 60, 30, 40}};
+	RectF touchingBottomScans[]  = {{10, 20, 30, 40}, {10, 60, 30, 40}};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingBottomRect, CombineModeXor, 10, 20, 30, 80, FALSE, FALSE, touchingBottomScans, sizeof (touchingBottomScans));
 
@@ -6382,14 +6405,12 @@ static void test_combineXor ()
 	// FIXME: different ordering: https://github.com/mono/libgdiplus/issues/346
 #if defined(USE_WINDOWS_GDIPLUS)
 	RectF touchingTopLeftScans[] = {
-		touchingTopLeftRect,
-		rect
-	};
+	    touchingTopLeftRect,
+	    rect};
 #else
 	RectF touchingTopLeftScans[] = {
-		rect,
-		touchingTopLeftRect
-	};
+	    rect,
+	    touchingTopLeftRect};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingTopLeftRect, CombineModeXor, -20, -20, 60, 80, FALSE, FALSE, touchingTopLeftScans, sizeof (touchingTopLeftScans));
 
@@ -6397,29 +6418,25 @@ static void test_combineXor ()
 	// FIXME: different ordering: https://github.com/mono/libgdiplus/issues/346
 #if defined(USE_WINDOWS_GDIPLUS)
 	RectF touchingTopRightScans[] = {
-		touchingTopRightRect,
-		rect
-	};
+	    touchingTopRightRect,
+	    rect};
 #else
 	RectF touchingTopRightScans[] = {
-		rect,
-		touchingTopRightRect
-	};
+	    rect,
+	    touchingTopRightRect};
 #endif
 	verifyCombineRectWithRect (&rect, &touchingTopRightRect, CombineModeXor, 10, -20, 60, 80, FALSE, FALSE, touchingTopRightScans, sizeof (touchingTopRightScans));
 
 	// Rect + Touching Bottom Right = Both.
 	RectF touchingBottomRightScans[] = {
-		rect,
-		touchingBottomRightRect
-	};
+	    rect,
+	    touchingBottomRightRect};
 	verifyCombineRectWithRect (&rect, &touchingBottomRightRect, CombineModeXor, 10, 20, 60, 80, FALSE, FALSE, touchingBottomRightScans, sizeof (touchingBottomRightScans));
 
 	// Rect + Touching Bottom Left = Both.
 	RectF touchingBottomLeftScans[] = {
-		rect,
-		touchingBottomLeftRect
-	};
+	    rect,
+	    touchingBottomLeftRect};
 	verifyCombineRectWithRect (&rect, &touchingBottomLeftRect, CombineModeXor, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
 
 	// Rect + No Intersect Left = Both.
@@ -6448,16 +6465,14 @@ static void test_combineXor ()
 
 	// Rect + No Intersect Right = Both.
 	RectF noIntersectRightScans[] = {
-		rect,
-		noIntersectRightRect
-	};
+	    rect,
+	    noIntersectRightRect};
 	verifyCombineRectWithRect (&rect, &noIntersectRightRect, CombineModeXor, 10, 20, 61, 40, FALSE, FALSE, noIntersectRightScans, sizeof (noIntersectRightScans));
 
 	// Rect + No Intersect Bottom = Both.
 	RectF noIntersectBottomScans[] = {
-		rect,
-		noIntersectBottomRect
-	};
+	    rect,
+	    noIntersectBottomRect};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeXor, 10, 20, 30, 81, FALSE, FALSE, noIntersectBottomScans, sizeof (noIntersectBottomScans));
 
 	// Rect + No Intersect Top Left = Both.
@@ -6486,16 +6501,14 @@ static void test_combineXor ()
 
 	// Rect + No Intersect Bottom Right = Both.
 	RectF noIntersectBottomRightScans[] = {
-		rect,
-		noIntersectBottomRightRect
-	};
+	    rect,
+	    noIntersectBottomRightRect};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRightRect, CombineModeXor, 10, 20, 61, 81, FALSE, FALSE, noIntersectBottomRightScans, sizeof (noIntersectBottomRightScans));
 
 	// Rect + No Intersect Bottom Left = Both.
 	RectF noIntersectBottomLeftScans[] = {
-		rect,
-		noIntersectBottomLeftRect
-	};
+	    rect,
+	    noIntersectBottomLeftRect};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeXor, -21, 20, 61, 81, FALSE, FALSE, noIntersectBottomLeftScans, sizeof (noIntersectBottomLeftScans));
 
 	// Rect + Infinite Path = Not Path.
@@ -6754,7 +6767,7 @@ static void test_combineXor ()
 
 	// Path + Touching Bottom Left = Both.
 	verifyCombinePathWithRect (path, &touchingBottomLeftRect, CombineModeXor, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Path + No Intersect Left = Both.
 	verifyCombinePathWithRect (path, &noIntersectLeftRect, CombineModeXor, -21, 20, 61, 40, FALSE, FALSE, noIntersectLeftScans, sizeof (noIntersectLeftScans));
 
@@ -6912,7 +6925,8 @@ static void test_combineXor ()
 	GdipDeletePath (negativePath);
 }
 
-static void test_combineExclude ()
+static void
+test_combineExclude ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -6924,68 +6938,68 @@ static void test_combineExclude ()
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
-	RectF rect = {10, 20, 30, 40};
-	RectF superRect = {0, 10, 50, 60};
-	RectF subRect = {15, 25, 20, 30};
-	RectF intersectLeftRect = {0, 20, 30, 40};
-	RectF intersectTopRect = {10, 10, 30, 40};
-	RectF intersectRightRect = {20, 20, 30, 40};
-	RectF intersectBottomRect = {10, 30, 30, 40};
-	RectF intersectTopLeftRect = {0, 10, 30, 40};
-	RectF intersectTopRightRect = {20, 10, 30, 40};
-	RectF intersectBottomRightRect = {20, 30, 30, 40};
-	RectF intersectBottomLeftRect = {0, 30, 30, 40};
-	RectF touchingLeftRect = {-20, 20, 30, 40};
-	RectF touchingTopRect = {10, -20, 30, 40};
-	RectF touchingRightRect = {40, 20, 30, 40};
-	RectF touchingBottomRect = {10, 60, 30, 40};
-	RectF touchingTopLeftRect = {-20, -20, 30, 40};
-	RectF touchingTopRightRect = {40, -20, 30, 40};
-	RectF touchingBottomRightRect = {40, 60, 30, 40};
-	RectF touchingBottomLeftRect = {-20, 60, 30, 40};
-	RectF noIntersectLeftRect = {-21, 20, 30, 40};
-	RectF noIntersectTopRect = {10, -21, 30, 40};
-	RectF noIntersectRightRect = {41, 20, 30, 40};
-	RectF noIntersectBottomRect = {10, 61, 30, 40};
-	RectF noIntersectTopLeftRect = {-21, -21, 30, 40};
-	RectF noIntersectTopRightRect = {41, -21, 30, 40};
+	RectF rect			 = {10, 20, 30, 40};
+	RectF superRect			 = {0, 10, 50, 60};
+	RectF subRect			 = {15, 25, 20, 30};
+	RectF intersectLeftRect		 = {0, 20, 30, 40};
+	RectF intersectTopRect		 = {10, 10, 30, 40};
+	RectF intersectRightRect	 = {20, 20, 30, 40};
+	RectF intersectBottomRect	= {10, 30, 30, 40};
+	RectF intersectTopLeftRect       = {0, 10, 30, 40};
+	RectF intersectTopRightRect      = {20, 10, 30, 40};
+	RectF intersectBottomRightRect   = {20, 30, 30, 40};
+	RectF intersectBottomLeftRect    = {0, 30, 30, 40};
+	RectF touchingLeftRect		 = {-20, 20, 30, 40};
+	RectF touchingTopRect		 = {10, -20, 30, 40};
+	RectF touchingRightRect		 = {40, 20, 30, 40};
+	RectF touchingBottomRect	 = {10, 60, 30, 40};
+	RectF touchingTopLeftRect	= {-20, -20, 30, 40};
+	RectF touchingTopRightRect       = {40, -20, 30, 40};
+	RectF touchingBottomRightRect    = {40, 60, 30, 40};
+	RectF touchingBottomLeftRect     = {-20, 60, 30, 40};
+	RectF noIntersectLeftRect	= {-21, 20, 30, 40};
+	RectF noIntersectTopRect	 = {10, -21, 30, 40};
+	RectF noIntersectRightRect       = {41, 20, 30, 40};
+	RectF noIntersectBottomRect      = {10, 61, 30, 40};
+	RectF noIntersectTopLeftRect     = {-21, -21, 30, 40};
+	RectF noIntersectTopRightRect    = {41, -21, 30, 40};
 	RectF noIntersectBottomRightRect = {41, 61, 30, 40};
-	RectF noIntersectBottomLeftRect = {-21, 61, 30, 40};
-	RectF emptyRect = {0, 0, 0, 0};
-	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
-	RectF negativeRect = {20, 30, -10, -10};
+	RectF noIntersectBottomLeftRect  = {-21, 61, 30, 40};
+	RectF emptyRect			 = {0, 0, 0, 0};
+	RectF infiniteRect		 = {-4194304, -4194304, 8388608, 8388608};
+	RectF negativeRect		 = {20, 30, -10, -10};
 	GdipCreateRegionRect (&rect, &rectRegion);
 
-	GpPath *path = createPathFromRect (&rect);
-	GpPath *superPath = createPathFromRect (&superRect);
-	GpPath *subPath = createPathFromRect (&subRect);
-	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
-	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
-	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
-	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
-	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
-	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
-	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
-	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
-	GpPath *touchingLeftPath = createPathFromRect (&touchingLeftRect);
-	GpPath *touchingTopPath = createPathFromRect (&touchingTopRect);
-	GpPath *touchingRightPath = createPathFromRect (&touchingRightRect);
-	GpPath *touchingBottomPath = createPathFromRect (&touchingBottomRect);
-	GpPath *touchingTopLeftPath = createPathFromRect (&touchingTopLeftRect);
-	GpPath *touchingTopRightPath = createPathFromRect (&touchingTopRightRect);
-	GpPath *touchingBottomRightPath = createPathFromRect (&touchingBottomRightRect);
-	GpPath *touchingBottomLeftPath = createPathFromRect (&touchingBottomLeftRect);
-	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
-	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
-	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
-	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
-	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
-	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *path			   = createPathFromRect (&rect);
+	GpPath *superPath		   = createPathFromRect (&superRect);
+	GpPath *subPath			   = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath	  = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath	   = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath	 = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath	= createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath       = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath      = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath   = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath    = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *touchingLeftPath	   = createPathFromRect (&touchingLeftRect);
+	GpPath *touchingTopPath		   = createPathFromRect (&touchingTopRect);
+	GpPath *touchingRightPath	  = createPathFromRect (&touchingRightRect);
+	GpPath *touchingBottomPath	 = createPathFromRect (&touchingBottomRect);
+	GpPath *touchingTopLeftPath	= createPathFromRect (&touchingTopLeftRect);
+	GpPath *touchingTopRightPath       = createPathFromRect (&touchingTopRightRect);
+	GpPath *touchingBottomRightPath    = createPathFromRect (&touchingBottomRightRect);
+	GpPath *touchingBottomLeftPath     = createPathFromRect (&touchingBottomLeftRect);
+	GpPath *noIntersectLeftPath	= createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath	 = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath       = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath      = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath     = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath    = createPathFromRect (&noIntersectTopRightRect);
 	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
-	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
-	GpPath *emptyPath = createPathFromRect (&emptyRect);
-	GpPath *infinitePath = createPathFromRect (&infiniteRect);
-	GpPath *negativePath = createPathFromRect (&negativeRect);
+	GpPath *noIntersectBottomLeftPath  = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath		   = createPathFromRect (&emptyRect);
+	GpPath *infinitePath		   = createPathFromRect (&infiniteRect);
+	GpPath *negativePath		   = createPathFromRect (&negativeRect);
 
 	GdipCreateRegionPath (path, &pathRegion);
 
@@ -7011,7 +7025,7 @@ static void test_combineExclude ()
 	};
 	// clang-format on
 	verifyCombineInfiniteWithRect (&rect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	{
 		GpRegion *region;
@@ -7039,7 +7053,7 @@ static void test_combineExclude ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite + Infinite Path = Empty
 	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/352
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7121,7 +7135,7 @@ static void test_combineExclude ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite Rect + Infinite Path = Empty.
 	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/352
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7310,7 +7324,7 @@ static void test_combineExclude ()
 	verifyCombineRectWithRect (&rect, &noIntersectTopLeftRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + No Intersect Top Right = Rect.
-	// FIXME: incorrectly empty: 
+	// FIXME: incorrectly empty:
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithRect (&rect, &noIntersectTopRightRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 #endif
@@ -7751,7 +7765,8 @@ static void test_combineExclude ()
 	GdipDeletePath (negativePath);
 }
 
-static void test_combineComplement ()
+static void
+test_combineComplement ()
 {
 	GpRegion *infiniteRegion;
 	GpRegion *emptyRegion;
@@ -7830,36 +7845,36 @@ static void test_combineComplement ()
 
 	GdipCreateRegionRect (&rect, &rectRegion);
 
-	GpPath *path = createPathFromRect (&rect);
-	GpPath *superPath = createPathFromRect (&superRect);
-	GpPath *subPath = createPathFromRect (&subRect);
-	GpPath *intersectLeftPath = createPathFromRect (&intersectLeftRect);
-	GpPath *intersectTopPath = createPathFromRect (&intersectTopRect);
-	GpPath *intersectRightPath = createPathFromRect (&intersectRightRect);
-	GpPath *intersectBottomPath = createPathFromRect (&intersectBottomRect);
-	GpPath *intersectTopLeftPath = createPathFromRect (&intersectTopLeftRect);
-	GpPath *intersectTopRightPath = createPathFromRect (&intersectTopRightRect);
-	GpPath *intersectBottomRightPath = createPathFromRect (&intersectBottomRightRect);
-	GpPath *intersectBottomLeftPath = createPathFromRect (&intersectBottomLeftRect);
-	GpPath *touchingLeftPath = createPathFromRect (&touchingLeftRect);
-	GpPath *touchingTopPath = createPathFromRect (&touchingTopRect);
-	GpPath *touchingRightPath = createPathFromRect (&touchingRightRect);
-	GpPath *touchingBottomPath = createPathFromRect (&touchingBottomRect);
-	GpPath *touchingTopLeftPath = createPathFromRect (&touchingTopLeftRect);
-	GpPath *touchingTopRightPath = createPathFromRect (&touchingTopRightRect);
-	GpPath *touchingBottomRightPath = createPathFromRect (&touchingBottomRightRect);
-	GpPath *touchingBottomLeftPath = createPathFromRect (&touchingBottomLeftRect);
-	GpPath *noIntersectLeftPath = createPathFromRect (&noIntersectLeftRect);
-	GpPath *noIntersectTopPath = createPathFromRect (&noIntersectTopRect);
-	GpPath *noIntersectRightPath = createPathFromRect (&noIntersectRightRect);
-	GpPath *noIntersectBottomPath = createPathFromRect (&noIntersectBottomRect);
-	GpPath *noIntersectTopLeftPath = createPathFromRect (&noIntersectTopLeftRect);
-	GpPath *noIntersectTopRightPath = createPathFromRect (&noIntersectTopRightRect);
+	GpPath *path			   = createPathFromRect (&rect);
+	GpPath *superPath		   = createPathFromRect (&superRect);
+	GpPath *subPath			   = createPathFromRect (&subRect);
+	GpPath *intersectLeftPath	  = createPathFromRect (&intersectLeftRect);
+	GpPath *intersectTopPath	   = createPathFromRect (&intersectTopRect);
+	GpPath *intersectRightPath	 = createPathFromRect (&intersectRightRect);
+	GpPath *intersectBottomPath	= createPathFromRect (&intersectBottomRect);
+	GpPath *intersectTopLeftPath       = createPathFromRect (&intersectTopLeftRect);
+	GpPath *intersectTopRightPath      = createPathFromRect (&intersectTopRightRect);
+	GpPath *intersectBottomRightPath   = createPathFromRect (&intersectBottomRightRect);
+	GpPath *intersectBottomLeftPath    = createPathFromRect (&intersectBottomLeftRect);
+	GpPath *touchingLeftPath	   = createPathFromRect (&touchingLeftRect);
+	GpPath *touchingTopPath		   = createPathFromRect (&touchingTopRect);
+	GpPath *touchingRightPath	  = createPathFromRect (&touchingRightRect);
+	GpPath *touchingBottomPath	 = createPathFromRect (&touchingBottomRect);
+	GpPath *touchingTopLeftPath	= createPathFromRect (&touchingTopLeftRect);
+	GpPath *touchingTopRightPath       = createPathFromRect (&touchingTopRightRect);
+	GpPath *touchingBottomRightPath    = createPathFromRect (&touchingBottomRightRect);
+	GpPath *touchingBottomLeftPath     = createPathFromRect (&touchingBottomLeftRect);
+	GpPath *noIntersectLeftPath	= createPathFromRect (&noIntersectLeftRect);
+	GpPath *noIntersectTopPath	 = createPathFromRect (&noIntersectTopRect);
+	GpPath *noIntersectRightPath       = createPathFromRect (&noIntersectRightRect);
+	GpPath *noIntersectBottomPath      = createPathFromRect (&noIntersectBottomRect);
+	GpPath *noIntersectTopLeftPath     = createPathFromRect (&noIntersectTopLeftRect);
+	GpPath *noIntersectTopRightPath    = createPathFromRect (&noIntersectTopRightRect);
 	GpPath *noIntersectBottomRightPath = createPathFromRect (&noIntersectBottomRightRect);
-	GpPath *noIntersectBottomLeftPath = createPathFromRect (&noIntersectBottomLeftRect);
-	GpPath *emptyPath = createPathFromRect (&emptyRect);
-	GpPath *infinitePath = createPathFromRect (&infiniteRect);
-	GpPath *negativePath = createPathFromRect (&negativeRect);
+	GpPath *noIntersectBottomLeftPath  = createPathFromRect (&noIntersectBottomLeftRect);
+	GpPath *emptyPath		   = createPathFromRect (&emptyRect);
+	GpPath *infinitePath		   = createPathFromRect (&infiniteRect);
+	GpPath *negativePath		   = createPathFromRect (&negativeRect);
 
 	GdipCreateRegionPath (path, &pathRegion);
 
@@ -7904,7 +7919,7 @@ static void test_combineComplement ()
 
 	// Empty + Rect = Rect.
 	verifyCombineEmptyWithRect (&rect, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Empty + Infinite Path = Empty.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/414
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7940,7 +7955,7 @@ static void test_combineComplement ()
 
 	// Infinite Rect + Path = Empty.
 	verifyCombineRectWithPath (&infiniteRect, path, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Empty Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&emptyRect, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -7972,13 +7987,13 @@ static void test_combineComplement ()
 	verifyCombineRectWithRegion (&rect, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 
 	// Rect + Empty = Empty.
-	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Infinite Rect = Empty.
 	verifyCombineRectWithRect (&rect, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 
 	// Rect + Empty Rect = Empty.
-	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Rect = Empty.
 	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8067,14 +8082,14 @@ static void test_combineComplement ()
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-  	// Rect + Infinite Path = Infinite.
+	// Rect + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Rect + Empty Path = Empty.
-	verifyCombineRectWithPath (&rect, emptyPath, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithPath (&rect, emptyPath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Path = Empty.
 	verifyCombineRectWithPath (&rect, negativePath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8138,7 +8153,7 @@ static void test_combineComplement ()
 
 	// Rect + Touching Bottom Left = Touching Bottom Left.
 	verifyCombineRectWithPath (&rect, touchingBottomLeftPath, CombineModeComplement, -20, 60, 30, 40, FALSE, FALSE, &touchingBottomLeftRect, sizeof (touchingBottomLeftRect));
-		
+
 	// Rect + No Intersect Left = No Intersect Left.
 	verifyCombineRectWithPath (&rect, noIntersectLeftPath, CombineModeComplement, -21, 20, 30, 40, FALSE, FALSE, &noIntersectLeftRect, sizeof (noIntersectLeftRect));
 
@@ -8162,7 +8177,7 @@ static void test_combineComplement ()
 
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
-		
+
 	// Path + Infinite = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8170,7 +8185,7 @@ static void test_combineComplement ()
 #endif
 
 	// Path + Empty = Rect.
-	verifyCombinePathWithRegion (path, emptyRegion, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithRegion (path, emptyRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Infinite Path + Infinite = Empty.
 	verifyCombinePathWithRegion (infinitePath, infiniteRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8223,14 +8238,14 @@ static void test_combineComplement ()
 	// Empty Path + Path = Path.
 	verifyCombinePathWithPath (emptyPath, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-  // Path + Infinite Rect = Empty.
+	// Path + Infinite Rect = Empty.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Path + Empty Rect = Empty.
-	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Rect = Empty.
 	verifyCombinePathWithRect (path, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8319,14 +8334,14 @@ static void test_combineComplement ()
 	// Path + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-  // Path + Infinite Path = Calculate.
+	// Path + Infinite Path = Calculate.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Path + Empty Path = Empty.
-	verifyCombinePathWithPath (path, emptyPath, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithPath (path, emptyPath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Path = Empty.
 	verifyCombinePathWithPath (path, negativePath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8451,21 +8466,22 @@ static void test_combineComplement ()
 	GdipDeletePath (negativePath);
 }
 
-static void test_translateRegion ()
+static void
+test_translateRegion ()
 {
 	GpStatus status;
 	GpPath *path;
 	GpRegion *region;
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
-	GpRectF emptyRect = {0, 0, 0, 0};
-	GpRectF rect = {10, 20, 30, 40};
-	
+	GpRectF emptyRect    = {0, 0, 0, 0};
+	GpRectF rect	 = {10, 20, 30, 40};
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// Infinite rect region - zero, zero
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
@@ -8503,10 +8519,10 @@ static void test_translateRegion ()
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty rect region - zero, zero
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8518,7 +8534,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - zero, positive.
@@ -8526,7 +8542,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - positive, positive.
@@ -8534,7 +8550,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 10, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - negative, negative.
@@ -8547,15 +8563,15 @@ static void test_translateRegion ()
 
 	// Rect region.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
@@ -8572,18 +8588,18 @@ static void test_translateRegion ()
 
 	// Path region.
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
 	// FIXME: translating a path region should not affect the bounds.
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8603,7 +8619,7 @@ static void test_translateRegion ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -8632,15 +8648,15 @@ static void test_translateRegion ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8658,25 +8674,26 @@ static void test_translateRegion ()
 	// Negative tests.
 	status = GdipTranslateRegion (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (path);
 }
 
-static void test_translateRegionI ()
+static void
+test_translateRegionI ()
 {
 	GpStatus status;
 	GpPath *path;
 	GpRegion *region;
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
-	GpRectF emptyRect = {0, 0, 0, 0};
-	GpRectF rect = {10, 20, 30, 40};
-	
+	GpRectF emptyRect    = {0, 0, 0, 0};
+	GpRectF rect	 = {10, 20, 30, 40};
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// Infinite rect region - zero, zero
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
@@ -8714,10 +8731,10 @@ static void test_translateRegionI ()
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty rect region - zero, zero
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8729,7 +8746,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - zero, positive.
@@ -8737,7 +8754,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - positive, positive.
@@ -8745,7 +8762,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 10, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - negative, negative.
@@ -8758,15 +8775,15 @@ static void test_translateRegionI ()
 
 	// Rect region.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
@@ -8783,18 +8800,18 @@ static void test_translateRegionI ()
 
 	// Path region.
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
 	// FIXME: translating a path region should not affect the bounds.
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8814,7 +8831,7 @@ static void test_translateRegionI ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -8843,15 +8860,15 @@ static void test_translateRegionI ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8869,11 +8886,12 @@ static void test_translateRegionI ()
 	// Negative tests.
 	status = GdipTranslateRegionI (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (path);
 }
 
-static void test_transformRegion ()
+static void
+test_transformRegion ()
 {
 	GpStatus status;
 	GpPath *path;
@@ -8895,11 +8913,11 @@ static void test_transformRegion ()
 	GpMatrix *scaleYMatrix;
 	GpMatrix *scaleXYMatrix;
 	GpMatrix *matrix;
-	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
-	GpRectF emptyRect = {0, 0, 0, 0};
+	GpRectF infiniteRect		   = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
+	GpRectF emptyRect		   = {0, 0, 0, 0};
 	GpRectF negativeWidthAndHeightRect = {10, 20, -30, -40};
-	GpRectF rect = {10, 20, 30, 40};
-	
+	GpRectF rect			   = {10, 20, 30, 40};
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 
@@ -8926,7 +8944,7 @@ static void test_transformRegion ()
 	GdipCreateMatrix (&translateXScaleXYMatrix);
 	GdipTranslateMatrix (translateXScaleXYMatrix, 10, 0, MatrixOrderAppend);
 	GdipScaleMatrix (translateXScaleXYMatrix, 20, 20, MatrixOrderAppend);
-	
+
 	GdipTranslateMatrix (translateYMatrix, 0, 10, MatrixOrderAppend);
 	GdipCreateMatrix (&translateYScaleXMatrix);
 	GdipTranslateMatrix (translateYScaleXMatrix, 0, 10, MatrixOrderAppend);
@@ -8937,7 +8955,7 @@ static void test_transformRegion ()
 	GdipCreateMatrix (&translateYScaleXYMatrix);
 	GdipTranslateMatrix (translateYScaleXYMatrix, 0, 10, MatrixOrderAppend);
 	GdipScaleMatrix (translateYScaleXYMatrix, 20, 20, MatrixOrderAppend);
-	
+
 	GdipTranslateMatrix (translateXYMatrix, 10, 10, MatrixOrderAppend);
 	GdipCreateMatrix (&translateXYScaleXMatrix);
 	GdipTranslateMatrix (translateXYScaleXMatrix, 10, 10, MatrixOrderAppend);
@@ -8953,7 +8971,7 @@ static void test_transformRegion ()
 
 	// Infinite rect region - empty.
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8962,7 +8980,7 @@ static void test_transformRegion ()
 
 	// Infinite rect region - translate transform.
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTransformRegion (region, translateXYMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194294.0f, -4194294.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8971,7 +8989,7 @@ static void test_transformRegion ()
 
 	// Empty rect region - empty.
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8989,7 +9007,7 @@ static void test_transformRegion ()
 
 	// Empty rect region - complex transform.
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8998,7 +9016,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - empty.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, -30, -40, TRUE, FALSE);
@@ -9007,7 +9025,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - translate transform.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, translateXYMatrix);
 	assertEqualInt (status, Ok);
 	// FIXME: libgdiplus doesn't normalize.
@@ -9019,7 +9037,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - complex transform.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -75, -114, 150, 220, FALSE, FALSE);
@@ -9028,13 +9046,13 @@ static void test_transformRegion ()
 
 	// Rect region - empty transform.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9043,7 +9061,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9052,7 +9070,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9061,7 +9079,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9070,7 +9088,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 20, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9079,7 +9097,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 400, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9088,7 +9106,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 400, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9097,7 +9115,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 20, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9106,7 +9124,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 400, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9115,7 +9133,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 400, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9124,7 +9142,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 30, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9133,7 +9151,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9142,7 +9160,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 600, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9151,7 +9169,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 30, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9160,7 +9178,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9196,7 +9214,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9205,7 +9223,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate x and y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9214,7 +9232,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - scale x transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9313,7 +9331,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate x and y, scale x and y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9370,7 +9388,7 @@ static void test_transformRegion ()
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Infinite region - translate transform.
 	GdipCreateRegion (&region);
 
@@ -9379,7 +9397,7 @@ static void test_transformRegion ()
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Infinite region - complex transform.
 	GdipCreateRegion (&region);
 
@@ -9417,7 +9435,7 @@ static void test_transformRegion ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

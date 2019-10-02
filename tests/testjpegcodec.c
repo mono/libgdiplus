@@ -26,29 +26,30 @@ using namespace DllExports;
 #include "testhelpers.h"
 
 static const char *file = "temp_asset.jpeg";
-static WCHAR wFile[] = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'j', 'p', 'e', 'g', 0};
+static WCHAR wFile[]    = {'t', 'e', 'm', 'p', '_', 'a', 's', 's', 'e', 't', '.', 'j', 'p', 'e', 'g', 0};
 GpImage *image;
 
-#define createFile(buffer, expectedStatus) \
-{ \
-  GpStatus status; \
-  FILE *f = fopen (file, "wb+"); \
-  assert (f); \
-  fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-  fclose (f); \
- \
-  status = GdipLoadImageFromFile (wFile, &image); \
-  assertEqualInt (status, expectedStatus); \
-}
+#define createFile(buffer, expectedStatus)                                   \
+	{                                                                    \
+		GpStatus status;                                             \
+		FILE *f = fopen (file, "wb+");                               \
+		assert (f);                                                  \
+		fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+		fclose (f);                                                  \
+                                                                             \
+		status = GdipLoadImageFromFile (wFile, &image);              \
+		assertEqualInt (status, expectedStatus);                     \
+	}
 
-#define createFileSuccess(buffer, pixelFormat, width, height, flags, propertyCount) \
-{ \
-  createFile (buffer, Ok); \
-  verifyBitmap (image, jpegRawFormat, pixelFormat, width, height, flags, propertyCount, TRUE); \
-  GdipDisposeImage (image); \
-}
+#define createFileSuccess(buffer, pixelFormat, width, height, flags, propertyCount)                          \
+	{                                                                                                    \
+		createFile (buffer, Ok);                                                                     \
+		verifyBitmap (image, jpegRawFormat, pixelFormat, width, height, flags, propertyCount, TRUE); \
+		GdipDisposeImage (image);                                                                    \
+	}
 
-static void test_valid ()
+static void
+test_valid ()
 {
 	// clang-format off
 	BYTE grayscaleData[] = {
@@ -208,7 +209,8 @@ static void test_valid ()
 	createFileSuccess (ycckData, epxectedCMYKFormat, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2);
 }
 
-static void test_units ()
+static void
+test_units ()
 {
 	// clang-format off
 	BYTE dpiUnit[] = {
@@ -401,7 +403,7 @@ static void test_units ()
 		0xFF, 0xD9
 	};
 	// clang-format on
-	
+
 	createFileSuccess (dpiUnit, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasRealDPI | ImageFlagsReadOnly, 2);
 	createFileSuccess (dpiUnitNoXDensity, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2);
 	createFileSuccess (dpiUnitNoYDensity, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 2);
@@ -412,15 +414,15 @@ static void test_units ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
-  STARTUP;
+	STARTUP;
 
-  test_valid ();
-  test_units ();
+	test_valid ();
+	test_units ();
 
-  deleteFile (file);
+	deleteFile (file);
 
-  SHUTDOWN;
-  return 0;
+	SHUTDOWN;
+	return 0;
 }

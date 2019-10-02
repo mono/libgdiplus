@@ -23,7 +23,8 @@ using namespace DllExports;
 #include <assert.h>
 #include "testhelpers.h"
 
-static void createImageGraphics (INT width, INT height, GpImage **image, GpGraphics **graphics)
+static void
+createImageGraphics (INT width, INT height, GpImage **image, GpGraphics **graphics)
 {
 	GpStatus status;
 
@@ -34,7 +35,8 @@ static void createImageGraphics (INT width, INT height, GpImage **image, GpGraph
 	assertEqualInt (status, Ok);
 }
 
-static void test_fillClosedCurve ()
+static void
+test_fillClosedCurve ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -44,13 +46,13 @@ static void test_fillClosedCurve ()
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -87,11 +89,10 @@ static void test_fillClosedCurve ()
 
 	// All zero (4).
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillClosedCurve (graphics, brush, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -230,7 +231,8 @@ static void test_fillClosedCurve ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillClosedCurveI ()
+static void
+test_fillClosedCurveI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -240,13 +242,13 @@ static void test_fillClosedCurveI ()
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -283,11 +285,10 @@ static void test_fillClosedCurveI ()
 
 	// All zero (4).
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillClosedCurveI (graphics, brush, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -435,7 +436,8 @@ static void test_fillClosedCurveI ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillClosedCurve2 ()
+static void
+test_fillClosedCurve2 ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -445,13 +447,13 @@ static void test_fillClosedCurve2 ()
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -648,11 +650,10 @@ static void test_fillClosedCurve2 ()
 
 	// All zero (4) - large tension.
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillClosedCurve2 (graphics, brush, zero4, 4, 10, FillModeAlternate);
 	assertEqualInt (status, Ok);
@@ -968,7 +969,7 @@ static void test_fillClosedCurve2 ()
 
 	status = GdipFillClosedCurve2 (NULL, brush, normal7, -1, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillClosedCurve2 (graphics, brush, normal7, 4, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1051,7 +1052,8 @@ static void test_fillClosedCurve2 ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillClosedCurve2I ()
+static void
+test_fillClosedCurve2I ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1061,13 +1063,13 @@ static void test_fillClosedCurve2I ()
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -1264,11 +1266,10 @@ static void test_fillClosedCurve2I ()
 
 	// All zero (4) - large tension.
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillClosedCurve2I (graphics, brush, zero4, 4, 10, FillModeAlternate);
 	assertEqualInt (status, Ok);
@@ -1485,7 +1486,7 @@ static void test_fillClosedCurve2I ()
 
 	status = GdipFillClosedCurve2I (NULL, brush, normal7, -1, 0, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillClosedCurve2I (NULL, brush, normal7, 4, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1524,7 +1525,7 @@ static void test_fillClosedCurve2I ()
 
 	status = GdipFillClosedCurve2I (graphics, NULL, normal7, -1, 0, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillClosedCurve2I (graphics, NULL, normal7, 4, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1566,7 +1567,7 @@ static void test_fillClosedCurve2I ()
 
 	status = GdipFillClosedCurve2I (graphics, brush, NULL, -1, 0, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillClosedCurve2I (graphics, brush, NULL, 4, 0, (FillMode) (FillModeWinding + 1));
@@ -1578,7 +1579,7 @@ static void test_fillClosedCurve2I ()
 
 	status = GdipFillClosedCurve2I (graphics, brush, normal7, 0, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillClosedCurve2I (graphics, brush, normal7, 4, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1587,10 +1588,10 @@ static void test_fillClosedCurve2I ()
 
 	status = GdipFillClosedCurve2I (graphics, brush, normal7, -1, 0, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillClosedCurve2I (graphics, brush, normal7, -1, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillClosedCurve2I (graphics, brush, normal7, 4, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -1679,7 +1680,8 @@ static void test_fillClosedCurve2I ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillEllipse ()
+static void
+test_fillEllipse ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1780,7 +1782,8 @@ static void test_fillEllipse ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillEllipseI ()
+static void
+test_fillEllipseI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1881,7 +1884,8 @@ static void test_fillEllipseI ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPath ()
+static void
+test_fillPath ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1897,15 +1901,14 @@ static void test_fillPath ()
 	GpPath *windingPath;
 	GpPath *invalidPath;
 	PointF points[] = {
-		{1, 2},
-		{4, 2},
-		{4, 6},
+	    {1, 2},
+	    {4, 2},
+	    {4, 6},
 	};
 	BYTE types[] = {
-		PathPointTypeStart,
-		PathPointTypeLine,
-		PathPointTypeLine
-	};
+	    PathPointTypeStart,
+	    PathPointTypeLine,
+	    PathPointTypeLine};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 	GdipCreatePath (FillModeWinding, &emptyPath);
@@ -1932,7 +1935,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, windingPath);
@@ -1940,7 +1943,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Invalid FillMode.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, invalidPath);
@@ -1948,7 +1951,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Empty path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, emptyPath);
@@ -1956,7 +1959,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// One path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, onePath);
@@ -1964,7 +1967,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Two path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, twoPath);
@@ -1972,7 +1975,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Three path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, threePath);
@@ -1980,7 +1983,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Multi path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, multiPath);
@@ -1988,7 +1991,7 @@ static void test_fillPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Intersect path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPath (graphics, brush, intersectPath);
@@ -1997,19 +2000,19 @@ static void test_fillPath ()
 	// Negative tests.
 	status = GdipFillPath (NULL, brush, windingPath);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPath (graphics, NULL, windingPath);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPath (graphics, brush, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
-	
+
 	status = GdipFillPath (graphics, NULL, windingPath);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPath (graphics, brush, NULL);
 	assertEqualInt (status, ObjectBusy);
 
@@ -2029,7 +2032,8 @@ static void test_fillPath ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPie ()
+static void
+test_fillPie ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2206,7 +2210,7 @@ static void test_fillPie ()
 	// Negative tests.
 	status = GdipFillPie (NULL, brush, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPie (NULL, brush, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -2286,7 +2290,8 @@ static void test_fillPie ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPieI ()
+static void
+test_fillPieI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2463,7 +2468,7 @@ static void test_fillPieI ()
 	// Negative tests.
 	status = GdipFillPieI (NULL, brush, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPieI (NULL, brush, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -2543,21 +2548,21 @@ static void test_fillPieI ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPolygon ()
+static void
+test_fillPolygon ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	PointF points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
-	
+
 	// Four - FillModeAlternate.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 4, FillModeAlternate);
@@ -2565,7 +2570,7 @@ static void test_fillPolygon ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Four - FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 4, FillModeWinding);
@@ -2573,7 +2578,7 @@ static void test_fillPolygon ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Three - FillModeAlternate.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 3, FillModeAlternate);
@@ -2594,7 +2599,7 @@ static void test_fillPolygon ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 2, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2602,7 +2607,7 @@ static void test_fillPolygon ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 2, FillModeWinding);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2610,7 +2615,7 @@ static void test_fillPolygon ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2618,21 +2623,20 @@ static void test_fillPolygon ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, points, 1, FillModeWinding);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero - FillModeAlternate.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon (graphics, brush, zeroPoints, 4, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2644,61 +2648,61 @@ static void test_fillPolygon ()
 	// Negative tests.
 	status = GdipFillPolygon (NULL, brush, points, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (NULL, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (NULL, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillPolygon (NULL, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (NULL, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, -1, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -2707,40 +2711,40 @@ static void test_fillPolygon ()
 
 	status = GdipFillPolygon (graphics, brush, points, 3, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 3, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 1, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, NULL, points, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, NULL, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon (graphics, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, ObjectBusy);
 
@@ -2751,18 +2755,18 @@ static void test_fillPolygon ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPolygonI ()
+static void
+test_fillPolygonI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	Point points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
@@ -2773,7 +2777,7 @@ static void test_fillPolygonI ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Four - FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, points, 4, FillModeWinding);
@@ -2802,15 +2806,15 @@ static void test_fillPolygonI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, points, 2, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Two - FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, points, 2, FillModeWinding);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2818,7 +2822,7 @@ static void test_fillPolygonI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -2826,24 +2830,23 @@ static void test_fillPolygonI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, points, 1, FillModeWinding);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero - FillModeAlternate.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, zeroPoints, 4, FillModeAlternate);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Zero - FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygonI (graphics, brush, zeroPoints, 4, FillModeWinding);
@@ -2852,49 +2855,49 @@ static void test_fillPolygonI ()
 	// Negative tests.
 	status = GdipFillPolygonI (NULL, brush, points, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (NULL, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (NULL, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillPolygonI (NULL, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (NULL, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillPolygonI (graphics, brush, NULL, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillPolygonI (graphics, brush, NULL, 4, (FillMode) (FillModeWinding + 1));
@@ -2903,16 +2906,16 @@ static void test_fillPolygonI ()
 
 	status = GdipFillPolygonI (graphics, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, 0, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, -1, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, InvalidParameter);
 
@@ -2921,43 +2924,43 @@ static void test_fillPolygonI ()
 
 	status = GdipFillPolygonI (graphics, brush, points, 3, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 3, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 1, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, NULL, points, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillPolygonI (graphics, brush, NULL, 3, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, 1, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, NULL, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, 1, FillModeAlternate);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, 0, FillModeAlternate);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, -1, FillModeAlternate);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygonI (graphics, brush, points, 4, (FillMode) (FillModeWinding + 1));
 	assertEqualInt (status, ObjectBusy);
 
@@ -2968,18 +2971,18 @@ static void test_fillPolygonI ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPolygon2 ()
+static void
+test_fillPolygon2 ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	PointF points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
@@ -3003,7 +3006,7 @@ static void test_fillPolygon2 ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2 (graphics, brush, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -3011,17 +3014,16 @@ static void test_fillPolygon2 ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2 (graphics, brush, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2 (graphics, brush, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -3029,43 +3031,43 @@ static void test_fillPolygon2 ()
 	// Negative tests.
 	status = GdipFillPolygon2 (NULL, brush, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (NULL, brush, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (NULL, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillPolygon2 (NULL, brush, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3074,37 +3076,37 @@ static void test_fillPolygon2 ()
 
 	status = GdipFillPolygon2 (graphics, brush, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2 (graphics, brush, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3115,18 +3117,18 @@ static void test_fillPolygon2 ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillPolygon2I ()
+static void
+test_fillPolygon2I ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	Point points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
@@ -3150,7 +3152,7 @@ static void test_fillPolygon2I ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2I (graphics, brush, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -3158,17 +3160,16 @@ static void test_fillPolygon2I ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2I (graphics, brush, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillPolygon2I (graphics, brush, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -3176,46 +3177,46 @@ static void test_fillPolygon2I ()
 	// Negative tests.
 	status = GdipFillPolygon2I (NULL, brush, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (NULL, brush, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (NULL, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillPolygon2I (NULL, brush, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillPolygon2I (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -3224,40 +3225,40 @@ static void test_fillPolygon2I ()
 
 	status = GdipFillPolygon2I (graphics, brush, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillPolygon2I (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillPolygon2I (graphics, brush, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -3268,7 +3269,8 @@ static void test_fillPolygon2I ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillRectangle ()
+static void
+test_fillRectangle ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3297,23 +3299,23 @@ static void test_fillRectangle ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectangle (graphics, brush, 10, 20, -10, -20);
 	assertEqualInt (status, Ok);
-	
+
 	// Negative tests.
 	status = GdipFillRectangle (NULL, brush, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3325,25 +3327,25 @@ static void test_fillRectangle ()
 
 	status = GdipFillRectangle (graphics, brush, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipFillRectangle (graphics, brush, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -3354,7 +3356,8 @@ static void test_fillRectangle ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillRectangleI ()
+static void
+test_fillRectangleI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3383,23 +3386,23 @@ static void test_fillRectangleI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectangleI (graphics, brush, 10, 20, -10, -20);
 	assertEqualInt (status, Ok);
-	
+
 	// Negative tests.
 	status = GdipFillRectangleI (NULL, brush, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3411,25 +3414,25 @@ static void test_fillRectangleI ()
 
 	status = GdipFillRectangleI (graphics, brush, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipFillRectangleI (graphics, brush, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangleI (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -3440,18 +3443,18 @@ static void test_fillRectangleI ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillRectangles ()
+static void
+test_fillRectangles ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	RectF rectangles[] = {
-		{10, 20, 30, 40},
-		{30, 40, 0, 0},
-		{100, 150, -20, -30},
-		{200, 200, 40, 50}
-	};
+	    {10, 20, 30, 40},
+	    {30, 40, 0, 0},
+	    {100, 150, -20, -30},
+	    {200, 200, 40, 50}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
@@ -3475,7 +3478,7 @@ static void test_fillRectangles ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectangles (graphics, brush, rectangles, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -3483,17 +3486,16 @@ static void test_fillRectangles ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectangles (graphics, brush, rectangles, 1);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	RectF zeroRectangles[] = {
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
-	};
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectangles (graphics, brush, zeroRectangles, 4);
 	assertEqualInt (status, Ok);
@@ -3501,34 +3503,34 @@ static void test_fillRectangles ()
 	// Negative tests.
 	status = GdipFillRectangles (NULL, brush, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (NULL, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillRectangles (NULL, brush, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3537,31 +3539,31 @@ static void test_fillRectangles ()
 
 	status = GdipFillRectangles (graphics, brush, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectangles (graphics, brush, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3572,18 +3574,18 @@ static void test_fillRectangles ()
 	GdipDeleteBrush (brush);
 }
 
-static void test_fillRectanglesI ()
+static void
+test_fillRectanglesI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpBrush *brush;
 	Rect rectangles[] = {
-		{10, 20, 30, 40},
-		{30, 40, 0, 0},
-		{100, 150, -20, -30},
-		{200, 200, 40, 50}
-	};
+	    {10, 20, 30, 40},
+	    {30, 40, 0, 0},
+	    {100, 150, -20, -30},
+	    {200, 200, 40, 50}};
 
 	GdipCreateSolidFill (0xFF00FFFF, (GpSolidFill **) &brush);
 
@@ -3607,7 +3609,7 @@ static void test_fillRectanglesI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectanglesI (graphics, brush, rectangles, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -3615,17 +3617,16 @@ static void test_fillRectanglesI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectanglesI (graphics, brush, rectangles, 1);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	Rect zeroRectangles[] = {
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
-	};
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipFillRectanglesI (graphics, brush, zeroRectangles, 4);
 	assertEqualInt (status, Ok);
@@ -3633,37 +3634,37 @@ static void test_fillRectanglesI ()
 	// Negative tests.
 	status = GdipFillRectanglesI (NULL, brush, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (NULL, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipFillRectanglesI (NULL, brush, rectangles, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillRectanglesI (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipFillRectanglesI (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, rectangles, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -3672,34 +3673,34 @@ static void test_fillRectanglesI ()
 
 	status = GdipFillRectanglesI (graphics, brush, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipFillRectanglesI (graphics, brush, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
 
 	status = GdipFillRectanglesI (graphics, brush, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipFillRectanglesI (graphics, brush, rectangles, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -3711,7 +3712,7 @@ static void test_fillRectanglesI ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

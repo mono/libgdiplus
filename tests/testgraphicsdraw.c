@@ -23,7 +23,8 @@ using namespace DllExports;
 #include <assert.h>
 #include "testhelpers.h"
 
-static void createImageGraphics (INT width, INT height, GpImage **image, GpGraphics **graphics)
+static void
+createImageGraphics (INT width, INT height, GpImage **image, GpGraphics **graphics)
 {
 	GpStatus status;
 
@@ -34,7 +35,8 @@ static void createImageGraphics (INT width, INT height, GpImage **image, GpGraph
 	assertEqualInt (status, Ok);
 }
 
-static void test_drawArc ()
+static void
+test_drawArc ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -211,7 +213,7 @@ static void test_drawArc ()
 	// Negative tests.
 	status = GdipDrawArc (NULL, pen, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawArc (NULL, pen, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -291,7 +293,8 @@ static void test_drawArc ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawArcI ()
+static void
+test_drawArcI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -468,7 +471,7 @@ static void test_drawArcI ()
 	// Negative tests.
 	status = GdipDrawArcI (NULL, pen, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawArcI (NULL, pen, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -548,7 +551,8 @@ static void test_drawArcI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawBezier ()
+static void
+test_drawBezier ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -601,7 +605,8 @@ static void test_drawBezier ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawBezierI ()
+static void
+test_drawBezierI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -654,7 +659,8 @@ static void test_drawBezierI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawBeziers ()
+static void
+test_drawBeziers ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -664,13 +670,13 @@ static void test_drawBeziers ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{40, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {40, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -691,11 +697,10 @@ static void test_drawBeziers ()
 
 	// Straight line (4).
 	GpPointF straight4[] = {
-		{10, 20},
-		{30, 40},
-		{50, 60},
-		{70, 80}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {50, 60},
+	    {70, 80}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawBeziers (graphics, pen, straight4, 4);
 	assertEqualInt (status, Ok);
@@ -705,11 +710,10 @@ static void test_drawBeziers ()
 
 	// All zero (4).
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawBeziers (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -854,7 +858,8 @@ static void test_drawBeziers ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawBeziersI ()
+static void
+test_drawBeziersI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -864,15 +869,14 @@ static void test_drawBeziersI ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{40, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
-		{200, 130}
-	};
+	    {10, 20},
+	    {40, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
+	    {200, 130}};
 
 	// Normal (7).
 	createImageGraphics (256, 256, &image, &graphics);
@@ -892,11 +896,10 @@ static void test_drawBeziersI ()
 
 	// Straight line (4).
 	GpPoint straight4[] = {
-		{10, 20},
-		{30, 40},
-		{50, 60},
-		{70, 80}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {50, 60},
+	    {70, 80}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawBeziersI (graphics, pen, straight4, 4);
 	assertEqualInt (status, Ok);
@@ -906,11 +909,10 @@ static void test_drawBeziersI ()
 
 	// All zero (4).
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawBeziersI (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -1055,7 +1057,8 @@ static void test_drawBeziersI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawCurve ()
+static void
+test_drawCurve ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1065,13 +1068,13 @@ static void test_drawCurve ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -1108,11 +1111,10 @@ static void test_drawCurve ()
 
 	// All zero (4).
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurve (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -1246,7 +1248,8 @@ static void test_drawCurve ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawCurveI ()
+static void
+test_drawCurveI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1256,13 +1259,13 @@ static void test_drawCurveI ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -1299,11 +1302,10 @@ static void test_drawCurveI ()
 
 	// All zero (4).
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurveI (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -1442,7 +1444,8 @@ static void test_drawCurveI ()
 	GdipDisposeImage (image);
 }
 
-static void test_drawCurve2 ()
+static void
+test_drawCurve2 ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1452,13 +1455,13 @@ static void test_drawCurve2 ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -1623,11 +1626,10 @@ static void test_drawCurve2 ()
 
 	// All zero (4) - large tension.
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurve2 (graphics, pen, zero4, 4, 10);
 	assertEqualInt (status, Ok);
@@ -1941,7 +1943,8 @@ static void test_drawCurve2 ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawCurve2I ()
+static void
+test_drawCurve2I ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -1951,13 +1954,13 @@ static void test_drawCurve2I ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -2122,11 +2125,10 @@ static void test_drawCurve2I ()
 
 	// All zero (4) - large tension.
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurve2I (graphics, pen, zero4, 4, 10);
 	assertEqualInt (status, Ok);
@@ -2452,7 +2454,8 @@ static void test_drawCurve2I ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawCurve3 ()
+static void
+test_drawCurve3 ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -2462,13 +2465,13 @@ static void test_drawCurve3 ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -2633,11 +2636,10 @@ static void test_drawCurve3 ()
 
 	// All zero (4) - large tension.
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurve3 (graphics, pen, zero4, 4, 0, 3, 10);
 	assertEqualInt (status, Ok);
@@ -2791,22 +2793,22 @@ static void test_drawCurve3 ()
 	status = GdipDrawCurve3 (NULL, pen, normal7, -1, 0, -2, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 4,  0, 3, 0.5);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 4, 0, 3, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 4,  0, 3, 0);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 4, 0, 3, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 3,  0, 2, 0.5);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 3, 0, 2, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 3,  0, 2, 0);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 3, 0, 2, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 2,  0, 1, 0.5);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 2, 0, 1, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3 (graphics, NULL, normal7, 2,  0, 1, 0);
+	status = GdipDrawCurve3 (graphics, NULL, normal7, 2, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawCurve3 (graphics, NULL, normal7, 1, 0, 0, 0.5);
@@ -3365,7 +3367,8 @@ static void test_drawCurve3 ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawCurve3I ()
+static void
+test_drawCurve3I ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -3375,13 +3378,13 @@ static void test_drawCurve3I ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -3546,11 +3549,10 @@ static void test_drawCurve3I ()
 
 	// All zero (4) - large tension.
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawCurve3I (graphics, pen, zero4, 4, 0, 3, 10);
 	assertEqualInt (status, Ok);
@@ -3704,22 +3706,22 @@ static void test_drawCurve3I ()
 	status = GdipDrawCurve3I (NULL, pen, normal7, -1, 0, -2, 0);
 	assertEqualInt (status, OutOfMemory);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 4,  0, 3, 0.5);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 4, 0, 3, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 4,  0, 3, 0);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 4, 0, 3, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 3,  0, 2, 0.5);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 3, 0, 2, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 3,  0, 2, 0);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 3, 0, 2, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 2,  0, 1, 0.5);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 2, 0, 1, 0.5);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawCurve3I (graphics, NULL, normal7, 2,  0, 1, 0);
+	status = GdipDrawCurve3I (graphics, NULL, normal7, 2, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawCurve3I (graphics, NULL, normal7, 1, 0, 0, 0.5);
@@ -4287,7 +4289,8 @@ static void test_drawCurve3I ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawClosedCurve ()
+static void
+test_drawClosedCurve ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -4297,13 +4300,13 @@ static void test_drawClosedCurve ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -4340,11 +4343,10 @@ static void test_drawClosedCurve ()
 
 	// All zero (4).
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawClosedCurve (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -4473,7 +4475,8 @@ static void test_drawClosedCurve ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawClosedCurveI ()
+static void
+test_drawClosedCurveI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -4483,13 +4486,13 @@ static void test_drawClosedCurveI ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7).
@@ -4526,11 +4529,10 @@ static void test_drawClosedCurveI ()
 
 	// All zero (4).
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawClosedCurveI (graphics, pen, zero4, 4);
 	assertEqualInt (status, Ok);
@@ -4668,7 +4670,8 @@ static void test_drawClosedCurveI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawClosedCurve2 ()
+static void
+test_drawClosedCurve2 ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -4678,13 +4681,13 @@ static void test_drawClosedCurve2 ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPointF normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -4849,11 +4852,10 @@ static void test_drawClosedCurve2 ()
 
 	// All zero (4) - large tension.
 	GpPointF zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawClosedCurve2 (graphics, pen, zero4, 4, 10);
 	assertEqualInt (status, Ok);
@@ -5139,7 +5141,8 @@ static void test_drawClosedCurve2 ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawClosedCurve2I ()
+static void
+test_drawClosedCurve2I ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -5149,13 +5152,13 @@ static void test_drawClosedCurve2I ()
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
 	GpPoint normal7[] = {
-		{10, 20},
-		{60, 30},
-		{60, 50},
-		{80, 70},
-		{100, 90},
-		{150, 110},
-		{200, 130},
+	    {10, 20},
+	    {60, 30},
+	    {60, 50},
+	    {80, 70},
+	    {100, 90},
+	    {150, 110},
+	    {200, 130},
 	};
 
 	// Normal (7) - large tension.
@@ -5320,11 +5323,10 @@ static void test_drawClosedCurve2I ()
 
 	// All zero (4) - large tension.
 	GpPoint zero4[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawClosedCurve2I (graphics, pen, zero4, 4, 10);
 	assertEqualInt (status, Ok);
@@ -5622,7 +5624,8 @@ static void test_drawClosedCurve2I ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawEllipse ()
+static void
+test_drawEllipse ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -5723,7 +5726,8 @@ static void test_drawEllipse ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawEllipseI ()
+static void
+test_drawEllipseI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -5838,7 +5842,8 @@ const WCHAR bitmapFile[] = {'t', 'e', 's', 't', '.', 'b', 'm', 'p', 0};
 #define GDIPLUS_MININT -GDIPLUS_MAXFLOAT
 #endif
 
-static void test_drawImage ()
+static void
+test_drawImage ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -5888,43 +5893,43 @@ static void test_drawImage ()
 	status = GdipDrawImage (NULL, bitmapImage, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (NULL, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0);
+	status = GdipDrawImage (NULL, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (NULL, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0);
+	status = GdipDrawImage (NULL, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1));
+	status = GdipDrawImage (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1));
+	status = GdipDrawImage (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1));
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImage (graphics, NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (graphics, NULL, (REAL)(GDIPLUS_MAXFLOAT + 1), 0);
+	status = GdipDrawImage (graphics, NULL, (REAL) (GDIPLUS_MAXFLOAT + 1), 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (graphics, NULL, (REAL)(GDIPLUS_MINFLOAT - 1), 0);
+	status = GdipDrawImage (graphics, NULL, (REAL) (GDIPLUS_MINFLOAT - 1), 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (graphics, NULL, 0, (REAL)(GDIPLUS_MAXFLOAT + 1));
+	status = GdipDrawImage (graphics, NULL, 0, (REAL) (GDIPLUS_MAXFLOAT + 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (graphics, NULL, 0, (REAL)(GDIPLUS_MINFLOAT - 1));
+	status = GdipDrawImage (graphics, NULL, 0, (REAL) (GDIPLUS_MINFLOAT - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImage (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0);
+	status = GdipDrawImage (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImage (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0);
+	status = GdipDrawImage (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1));
+	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1));
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1));
+	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1));
 	assertEqualInt (status, ValueOverflow);
 
 	HDC hdc;
@@ -5936,16 +5941,16 @@ static void test_drawImage ()
 	status = GdipDrawImage (graphics, NULL, 0, 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImage (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0);
+	status = GdipDrawImage (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImage (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0);
+	status = GdipDrawImage (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1));
+	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1));
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1));
+	status = GdipDrawImage (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1));
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -5955,7 +5960,8 @@ static void test_drawImage ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImageI ()
+static void
+test_drawImageI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -6072,7 +6078,8 @@ static void test_drawImageI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImageRect ()
+static void
+test_drawImageRect ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -6160,67 +6167,67 @@ static void test_drawImageRect ()
 	status = GdipDrawImageRect (NULL, bitmapImage, 0, 0, 150, 0);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (NULL, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
+	status = GdipDrawImageRect (NULL, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (NULL, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100);
+	status = GdipDrawImageRect (NULL, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100);
+	status = GdipDrawImageRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100);
+	status = GdipDrawImageRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImageRect (NULL, bitmapImage, 0, 0, 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (graphics, NULL, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, NULL, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (graphics, NULL, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, NULL, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (graphics, NULL, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100);
+	status = GdipDrawImageRect (graphics, NULL, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (graphics, NULL, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100);
+	status = GdipDrawImageRect (graphics, NULL, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0);
 	assertEqualInt (status, ValueOverflow);
 
 	HDC hdc;
@@ -6244,40 +6251,40 @@ static void test_drawImageRect ()
 	status = GdipDrawImageRect (graphics, NULL, 0, 0, 150, 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0);
+	status = GdipDrawImageRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0);
 	assertEqualInt (status, ObjectBusy);
 
 	GdipReleaseDC (graphics, hdc);
@@ -6287,7 +6294,8 @@ static void test_drawImageRect ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImageRectI ()
+static void
+test_drawImageRectI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -6502,18 +6510,18 @@ static void test_drawImageRectI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePoints ()
+static void
+test_drawImagePoints ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpImage *bitmapImage;
 	PointF points[] = {
-		{10, 20},
-		{160, 10},
-		{50, 120},
-		{100, 150}
-	};
+	    {10, 20},
+	    {160, 10},
+	    {50, 120},
+	    {100, 150}};
 
 	GdipLoadImageFromFile (bitmapFile, &bitmapImage);
 
@@ -6527,10 +6535,9 @@ static void test_drawImagePoints ()
 
 	// Zero.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePoints (graphics, bitmapImage, zeroPoints, 3);
 	assertEqualInt (status, Ok);
@@ -6540,10 +6547,9 @@ static void test_drawImagePoints ()
 
 	// Negative.
 	PointF negativePoints[] = {
-		{100, 50},
-		{10, 50},
-		{10, 150}
-	};
+	    {100, 50},
+	    {10, 50},
+	    {10, 150}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePoints (graphics, bitmapImage, negativePoints, 3);
 	assertEqualInt (status, Ok);
@@ -6682,19 +6688,19 @@ static void test_drawImagePoints ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePointsI ()
+static void
+test_drawImagePointsI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpImage *bitmapImage;
 	Point points[] = {
-		{10, 20},
-		{160, 10},
-		{50, 120},
-		{100, 150},
-		{100, 150}
-	};
+	    {10, 20},
+	    {160, 10},
+	    {50, 120},
+	    {100, 150},
+	    {100, 150}};
 
 	GdipLoadImageFromFile (bitmapFile, &bitmapImage);
 
@@ -6708,10 +6714,9 @@ static void test_drawImagePointsI ()
 
 	// Zero.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsI (graphics, bitmapImage, zeroPoints, 3);
 	assertEqualInt (status, Ok);
@@ -6721,10 +6726,9 @@ static void test_drawImagePointsI ()
 
 	// Negative.
 	Point negativePoints[] = {
-		{100, 50},
-		{10, 50},
-		{10, 150}
-	};
+	    {100, 50},
+	    {10, 50},
+	    {10, 150}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsI (graphics, bitmapImage, negativePoints, 3);
 	assertEqualInt (status, Ok);
@@ -6863,7 +6867,8 @@ static void test_drawImagePointsI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePointRect ()
+static void
+test_drawImagePointRect ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -6995,16 +7000,16 @@ static void test_drawImagePointRect ()
 	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (NULL, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (NULL, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (NULL, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (NULL, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointRect (NULL, bitmapImage, 0, 0, 0, 0, 150, 100, UnitPixel);
@@ -7013,105 +7018,105 @@ static void test_drawImagePointRect ()
 	status = GdipDrawImagePointRect (graphics, NULL, 0, 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (graphics, NULL, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, NULL, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (graphics, NULL, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, NULL, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (graphics, NULL, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, NULL, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (graphics, NULL, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, NULL, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
@@ -7145,76 +7150,76 @@ static void test_drawImagePointRect ()
 	status = GdipDrawImagePointRect (graphics, NULL, 0, 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 0,100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0,100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel);
+	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImagePointRect (graphics, bitmapImage, 0, 0, 0, 0, 150, 100, UnitWorld);
@@ -7233,7 +7238,8 @@ static void test_drawImagePointRect ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePointRectI ()
+static void
+test_drawImagePointRectI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -7515,7 +7521,7 @@ static void test_drawImagePointRectI ()
 	status = GdipDrawImagePointRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 0, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 0, 0, 0,100, UnitPixel);
+	status = GdipDrawImagePointRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 0, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImagePointRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 0, 0, 150, 0, UnitPixel);
@@ -7551,7 +7557,7 @@ static void test_drawImagePointRectI ()
 	status = GdipDrawImagePointRectI (graphics, bitmapImage, 0, 0, GDIPLUS_MAXINT + 1, 0, 150, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointRectI (graphics, bitmapImage, 0, 0, GDIPLUS_MAXINT + 1, 0, 0,100, UnitPixel);
+	status = GdipDrawImagePointRectI (graphics, bitmapImage, 0, 0, GDIPLUS_MAXINT + 1, 0, 0, 100, UnitPixel);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImagePointRectI (graphics, bitmapImage, 0, 0, GDIPLUS_MAXINT + 1, 0, 150, 0, UnitPixel);
@@ -7600,7 +7606,8 @@ static void test_drawImagePointRectI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImageRectRect ()
+static void
+test_drawImageRectRect ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -7680,7 +7687,7 @@ static void test_drawImageRectRect ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Zero source width.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImageRectRect (graphics, bitmapImage, 75, 100, 200, 125, 50, 20, 0, 100, UnitPixel, NULL, NULL, NULL);
@@ -7757,10 +7764,10 @@ static void test_drawImageRectRect ()
 	// Negative tests.
 	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -7770,16 +7777,16 @@ static void test_drawImageRectRect ()
 	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (NULL, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (NULL, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (NULL, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (NULL, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImageRectRect (NULL, bitmapImage, 0, 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -7800,163 +7807,163 @@ static void test_drawImageRectRect ()
 	status = GdipDrawImageRectRect (graphics, NULL, 0, 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (graphics, NULL, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, NULL, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (graphics, NULL, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, NULL, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (graphics, NULL, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, NULL, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (graphics, NULL, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, NULL, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
-	assertEqualInt (status, Ok);
-
-	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
-#if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, 100, UnitPixel, NULL, NULL, NULL);
-	assertEqualInt (status, ValueOverflow);
-#endif	
-
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
-	assertEqualInt (status, ValueOverflow);
-
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	assertEqualInt (status, ValueOverflow);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
-	
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+
+	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
+#if defined(USE_WINDOWS_GDIPLUS)
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	assertEqualInt (status, ValueOverflow);
+#endif
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	assertEqualInt (status, Ok);
+
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 0, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
@@ -7990,76 +7997,76 @@ static void test_drawImageRectRect ()
 	status = GdipDrawImageRectRect (graphics, NULL, 0, 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImageRectRect (graphics, bitmapImage, 0, 0, 200, 125, 0, 0, 150, 100, UnitWorld, NULL, NULL, NULL);
@@ -8078,7 +8085,8 @@ static void test_drawImageRectRect ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImageRectRectI ()
+static void
+test_drawImageRectRectI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -8158,7 +8166,7 @@ static void test_drawImageRectRectI ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Zero source width.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 75, 100, 200, 125, 50, 20, 0, 100, UnitPixel, NULL, NULL, NULL);
@@ -8235,10 +8243,10 @@ static void test_drawImageRectRectI ()
 	// Negative tests.
 	status = GdipDrawImageRectRectI (NULL, bitmapImage, 0, 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImageRectRectI (NULL, bitmapImage, 0, 0, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImageRectRectI (NULL, bitmapImage, 0, 0, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -8333,10 +8341,10 @@ static void test_drawImageRectRectI ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MAXINT + 1, 0, 200, 125, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
+
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MAXINT + 1, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
+
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MAXINT + 1, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
@@ -8351,10 +8359,10 @@ static void test_drawImageRectRectI ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MININT - 1, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
+
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MININT - 1, 0, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-	
+
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, GDIPLUS_MININT - 1, 200, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
@@ -8372,7 +8380,7 @@ static void test_drawImageRectRectI ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 0, 125, GDIPLUS_MAXINT + 1, 0, 100, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
-#endif	
+#endif
 
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 0, GDIPLUS_MAXINT + 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -8397,7 +8405,7 @@ static void test_drawImageRectRectI ()
 
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 0, 125, GDIPLUS_MININT - 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 0, GDIPLUS_MININT - 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
@@ -8471,7 +8479,7 @@ static void test_drawImageRectRectI ()
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 200, 125, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 200, 125, 0, 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 200, 125, 0, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, GDIPLUS_MAXINT + 1, 0, 200, 125, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
@@ -8507,7 +8515,7 @@ static void test_drawImageRectRectI ()
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 125, GDIPLUS_MAXINT + 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 125, GDIPLUS_MAXINT + 1, 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 125, GDIPLUS_MAXINT + 1, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImageRectRectI (graphics, bitmapImage, 0, 0, 200, 125, GDIPLUS_MAXINT + 1, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
@@ -8556,18 +8564,18 @@ static void test_drawImageRectRectI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePointsRect ()
+static void
+test_drawImagePointsRect ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpImage *bitmapImage;
 	PointF points[] = {
-		{10, 20},
-		{160, 10},
-		{50, 120},
-		{100, 150}
-	};
+	    {10, 20},
+	    {160, 10},
+	    {50, 120},
+	    {100, 150}};
 
 	GdipLoadImageFromFile (bitmapFile, &bitmapImage);
 
@@ -8581,10 +8589,9 @@ static void test_drawImagePointsRect ()
 
 	// Zero.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, zeroPoints, 3, 10, 10, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -8594,10 +8601,9 @@ static void test_drawImagePointsRect ()
 
 	// Negative.
 	PointF negativePoints[] = {
-		{100, 50},
-		{10, 50},
-		{10, 150}
-	};
+	    {100, 50},
+	    {10, 50},
+	    {10, 150}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, negativePoints, 3, 10, 10, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -8718,19 +8724,19 @@ static void test_drawImagePointsRect ()
 	// Negative tests.
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 5, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 4, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 2, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, -1, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -8740,16 +8746,16 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (NULL, bitmapImage,  points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (NULL, bitmapImage,  points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (NULL, bitmapImage,  points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRect (NULL, bitmapImage, points, 3, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -8773,31 +8779,31 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, NULL, points, -1, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, NULL, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, NULL, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -8809,16 +8815,16 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 5, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -8830,16 +8836,16 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 4, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, NotImplemented);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -8851,16 +8857,16 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 2, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -8872,18 +8878,18 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -8893,57 +8899,57 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, -1, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
 
 	// FIXME: libgdiplus does not validate this: https://github.com/mono/libgdiplus/issues/429
 #if defined(USE_WINDOWS_GDIPLUS)
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ValueOverflow);
 #endif
 
@@ -9097,40 +9103,40 @@ static void test_drawImagePointsRect ()
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 0, 0, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MAXFLOAT + 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL)(GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, (REAL) (GDIPLUS_MINFLOAT - 1), 150, 0, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImagePointsRect (graphics, bitmapImage, points, 3, 0, 0, 150, 100, UnitWorld, NULL, NULL, NULL);
@@ -9149,19 +9155,19 @@ static void test_drawImagePointsRect ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawImagePointsRectI ()
+static void
+test_drawImagePointsRectI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpImage *bitmapImage;
 	Point points[] = {
-		{10, 20},
-		{160, 10},
-		{50, 120},
-		{100, 150},
-		{100, 150}
-	};
+	    {10, 20},
+	    {160, 10},
+	    {50, 120},
+	    {100, 150},
+	    {100, 150}};
 
 	GdipLoadImageFromFile (bitmapFile, &bitmapImage);
 
@@ -9175,10 +9181,9 @@ static void test_drawImagePointsRectI ()
 
 	// Zero.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, zeroPoints, 3, 10, 10, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -9188,10 +9193,9 @@ static void test_drawImagePointsRectI ()
 
 	// Negative.
 	Point negativePoints[] = {
-		{100, 50},
-		{10, 50},
-		{10, 150}
-	};
+	    {100, 50},
+	    {10, 50},
+	    {10, 150}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, negativePoints, 3, 10, 10, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -9312,19 +9316,19 @@ static void test_drawImagePointsRectI ()
 	// Negative tests.
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 5, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 4, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 2, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 0, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, -1, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9337,13 +9341,13 @@ static void test_drawImagePointsRectI ()
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, GDIPLUS_MAXINT + 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRectI (NULL, bitmapImage,  points, 3, GDIPLUS_MININT - 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, GDIPLUS_MININT - 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRectI (NULL, bitmapImage,  points, 3, 0, GDIPLUS_MAXINT + 1, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, 0, GDIPLUS_MAXINT + 1, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipDrawImagePointsRectI (NULL, bitmapImage,  points, 3, 0, GDIPLUS_MININT - 1, 150, 100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, 0, GDIPLUS_MININT - 1, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawImagePointsRectI (NULL, bitmapImage, points, 3, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
@@ -9477,7 +9481,7 @@ static void test_drawImagePointsRectI ()
 
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, 0, 0, GDIPLUS_MININT - 1, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, -1, 0, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9694,7 +9698,7 @@ static void test_drawImagePointsRectI ()
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, 3, GDIPLUS_MAXINT + 1, 0, 150, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
-	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, 3, GDIPLUS_MAXINT + 1, 0, 0,100, UnitPixel, NULL, NULL, NULL);
+	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, 3, GDIPLUS_MAXINT + 1, 0, 0, 100, UnitPixel, NULL, NULL, NULL);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawImagePointsRectI (graphics, bitmapImage, points, 3, GDIPLUS_MAXINT + 1, 0, 150, 0, UnitPixel, NULL, NULL, NULL);
@@ -9743,7 +9747,8 @@ static void test_drawImagePointsRectI ()
 	GdipDisposeImage (bitmapImage);
 }
 
-static void test_drawLine ()
+static void
+test_drawLine ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -9776,7 +9781,7 @@ static void test_drawLine ()
 	// Negative tests.
 	status = GdipDrawLine (NULL, pen, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLine (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9785,7 +9790,7 @@ static void test_drawLine ()
 
 	status = GdipDrawLine (graphics, pen, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLine (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -9796,7 +9801,8 @@ static void test_drawLine ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawLineI ()
+static void
+test_drawLineI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -9829,7 +9835,7 @@ static void test_drawLineI ()
 	// Negative tests.
 	status = GdipDrawLineI (NULL, pen, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLineI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9838,7 +9844,7 @@ static void test_drawLineI ()
 
 	status = GdipDrawLineI (graphics, pen, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLineI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -9849,18 +9855,18 @@ static void test_drawLineI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawLines ()
+static void
+test_drawLines ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	PointF points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -9884,17 +9890,16 @@ static void test_drawLines ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawLines (graphics, pen, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawLines (graphics, pen, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -9902,46 +9907,46 @@ static void test_drawLines ()
 	// Negative tests.
 	status = GdipDrawLines (NULL, pen, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (NULL, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (NULL, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawLines (NULL, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9950,37 +9955,37 @@ static void test_drawLines ()
 
 	status = GdipDrawLines (graphics, pen, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLines (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLines (graphics, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -9991,18 +9996,18 @@ static void test_drawLines ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawLinesI ()
+static void
+test_drawLinesI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	Point points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -10026,17 +10031,16 @@ static void test_drawLinesI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawLinesI (graphics, pen, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawLinesI (graphics, pen, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -10044,49 +10048,49 @@ static void test_drawLinesI ()
 	// Negative tests.
 	status = GdipDrawLinesI (NULL, pen, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (NULL, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (NULL, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawLinesI (NULL, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawLinesI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -10095,40 +10099,40 @@ static void test_drawLinesI ()
 
 	status = GdipDrawLinesI (graphics, pen, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawLinesI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawLinesI (graphics, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -10139,7 +10143,8 @@ static void test_drawLinesI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawPath ()
+static void
+test_drawPath ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -10155,16 +10160,15 @@ static void test_drawPath ()
 	GpPath *windingPath;
 	GpPath *invalidPath;
 	PointF points[] = {
-		{1, 2},
-		{4, 2},
-		{4, 6},
+	    {1, 2},
+	    {4, 2},
+	    {4, 6},
 	};
 	BYTE types[] = {
-		PathPointTypeStart,
-		PathPointTypeLine,
-		PathPointTypeLine
-	};
-	
+	    PathPointTypeStart,
+	    PathPointTypeLine,
+	    PathPointTypeLine};
+
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (points, types, 1, FillModeAlternate, &onePath);
@@ -10190,7 +10194,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// FillModeWinding.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, windingPath);
@@ -10198,7 +10202,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Invalid FillMode.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, invalidPath);
@@ -10206,7 +10210,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Empty path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, emptyPath);
@@ -10214,7 +10218,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// One path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, onePath);
@@ -10222,7 +10226,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Two path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, twoPath);
@@ -10230,7 +10234,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Three path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, threePath);
@@ -10238,7 +10242,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Multi path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, multiPath);
@@ -10246,7 +10250,7 @@ static void test_drawPath ()
 
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
-	
+
 	// Intersect path.
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPath (graphics, pen, intersectPath);
@@ -10255,19 +10259,19 @@ static void test_drawPath ()
 	// Negative tests.
 	status = GdipDrawPath (NULL, pen, windingPath);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPath (graphics, NULL, windingPath);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPath (graphics, pen, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	HDC hdc;
 	status = GdipGetDC (graphics, &hdc);
-	
+
 	status = GdipDrawPath (graphics, NULL, windingPath);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPath (graphics, pen, NULL);
 	assertEqualInt (status, ObjectBusy);
 
@@ -10287,7 +10291,8 @@ static void test_drawPath ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawPie ()
+static void
+test_drawPie ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -10464,7 +10469,7 @@ static void test_drawPie ()
 	// Negative tests.
 	status = GdipDrawPie (NULL, pen, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPie (NULL, pen, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -10544,7 +10549,8 @@ static void test_drawPie ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawPieI ()
+static void
+test_drawPieI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -10721,7 +10727,7 @@ static void test_drawPieI ()
 	// Negative tests.
 	status = GdipDrawPieI (NULL, pen, 0, 0, 1, 1, 0, 135);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPieI (NULL, pen, 0, 0, 1, 1, 0, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -10801,18 +10807,18 @@ static void test_drawPieI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawPolygon ()
+static void
+test_drawPolygon ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	PointF points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -10836,17 +10842,16 @@ static void test_drawPolygon ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPolygon (graphics, pen, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	PointF zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPolygon (graphics, pen, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -10854,46 +10859,46 @@ static void test_drawPolygon ()
 	// Negative tests.
 	status = GdipDrawPolygon (NULL, pen, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (NULL, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (NULL, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawPolygon (NULL, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -10902,37 +10907,37 @@ static void test_drawPolygon ()
 
 	status = GdipDrawPolygon (graphics, pen, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, NULL, points, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygon (graphics, pen, points, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -10943,18 +10948,18 @@ static void test_drawPolygon ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawPolygonI ()
+static void
+test_drawPolygonI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	Point points[] = {
-		{10, 20},
-		{30, 40},
-		{100, 150},
-		{200, 200}
-	};
+	    {10, 20},
+	    {30, 40},
+	    {100, 150},
+	    {200, 200}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -10978,17 +10983,16 @@ static void test_drawPolygonI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPolygonI (graphics, pen, points, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	Point zeroPoints[] = {
-		{0, 0},
-		{0, 0},
-		{0, 0},
-		{0, 0}
-	};
+	    {0, 0},
+	    {0, 0},
+	    {0, 0},
+	    {0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawPolygonI (graphics, pen, zeroPoints, 4);
 	assertEqualInt (status, Ok);
@@ -10996,49 +11000,49 @@ static void test_drawPolygonI ()
 	// Negative tests.
 	status = GdipDrawPolygonI (NULL, pen, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (NULL, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (NULL, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawPolygonI (NULL, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawPolygonI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -11047,40 +11051,40 @@ static void test_drawPolygonI ()
 
 	status = GdipDrawPolygonI (graphics, pen, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, NULL, points, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	// This causes GDI+ to crash.
 #if !defined(USE_WINDOWS_GDIPLUS)
 	status = GdipDrawPolygonI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
 #endif
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, NULL, -1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawPolygonI (graphics, pen, points, -1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -11091,7 +11095,8 @@ static void test_drawPolygonI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawRectangle ()
+static void
+test_drawRectangle ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -11120,23 +11125,23 @@ static void test_drawRectangle ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectangle (graphics, pen, 10, 20, -10, -20);
 	assertEqualInt (status, Ok);
-	
+
 	// Negative tests.
 	status = GdipDrawRectangle (NULL, pen, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11148,25 +11153,25 @@ static void test_drawRectangle ()
 
 	status = GdipDrawRectangle (graphics, pen, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawRectangle (graphics, pen, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -11177,7 +11182,8 @@ static void test_drawRectangle ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawRectangleI ()
+static void
+test_drawRectangleI ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -11206,23 +11212,23 @@ static void test_drawRectangleI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectangleI (graphics, pen, 10, 20, -10, -20);
 	assertEqualInt (status, Ok);
-	
+
 	// Negative tests.
 	status = GdipDrawRectangleI (NULL, pen, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11234,25 +11240,25 @@ static void test_drawRectangleI ()
 
 	status = GdipDrawRectangleI (graphics, pen, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
 
 	status = GdipDrawRectangleI (graphics, pen, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangle (graphics, NULL, 0, 0, 0, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, -1, 1);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, 0);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangleI (graphics, NULL, 0, 0, 1, -1);
 	assertEqualInt (status, ObjectBusy);
 
@@ -11263,18 +11269,18 @@ static void test_drawRectangleI ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawRectangles ()
+static void
+test_drawRectangles ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	RectF rectangles[] = {
-		{10, 20, 30, 40},
-		{30, 40, 0, 0},
-		{100, 150, -20, -30},
-		{200, 200, 40, 50}
-	};
+	    {10, 20, 30, 40},
+	    {30, 40, 0, 0},
+	    {100, 150, -20, -30},
+	    {200, 200, 40, 50}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -11298,7 +11304,7 @@ static void test_drawRectangles ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectangles (graphics, pen, rectangles, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -11306,17 +11312,16 @@ static void test_drawRectangles ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectangles (graphics, pen, rectangles, 1);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	RectF zeroRectangles[] = {
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
-	};
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectangles (graphics, pen, zeroRectangles, 4);
 	assertEqualInt (status, Ok);
@@ -11324,34 +11329,34 @@ static void test_drawRectangles ()
 	// Negative tests.
 	status = GdipDrawRectangles (NULL, pen, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (NULL, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawRectangles (NULL, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11360,31 +11365,31 @@ static void test_drawRectangles ()
 
 	status = GdipDrawRectangles (graphics, pen, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectangles (graphics, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11395,18 +11400,18 @@ static void test_drawRectangles ()
 	GdipDeletePen (pen);
 }
 
-static void test_drawRectanglesI ()
+static void
+test_drawRectanglesI ()
 {
 	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpPen *pen;
 	Rect rectangles[] = {
-		{10, 20, 30, 40},
-		{30, 40, 0, 0},
-		{100, 150, -20, -30},
-		{200, 200, 40, 50}
-	};
+	    {10, 20, 30, 40},
+	    {30, 40, 0, 0},
+	    {100, 150, -20, -30},
+	    {200, 200, 40, 50}};
 
 	GdipCreatePen1 (0xFF00FF00, 1, UnitPixel, &pen);
 
@@ -11430,7 +11435,7 @@ static void test_drawRectanglesI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, 2);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
@@ -11438,17 +11443,16 @@ static void test_drawRectanglesI ()
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, 1);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteGraphics (graphics);
 	GdipDisposeImage (image);
 
 	// Zero.
 	Rect zeroRectangles[] = {
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
-	};
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0},
+	    {0, 0, 0, 0}};
 	createImageGraphics (256, 256, &image, &graphics);
 	status = GdipDrawRectanglesI (graphics, pen, zeroRectangles, 4);
 	assertEqualInt (status, Ok);
@@ -11456,34 +11460,34 @@ static void test_drawRectanglesI ()
 	// Negative tests.
 	status = GdipDrawRectanglesI (NULL, pen, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (NULL, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipDrawRectanglesI (NULL, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11492,31 +11496,31 @@ static void test_drawRectanglesI ()
 
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, 3);
 	assertEqualInt (status, ObjectBusy);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, NULL, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, NULL, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipDrawRectanglesI (graphics, pen, rectangles, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -11528,7 +11532,7 @@ static void test_drawRectanglesI ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 

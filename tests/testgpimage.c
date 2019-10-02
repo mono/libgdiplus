@@ -23,7 +23,9 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static GpImage* getImage (const char* fileName) {
+static GpImage *
+getImage (const char *fileName)
+{
 	GpStatus status;
 	WCHAR *wFileName = wcharFromChar (fileName);
 	GpImage *image;
@@ -36,7 +38,8 @@ static GpImage* getImage (const char* fileName) {
 	return image;
 }
 
-static void test_loadImageFromStream ()
+static void
+test_loadImageFromStream ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -56,11 +59,12 @@ static void test_loadImageFromStream ()
 #endif
 }
 
-static void test_loadImageFromFile ()
+static void
+test_loadImageFromFile ()
 {
 	GpStatus status;
 	GpImage *image;
-	WCHAR *noSuchFile = createWchar ("noSuchFile.bmp");
+	WCHAR *noSuchFile  = createWchar ("noSuchFile.bmp");
 	WCHAR *invalidFile = createWchar ("test.ttf");
 
 	// Negative tests.
@@ -80,7 +84,8 @@ static void test_loadImageFromFile ()
 	freeWchar (invalidFile);
 }
 
-static void test_loadImageFromStreamICM ()
+static void
+test_loadImageFromStreamICM ()
 {
 	GpStatus status;
 	GpImage *image;
@@ -100,11 +105,12 @@ static void test_loadImageFromStreamICM ()
 #endif
 }
 
-static void test_loadImageFromFileICM ()
+static void
+test_loadImageFromFileICM ()
 {
 	GpStatus status;
 	GpImage *image;
-	WCHAR *noSuchFile = createWchar ("noSuchFile.bmp");
+	WCHAR *noSuchFile  = createWchar ("noSuchFile.bmp");
 	WCHAR *invalidFile = createWchar ("test.ttf");
 
 	// Negative tests.
@@ -124,7 +130,8 @@ static void test_loadImageFromFileICM ()
 	freeWchar (invalidFile);
 }
 
-static void test_loadImageFromFileTif ()
+static void
+test_loadImageFromFileTif ()
 {
 	GpImage *image = getImage ("test.tif");
 
@@ -133,7 +140,8 @@ static void test_loadImageFromFileTif ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFileGif ()
+static void
+test_loadImageFromFileGif ()
 {
 	GpImage *image = getImage ("test.gif");
 
@@ -142,7 +150,8 @@ static void test_loadImageFromFileGif ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFilePng ()
+static void
+test_loadImageFromFilePng ()
 {
 	GpImage *image = getImage ("test.png");
 
@@ -151,7 +160,8 @@ static void test_loadImageFromFilePng ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFileJpg ()
+static void
+test_loadImageFromFileJpg ()
 {
 	GpImage *image = getImage ("test.jpg");
 
@@ -160,7 +170,8 @@ static void test_loadImageFromFileJpg ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFileIcon ()
+static void
+test_loadImageFromFileIcon ()
 {
 	GpImage *image = getImage ("test.ico");
 
@@ -169,7 +180,8 @@ static void test_loadImageFromFileIcon ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFileWmf ()
+static void
+test_loadImageFromFileWmf ()
 {
 	GpImage *image = getImage ("test.wmf");
 
@@ -178,7 +190,8 @@ static void test_loadImageFromFileWmf ()
 	GdipDisposeImage (image);
 }
 
-static void test_loadImageFromFileEmf ()
+static void
+test_loadImageFromFileEmf ()
 {
 	GpImage *image = getImage ("test.emf");
 
@@ -187,11 +200,12 @@ static void test_loadImageFromFileEmf ()
 	GdipDisposeImage (image);
 }
 
-static void test_cloneImage ()
+static void
+test_cloneImage ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
-	GpImage *jpgImage = getImage ("test.jpg");
+	GpImage *bitmapImage   = getImage ("test.bmp");
+	GpImage *jpgImage      = getImage ("test.jpg");
 	GpImage *metafileImage = getImage ("test.wmf");
 	GpImage *clonedImage;
 
@@ -228,10 +242,11 @@ static void test_cloneImage ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_disposeImage ()
+static void
+test_disposeImage ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 
 	// ImageTypeBitmap.
@@ -247,11 +262,12 @@ static void test_disposeImage ()
 	assertEqualInt (status, InvalidParameter);
 }
 
-static void test_getImageGraphicsContext ()
+static void
+test_getImageGraphicsContext ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
-	GpImage *gifImage = getImage ("test.gif");
+	GpImage *bitmapImage   = getImage ("test.bmp");
+	GpImage *gifImage      = getImage ("test.gif");
 	GpImage *metafileImage = getImage ("test.wmf");
 	GpGraphics *graphics;
 
@@ -286,7 +302,8 @@ static void test_getImageGraphicsContext ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getImageBounds ()
+static void
+test_getImageBounds ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -306,7 +323,8 @@ static void test_getImageBounds ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageDimension ()
+static void
+test_getImageDimension ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -326,7 +344,8 @@ static void test_getImageDimension ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageType ()
+static void
+test_getImageType ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -342,7 +361,8 @@ static void test_getImageType ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageWidth ()
+static void
+test_getImageWidth ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -358,7 +378,8 @@ static void test_getImageWidth ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageHeight ()
+static void
+test_getImageHeight ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -374,7 +395,8 @@ static void test_getImageHeight ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageHorizontalResolution ()
+static void
+test_getImageHorizontalResolution ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -390,7 +412,8 @@ static void test_getImageHorizontalResolution ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageVerticalResolution ()
+static void
+test_getImageVerticalResolution ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -406,7 +429,8 @@ static void test_getImageVerticalResolution ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageFlags ()
+static void
+test_getImageFlags ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -422,7 +446,8 @@ static void test_getImageFlags ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImageRawFormat ()
+static void
+test_getImageRawFormat ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -438,7 +463,8 @@ static void test_getImageRawFormat ()
 	GdipDisposeImage (image);
 }
 
-static void test_getImagePixelFormat ()
+static void
+test_getImagePixelFormat ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -454,14 +480,19 @@ static void test_getImagePixelFormat ()
 	GdipDisposeImage (image);
 }
 
-static BOOL callback (void *callbackData) { return TRUE; }
+static BOOL
+callback (void *callbackData)
+{
+	return TRUE;
+}
 
-static void test_getImageThumbnail ()
+static void
+test_getImageThumbnail ()
 {
 	GpStatus status;
 	GpImage *bitmapImage = getImage ("test.bmp");
-	GpImage *wmfImage = getImage ("test.wmf");
-	GpImage *emfImage = getImage ("test.emf");
+	GpImage *wmfImage    = getImage ("test.wmf");
+	GpImage *emfImage    = getImage ("test.emf");
 	GpImage *thumbImage;
 
 	// ImageTypeBitmap - non zero width and height.
@@ -469,13 +500,13 @@ static void test_getImageThumbnail ()
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 10, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
-	
+
 	// ImageTypeBitmap - width > height.
 	status = GdipGetImageThumbnail (bitmapImage, 20, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppPARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
-	
+
 	// ImageTypeBitmap - height > width.
 	status = GdipGetImageThumbnail (bitmapImage, 10, 20, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, Ok);
@@ -499,7 +530,7 @@ static void test_getImageThumbnail ()
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
-	
+
 	// ImageTypeMetafile - height > width.
 	status = GdipGetImageThumbnail (wmfImage, 10, 20, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -517,7 +548,7 @@ static void test_getImageThumbnail ()
 	assertEqualInt (status, Ok);
 	verifyBitmap (thumbImage, memoryBmpRawFormat, PixelFormat32bppARGB, 20, 10, ImageFlagsHasAlpha, 0, TRUE);
 	GdipDisposeImage (thumbImage);
-	
+
 	// ImageTypeMetafile - height > width.
 	status = GdipGetImageThumbnail (emfImage, 10, 20, &thumbImage, NULL, NULL);
 	assertEqualInt (status, Ok);
@@ -530,7 +561,7 @@ static void test_getImageThumbnail ()
 
 	status = GdipGetImageThumbnail (bitmapImage, 10, 10, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetImageThumbnail (bitmapImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -539,13 +570,13 @@ static void test_getImageThumbnail ()
 
 	status = GdipGetImageThumbnail (emfImage, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipGetImageThumbnail (NULL, 0, 10, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetImageThumbnail (bitmapImage, 0, 10, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetImageThumbnail (bitmapImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
 
@@ -554,10 +585,10 @@ static void test_getImageThumbnail ()
 
 	status = GdipGetImageThumbnail (emfImage, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, OutOfMemory);
-	
+
 	status = GdipGetImageThumbnail (NULL, 10, 0, &thumbImage, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetImageThumbnail (bitmapImage, 10, 0, NULL, (GetThumbnailImageAbort) callback, (void *) 1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -566,7 +597,8 @@ static void test_getImageThumbnail ()
 	GdipDisposeImage (emfImage);
 }
 
-static void test_getEncoderParameterListSize ()
+static void
+test_getEncoderParameterListSize ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -577,19 +609,19 @@ static void test_getEncoderParameterListSize ()
 
 	status = GdipGetEncoderParameterListSize (image, &tifEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, (is_32bit() ? 164 : 184));
+	assertEqualInt (size, (is_32bit () ? 164 : 184));
 
 	status = GdipGetEncoderParameterListSize (image, &gifEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, (is_32bit() ? 64 : 80));
+	assertEqualInt (size, (is_32bit () ? 64 : 80));
 
 	status = GdipGetEncoderParameterListSize (image, &pngEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, (is_32bit() ? 32 : 40));
+	assertEqualInt (size, (is_32bit () ? 32 : 40));
 
 	status = GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt (size, (is_32bit() ? 172 : 200));
+	assertEqualInt (size, (is_32bit () ? 172 : 200));
 
 	status = GdipGetEncoderParameterListSize (image, &icoEncoderClsid, &size);
 	assertEqualInt (status, FileNotFound);
@@ -616,7 +648,8 @@ static void test_getEncoderParameterListSize ()
 	GdipDisposeImage (image);
 }
 
-static void test_getEncoderParameterList ()
+static void
+test_getEncoderParameterList ()
 {
 	GpStatus status;
 	GpImage *image = getImage ("test.bmp");
@@ -626,14 +659,14 @@ static void test_getEncoderParameterList ()
 	UINT jpegSize;
 	EncoderParameters buffer;
 	EncoderParameters *parameters;
-	GUID compression = {0x0E09D739D, 0x0CCD4, 0x44EE, {0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B, 0x0E4, 0x0FC, 0x58}};
-	GUID colorDepth = {0x66087055, 0x0AD66, 0x4C7C, {0x9A, 0x18, 0x38, 0x0A2, 0x31, 0x0B, 0x83, 0x37}};
-	GUID saveFlag = {0x292266FC, 0x0AC40, 0x47BF, {0x8C, 0x0FC, 0x0A8, 0x5B, 0x89, 0x0A6, 0x55, 0x0DE}};
-	GUID saveAsCMYK = {0x0A219BBC9, 0x0A9D, 0x4005, {0x0A3, 0x0EE, 0x3A, 0x42, 0x1B, 0x8B, 0x0B0, 0x6C}};
-	GUID imageItems = {0x63875E13, 0x1F1D, 0x45AB, {0x91, 0x95, 0x0A2, 0x9B, 0x60, 0x66, 0x0A6, 0x50}};
-	GUID transformation = {0x8D0EB2D1, 0x0A58E, 0x4EA8, {0x0AA, 0x14, 0x10, 0x80, 0x74, 0x0B7, 0x0B6, 0x0F9}};
-	GUID quality = {0x1D5BE4B5, 0x0FA4A, 0x452D, {0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5, 0x0E7, 0x0EB}};
-	GUID luminanceTable = {0x0EDB33BCE, 0x266, 0x4A77, {0x0B9, 0x4, 0x27, 0x21, 0x60, 0x99, 0x0E7, 0x17}};
+	GUID compression      = {0x0E09D739D, 0x0CCD4, 0x44EE, {0x8E, 0x0BA, 0x3F, 0x0BF, 0x8B, 0x0E4, 0x0FC, 0x58}};
+	GUID colorDepth       = {0x66087055, 0x0AD66, 0x4C7C, {0x9A, 0x18, 0x38, 0x0A2, 0x31, 0x0B, 0x83, 0x37}};
+	GUID saveFlag	 = {0x292266FC, 0x0AC40, 0x47BF, {0x8C, 0x0FC, 0x0A8, 0x5B, 0x89, 0x0A6, 0x55, 0x0DE}};
+	GUID saveAsCMYK       = {0x0A219BBC9, 0x0A9D, 0x4005, {0x0A3, 0x0EE, 0x3A, 0x42, 0x1B, 0x8B, 0x0B0, 0x6C}};
+	GUID imageItems       = {0x63875E13, 0x1F1D, 0x45AB, {0x91, 0x95, 0x0A2, 0x9B, 0x60, 0x66, 0x0A6, 0x50}};
+	GUID transformation   = {0x8D0EB2D1, 0x0A58E, 0x4EA8, {0x0AA, 0x14, 0x10, 0x80, 0x74, 0x0B7, 0x0B6, 0x0F9}};
+	GUID quality	  = {0x1D5BE4B5, 0x0FA4A, 0x452D, {0x9C, 0x0DD, 0x5D, 0x0B3, 0x51, 0x5, 0x0E7, 0x0EB}};
+	GUID luminanceTable   = {0x0EDB33BCE, 0x266, 0x4A77, {0x0B9, 0x4, 0x27, 0x21, 0x60, 0x99, 0x0E7, 0x17}};
 	GUID chrominanceTable = {0x0F2E455DC, 0x9B3, 0x4316, {0x82, 0x60, 0x67, 0x6A, 0x0DA, 0x32, 0x48, 0x1C}};
 
 	// TIFF encoder.
@@ -810,10 +843,11 @@ static void test_getEncoderParameterList ()
 	GdipDisposeImage (image);
 }
 
-static void test_getFrameDimensionsCount ()
+static void
+test_getFrameDimensionsCount ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	UINT count;
 
@@ -836,10 +870,11 @@ static void test_getFrameDimensionsCount ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getFrameDimensionsList ()
+static void
+test_getFrameDimensionsList ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	GUID dimensions[1];
 
@@ -875,13 +910,14 @@ static void test_getFrameDimensionsList ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getFrameCount ()
+static void
+test_getFrameCount ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
-	GUID pageDimension = {0x7462dc86, 0x6180, 0x4c7e, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
-	GUID timeDimension = {0x6aedbd6d, 0x3fb5, 0x418a, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
+	GUID pageDimension     = {0x7462dc86, 0x6180, 0x4c7e, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
+	GUID timeDimension     = {0x6aedbd6d, 0x3fb5, 0x418a, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
 	UINT count;
 
 	// Bitmap - page dimension.
@@ -890,13 +926,13 @@ static void test_getFrameCount ()
 	assertEqualInt (count, 1);
 
 	// Metafile - null dimension.
-	count = -1;
+	count  = -1;
 	status = GdipImageGetFrameCount (metafileImage, NULL, &count);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 
 	// Metafile - no such dimension.
-	count = -1;
+	count  = -1;
 	status = GdipImageGetFrameCount (metafileImage, &emfEncoderClsid, &count);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -924,13 +960,14 @@ static void test_getFrameCount ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_selectActiveFrame ()
+static void
+test_selectActiveFrame ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
-	GUID pageDimension = {0x7462dc86, 0x6180, 0x4c7e, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
-	GUID timeDimension = {0x6aedbd6d, 0x3fb5, 0x418a, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
+	GUID pageDimension     = {0x7462dc86, 0x6180, 0x4c7e, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
+	GUID timeDimension     = {0x6aedbd6d, 0x3fb5, 0x418a, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
 
 	// Bitmap - page dimension.
 	status = GdipImageSelectActiveFrame (bitmapImage, &pageDimension, 0);
@@ -964,10 +1001,11 @@ static void test_selectActiveFrame ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_forceValidation ()
+static void
+test_forceValidation ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 
 	// ImageTypeBitmap.
@@ -986,10 +1024,11 @@ static void test_forceValidation ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_rotateFlip ()
+static void
+test_rotateFlip ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 
 	// RotateNoneFlipNone.
@@ -1031,27 +1070,28 @@ static void test_rotateFlip ()
 	status = GdipImageRotateFlip (metafileImage, Rotate270FlipX);
 	assertEqualInt (status, NotImplemented);
 
-	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType)(RotateNoneFlipNone - 1));
+	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType) (RotateNoneFlipNone - 1));
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType)(Rotate270FlipX + 1));
+	status = GdipImageRotateFlip (bitmapImage, (RotateFlipType) (Rotate270FlipX + 1));
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDisposeImage (bitmapImage);
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getImagePalette ()
+static void
+test_getImagePalette ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	INT size;
 	BYTE buffer1[1040];
-	ColorPalette *palette = (ColorPalette *)buffer1;
+	ColorPalette *palette = (ColorPalette *) buffer1;
 
 	BYTE buffer2[1040];
-	ColorPalette *nonEmptyPalette = (ColorPalette *)buffer2;
+	ColorPalette *nonEmptyPalette = (ColorPalette *) buffer2;
 
 	GdipGetImagePaletteSize (bitmapImage, &size);
 
@@ -1062,13 +1102,13 @@ static void test_getImagePalette ()
 
 	// Empty palette - larger size.
 	palette->Count = 100;
-	status = GdipGetImagePalette (bitmapImage, palette, size + 1);
+	status	 = GdipGetImagePalette (bitmapImage, palette, size + 1);
 	assertEqualInt (status, Ok);
 	assertEqualInt (palette->Count, 0);
 
 	// Empty palette - negative size.
 	palette->Count = 100;
-	status = GdipGetImagePalette (bitmapImage, palette, -1);
+	status	 = GdipGetImagePalette (bitmapImage, palette, -1);
 	assertEqualInt (status, Ok);
 	assertEqualInt (palette->Count, 0);
 
@@ -1101,17 +1141,17 @@ static void test_getImagePalette ()
 	assertEqualInt (status, NotImplemented);
 
 	// Non empty palette - setup.
-	nonEmptyPalette->Count = 10;
-	nonEmptyPalette->Flags = 1;
+	nonEmptyPalette->Count      = 10;
+	nonEmptyPalette->Flags      = 1;
 	nonEmptyPalette->Entries[0] = 2;
-	status = GdipSetImagePalette (bitmapImage, nonEmptyPalette);
+	status			    = GdipSetImagePalette (bitmapImage, nonEmptyPalette);
 	assertEqualInt (status, Ok);
 
 	GdipGetImagePaletteSize (bitmapImage, &size);
 
 	// Non empty palette - same size.
-	palette->Count = 100;
-	palette->Flags = 100;
+	palette->Count      = 100;
+	palette->Flags      = 100;
 	palette->Entries[0] = 100;
 
 	status = GdipGetImagePalette (bitmapImage, palette, size);
@@ -1121,8 +1161,8 @@ static void test_getImagePalette ()
 	assertEqualInt (palette->Entries[0], 2);
 
 	// Non empty palette - larger size.
-	palette->Count = 100;
-	palette->Flags = 100;
+	palette->Count      = 100;
+	palette->Flags      = 100;
 	palette->Entries[0] = 100;
 
 	status = GdipGetImagePalette (bitmapImage, palette, size + 1);
@@ -1135,24 +1175,25 @@ static void test_getImagePalette ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_setImagePalette ()
+static void
+test_setImagePalette ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	INT size;
 	BYTE buffer1[1040];
-	ColorPalette *palette = (ColorPalette *)buffer1;
+	ColorPalette *palette = (ColorPalette *) buffer1;
 	BYTE buffer2[1040];
-	ColorPalette *resultPalette = (ColorPalette *)buffer2;
+	ColorPalette *resultPalette = (ColorPalette *) buffer2;
 
 	GdipGetImagePaletteSize (bitmapImage, &size);
 
 	// Set with positive count.
-	palette->Count = 10;
-	palette->Flags = 1;
+	palette->Count      = 10;
+	palette->Flags      = 1;
 	palette->Entries[0] = 2;
-	status = GdipSetImagePalette (bitmapImage, palette);
+	status		    = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetImagePaletteSize (bitmapImage, &size);
@@ -1166,10 +1207,10 @@ static void test_setImagePalette ()
 	assertEqualInt (resultPalette->Entries[0], 2);
 
 	// Set with large count.
-	palette->Count = 256;
-	palette->Flags = 1;
+	palette->Count      = 256;
+	palette->Flags      = 1;
 	palette->Entries[0] = 20;
-	status = GdipSetImagePalette (bitmapImage, palette);
+	status		    = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, Ok);
 
 	status = GdipGetImagePaletteSize (bitmapImage, &size);
@@ -1187,19 +1228,19 @@ static void test_setImagePalette ()
 	assertEqualInt (status, InvalidParameter);
 
 	palette->Count = 10;
-	status = GdipSetImagePalette (metafileImage, palette);
+	status	 = GdipSetImagePalette (metafileImage, palette);
 	assertEqualInt (status, NotImplemented);
 
 	palette->Count = 0;
-	status = GdipSetImagePalette (bitmapImage, palette);
+	status	 = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, InvalidParameter);
 
 	palette->Count = -1;
-	status = GdipSetImagePalette (bitmapImage, palette);
+	status	 = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, InvalidParameter);
 
 	palette->Count = 257;
-	status = GdipSetImagePalette (bitmapImage, palette);
+	status	 = GdipSetImagePalette (bitmapImage, palette);
 	assertEqualInt (status, InvalidParameter);
 
 	status = GdipSetImagePalette (bitmapImage, NULL);
@@ -1212,16 +1253,17 @@ static void test_setImagePalette ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getImagePaletteSize ()
+static void
+test_getImagePaletteSize ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	INT size;
 
 	status = GdipGetImagePaletteSize (bitmapImage, &size);
 	assertEqualInt (status, Ok);
-	assertEqualInt ((int) sizeof(ColorPalette), 12);
+	assertEqualInt ((int) sizeof (ColorPalette), 12);
 	assertEqualInt (size, 12);
 
 	// Negative tests.
@@ -1241,10 +1283,11 @@ static void test_getImagePaletteSize ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getPropertyCount ()
+static void
+test_getPropertyCount ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	UINT count;
 
@@ -1269,10 +1312,11 @@ static void test_getPropertyCount ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getPropertyIdList ()
+static void
+test_getPropertyIdList ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	PROPID list[2];
 
@@ -1303,12 +1347,13 @@ static void test_getPropertyIdList ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getPropertyItemSize ()
+static void
+test_getPropertyItemSize ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
-	PROPID prop = 100;
+	PROPID prop	    = 100;
 	UINT size;
 
 	// Negative tests.
@@ -1331,12 +1376,13 @@ static void test_getPropertyItemSize ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getPropertyItem ()
+static void
+test_getPropertyItem ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
-	PROPID prop = 100;
+	PROPID prop	    = 100;
 	PropertyItem propertyItem;
 
 	// Negative tests.
@@ -1359,10 +1405,11 @@ static void test_getPropertyItem ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getPropertySize ()
+static void
+test_getPropertySize ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	UINT totalBufferSize;
 	UINT numProperties;
@@ -1395,10 +1442,11 @@ static void test_getPropertySize ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_getAllPropertyItems ()
+static void
+test_getAllPropertyItems ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
 	PropertyItem propertyItems[2];
 
@@ -1434,12 +1482,13 @@ static void test_getAllPropertyItems ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void test_removePropertyItem ()
+static void
+test_removePropertyItem ()
 {
 	GpStatus status;
-	GpImage *bitmapImage = getImage ("test.bmp");
+	GpImage *bitmapImage   = getImage ("test.bmp");
 	GpImage *metafileImage = getImage ("test.wmf");
-	PROPID prop = 100;
+	PROPID prop	    = 100;
 
 	// Negative tests.
 	status = GdipRemovePropertyItem (NULL, prop);
@@ -1455,11 +1504,12 @@ static void test_removePropertyItem ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void setPropertyItemForImage (GpImage *image)
+static void
+setPropertyItemForImage (GpImage *image)
 {
 	GpStatus status;
 
-	INT temp = 1;
+	INT temp		   = 1;
 	PropertyItem propertyItem1 = {10, 0, 11, &temp};
 	PropertyItem propertyItem2 = {11, 0, 12, NULL};
 	PropertyItem propertyItem3 = {10, 0, 9, NULL};
@@ -1476,7 +1526,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem1.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof (PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem1.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1489,13 +1539,13 @@ static void setPropertyItemForImage (GpImage *image)
 	assertEqualInt (numProperties, 1);
 
 	numProperties = -1;
-	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
+	status	= GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem));
+	assertEqualInt (totalBufferSize, (int) sizeof (PropertyItem));
 	assertEqualInt (numProperties, 1);
 
 	propertyIds[1] = -1;
-	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
+	status	 = GdipGetPropertyIdList (image, numProperties, propertyIds);
 	assertEqualInt (status, Ok);
 	assertEqualInt (propertyIds[0], 10);
 	assertEqualInt (propertyIds[1], -1);
@@ -1506,7 +1556,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem2.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof (PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem2.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1519,13 +1569,13 @@ static void setPropertyItemForImage (GpImage *image)
 	assertEqualInt (numProperties, 2);
 
 	numProperties = -1;
-	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
+	status	= GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
+	assertEqualInt (totalBufferSize, (int) sizeof (PropertyItem) * 2);
 	assertEqualInt (numProperties, 2);
 
 	propertyIds[1] = -1;
-	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
+	status	 = GdipGetPropertyIdList (image, numProperties, propertyIds);
 	assertEqualInt (status, Ok);
 	assertEqualInt (propertyIds[0], 10);
 	assertEqualInt (propertyIds[1], 11);
@@ -1536,7 +1586,7 @@ static void setPropertyItemForImage (GpImage *image)
 
 	status = GdipGetPropertyItemSize (image, propertyItem3.id, &propertySize);
 	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualInt (propertySize, (int) sizeof (PropertyItem));
 
 	status = GdipGetPropertyItem (image, propertyItem3.id, propertySize, &resultPropertyItem);
 	assertEqualInt (status, Ok);
@@ -1549,28 +1599,29 @@ static void setPropertyItemForImage (GpImage *image)
 	assertEqualInt (numProperties, 2);
 
 	numProperties = -1;
-	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
+	status	= GdipGetPropertySize (image, &totalBufferSize, &numProperties);
 	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
+	assertEqualInt (totalBufferSize, (int) sizeof (PropertyItem) * 2);
 	assertEqualInt (numProperties, 2);
 
 	propertyIds[1] = -1;
-	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
+	status	 = GdipGetPropertyIdList (image, numProperties, propertyIds);
 	assertEqualInt (status, Ok);
 	assertEqualInt (propertyIds[0], 10);
 	assertEqualInt (propertyIds[1], 11);
 }
 
-static void test_setPropertyItem()
+static void
+test_setPropertyItem ()
 {
 	GpStatus status;
-	GpImage *bmpImage = getImage ("test.bmp");
-	GpImage *tifImage = getImage ("test.tif");
-	GpImage *gifImage = getImage ("test.gif");
-	GpImage *pngImage = getImage ("test.png");
-	GpImage *jpgImage = getImage ("test.jpg");
-	GpImage *icoImage = getImage ("test.ico");
-	GpImage *metafileImage = getImage ("test.wmf");
+	GpImage *bmpImage	 = getImage ("test.bmp");
+	GpImage *tifImage	 = getImage ("test.tif");
+	GpImage *gifImage	 = getImage ("test.gif");
+	GpImage *pngImage	 = getImage ("test.png");
+	GpImage *jpgImage	 = getImage ("test.jpg");
+	GpImage *icoImage	 = getImage ("test.ico");
+	GpImage *metafileImage    = getImage ("test.wmf");
 	PropertyItem propertyItem = {10, 0, 11, NULL};
 
 	setPropertyItemForImage (bmpImage);
@@ -1613,7 +1664,7 @@ static void test_setPropertyItem()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 
