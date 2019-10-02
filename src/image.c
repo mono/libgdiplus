@@ -285,7 +285,6 @@ GpStatus WINGDIPAPI
 GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 {
 	GpGraphics	*gfx;
-	cairo_surface_t	*surface;
 	cairo_pattern_t	*filter;
 	
 	if (!image || !graphics)
@@ -318,10 +317,10 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 		return OutOfMemory;
 	}
 
-	surface = cairo_image_surface_create_for_data ((BYTE*) image->active_bitmap->scan0, image->cairo_format,
-				image->active_bitmap->width, image->active_bitmap->height, image->active_bitmap->stride);
-
-	gfx = gdip_graphics_new (surface);
+	if (gdip_bitmap_ensure_surface (image) == NULL)
+		return OutOfMemory;
+	
+	gfx = gdip_graphics_new (image->surface);
 	if (!gfx)
 		return OutOfMemory;
 
@@ -331,7 +330,6 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 	gfx->bounds.Height = image->active_bitmap->height;
 	gfx->orig_bounds.Width = image->active_bitmap->width;
 	gfx->orig_bounds.Height = image->active_bitmap->height;
-	cairo_surface_destroy (surface);
 
 	gfx->image = image;
 	gfx->type = gtMemoryBitmap;
@@ -387,8 +385,6 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	BOOL need_scaling = FALSE;
 	double scaled_width, scaled_height;
 	cairo_matrix_t orig_matrix;
-	BYTE *premul = NULL;
-	cairo_surface_t *original = NULL;
 
 	if (!graphics)
 		return InvalidParameter;
@@ -440,20 +436,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	}
 
 	/* Create a surface for this bitmap if one doesn't exist */
-	gdip_bitmap_ensure_surface (image);
-	
-	if (gdip_bitmap_format_needs_premultiplication (image)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (image);
-		if (premul) {
-			ActiveBitmapData *data = image->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
-															data->width, data->height, data->stride);
-		}
-	}
-	
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = image->surface;
+	if (gdip_bitmap_ensure_surface (image) == NULL)
+		return OutOfMemory;
 
 	if (width != image->active_bitmap->width || height != image->active_bitmap->height) {
 		scaled_width = (double) width / image->active_bitmap->width;
@@ -461,8 +445,8 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 		need_scaling = TRUE;
 	}
 
-	/* Use the original as a pattern */
-	pattern = cairo_pattern_create_for_surface (original);
+	/* Use the image->surface as a pattern */
+	pattern = cairo_pattern_create_for_surface (image->surface);
 
 	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
@@ -484,11 +468,6 @@ GdipDrawImageRect (GpGraphics *graphics, GpImage *image, REAL x, REAL y, REAL wi
 	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
 
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
-
 	return Ok;
 }
 
@@ -502,8 +481,6 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	cairo_matrix_t orig_matrix;
 	GpRectF tRect;
 	MetafilePlayContext *metacontext = NULL;
-	BYTE *premul = NULL;
-	cairo_surface_t *original = NULL;
 
 	if (!graphics || !dstPoints || count <= 0)
 		return InvalidParameter;
@@ -553,22 +530,10 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	}
 
 	/* Create a surface for this bitmap if one doesn't exist */
-	gdip_bitmap_ensure_surface (image);
+	if (gdip_bitmap_ensure_surface (image) == NULL)
+		return OutOfMemory;
 
-	if (gdip_bitmap_format_needs_premultiplication (image)) {
-		premul = gdip_bitmap_get_premultiplied_scan0 (image);
-		if (premul) {
-			ActiveBitmapData *data = image->active_bitmap;
-			original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32,
-															data->width, data->height, data->stride);
-		}
-	}
-	
-	/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-	if (!original)
-		original = image->surface;
-
-	pattern = cairo_pattern_create_for_surface (original);
+	pattern = cairo_pattern_create_for_surface (image->surface);
 	cairo_pattern_set_filter (pattern, gdip_get_cairo_filter (graphics->interpolation));
 
 	org_pattern = cairo_get_source(graphics->ct);
@@ -585,11 +550,6 @@ GdipDrawImagePoints (GpGraphics *graphics, GpImage *image, GDIPCONST GpPointF *d
 	GdipDeleteMatrix (matrix);
 	cairo_pattern_destroy (org_pattern);
 	cairo_pattern_destroy (pattern);
-
-	if (premul) {
-		cairo_surface_destroy (original);
-		GdipFree (premul);
-	}
 
 	return Ok;
 }
@@ -643,8 +603,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	void		*dest;
 	void		*org;
 	int		org_format;
+	cairo_surface_t *org_surface;
 	BOOL		allocated = FALSE;
-	BYTE			*premul = NULL;
 	cairo_surface_t	*original = NULL;
 	
 	if (!graphics)
@@ -703,6 +663,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 	org = dest = image->active_bitmap->scan0; 
 	org_format = image->active_bitmap->pixel_format;
+	org_surface = image->surface;
 	status = gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
 	if (status != Ok)
 		return status;
@@ -710,11 +671,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
 	if (allocated) {
 		image->active_bitmap->scan0 = dest;
-	}
-	
-	/* Drop the existing surface if attributes are being applied since the surface might be out-of-date */
-	if ((image->surface != NULL) && (imageAttributes != NULL))  {
-		cairo_surface_destroy (image->surface);
 		image->surface = NULL;
 	}
 
@@ -733,14 +689,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		float img_width = image->active_bitmap->width *  (dstwidth / srcwidth);
 		float img_height = image->active_bitmap->height * (dstheight / srcheight);
-		BYTE		*premul = NULL;
-		BYTE		*premulX = NULL;
-		BYTE		*premulY = NULL;
-		BYTE		*premulXY = NULL;
-		cairo_surface_t	*original = NULL;
-		cairo_surface_t	*originalX = NULL;
-		cairo_surface_t	*originalY = NULL;
-		cairo_surface_t	*originalXY = NULL;
 		cairo_surface_t *cur_surface;
 
 		if (imageAttributes->wrapmode == WrapModeTileFlipXY) {
@@ -760,19 +708,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 				return status;
 			}
 
-			gdip_bitmap_ensure_surface (imgflipX);			
-
-			if (gdip_bitmap_format_needs_premultiplication (imgflipX)) {
-				premulX = gdip_bitmap_get_premultiplied_scan0 (imgflipX);
-				if (premulX) {
-					ActiveBitmapData *data = imgflipX->active_bitmap;
-					originalX = cairo_image_surface_create_for_data (premulX, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
-				}
-			}
-
-			/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-			if (!originalX)
-				originalX = imgflipX->surface;
+			gdip_bitmap_ensure_surface (imgflipX);
 		}
 		
 		if (flipYOn) {			
@@ -787,18 +723,6 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			}
 
 			gdip_bitmap_ensure_surface (imgflipY);			
-			
-			if (gdip_bitmap_format_needs_premultiplication (imgflipY)) {
-				premulY = gdip_bitmap_get_premultiplied_scan0 (imgflipY);
-				if (premulY) {
-					ActiveBitmapData *data = imgflipY->active_bitmap;
-					originalY = cairo_image_surface_create_for_data (premulY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
-				}
-			}
-
-			/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-			if (!originalY)
-				originalY = imgflipY->surface;
 		}
 		
 		if (flipXOn && flipYOn) {			
@@ -819,47 +743,22 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			}
 
 			gdip_bitmap_ensure_surface (imgflipXY);			
-
-			if (gdip_bitmap_format_needs_premultiplication (imgflipXY)) {
-				premulXY = gdip_bitmap_get_premultiplied_scan0 (imgflipXY);
-				if (premulXY) {
-					ActiveBitmapData *data = imgflipXY->active_bitmap;
-					originalXY = cairo_image_surface_create_for_data (premulXY, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
-				}
-			}
-
-			/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-			if (!originalXY)
-				originalXY = imgflipXY->surface;
 		}
 		
 		gdip_bitmap_ensure_surface (image);
 
-		if (gdip_bitmap_format_needs_premultiplication (image)) {
-			premul = gdip_bitmap_get_premultiplied_scan0 (image);
-			if (premul) {
-				ActiveBitmapData *data = image->active_bitmap;
-				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
-			}
-		}
-
-		/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-		if (!original)
-			original = image->surface;
-		
-
 		for (posy = 0; posy < dstheight; posy += img_height) {
 			for (posx = 0; posx < dstwidth; posx += img_width) {
 				if (flipX && flipY) {
-					cur_surface = originalXY;
+					cur_surface = imgflipXY->surface;
 				} else {
 					if (flipX) {
-						cur_surface = originalX;
+						cur_surface = imgflipX->surface;
 					} else {
 						if (flipY) {
-							cur_surface = originalY;
+							cur_surface = imgflipY->surface;
 						} else {
-							cur_surface = original;
+							cur_surface = image->surface;
 						}
 					}
 				}
@@ -899,48 +798,20 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		
 		if (imgflipX) {
 			GdipDisposeImage ((GpImage *) imgflipX);
-			if (premulX) {
-				cairo_surface_destroy (originalX);
-				GdipFree (premulX);
-			}
 		}
 			
 		if (imgflipY) {
 			GdipDisposeImage ((GpImage *) imgflipY);
-			if (premulY) {
-				cairo_surface_destroy (originalY);
-				GdipFree (premulY);
-			}
 		}
 
 		if (imgflipXY) {
 			GdipDisposeImage ((GpImage *) imgflipXY);
-			if (premulXY) {
-				cairo_surface_destroy (originalXY);
-				GdipFree (premulXY);
-			}
-		}
-
-		if (premul) {
-			cairo_surface_destroy (original);
-			GdipFree (premul);
 		}
 	} else {
 		cairo_pattern_t *filter;
 
 		gdip_bitmap_ensure_surface (image);
-
-		if (gdip_bitmap_format_needs_premultiplication (image)) {
-			premul = gdip_bitmap_get_premultiplied_scan0 (image);
-			if (premul) {
-				ActiveBitmapData *data = image->active_bitmap;
-				original = cairo_image_surface_create_for_data (premul, CAIRO_FORMAT_ARGB32, data->width, data->height, data->stride);
-			}
-		}
-	
-		/* if premul isn't required (or couldn't be computed, e.g. out of memory) */
-		if (!original)
-			original = image->surface;
+		original = image->surface;
 
 		filter = cairo_pattern_create_for_surface (original);
 		cairo_pattern_set_filter (filter, gdip_get_cairo_filter (graphics->interpolation));
@@ -969,22 +840,12 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_pattern_set_matrix (pattern, &mat);
 		cairo_pattern_destroy (pattern);
 		cairo_pattern_destroy (filter);
-
-		if (premul) {
-			cairo_surface_destroy (original);
-			GdipFree (premul);
-		}
-	}
-
-	/* The current surface is no longer valid if we had attributes applied */
-	if (image->surface && imageAttributes != NULL)  {
-		cairo_surface_destroy (image->surface);
-		image->surface = NULL;
 	}
 
 	if (allocated) {
 		image->active_bitmap->scan0 = org;
 		image->active_bitmap->pixel_format = org_format;
+		image->surface = org_surface;
 		GdipFree (dest);
 	}
 	
@@ -1249,6 +1110,8 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	if (file_name == NULL)
 		return InvalidParameter;
 	
+	gdip_bitmap_flush_surface (image);
+	
 	if (format == GIF) { /* gif library has to open the file itself*/
 		status = gdip_save_gif_image_to_file ((BYTE*)file_name, image);
 		GdipFree (file_name);
@@ -1266,7 +1129,7 @@ GdipSaveImageToFile (GpImage *image, GDIPCONST WCHAR *file, GDIPCONST CLSID *enc
 	}
 		
 	GdipFree (file_name);
-	
+
 	switch (format) {
 		case BMP:
 		case ICON:
@@ -1733,10 +1596,7 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	image->active_bitmap->scan0 = rotated;
 	image->active_bitmap->reserved |= GBD_OWN_SCAN0;	
 
-	if (image->surface != NULL) {
-		cairo_surface_destroy (image->surface);
-		image->surface = NULL;
-	}
+	gdip_bitmap_invalidate_surface (image);
 
 	return Ok;
 }
@@ -1914,10 +1774,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 
 	/* It shouldn't be possible for an indexed image to have one,
 	 * but if it does, it needs to be killed. */
-	if (image->surface != NULL) {
-		cairo_surface_destroy (image->surface);
-		image->surface = NULL;
-	}
+	gdip_bitmap_invalidate_surface (image);
 
 	return Ok;
 }
@@ -2428,6 +2285,8 @@ GdipSaveImageToDelegate_linux (GpImage *image, GetBytesDelegate getBytesFunc, Pu
 {
 	if (!image || !encoderCLSID || (image->type != ImageTypeBitmap))
 		return InvalidParameter;
+
+	gdip_bitmap_flush_surface (image);
 
 	switch (gdip_get_imageformat_from_codec_clsid ((CLSID *)encoderCLSID)) {
 	case ICON:

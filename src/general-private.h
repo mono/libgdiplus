@@ -91,6 +91,7 @@
 
 /* avoid floating point division/multiplications when pre-multiplying the alpha channel with R, G and B values */
 extern const BYTE pre_multiplied_table[256][256];
+extern const BYTE pre_multiplied_table_reverse[256][256];
 extern BOOL gdiplusInitialized;
 
 #if CAIRO_VERSION < CAIRO_VERSION_ENCODE(1,6,0)

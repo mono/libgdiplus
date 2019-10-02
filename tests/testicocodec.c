@@ -79,6 +79,27 @@ static void test_invalidImage ()
 #endif
 }
 
+static void test_getPixel ()
+{
+  WCHAR *unis;
+  GpBitmap *bitmap;
+  GpStatus status;
+  PixelFormat pixel_format;
+  ARGB color;
+
+  unis = createWchar ("test3.ico");
+  status = GdipCreateBitmapFromFile (unis, &bitmap);
+  assertEqualInt (status, Ok);
+  freeWchar (unis);
+  status = GdipGetImagePixelFormat (bitmap, &pixel_format);
+  assertEqualInt (status, Ok);
+  assertEqualInt (pixel_format, PixelFormat32bppARGB);
+  status = GdipBitmapGetPixel (bitmap, 0, 0, &color);
+  assertEqualInt (status, Ok);
+  assertEqualInt (color, 0x879EE532u);
+  GdipDisposeImage (bitmap);
+}
+
 int
 main (int argc, char**argv)
 {
@@ -87,6 +108,7 @@ main (int argc, char**argv)
   test_invalidHeader ();
   test_invalidEntry ();
   test_invalidImage ();
+  test_getPixel ();
 
   deleteFile (file);
 
