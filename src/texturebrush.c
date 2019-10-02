@@ -111,8 +111,9 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
@@ -140,7 +141,6 @@ draw_tile_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 static GpStatus
 draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpRect		*rect = &brush->rectangle;
@@ -162,8 +162,9 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						2 * rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		2 * rect->Width, rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
@@ -205,7 +206,6 @@ draw_tile_flipX_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 static GpStatus
 draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
@@ -227,8 +227,9 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, 2 * rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, 2 * rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
@@ -274,7 +275,6 @@ draw_tile_flipY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 static GpStatus
 draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 {
-	cairo_surface_t *original = NULL;
 	cairo_surface_t *texture;
 	cairo_pattern_t *pat;
 	GpMatrix	tempMatrix;
@@ -296,8 +296,9 @@ draw_tile_flipXY_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (original, from_cairoformat_to_content (bitmap->cairo_format),
-						2 * rect->Width, 2 * rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		2 * rect->Width, 2 * rect->Height);
 	status = gdip_get_status (cairo_surface_status (texture));
 	if (status != Ok) {
 		cairo_pattern_destroy (pat);
@@ -391,8 +392,9 @@ draw_clamp_texture (cairo_t *ct, GpBitmap *bitmap, GpTexture *brush)
 	cairo_pattern_set_extend (pat, CAIRO_EXTEND_REPEAT);
 
 	/* texture surface to be created */
-	texture = cairo_surface_create_similar (bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
-						rect->Width, rect->Height);
+	texture = cairo_surface_create_similar (
+		bitmap->surface, from_cairoformat_to_content (bitmap->cairo_format),
+		rect->Width, rect->Height);
 	if (!texture) {
 		cairo_pattern_destroy (pat);
 		return OutOfMemory;
