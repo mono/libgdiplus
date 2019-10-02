@@ -59,11 +59,12 @@ cairo_info="`pkg-config --modversion cairo ` (system)"
 GDIPLUS_PKG_REQ="cairo"
 
 PANGO_REQUIRED_VERSION="1.40.14"
+PANGO_MAX_VERSION="1.43"
 if test $text_v = "pango"; then
   PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
 fi
 if test $text_v = "default"; then
-  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION,
+  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION && pango <= $PANGO_MAX_VERSION,
 	  [text_v=pango], [text_v=cairo])
 fi
 if test $text_v = "pango"; then
