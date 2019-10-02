@@ -402,6 +402,7 @@ static void test_createRegionRgnData ()
 {
 	GpStatus status;
 	GpRegion *region;
+	// clang-format off
 	BYTE infiniteRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
@@ -596,6 +597,7 @@ static void test_createRegionRgnData ()
 		/* CloseLine */ 0x81,
 	};
 #endif
+	// clang-format on
 
 	// Infinite.
 	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteRegionData), &region);
@@ -726,8 +728,7 @@ static void test_getRegionData ()
 	BYTE buffer[1024];
 	UINT sizeFilled;
 	
-	// Infinite region.
-	GdipCreateRegion (&region);
+	// clang-format off
 	BYTE infiniteRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
@@ -738,12 +739,6 @@ static void test_getRegionData ()
 		/* -- Entry -- */
 		/* Type */ 0x03, 0x00, 0x00, 0x10
 	};
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-
-	// Empty region.
-	GdipCreateRegion (&region);
-	GdipSetEmpty (region);
 	BYTE emptyRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
@@ -754,12 +749,6 @@ static void test_getRegionData ()
 		/* -- Entry -- */
 		/* Type */ 0x02, 0x00, 0x00, 0x10
 	};
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	
-	// Infinite Rect.
-	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
-	GdipCreateRegionRect (&infiniteRect, &region);
 	BYTE infiniteRectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -774,12 +763,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x00, 0x4B,
 		/* Height */ 0x00, 0x00, 0x00, 0x4B
 	};
-	verifyRegionData (region, infiniteRectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Empty Rect.
-	GpRectF emptyRect = {0, 0, 0, 0};
-	GdipCreateRegionRect (&emptyRect, &region);
 	BYTE emptyRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -794,12 +777,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x00, 0x00,
 		/* Height */ 0x00, 0x00, 0x00, 0x00
 	};
-	verifyRegionData (region, emptyRectRegionData);
-	GdipDeleteRegion (region);
-
-	// Rect.
-	GpRectF rect = {1, 2, 3, 4};
-	GdipCreateRegionRect (&rect, &region);
 	BYTE nonEmptyRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -814,12 +791,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
-	verifyRegionData (region, nonEmptyRectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Zero Width Rect.
-	GpRectF zeroWidthRect = {1, 2, 0, 4};
-	GdipCreateRegionRect (&zeroWidthRect, &region);
 	BYTE zeroWidthRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -834,12 +805,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x00, 0x00,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
-	verifyRegionData (region, zeroWidthRectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Zero Height Rect.
-	GpRectF zeroHeightRect = {1, 2, 3, 0};
-	GdipCreateRegionRect (&zeroHeightRect, &region);
 	BYTE zeroHeightRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -854,12 +819,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x00, 0x00
 	};
-	verifyRegionData (region, zeroHeightRectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Zero Width and Height Rect.
-	GpRectF zeroWidthAndHeightRect = {1, 2, 0, 0};
-	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
 	BYTE zeroWidthAndHeightRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -874,12 +833,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x00, 0x00,
 		/* Height */ 0x00, 0x00, 0x00, 0x00
 	};
-	verifyRegionData (region, zeroWidthAndHeightRectRegionData);
-	GdipDeleteRegion (region);
-
-	// Negative Width Rect.
-	GpRectF negativeWidthRect = {1, 2, -3, 4};
-	GdipCreateRegionRect (&negativeWidthRect, &region);
 	BYTE negativeWidthRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -894,12 +847,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x40, 0xC0,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
-	verifyRegionData (region, negativeWidthRectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Negative Height Rect.
-	GpRectF negativeHeightRect = {1, 2, 3, -4};
-	GdipCreateRegionRect (&negativeHeightRect, &region);
 	BYTE negativeHeightRectRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -914,15 +861,6 @@ static void test_getRegionData ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0xC0
 	};
-	verifyRegionData (region, negativeHeightRectRegionData);
-	GdipDeleteRegion (region);
-
-	// Path.
-	GdipCreatePath (FillModeWinding, &path);
-	GdipAddPathRectangle (path, 1, 2, 3, 4);
-	GdipCreateRegionPath (path, &region);
-	// FIXME: match GDI+ serializing.
-#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE pathRegionData[] = {
 		/* -- RegionHeader -- */
 		/* Size */          0x30, 0x00, 0x00, 0x00,
@@ -945,6 +883,73 @@ static void test_getRegionData ()
 		/* LineTo */    0x01,
 		/* CloseLine */ 0x81,
 	};
+	// clang-format on
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+	verifyRegionData (region, infiniteRegionData);
+	GdipDeleteRegion (region);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	verifyRegionData (region, emptyRegionData);
+	GdipDeleteRegion (region);
+	
+	// Infinite Rect.
+	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
+	GdipCreateRegionRect (&infiniteRect, &region);
+	verifyRegionData (region, infiniteRectRegionData);
+	GdipDeleteRegion (region);
+	
+	// Empty Rect.
+	GpRectF emptyRect = {0, 0, 0, 0};
+	GdipCreateRegionRect (&emptyRect, &region);
+	verifyRegionData (region, emptyRectRegionData);
+	GdipDeleteRegion (region);
+
+	// Rect.
+	GpRectF rect = {1, 2, 3, 4};
+	GdipCreateRegionRect (&rect, &region);
+	verifyRegionData (region, nonEmptyRectRegionData);
+	GdipDeleteRegion (region);
+	
+	// Zero Width Rect.
+	GpRectF zeroWidthRect = {1, 2, 0, 4};
+	GdipCreateRegionRect (&zeroWidthRect, &region);
+	verifyRegionData (region, zeroWidthRectRegionData);
+	GdipDeleteRegion (region);
+	
+	// Zero Height Rect.
+	GpRectF zeroHeightRect = {1, 2, 3, 0};
+	GdipCreateRegionRect (&zeroHeightRect, &region);
+	verifyRegionData (region, zeroHeightRectRegionData);
+	GdipDeleteRegion (region);
+	
+	// Zero Width and Height Rect.
+	GpRectF zeroWidthAndHeightRect = {1, 2, 0, 0};
+	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
+	verifyRegionData (region, zeroWidthAndHeightRectRegionData);
+	GdipDeleteRegion (region);
+
+	// Negative Width Rect.
+	GpRectF negativeWidthRect = {1, 2, -3, 4};
+	GdipCreateRegionRect (&negativeWidthRect, &region);
+	verifyRegionData (region, negativeWidthRectRegionData);
+	GdipDeleteRegion (region);
+	
+	// Negative Height Rect.
+	GpRectF negativeHeightRect = {1, 2, 3, -4};
+	GdipCreateRegionRect (&negativeHeightRect, &region);
+	verifyRegionData (region, negativeHeightRectRegionData);
+	GdipDeleteRegion (region);
+
+	// Path.
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 1, 2, 3, 4);
+	GdipCreateRegionPath (path, &region);
+	// FIXME: match GDI+ serializing.
+#if defined(USE_WINDOWS_GDIPLUS)
 	verifyRegionData (region, pathRegionData);
 #endif
 	GdipDeletePath (path);
@@ -982,6 +987,7 @@ static void test_getRegionDataReplace ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	
+	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -996,6 +1002,7 @@ static void test_getRegionDataReplace ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+	// clang-format on
 
 	// Infinite Region + Infinite Region.
 	GdipCreateRegion (&region);
@@ -1138,6 +1145,7 @@ static void test_getRegionDataUnion ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	
+	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -1152,6 +1160,7 @@ static void test_getRegionDataUnion ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+	// clang-format on
 
 	// Infinite Region + Infinite Region.
 	GdipCreateRegion (&region);
@@ -1263,6 +1272,7 @@ static void test_getRegionDataComplement ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	
+	// clang-format off
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
@@ -1277,6 +1287,7 @@ static void test_getRegionDataComplement ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+	// clang-format on
 
 	// Infinite Region + Infinite Region.
 	GdipCreateRegion (&region);
@@ -5032,6 +5043,7 @@ static void test_combineUnion ()
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
+	// clang-format off
 	RectF rect = {10, 20, 30, 40};
 	RectF superRect = {0, 10, 50, 60};
 	RectF subRect = {15, 25, 20, 30};
@@ -5075,6 +5087,153 @@ static void test_combineUnion ()
 	RectF emptyRect = {0, 0, 0, 0};
 	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
 	RectF negativeRect = {20, 30, -10, -10};
+	RectF intersectLeftScan = {0, 20, 40, 40};
+	RectF intersectTopScan = {10, 10, 30, 50};
+	RectF intersectTopScansRect[] = {intersectTopScan};
+	RectF intersectRightScan = {10, 20, 40, 40};
+	RectF intersectBottomScan = {10, 20, 30, 50};
+	RectF intersectBottomScansRect[] = {intersectBottomScan};
+	RectF intersectTopLeftScans[] = {
+		{0, 10, 30, 10},
+		{0, 20, 40, 30},
+		{10, 50, 30, 10}
+	};
+	RectF intersectTopRightScans[] = {
+		{20, 10, 30, 10},
+		{10, 20, 40, 30},
+		{10, 50, 30, 10}
+	};
+	RectF intersectBottomRightScans[] = {
+		{10, 20, 30, 10},
+		{10, 30, 40, 30},
+		{20, 60, 30, 10}
+	};
+	RectF intersectBottomLeftScans[] = {
+		{10, 20, 30, 10},
+		{0, 30, 40, 30},
+		{0, 60, 30, 10}
+	};
+	RectF touchingLeftScan = {-20, 20, 60, 40};
+	RectF touchingTopScan = {10, -20, 30, 80};
+	RectF touchingTopScansRect[] = {touchingTopScan};
+	RectF touchingRightScan = {10, 20, 60, 40};
+	RectF touchingBottomScan = {10, 20, 30, 80};
+	RectF touchingBottomScansRect[] = {touchingBottomScan};
+	RectF touchingTopLeftScans[] = {
+		touchingTopLeftRect,
+		rect
+	};
+	RectF touchingTopRightScans[] = {
+		touchingTopRightRect,
+		rect
+	};
+	RectF touchingBottomRightScans[] = {
+		rect,
+		touchingBottomRightRect
+	};
+	RectF touchingBottomLeftScans[] = {
+		rect,
+		touchingBottomLeftRect
+	};
+	RectF noIntersectLeftScans[] = {
+		noIntersectLeftRect,
+		rect
+	};
+	RectF noIntersectTopScans[] = {
+		noIntersectTopRect,
+		rect
+	};
+	RectF noIntersectRightScans[] = {
+		rect,
+		noIntersectRightRect
+	};
+	RectF noIntersectBottomScans[] = {
+		rect,
+		noIntersectBottomRect
+	};
+	RectF intersectLeftNarrowScans[] = {
+		{10, 20, 30, 10},
+		{-30, 30, 70, 10},
+		{10, 40, 30, 20},
+	};
+	RectF intersectTopNarrowScans[] = {
+		{20, -20, 10, 40},
+		{10, 20, 30, 40},
+	};
+	RectF intersectRightNarrowScans[] = {
+		{10, 20, 30, 10},
+		{10, 30, 70, 10},
+		{10, 40, 30, 20},
+	};
+	RectF intersectBottomNarrowScans[] = {
+		{10, 20, 30, 40},
+		{20, 60, 10, 40}
+	};
+	RectF touchesTopIntersectBottomNarrowScans[] = {
+		{10, 20, 30, 40},
+		{20, 60, 10, 20}
+	};
+	RectF intersectRightTallerScans[] = {
+		{10, 20, 40, 40},
+		{20, 60, 30, 20},
+	};
+	RectF intersectRightShorterScans[] = {
+		{10, 20, 40, 20},
+		{10, 40, 30, 20},
+	};
+	RectF tallerNarrowScans[] = {
+		{10, 20, 30, 40},
+		{10, 60, 10, 30},
+	};
+	RectF widerShorterScans[] = {
+		{10, 20, 60, 20},
+		{10, 40, 30, 20},
+	};
+	RectF crossingScans[] = {
+		{10, 20, 30, 10},
+		{0, 30, 50, 20},
+		{10, 50, 30, 10},
+	};
+	RectF intersectThreeRects[] = {
+		{20, 180, 40, 50},
+		{50, 190, 40, 50},
+		{70, 210, 30, 50}
+	};
+	RectF intersectThreeRectsScans[] = {
+		{20, 180, 40, 10},
+		{20, 190, 70, 20},
+		{20, 210, 80, 20},
+		{50, 230, 50, 10},
+		{70, 240, 30, 20}
+	};
+	RectF intersectFourRects[] = {
+		{20, 330, 40, 50},
+		{50, 340, 40, 50},
+		{70, 360, 30, 50},
+		{80, 400, 30, 10}
+	};
+	RectF intersectFourRectsScans[] = {
+		{20, 330, 40, 10},
+		{20, 340, 70, 20},
+		{20, 360, 80, 20},
+		{50, 380, 50, 10},
+		{70, 390, 30, 10},
+		{70, 400, 40, 10}
+	};
+	RectF fourPartialIntersectRects[] = {
+		{30, 30, 80, 80},
+		{45, 45, 200, 200},
+		{160, 260, 10, 10},
+		{170, 260, 10, 10}
+	};
+	RectF fourPartialIntersectRectsScans[] = {
+		{30, 30, 80, 15},
+		{30, 45, 215, 65},
+		{45, 110, 200, 135},
+		{160, 260, 20, 10}
+	};
+	// clang-format on
+
 	GdipCreateRegionRect (&rect, &rectRegion);
 
 	GpPath *path = createPathFromRect (&rect);
@@ -5243,179 +5402,85 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &subRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Intersect Left = Calculation.
-	RectF intersectLeftScan = {0, 20, 40, 40};
 	verifyCombineRectWithRect (&rect, &intersectLeftRect, CombineModeUnion, 0, 20, 40, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
 
 	// Rect + Intersect Top = Calculation.
-	RectF intersectTopScan = {10, 10, 30, 50};
-	RectF intersectTopScansRect[] = {intersectTopScan};
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, intersectTopScansRect, sizeof (intersectTopScansRect));
 	
 	// Rect + Intersect Right = Calculation.
-	RectF intersectRightScan = {10, 20, 40, 40};
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
 	// Rect + Intersect Bottom = Calculation.
-	RectF intersectBottomScan = {10, 20, 30, 50};
-	RectF intersectBottomScansRect[] = {intersectBottomScan};
 	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeUnion, 10, 20, 30, 50, FALSE, FALSE, intersectBottomScansRect, sizeof (intersectBottomScansRect));
 
 	// Rect + Intersect Top Left = Calculation.
-	RectF intersectTopLeftScans[] = {
-		{0, 10, 30, 10},
-		{0, 20, 40, 30},
-		{10, 50, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectTopLeftRect, CombineModeUnion, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
 
 	// Rect + Intersect Top Right = Calculation.
-	RectF intersectTopRightScans[] = {
-		{20, 10, 30, 10},
-		{10, 20, 40, 30},
-		{10, 50, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectTopRightRect, CombineModeUnion, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Right = Calculation.
-	RectF intersectBottomRightScans[] = {
-		{10, 20, 30, 10},
-		{10, 30, 40, 30},
-		{20, 60, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectBottomRightRect, CombineModeUnion, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Left = Calculation.
-	RectF intersectBottomLeftScans[] = {
-		{10, 20, 30, 10},
-		{0, 30, 40, 30},
-		{0, 60, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectBottomLeftRect, CombineModeUnion, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
 
 	// Rect + Touching Left = Calculation.
-	RectF touchingLeftScan = {-20, 20, 60, 40};
 	verifyCombineRectWithRect (&rect, &touchingLeftRect, CombineModeUnion, -20, 20, 60, 40, FALSE, FALSE, &touchingLeftScan, sizeof (touchingLeftScan));
 
 	// Rect + Touching Top = Calculation.
-	RectF touchingTopScan = {10, -20, 30, 80};
-	RectF touchingTopScansRect[] = {touchingTopScan};
 	verifyCombineRectWithRect (&rect, &touchingTopRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, touchingTopScansRect, sizeof (touchingTopScansRect));
 
 	// Rect + Touching Right = Calculation.
-	RectF touchingRightScan = {10, 20, 60, 40};
 	verifyCombineRectWithRect (&rect, &touchingRightRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &touchingRightScan, sizeof (touchingRightScan));
 
 	// Rect + Touching Bottom = Calculation.
-	RectF touchingBottomScan = {10, 20, 30, 80};
-	RectF touchingBottomScansRect[] = {touchingBottomScan};
 	verifyCombineRectWithRect (&rect, &touchingBottomRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, touchingBottomScansRect, sizeof (touchingBottomScansRect));
 
 	// Rect + Touching Top Left = Both.
-	RectF touchingTopLeftScans[] = {
-		touchingTopLeftRect,
-		rect
-	};
 	verifyCombineRectWithRect (&rect, &touchingTopLeftRect, CombineModeUnion, -20, -20, 60, 80, FALSE, FALSE, touchingTopLeftScans, sizeof (touchingTopLeftScans));
 
 	// Rect + Touching Top Right = Both.
-	RectF touchingTopRightScans[] = {
-		touchingTopRightRect,
-		rect
-	};
 	verifyCombineRectWithRect (&rect, &touchingTopRightRect, CombineModeUnion, 10, -20, 60, 80, FALSE, FALSE, touchingTopRightScans, sizeof (touchingTopRightScans));
 
 	// Rect + Touching Bottom Right = Both.
-	RectF touchingBottomRightScans[] = {
-		rect,
-		touchingBottomRightRect
-	};
 	verifyCombineRectWithRect (&rect, &touchingBottomRightRect, CombineModeUnion, 10, 20, 60, 80, FALSE, FALSE, touchingBottomRightScans, sizeof (touchingBottomRightScans));
 
 	// Rect + Touching Bottom Left = Both.
-	RectF touchingBottomLeftScans[] = {
-		rect,
-		touchingBottomLeftRect
-	};
 	verifyCombineRectWithRect (&rect, &touchingBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
 	
 	// Rect + No Intersect Left = Both.
-	RectF noIntersectLeftScans[] = {
-		noIntersectLeftRect,
-		rect
-	};
 	verifyCombineRectWithRect (&rect, &noIntersectLeftRect, CombineModeUnion, -21, 20, 61, 40, FALSE, FALSE, noIntersectLeftScans, sizeof (noIntersectLeftScans));
 
 	// Rect + No Intersect Top = Both.
-	RectF noIntersectTopScans[] = {
-		noIntersectTopRect,
-		rect
-	};
 	verifyCombineRectWithRect (&rect, &noIntersectTopRect, CombineModeUnion, 10, -21, 30, 81, FALSE, FALSE, noIntersectTopScans, sizeof (noIntersectTopScans));
 
 	// Rect + No Intersect Right = Both.
-	RectF noIntersectRightScans[] = {
-		rect,
-		noIntersectRightRect
-	};
 	verifyCombineRectWithRect (&rect, &noIntersectRightRect, CombineModeUnion, 10, 20, 61, 40, FALSE, FALSE, noIntersectRightScans, sizeof (noIntersectRightScans));
 
 	// Rect + No Intersect Bottom = Both.
-	RectF noIntersectBottomScans[] = {
-		rect,
-		noIntersectBottomRect
-	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 81, FALSE, FALSE, noIntersectBottomScans, sizeof (noIntersectBottomScans));
 	
 	// Rect + Intersect Left Narrow = Calculation.
-	RectF intersectLeftNarrowScans[] = {
-		{10, 20, 30, 10},
-		{-30, 30, 70, 10},
-		{10, 40, 30, 20},
-	};
 	verifyCombineRectWithRect (&rect, &intersectLeftNarrowRect, CombineModeUnion, -30, 20, 70, 40, FALSE, FALSE, intersectLeftNarrowScans, sizeof (intersectLeftNarrowScans));
 
 	// RectF intersectTopNarrowRect = {20, -20, 10, 60};
 	// Rect + Intersect Top Narrow = Calculation.
-	RectF intersectTopNarrowScans[] = {
-		{20, -20, 10, 40},
-		{10, 20, 30, 40},
-	};
 	verifyCombineRectWithRect (&rect, &intersectTopNarrowRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, intersectTopNarrowScans, sizeof (intersectTopNarrowScans));
 
 	// Rect + Intersect Right Narrow = Calculation.
-	RectF intersectRightNarrowScans[] = {
-		{10, 20, 30, 10},
-		{10, 30, 70, 10},
-		{10, 40, 30, 20},
-	};
 	verifyCombineRectWithRect (&rect, &intersectRightNarrowRect, CombineModeUnion, 10, 20, 70, 40, FALSE, FALSE, intersectRightNarrowScans, sizeof (intersectRightNarrowScans));
 
 	// Rect + Intersect Bottom Narrow = Calculation.
-	RectF intersectBottomNarrowScans[] = {
-		{10, 20, 30, 40},
-		{20, 60, 10, 40}
-	};
 	verifyCombineRectWithRect (&rect, &intersectBottomNarrowRect, CombineModeUnion, 10, 20, 30, 80, FALSE, FALSE, intersectBottomNarrowScans, sizeof (intersectBottomNarrowScans));
 
 	// Rect + Touches Top Intersect Bottom Narrow = Calculation.
-	RectF touchesTopIntersectBottomNarrowScans[] = {
-		{10, 20, 30, 40},
-		{20, 60, 10, 20}
-	};
 	verifyCombineRectWithRect (&rect, &touchesTopIntersectBottomNarrowRect, CombineModeUnion, 10, 20, 30, 60, FALSE, FALSE, touchesTopIntersectBottomNarrowScans, sizeof (touchesTopIntersectBottomNarrowScans));
 
 	// Rect + Intersect Right Taller = Calculation.
-	RectF intersectRightTallerScans[] = {
-		{10, 20, 40, 40},
-		{20, 60, 30, 20},
-	};
 	verifyCombineRectWithRect (&rect, &intersectRightTallerRect, CombineModeUnion, 10, 20, 40, 60, FALSE, FALSE, intersectRightTallerScans, sizeof (intersectRightTallerScans));
 
 	// Rect + Intersect Right Shorter = Calculation.
-	RectF intersectRightShorterScans[] = {
-		{10, 20, 40, 20},
-		{10, 40, 30, 20},
-	};
 	verifyCombineRectWithRect (&rect, &intersectRightShorterRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, intersectRightShorterScans, sizeof (intersectRightShorterScans));
 
 	// Rect + Taller = Calculation.
@@ -5423,10 +5488,6 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &tallerRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, &tallerScan, sizeof (tallerScan));
 
 	// Rect + Taller Narrow = Calculation.
-	RectF tallerNarrowScans[] = {
-		{10, 20, 30, 40},
-		{10, 60, 10, 30},
-	};
 	verifyCombineRectWithRect (&rect, &tallerNarrowRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, tallerNarrowScans, sizeof (tallerNarrowScans));
 
 	// Rect + Wider = Calculation.
@@ -5434,10 +5495,6 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &widerRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, &widerScan, sizeof (widerScan));
 
 	// Rect + Wider Shorter = Calculation.
-	RectF widerShorterScans[] = {
-		{10, 20, 60, 20},
-		{10, 40, 30, 20},
-	};
 	verifyCombineRectWithRect (&rect, &widerShorterRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, widerShorterScans, sizeof (widerShorterScans));
 
 	// Rect + Larger = Calculation.
@@ -5445,59 +5502,16 @@ static void test_combineUnion ()
 	verifyCombineRectWithRect (&rect, &largerRect, CombineModeUnion, 10, 20, 60, 70, FALSE, FALSE, &largerScan, sizeof (largerScan));
 
 	// Rect + Overlap Taller Narrow = Calculation.
-	RectF crossingScans[] = {
-		{10, 20, 30, 10},
-		{0, 30, 50, 20},
-		{10, 50, 30, 10},
-	};
 	verifyCombineRectWithRect (&rect, &crossingRect, CombineModeUnion, 0, 20, 50, 40, FALSE, FALSE, crossingScans, sizeof (crossingScans));
 
 	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1813
-	RectF intersectThreeRects[] = {
-		{20, 180, 40, 50},
-		{50, 190, 40, 50},
-		{70, 210, 30, 50}
-	};
-	RectF intersectThreeRectsScans[] = {
-		{20, 180, 40, 10},
-		{20, 190, 70, 20},
-		{20, 210, 80, 20},
-		{50, 230, 50, 10},
-		{70, 240, 30, 20}
-	};
 	verifyCombineRects (intersectThreeRects, sizeof (intersectThreeRects), CombineModeUnion, 20, 180, 80, 80, FALSE, FALSE, intersectThreeRectsScans, sizeof (intersectThreeRectsScans));
 
 	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1831
-	RectF intersectFourRects[] = {
-		{20, 330, 40, 50},
-		{50, 340, 40, 50},
-		{70, 360, 30, 50},
-		{80, 400, 30, 10}
-	};
-	RectF intersectFourRectsScans[] = {
-		{20, 330, 40, 10},
-		{20, 340, 70, 20},
-		{20, 360, 80, 20},
-		{50, 380, 50, 10},
-		{70, 390, 30, 10},
-		{70, 400, 40, 10}
-	};
 	verifyCombineRects (intersectFourRects, sizeof (intersectFourRects), CombineModeUnion, 20, 330, 90, 80, FALSE, FALSE, intersectFourRectsScans, sizeof (intersectFourRectsScans));
 
 	// Ported from mono/external/corefx/src/System.Drawing.Common/tests/RegionTests.cs:1918
 	// Has two regions separated by 0 pixels.
-	RectF fourPartialIntersectRects[] = {
-		{30, 30, 80, 80},
-		{45, 45, 200, 200},
-		{160, 260, 10, 10},
-		{170, 260, 10, 10}
-	};
-	RectF fourPartialIntersectRectsScans[] = {
-		{30, 30, 80, 15},
-		{30, 45, 215, 65},
-		{45, 110, 200, 135},
-		{160, 260, 20, 10}
-	};
 	verifyCombineRects (fourPartialIntersectRects, sizeof (fourPartialIntersectRects), CombineModeUnion, 30, 30, 215, 240, FALSE, FALSE, fourPartialIntersectRectsScans, sizeof (fourPartialIntersectRectsScans));
 
 	// Rect + No Intersect Top Left = Both.
@@ -6037,12 +6051,14 @@ static void test_combineXor ()
 	verifyCombineInfiniteWithRect (&emptyRect, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
 	// Infinite + Rect = Not Rect.
+	// clang-format off
 	RectF infiniteWithRectScans[] = {
 		{-4194304, -4194304, 8388608, 4194324},
 		{-4194304, 20, 4194314, 40},
 		{40, 20, 4194264, 40},
 		{-4194304, 60, 8388608, 4194244}
 	};
+	// clang-format on
 	verifyCombineInfiniteWithRect (&rect, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
 	
 	// Infinite + Negative Rect = Infinite.
@@ -6059,12 +6075,14 @@ static void test_combineXor ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF infiniteWithNegativeRectScans[] = {
 			{-4194304, -4194304, 8388608, 4194324},
 			{-4194304, 20, 4194314, 10},
 			{20, 20, 4194284, 10},
 			{-4194304, 30, 8388608, 4194274}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
 		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
@@ -6198,10 +6216,12 @@ static void test_combineXor ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF rectWithNegativeRectScans[] = {
 			{20, 20, 20, 10},
 			{10, 30, 30, 30}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
 		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
@@ -6212,85 +6232,105 @@ static void test_combineXor ()
 	verifyCombineRectWithRect (&rect, &rect, CombineModeXor, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Super Rect = Not Rect and Super Rect.
+	// clang-format off
 	RectF superScans[] = {
 		{0, 10, 50, 10},
 		{0, 20, 10, 40},
 		{40, 20, 10, 40},
 		{0, 60, 50, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &superRect, CombineModeXor, 0, 10, 50, 60, FALSE, FALSE, superScans, sizeof (superScans));
 
 	// Rect + Sub Rect = Not Sub Rect and Rect.
+	// clang-format off
 	RectF subScans[] = {
 		{10, 20, 30, 5},
 		{10, 25, 5, 30},
 		{35, 25, 5, 30},
 		{10, 55, 30, 5}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &subRect, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, subScans, sizeof (subScans));
 
 	// Rect + Intersect Left = Not (Rect and Intersect Left)
+	// clang-format off
 	RectF intersectLeftScans[] = {
 		{0, 20, 10, 40},
 		{30, 20, 10, 40}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectLeftRect, CombineModeXor, 0, 20, 40, 40, FALSE, FALSE, intersectLeftScans, sizeof (intersectLeftScans));
 
 	// Rect + Intersect Top = Not (Rect and Intersect Top).
+	// clang-format off
 	RectF intersectTopScans[] = {
 		{10, 10, 30, 10},
 		{10, 50, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeXor, 10, 10, 30, 50, FALSE, FALSE, intersectTopScans, sizeof (intersectTopScans));
 
 	// Rect + Intersect Right = Not (Rect and Intersect Right).
+	// clang-format off
 	RectF intersectRightScans[] = {
 		{10, 20, 10, 40},
 		{40, 20, 10, 40}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeXor, 10, 20, 40, 40, FALSE, FALSE, intersectRightScans, sizeof (intersectRightScans));
 
 	// Rect + Intersect Bottom = Not (Rect and Intersect Bottom).
+	// clang-format off
 	RectF intersectBottomScans[] = {
 		{10, 20, 30, 10},
 		{10, 60, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeXor, 10, 20, 30, 50, FALSE, FALSE, intersectBottomScans, sizeof (intersectBottomScans));
 
 	// Rect + Intersect Top Left = Not (Rect and Intersect Left).
+	// clang-format off
 	RectF intersectTopLeftScans[] = {
 		{0, 10, 30, 10},
 		{0, 20, 10, 30},
 		{30, 20, 10, 30},
 		{10, 50, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectTopLeftRect, CombineModeXor, 0, 10, 40, 50, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
 
 	// Rect + Intersect Top Right = Calculation.
+	// clang-format off
 	RectF intersectTopRightScans[] = {
 		{20, 10, 30, 10},
 		{10, 20, 10, 30},
 		{40, 20, 10, 30},
 		{10, 50, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectTopRightRect, CombineModeXor, 10, 10, 40, 50, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Right = Calculation.
+	// clang-format off
 	RectF intersectBottomRightScans[] = {
 		{10, 20, 30, 10},
 		{10, 30, 10, 30},
 		{40, 30, 10, 30},
 		{20, 60, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectBottomRightRect, CombineModeXor, 10, 20, 40, 50, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Left = Calculation.
+	// clang-format off
 	RectF intersectBottomLeftScans[] = {
 		{10, 20, 30, 10},
 		{0, 30, 10, 30},
 		{30, 30, 10, 30},
 		{0, 60, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectBottomLeftRect, CombineModeXor, 0, 20, 40, 50, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
 
 	// Rect + Touching Left = Both.
@@ -6641,10 +6681,12 @@ static void test_combineXor ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF rectWithNegativePathScans[] = {
 			{20, 20, 20, 10},
 			{10, 30, 30, 30}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
 		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 		verifyRegionScans (clone, rectWithNegativePathScans, sizeof (rectWithNegativePathScans));
@@ -6960,12 +7002,14 @@ static void test_combineExclude ()
 	verifyCombineInfiniteWithRect (&emptyRect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
 	// Infinite + Rect = Not Rect.
+	// clang-format off
 	RectF infiniteWithRectScans[] = {
 		{-4194304, -4194304, 8388608, 4194324},
 		{-4194304, 20, 4194314, 40},
 		{40, 20, 4194264, 40},
 		{-4194304, 60, 8388608, 4194244}
 	};
+	// clang-format on
 	verifyCombineInfiniteWithRect (&rect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
 	
 	// Infinite + Negative Rect = Infinite.
@@ -6982,12 +7026,14 @@ static void test_combineExclude ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF infiniteWithNegativeRectScans[] = {
 			{-4194304, -4194304, 8388608, 4194324},
 			{-4194304, 20, 4194314, 10},
 			{20, 20, 4194284, 10},
 			{-4194304, 30, 8388608, 4194274}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
 		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
@@ -7062,12 +7108,14 @@ static void test_combineExclude ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF infiniteWithNegativeRectScans[] = {
 			{-4194304, -4194304, 8388608, 4194324},
 			{-4194304, 20, 4194314, 10},
 			{20, 20, 4194284, 10},
 			{-4194304, 30, 8388608, 4194274}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
 		verifyRegion (clone, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE);
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
@@ -7138,10 +7186,12 @@ static void test_combineExclude ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF rectWithNegativeRectScans[] = {
 			{20, 20, 20, 10},
 			{10, 30, 30, 30}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeXor);
 		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
@@ -7155,12 +7205,14 @@ static void test_combineExclude ()
 	verifyCombineRectWithRect (&rect, &superRect, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Sub Rect = Not Sub Rect and Rect.
+	// clang-format off
 	RectF subScans[] = {
 		{10, 20, 30, 5},
 		{10, 25, 5, 30},
 		{35, 25, 5, 30},
 		{10, 55, 30, 5}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &subRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, subScans, sizeof (subScans));
 
 	// Rect + Intersect Left = Rect and Not Intersect Left.
@@ -7180,31 +7232,39 @@ static void test_combineExclude ()
 	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeExclude, 10, 20, 30, 10, FALSE, FALSE, &intersectBottomScan, sizeof (intersectBottomScan));
 
 	// Rect + Intersect Top Left = Rect and Not Intersect Top Left.
+	// clang-format off
 	RectF intersectTopLeftScans[] = {
 		{30, 20, 10, 30},
 		{10, 50, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectTopLeftRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
 
 	// Rect + Intersect Top Right = Rect and Not Intersect Top Right.
+	// clang-format off
 	RectF intersectTopRightScans[] = {
 		{10, 20, 10, 30},
 		{10, 50, 30, 10}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectTopRightRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Right = Rect and Not Intersect Bottom Right.
+	// clang-format off
 	RectF intersectBottomRightScans[] = {
 		{10, 20, 30, 10},
 		{10, 30, 10, 30}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectBottomRightRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Left = Rect and Not Intersect Bottom Left.
+	// clang-format off
 	RectF intersectBottomLeftScans[] = {
 		{10, 20, 30, 10},
 		{30, 30, 10, 30}
 	};
+	// clang-format on
 	verifyCombineRectWithRect (&rect, &intersectBottomLeftRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
 
 	// Rect + Touching Left = Rect.
@@ -7284,10 +7344,12 @@ static void test_combineExclude ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual path. */
+		// clang-format off
 		RectF rectWithNegativePathScans[] = {
 			{20, 20, 20, 10},
 			{10, 30, 30, 30}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
 		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 		verifyRegionScans (clone, rectWithNegativePathScans, sizeof (rectWithNegativePathScans));
@@ -7461,10 +7523,12 @@ static void test_combineExclude ()
 		GdipDeleteRegion (region2);
 
 		/* Second, test combining with an actual rect. */
+		// clang-format off
 		RectF rectWithNegativeRectScans[] = {
 			{20, 20, 20, 10},
 			{10, 30, 30, 30}
 		};
+		// clang-format on
 		GdipCombineRegionRect (clone, &negativeRect, CombineModeExclude);
 		verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 		verifyRegionScans (clone, rectWithNegativeRectScans, sizeof (rectWithNegativeRectScans));
@@ -7699,6 +7763,7 @@ static void test_combineComplement ()
 	GdipCreateRegion (&emptyRegion);
 	GdipSetEmpty (emptyRegion);
 
+	// clang-format off
 	RectF rect = {10, 20, 30, 40};
 	RectF superRect = {0, 10, 50, 60};
 	RectF subRect = {15, 25, 20, 30};
@@ -7729,6 +7794,40 @@ static void test_combineComplement ()
 	RectF emptyRect = {0, 0, 0, 0};
 	RectF infiniteRect = {-4194304, -4194304, 8388608, 8388608};
 	RectF negativeRect = {20, 30, -10, -10};
+	RectF intersectLeftScan = {0, 20, 10, 40};
+	RectF intersectTopScan = {10, 10, 30, 10};
+	RectF intersectRightScan = {40, 20, 10, 40};
+	RectF intersectBottomScan = {10, 60, 30, 10};
+	RectF rectWithInfiniteScans[] = {
+		{-4194304, -4194304, 8388608, 4194324},
+		{-4194304, 20, 4194314, 40},
+		{40, 20, 4194264, 40},
+		{-4194304, 60, 8388608, 4194244}
+	};
+	RectF superScans[] = {
+		{0, 10, 50, 10},
+		{0, 20, 10, 40},
+		{40, 20, 10, 40},
+		{0, 60, 50, 10}
+	};
+	RectF intersectTopLeftScans[] = {
+		{0, 10, 30, 10},
+		{0, 20, 10, 30}
+	};
+	RectF intersectTopRightScans[] = {
+		{20, 10, 30, 10},
+		{40, 20, 10, 30}
+	};
+	RectF intersectBottomRightScans[] = {
+		{40, 30, 10, 30},
+		{20, 60, 30, 10}
+	};
+	RectF intersectBottomLeftScans[] = {
+		{0, 30, 10, 30},
+		{0, 60, 30, 10}
+	};
+	// clang-format on
+
 	GdipCreateRegionRect (&rect, &rectRegion);
 
 	GpPath *path = createPathFromRect (&rect);
@@ -7870,12 +7969,6 @@ static void test_combineComplement ()
 	verifyCombineRectWithPath (&emptyRect, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Infinite = Empty.
-	RectF rectWithInfiniteScans[] = {
-		{-4194304, -4194304, 8388608, 4194324},
-		{-4194304, 20, 4194314, 40},
-		{40, 20, 4194264, 40},
-		{-4194304, 60, 8388608, 4194244}
-	};
 	verifyCombineRectWithRegion (&rect, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 
 	// Rect + Empty = Empty.
@@ -7894,59 +7987,33 @@ static void test_combineComplement ()
 	verifyCombineRectWithRect (&rect, &rect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Super Rect = Not Rect and Super Rect.
-	RectF superScans[] = {
-		{0, 10, 50, 10},
-		{0, 20, 10, 40},
-		{40, 20, 10, 40},
-		{0, 60, 50, 10}
-	};
 	verifyCombineRectWithRect (&rect, &superRect, CombineModeComplement, 0, 10, 50, 60, FALSE, FALSE, superScans, sizeof (superScans));
 
 	// Rect + Sub Rect = Empty
 	verifyCombineRectWithRect (&rect, &subRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Intersect Left = Not Rect and Intersect Left.
-	RectF intersectLeftScan = {0, 20, 10, 40};
 	verifyCombineRectWithRect (&rect, &intersectLeftRect, CombineModeComplement, 0, 20, 10, 40, FALSE, FALSE, &intersectLeftScan, sizeof (intersectLeftScan));
 
 	// Rect + Intersect Top = Not Rect and Intersect Top.
-	RectF intersectTopScan = {10, 10, 30, 10};
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeComplement, 10, 10, 30, 10, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
 
 	// Rect + Intersect Right = Not Rect and Intersect Right.
-	RectF intersectRightScan = {40, 20, 10, 40};
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeComplement, 40, 20, 10, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
 	// Rect + Intersect Bottom = Not Rect and Intersect Bottom.
-	RectF intersectBottomScan = {10, 60, 30, 10};
 	verifyCombineRectWithRect (&rect, &intersectBottomRect, CombineModeComplement, 10, 60, 30, 10, FALSE, FALSE, &intersectBottomScan, sizeof (intersectBottomScan));
 
 	// Rect + Intersect Top Left = Not Rect and Intersect Top Left.
-	RectF intersectTopLeftScans[] = {
-		{0, 10, 30, 10},
-		{0, 20, 10, 30}
-	};
 	verifyCombineRectWithRect (&rect, &intersectTopLeftRect, CombineModeComplement, 0, 10, 30, 40, FALSE, FALSE, intersectTopLeftScans, sizeof (intersectTopLeftScans));
 
 	// Rect + Intersect Top Right = Not Rect and Intersect Top Right.
-	RectF intersectTopRightScans[] = {
-		{20, 10, 30, 10},
-		{40, 20, 10, 30}
-	};
 	verifyCombineRectWithRect (&rect, &intersectTopRightRect, CombineModeComplement, 20, 10, 30, 40, FALSE, FALSE, intersectTopRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Right = Not Rect and Intersect Bottom Right.
-	RectF intersectBottomRightScans[] = {
-		{40, 30, 10, 30},
-		{20, 60, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectBottomRightRect, CombineModeComplement, 20, 30, 30, 40, FALSE, FALSE, intersectBottomRightScans, sizeof (intersectTopRightScans));
 
 	// Rect + Intersect Bottom Left = Not Rect and Intersect Bottom Left.
-	RectF intersectBottomLeftScans[] = {
-		{0, 30, 10, 30},
-		{0, 60, 30, 10}
-	};
 	verifyCombineRectWithRect (&rect, &intersectBottomLeftRect, CombineModeComplement, 0, 30, 30, 40, FALSE, FALSE, intersectBottomLeftScans, sizeof (intersectBottomLeftScans));
 
 	// Rect + Touching Left = Touching Left.

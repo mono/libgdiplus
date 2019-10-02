@@ -49,6 +49,7 @@ GpImage *image;
 
 static void test_valid ()
 {
+	// clang-format off
 	BYTE validData24bpp[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0F, 0x00,
@@ -112,6 +113,7 @@ static void test_valid ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFileSuccess (validData24bpp, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
 
@@ -125,6 +127,7 @@ static void test_valid ()
 
 static void test_units ()
 {
+	// clang-format off
 	BYTE invalidXResolutionOffset[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0F, 0x00,
@@ -271,6 +274,7 @@ static void test_units ()
 		/* BitsPerSample Data */         0x08, 0x00, 0x08, 0x00, 0x08, 0x00,
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFileSuccess (invalidXResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 14);
 	createFileSuccess (invalidYResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 14);
@@ -282,6 +286,7 @@ static void test_units ()
 
 static void test_validGdiplus ()
 {
+	// clang-format off
 	BYTE missingBitsPerSampleTag[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0E, 0x00,
@@ -405,6 +410,7 @@ static void test_validGdiplus ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	// There isn't much we can do about these differences as we let libtiff handle tiff decoding.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -426,6 +432,7 @@ static void test_validGdiplus ()
 
 static void test_invalidHeader ()
 {
+	// clang-format off
 	BYTE noVersionNumberLE[]    = {0x49, 0x49};
 	BYTE noVersionNumberBE[]    = {0x4D, 0x4D};
 	BYTE shortVersionNumberLE[] = {0x49, 0x49, 0x2A};
@@ -509,6 +516,7 @@ static void test_invalidHeader ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (noVersionNumberLE, OutOfMemory);
 	createFile (noVersionNumberBE, OutOfMemory);
@@ -525,6 +533,7 @@ static void test_invalidHeader ()
 
 static void test_invalidFileDirectory ()
 {
+	// clang-format off
 	BYTE noNumberOfEntriesLE[] = {
 		/* Header */ 0x49, 0x49, 0x2A, 0x00, 0x80, 0x00, 0x00, 0x00
 	};
@@ -593,6 +602,7 @@ static void test_invalidFileDirectory ()
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
 #endif
+	// clang-format on
 
 	createFile (noNumberOfEntriesLE, OutOfMemory);
 	createFile (noNumberOfEntriesBE, OutOfMemory);
@@ -611,6 +621,7 @@ static void test_invalidFileDirectory ()
 
 static void test_invalidTag ()
 {
+	// clang-format off
 	BYTE noTagIdLE[] = {
 		/* Header */ 0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00,
 		/* IFD 1 */  0x01, 0x00
@@ -714,6 +725,7 @@ static void test_invalidTag ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (noTagIdLE, OutOfMemory);
 	createFile (noTagIdBE, OutOfMemory);
@@ -736,6 +748,7 @@ static void test_invalidTag ()
 
 static void test_missingTag ()
 {
+	// clang-format off
 	BYTE missingImageWidthTag[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0E, 0x00,
@@ -808,6 +821,7 @@ static void test_missingTag ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (missingImageWidthTag, OutOfMemory);
 	createFile (missingImageHeightTag, OutOfMemory);
@@ -816,6 +830,7 @@ static void test_missingTag ()
 
 static void test_invalidSpecificTag ()
 {
+	// clang-format off
 	BYTE zeroImageWidth[] = {
 		/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
 		/* Number of Tags */             0x0F, 0x00,
@@ -941,6 +956,7 @@ static void test_invalidSpecificTag ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
 		/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
+	// clang-format on
 
 	createFile (zeroImageWidth, OutOfMemory);
 	createFile (zeroImageHeight, OutOfMemory);

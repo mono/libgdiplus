@@ -103,6 +103,7 @@ draw_background (cairo_t *ct, int backcolor, int width, int height, BOOL alpha)
 }
 
 /* The values used below are obtained by hit and trial to get the results similar to that of MS. */
+// clang-format off
 static const double hatches_const[][3] = {
 	/* HatchStyleHorizontal */		{ HATCH_SIZE, HATCH_SIZE, LINE_WIDTH },
 	/* HatchStyleVertical */		{ HATCH_SIZE, HATCH_SIZE, LINE_WIDTH },
@@ -158,6 +159,7 @@ static const double hatches_const[][3] = {
 	/* HatchStyleOutlinedDiamond */		{ HATCH_SIZE + 1.0, HATCH_SIZE + 1.0, LINE_WIDTH },
 	/* HatchStyleSolidDiamond */		{ HATCH_SIZE + 1.0, HATCH_SIZE + 1.0, LINE_WIDTH }
 };
+// clang-format on
 
 /*
  * functions to draw different hatch styles.

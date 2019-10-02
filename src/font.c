@@ -723,6 +723,7 @@ GdipGetGenericFontFamilyMonospace (GpFontFamily **nativeFamily)
  *
  * http://www.microsoft.com/typography/otspec/os2.htm#fss
  */
+// clang-format off
 enum fsSelection {
 	fsSelectionItalic         = (1 << 0),
 	fsSelectionUnderscore     = (1 << 1),
@@ -735,6 +736,7 @@ enum fsSelection {
 	fsSelectionWWS            = (1 << 8),
 	fsSelectionOblique        = (1 << 9),
 };
+// clang-format on
 
 #if defined(PANGO_VERSION_CHECK)
 #if PANGO_VERSION_CHECK(1,44,0)
