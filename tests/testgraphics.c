@@ -3422,16 +3422,12 @@ static void test_premultiplication ()
 	verifyPixels (bitmap, bpp32ArgbPixels);
 	status = GdipCreateBitmapFromScan0 (1, 1, 4, PixelFormat32bppRGB, NULL, &bitmapBackground);
 	assertEqualInt (status, Ok);
-	printf("XX1\n");
 	status = GdipBitmapSetPixel (bitmapBackground, 0, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyPixels (bitmapBackground, bpp32RgbPixelsPre);
-	printf("XX2\n");
 	GdipGetImageGraphicsContext (bitmapBackground, &graphicsBackground);
-	printf("XX3\n");
 	status = GdipDrawImage (graphicsBackground, (GpImage *)bitmap, 0, 0);
 	assertEqualInt (status, Ok);
-	printf("XX4\n");
 	GdipDeleteGraphics (graphicsBackground);
 	verifyPixels (bitmapBackground, bpp32RgbPixels);
 	GdipDisposeImage ((GpImage *) bitmapBackground);
