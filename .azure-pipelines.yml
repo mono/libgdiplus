@@ -55,6 +55,13 @@ stages:
             xvfb-run make -C /tmp/mono/mcs/class/System.Windows.Forms run-test
           displayName: 'Run mono System.Windows.Forms tests'
 
+        - task: PublishTestResults@2
+          condition: succeededOrFailed()
+          inputs:
+            testRunner: NUnit
+            testResultsFiles: '/tmp/mono/mcs/class/**/TestResult*.xml'
+            failTaskOnFailedTests: true
+
     ############ MACOS BUILD ############
     - job: Build_Mac_x64
       displayName: macOS x64
@@ -137,3 +144,9 @@ stages:
             make -C /tmp/mono/netcore run-tests-corefx-System.Drawing.Common.Tests
           displayName: 'Run mono-netcore System.Drawing.Common tests'
 
+        - task: PublishTestResults@2
+          condition: succeededOrFailed()
+          inputs:
+            testRunner: xUnit
+            testResultsFiles: '/tmp/mono/netcore/corefx/tests/TestResult*.xml'
+            failTaskOnFailedTests: true
