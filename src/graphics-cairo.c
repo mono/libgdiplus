@@ -77,22 +77,22 @@ stroke_graphics_with_pen (GpGraphics *graphics, GpPen *pen)
 cairo_fill_rule_t
 gdip_convert_fill_mode (FillMode fill_mode)
 {
-	if (fill_mode == FillModeAlternate) 
+	if (fill_mode == FillModeAlternate)
 		return CAIRO_FILL_RULE_EVEN_ODD;
 	else
 		return CAIRO_FILL_RULE_WINDING;
 }
 
-static void 
+static void
 make_ellipse (GpGraphics *graphics, float x, float y, float width, float height, BOOL convert_units, BOOL antialiasing)
 {
 	double rx, ry, cx, cy;
 
 	/* if required deal, once and for all, with unit conversion */
 	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
+		x      = gdip_unitx_convgr (graphics, x);
+		y      = gdip_unity_convgr (graphics, y);
+		width  = gdip_unitx_convgr (graphics, width);
 		height = gdip_unity_convgr (graphics, height);
 	}
 
@@ -112,28 +112,28 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 	/* an approximate of the ellipse by drawing a curve in each
 	 * quadrants */
 	gdip_cairo_curve_to (graphics,
-			cx + rx, cy - C1 * ry,
-			cx + C1 * rx, cy - ry,
-			cx, cy - ry,
-			FALSE, FALSE);
+			     cx + rx, cy - C1 * ry,
+			     cx + C1 * rx, cy - ry,
+			     cx, cy - ry,
+			     FALSE, FALSE);
 
 	gdip_cairo_curve_to (graphics,
-			cx - C1 * rx, cy - ry,
-			cx - rx, cy - C1 * ry,
-			cx - rx, cy,
-			FALSE, FALSE);
+			     cx - C1 * rx, cy - ry,
+			     cx - rx, cy - C1 * ry,
+			     cx - rx, cy,
+			     FALSE, FALSE);
 
 	gdip_cairo_curve_to (graphics,
-			cx - rx, cy + C1 * ry,
-			cx - C1 * rx, cy + ry,
-			cx, cy + ry,
-			FALSE, FALSE);
+			     cx - rx, cy + C1 * ry,
+			     cx - C1 * rx, cy + ry,
+			     cx, cy + ry,
+			     FALSE, FALSE);
 
 	gdip_cairo_curve_to (graphics,
-			cx + C1 * rx, cy + ry,
-			cx + rx, cy + C1 * ry,
-			cx + rx, cy,
-			FALSE, FALSE);
+			     cx + C1 * rx, cy + ry,
+			     cx + rx, cy + C1 * ry,
+			     cx + rx, cy,
+			     FALSE, FALSE);
 
 	cairo_close_path (graphics->ct);
 }
@@ -145,39 +145,39 @@ make_ellipse (GpGraphics *graphics, float x, float y, float width, float height,
 static void
 make_arc (GpGraphics *graphics, BOOL start, float x, float y, float width,
 	  float height, float startAngle, float endAngle, BOOL antialiasing)
-{       
+{
 	float delta, bcp;
 	double sin_alpha, sin_beta, cos_alpha, cos_beta;
 
 	float rx = width / 2;
 	float ry = height / 2;
-	
+
 	/* center */
 	float cx = x + rx;
 	float cy = y + ry;
 
-	/* angles in radians */        
+	/* angles in radians */
 	float alpha = startAngle * PI / 180;
-	float beta = endAngle * PI / 180;
+	float beta  = endAngle * PI / 180;
 
 	/* adjust angles for ellipses */
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
-	beta = atan2 (rx * sin (beta), ry * cos (beta));
+	beta  = atan2 (rx * sin (beta), ry * cos (beta));
 
-	if (fabs (beta - alpha) > M_PI){
+	if (fabs (beta - alpha) > M_PI) {
 		if (beta > alpha)
 			beta -= 2 * PI;
 		else
 			alpha -= 2 * PI;
 	}
-	
+
 	delta = beta - alpha;
-	bcp = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta /2);
+	bcp   = 4.0 / 3 * (1 - cos (delta / 2)) / sin (delta / 2);
 
 	sin_alpha = sin (alpha);
-	sin_beta = sin (beta);
+	sin_beta  = sin (beta);
 	cos_alpha = cos (alpha);
-	cos_beta = cos (beta);
+	cos_beta  = cos (beta);
 
 	/* don't move to starting point if we're continuing an existing curve */
 	if (start) {
@@ -188,17 +188,17 @@ make_arc (GpGraphics *graphics, BOOL start, float x, float y, float width,
 	}
 
 	gdip_cairo_curve_to (graphics,
-					cx + rx * (cos_alpha - bcp * sin_alpha),
-					cy + ry * (sin_alpha + bcp * cos_alpha),
-					cx + rx * (cos_beta  + bcp * sin_beta),
-					cy + ry * (sin_beta  - bcp * cos_beta),
-					cx + rx * cos_beta, cy + ry * sin_beta,
-		FALSE, antialiasing);
+			     cx + rx * (cos_alpha - bcp * sin_alpha),
+			     cy + ry * (sin_alpha + bcp * cos_alpha),
+			     cx + rx * (cos_beta + bcp * sin_beta),
+			     cy + ry * (sin_beta - bcp * cos_beta),
+			     cx + rx * cos_beta, cy + ry * sin_beta,
+			     FALSE, antialiasing);
 }
 
 static void
-make_arcs (GpGraphics *graphics, float x, float y, float width, float height, float startAngle, float sweepAngle, 
-	BOOL convert_units, BOOL antialiasing)
+make_arcs (GpGraphics *graphics, float x, float y, float width, float height, float startAngle, float sweepAngle,
+	   BOOL convert_units, BOOL antialiasing)
 {
 	int i;
 	float drawn = 0;
@@ -207,12 +207,12 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 
 	/* if required deal, once and for all, with unit conversions */
 	if (convert_units && !OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
+		x      = gdip_unitx_convgr (graphics, x);
+		y      = gdip_unity_convgr (graphics, y);
+		width  = gdip_unitx_convgr (graphics, width);
 		height = gdip_unity_convgr (graphics, height);
 	}
-	
+
 	if (fabs (sweepAngle) >= 360) {
 		/* FALSE -> units are already converted */
 		make_ellipse (graphics, x, y, width, height, FALSE, antialiasing);
@@ -223,8 +223,8 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 	/* if we end before the start then reverse positions (to keep increment positive) */
 	if (endAngle < startAngle) {
 		double temp = endAngle;
-		endAngle = startAngle;
-		startAngle = temp;
+		endAngle    = startAngle;
+		startAngle  = temp;
 	}
 
 	/* i is the number of sub-arcs drawn, each sub-arc can be at most 90 degrees.*/
@@ -247,16 +247,16 @@ make_arcs (GpGraphics *graphics, float x, float y, float width, float height, fl
 			enough = TRUE;
 		}
 
-		make_arc (graphics, (i == 0),	/* only move to the starting pt in the 1st iteration */
-			  x, y, width, height,	/* bounding rectangle */
+		make_arc (graphics, (i == 0),  /* only move to the starting pt in the 1st iteration */
+			  x, y, width, height, /* bounding rectangle */
 			  current, current + additional, antialiasing);
-		drawn += additional;		
+		drawn += additional;
 	}
 }
 
 GpStatus
-cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
-	float sweepAngle)
+cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle,
+	       float sweepAngle)
 {
 	/* We use graphics->copy_of_ctm matrix for path creation. We should
 	 * have it set already.
@@ -266,17 +266,17 @@ cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, 
 	return stroke_graphics_with_pen (graphics, pen);
 }
 
-GpStatus 
+GpStatus
 cairo_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	int i, j, k;
-		
+
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
+	gdip_cairo_move_to (graphics, points[0].X, points[0].Y, TRUE, TRUE);
 
 	for (i = 1, j = 2, k = 3; k < count; i += 3, j += 3, k += 3) {
-	gdip_cairo_curve_to (graphics, points [i].X, points [i].Y, points [j].X, points [j].Y,
-		points [k].X, points [k].Y, TRUE, TRUE);
+		gdip_cairo_curve_to (graphics, points[i].X, points[i].Y, points[j].X, points[j].Y,
+				     points[k].X, points[k].Y, TRUE, TRUE);
 	}
 
 	return stroke_graphics_with_pen (graphics, pen);
@@ -284,37 +284,37 @@ cairo_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points,
 
 static void
 make_curve (GpGraphics *graphics, GDIPCONST GpPointF *points, GpPointF *tangents, int offset, int length,
-	_CurveType type, BOOL antialiasing)
+	    _CurveType type, BOOL antialiasing)
 {
 	int i;
 
-	gdip_cairo_move_to (graphics, points [offset].X, points [offset].Y, FALSE, antialiasing);
+	gdip_cairo_move_to (graphics, points[offset].X, points[offset].Y, FALSE, antialiasing);
 
 	for (i = offset; i < offset + length; i++) {
 		int j = i + 1;
 
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
+		double x1 = points[i].X + tangents[i].X;
+		double y1 = points[i].Y + tangents[i].Y;
 
-		double x2 = points [j].X - tangents [j].X;
-		double y2 = points [j].Y - tangents [j].Y;
+		double x2 = points[j].X - tangents[j].X;
+		double y2 = points[j].Y - tangents[j].Y;
 
-		double x3 = points [j].X;
-		double y3 = points [j].Y;
+		double x3 = points[j].X;
+		double y3 = points[j].Y;
 
 		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
 	}
 
 	if (type == CURVE_CLOSE) {
 		/* complete (close) the curve using the first point */
-		double x1 = points [i].X + tangents [i].X;
-		double y1 = points [i].Y + tangents [i].Y;
+		double x1 = points[i].X + tangents[i].X;
+		double y1 = points[i].Y + tangents[i].Y;
 
-		double x2 = points [0].X - tangents [0].X;
-		double y2 = points [0].Y - tangents [0].Y;
+		double x2 = points[0].X - tangents[0].X;
+		double y2 = points[0].Y - tangents[0].Y;
 
-		double x3 = points [0].X;
-		double y3 = points [0].Y;
+		double x3 = points[0].X;
+		double y3 = points[0].Y;
 
 		gdip_cairo_curve_to (graphics, x1, y1, x2, y2, x3, y3, FALSE, antialiasing);
 
@@ -333,7 +333,7 @@ cairo_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *po
 	make_curve (graphics, points, tangents, 0, count - 1, CURVE_CLOSE, TRUE);
 	status = stroke_graphics_with_pen (graphics, pen);
 
-	GdipFree (tangents);        
+	GdipFree (tangents);
 	return status;
 }
 
@@ -354,8 +354,8 @@ cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF
 }
 
 GpStatus
-cairo_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments,
-	float tension)
+cairo_DrawCurve3 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments,
+		  float tension)
 {
 	GpStatus status;
 	GpPointF *tangents = gdip_open_curve_tangents (CURVE_MIN_TERMS, points, count, tension);
@@ -373,9 +373,9 @@ cairo_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, 
  * Ellipses
  */
 
-GpStatus 
+GpStatus
 cairo_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
-{	
+{
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	make_ellipse (graphics, x, y, width, height, TRUE, TRUE);
 
@@ -387,11 +387,11 @@ cairo_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float
 {
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
 	make_ellipse (graphics, x, y, width, height, TRUE, FALSE);
-	
+
 	return fill_graphics_with_brush (graphics, brush, FALSE);
 }
 
-GpStatus 
+GpStatus
 cairo_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	int i;
@@ -399,20 +399,20 @@ cairo_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, i
 	GpStatus ret;
 
 	/* We use graphics->copy_of_ctm matrix for path creation. We should have it set already. */
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, TRUE);
+	gdip_cairo_move_to (graphics, points[0].X, points[0].Y, TRUE, TRUE);
 
 	for (i = 1; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, TRUE);
-		prev_x = points [i - 1].X;
-		prev_y = points [i - 1].Y;
-		last_x = points [i].X;
-		last_y = points [i].Y;
+		gdip_cairo_line_to (graphics, points[i].X, points[i].Y, TRUE, TRUE);
+		prev_x = points[i - 1].X;
+		prev_y = points[i - 1].Y;
+		last_x = points[i].X;
+		last_y = points[i].Y;
 	}
 
 	ret = stroke_graphics_with_pen (graphics, pen);
 
 	if (count > 1) {
-		gdip_pen_draw_custom_start_cap (graphics, pen, points [0].X, points [0].Y, points [1].X, points [1].Y);
+		gdip_pen_draw_custom_start_cap (graphics, pen, points[0].X, points[0].Y, points[1].X, points[1].Y);
 		gdip_pen_draw_custom_end_cap (graphics, pen, last_x, last_y, prev_x, prev_y);
 	}
 
@@ -427,43 +427,43 @@ gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing)
 
 	for (i = 0; i < length; ++i) {
 		GpPointF pt = path->points[i];
-		BYTE type = path->types[i];
-		GpPointF pts [3];
+		BYTE type   = path->types[i];
+		GpPointF pts[3];
 
 		/* mask the bits so that we get only the type value not the other flags */
 		switch (type & PathPointTypePathTypeMask) {
-			case PathPointTypeStart:
-				gdip_cairo_move_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
-				break;
+		case PathPointTypeStart:
+			gdip_cairo_move_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
+			break;
 
-			case PathPointTypeLine:
-				gdip_cairo_line_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
-				break;
+		case PathPointTypeLine:
+			gdip_cairo_line_to (graphics, pt.X, pt.Y, TRUE, antialiasing);
+			break;
 
-			case PathPointTypeBezier:
-				/* make sure we only add at most 3 points to pts */
-				if (idx < 3) {
-						pts [idx] = pt;
-						idx ++;
-				}
-
-				/* once we've added 3 pts, we can draw the curve */
-				if (idx == 3) {
-					gdip_cairo_curve_to (graphics, pts[0].X, pts[0].Y, pts[1].X, pts[1].Y,
-						pts[2].X, pts[2].Y, TRUE, antialiasing);
-
-					idx = 0;
-				}
-
-				break;
-			default:
-				g_warning ("Unknown PathPointType %d", type);
-				return NotImplemented;
+		case PathPointTypeBezier:
+			/* make sure we only add at most 3 points to pts */
+			if (idx < 3) {
+				pts[idx] = pt;
+				idx++;
 			}
 
-	/* close the subpath */
-	if (type & PathPointTypeCloseSubpath)
-		cairo_close_path (graphics->ct);
+			/* once we've added 3 pts, we can draw the curve */
+			if (idx == 3) {
+				gdip_cairo_curve_to (graphics, pts[0].X, pts[0].Y, pts[1].X, pts[1].Y,
+						     pts[2].X, pts[2].Y, TRUE, antialiasing);
+
+				idx = 0;
+			}
+
+			break;
+		default:
+			g_warning ("Unknown PathPointType %d", type);
+			return NotImplemented;
+		}
+
+		/* close the subpath */
+		if (type & PathPointTypeCloseSubpath)
+			cairo_close_path (graphics->ct);
 	}
 
 	return Ok;
@@ -492,15 +492,15 @@ cairo_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path)
 	   the points :-(
 	 */
 	if (status == Ok && count > 1) {
-		points = gdip_calloc (count, sizeof(GpPointF));
+		points = gdip_calloc (count, sizeof (GpPointF));
 		if (points == NULL) {
 			return OutOfMemory;
 		}
 		status = GdipGetPathPoints (path, points, count);
 
 		if (status == Ok) {
-			gdip_pen_draw_custom_start_cap (graphics, pen, points [0].X, points [0].Y, points [1].X, points [1].Y);
-			gdip_pen_draw_custom_end_cap (graphics, pen, points [count - 1].X, points [count - 1].Y, points [count - 2].X, points [count - 2].Y);
+			gdip_pen_draw_custom_start_cap (graphics, pen, points[0].X, points[0].Y, points[1].X, points[1].Y);
+			gdip_pen_draw_custom_end_cap (graphics, pen, points[count - 1].X, points[count - 1].Y, points[count - 2].X, points[count - 2].Y);
 		}
 
 		GdipFree (points);
@@ -526,16 +526,16 @@ cairo_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 
 static void
 make_pie (GpGraphics *graphics, float x, float y, float width, float height,
-	float startAngle, float sweepAngle, BOOL antialiasing)
+	  float startAngle, float sweepAngle, BOOL antialiasing)
 {
 	float rx, ry, cx, cy, alpha;
 	double sin_alpha, cos_alpha;
 
 	/* if required deal, once and for all, with unit conversions */
 	if (!OPTIMIZE_CONVERSION (graphics)) {
-		x = gdip_unitx_convgr (graphics, x);
-		y = gdip_unity_convgr (graphics, y);
-		width = gdip_unitx_convgr (graphics, width);
+		x      = gdip_unitx_convgr (graphics, x);
+		y      = gdip_unity_convgr (graphics, y);
+		width  = gdip_unitx_convgr (graphics, width);
 		height = gdip_unity_convgr (graphics, height);
 	}
 
@@ -546,9 +546,9 @@ make_pie (GpGraphics *graphics, float x, float y, float width, float height,
 	cx = x + rx;
 	cy = y + ry;
 
-	/* angles in radians */        
+	/* angles in radians */
 	alpha = startAngle * PI / 180;
-	
+
 	/* adjust angle for ellipses */
 	alpha = atan2 (rx * sin (alpha), ry * cos (alpha));
 
@@ -580,16 +580,16 @@ make_pie (GpGraphics *graphics, float x, float y, float width, float height,
 }
 
 GpStatus
-cairo_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle)
+cairo_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height,
+	       float startAngle, float sweepAngle)
 {
 	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, TRUE);
 	return stroke_graphics_with_pen (graphics, pen);
 }
 
 GpStatus
-cairo_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle)
+cairo_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height,
+	       float startAngle, float sweepAngle)
 {
 	make_pie (graphics, x, y, width, height, startAngle, sweepAngle, FALSE);
 	return fill_graphics_with_brush (graphics, brush, FALSE);
@@ -604,18 +604,18 @@ make_polygon (GpGraphics *graphics, GDIPCONST GpPointF *points, int count, BOOL 
 {
 	int i;
 
-	gdip_cairo_move_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
+	gdip_cairo_move_to (graphics, points[0].X, points[0].Y, TRUE, antialiasing);
 
 	for (i = 0; i < count; i++) {
-		gdip_cairo_line_to (graphics, points [i].X, points [i].Y, TRUE, antialiasing);
+		gdip_cairo_line_to (graphics, points[i].X, points[i].Y, TRUE, antialiasing);
 	}
 
 	/*
 	* Draw a line from the last point back to the first point if
 	* they're not the same
 	*/
-	if (points [0].X != points [count-1].X && points [0].Y != points [count-1].Y) {
-		gdip_cairo_line_to (graphics, points [0].X, points [0].Y, TRUE, antialiasing);
+	if (points[0].X != points[count - 1].X && points[0].Y != points[count - 1].Y) {
+		gdip_cairo_line_to (graphics, points[0].X, points[0].Y, TRUE, antialiasing);
 	}
 
 	cairo_close_path (graphics->ct);
@@ -643,15 +643,15 @@ cairo_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *poi
 GpStatus
 cairo_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects, int count)
 {
-	BOOL draw = FALSE;
+	BOOL draw   = FALSE;
 	BOOL adjust = gdip_cairo_pen_width_needs_adjustment (pen);
 	int i;
 
 	for (i = 0; i < count; i++) {
-		float x = rects [i].X;
-		float y = rects [i].Y;
-		float w = rects [i].Width;
-		float h = rects [i].Height;
+		float x = rects[i].X;
+		float y = rects[i].Y;
+		float w = rects[i].Width;
+		float h = rects[i].Height;
 
 		/* don't draw/fill rectangles with negative width/height (bug #77129) */
 		if ((w < 0) || (h < 0))
@@ -673,7 +673,7 @@ cairo_DrawRectangles (GpGraphics *graphics, GpPen *pen, GDIPCONST GpRectF *rects
 	return stroke_graphics_with_pen (graphics, pen);
 }
 
-GpStatus 
+GpStatus
 cairo_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
 	BOOL draw = FALSE;
@@ -684,10 +684,10 @@ cairo_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *r
 	 */
 	for (i = 0; i < count; i++) {
 		/* don't draw/fill rectangles with negative width/height (bug #77129) */
-		if ((rects [i].Width < 0) || (rects [i].Height < 0))
+		if ((rects[i].Width < 0) || (rects[i].Height < 0))
 			continue;
 
-		gdip_cairo_rectangle (graphics, rects [i].X, rects [i].Y, rects [i].Width, rects [i].Height, FALSE);
+		gdip_cairo_rectangle (graphics, rects[i].X, rects[i].Y, rects[i].Width, rects[i].Height, FALSE);
 		draw = TRUE;
 	}
 
@@ -730,7 +730,7 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 
 		mask_surface = gdip_region_bitmap_to_cairo_surface (region->bitmap);
 		cairo_save (graphics->ct);
-	
+
 		/* We do brush setup just before filling. */
 		gdip_brush_setup (graphics, brush);
 
@@ -760,9 +760,9 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 GpStatus
 cairo_GraphicsClear (GpGraphics *graphics, ARGB color)
 {
-	double blue = color & 0xff;
+	double blue  = color & 0xff;
 	double green = (color >> 8) & 0xff;
-	double red = (color >> 16) & 0xff;
+	double red   = (color >> 16) & 0xff;
 	double alpha = (color >> 24);
 
 	/* Save the existing color/alpha/pattern settings */
@@ -827,11 +827,11 @@ GpStatus
 cairo_SetGraphicsClip (GpGraphics *graphics)
 {
 	GpRegion *work;
-	GpRectF* rect;
+	GpRectF *rect;
 	int i;
 
 	cairo_reset_clip (graphics->ct);
- 
+
 	if (gdip_is_InfiniteRegion (graphics->clip))
 		return Ok;
 
@@ -857,7 +857,7 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 			cairo_matrix_init_identity (&matrix);
 			/* I admit that's a (not so cute) hack - anyone with a better idea ? */
 			if ((GdipGetRegionScansCount (work, &count, &matrix) == Ok) && (count > 0)) {
-				GpRectF *rects = (GpRectF*) GdipAlloc (count * sizeof (GpRectF));
+				GpRectF *rects = (GpRectF *) GdipAlloc (count * sizeof (GpRectF));
 				if (rects) {
 					INT countTemp;
 					GdipGetRegionScans (work, rects, &countTemp, &matrix);
@@ -873,7 +873,7 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 		g_warning ("Unknown region type %d", work->type);
 		break;
 	}
-	
+
 	cairo_clip (graphics->ct);
 
 	/* destroy the clone, if one was needed */

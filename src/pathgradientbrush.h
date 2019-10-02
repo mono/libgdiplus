@@ -42,9 +42,9 @@ GpStatus WINGDIPAPI GdipGetPathGradientPath (GpPathGradient *brush, GpPath *path
 GpStatus WINGDIPAPI GdipSetPathGradientPath (GpPathGradient *brush, GDIPCONST GpPath *path);
 
 GpStatus WINGDIPAPI GdipGetPathGradientCenterPoint (GpPathGradient *brush, GpPointF *points);
-GpStatus WINGDIPAPI GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint* points);
+GpStatus WINGDIPAPI GdipGetPathGradientCenterPointI (GpPathGradient *brush, GpPoint *points);
 GpStatus WINGDIPAPI GdipSetPathGradientCenterPoint (GpPathGradient *brush, GDIPCONST GpPointF *points);
-GpStatus WINGDIPAPI GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint* points);
+GpStatus WINGDIPAPI GdipSetPathGradientCenterPointI (GpPathGradient *brush, GDIPCONST GpPoint *points);
 
 GpStatus WINGDIPAPI GdipGetPathGradientRect (GpPathGradient *brush, GpRectF *rect);
 GpStatus WINGDIPAPI GdipGetPathGradientRectI (GpPathGradient *brush, GpRect *rect);

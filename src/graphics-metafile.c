@@ -26,29 +26,29 @@
  * NOTE: all parameter's validations are done inside graphics.c
  */
 
-#define FIT_IN_INT16(x)		(((x) >= G_MININT16) && ((x) <= G_MAXINT16))
+#define FIT_IN_INT16(x) (((x) >= G_MININT16) && ((x) <= G_MAXINT16))
 
-#define EMFPLUS_FLAGS_USE_SINGLE	0x0000
-#define EMFPLUS_FLAGS_FILLMODE_WINDING	0x2000
-#define EMFPLUS_FLAGS_USE_INT16		0x4000
-#define EMFPLUS_FLAGS_USE_ARGB		0x8000
+#define EMFPLUS_FLAGS_USE_SINGLE 0x0000
+#define EMFPLUS_FLAGS_FILLMODE_WINDING 0x2000
+#define EMFPLUS_FLAGS_USE_INT16 0x4000
+#define EMFPLUS_FLAGS_USE_ARGB 0x8000
 
 ATTRIBUTE_USED static BOOL
 RectFitInInt16 (int x, int y, int width, int height)
 {
-	return (FIT_IN_INT16(x) && FIT_IN_INT16(y) && FIT_IN_INT16(width) && FIT_IN_INT16(height));
+	return (FIT_IN_INT16 (x) && FIT_IN_INT16 (y) && FIT_IN_INT16 (width) && FIT_IN_INT16 (height));
 }
 
 ATTRIBUTE_USED static BOOL
 GpRectFitInInt16 (GDIPCONST GpRect *rect)
 {
-	return (FIT_IN_INT16(rect->X) && FIT_IN_INT16(rect->Y) && FIT_IN_INT16(rect->Width) && FIT_IN_INT16(rect->Height));
+	return (FIT_IN_INT16 (rect->X) && FIT_IN_INT16 (rect->Y) && FIT_IN_INT16 (rect->Width) && FIT_IN_INT16 (rect->Height));
 }
 
 ATTRIBUTE_USED static BOOL
 GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 {
-	GpRect *r = (GpRect*) rects;
+	GpRect *r = (GpRect *) rects;
 	int i;
 	for (i = 0; i < count; i++, r++) {
 		if (!GpRectFitInInt16 (r))
@@ -60,8 +60,8 @@ GpRectArrayFitInInt16 (GDIPCONST GpRect *rects, int count)
 /* DrawArcs - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawArc.html */
 
 GpStatus
-metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
-	float sweepAngle)
+metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle,
+		  float sweepAngle)
 {
 	/* TODO */
 	return Ok;
@@ -69,7 +69,7 @@ metafile_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float widt
 
 /* DrawBeziers - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawBeziers.html */
 
-GpStatus 
+GpStatus
 metafile_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	/* TODO */
@@ -103,8 +103,8 @@ metafile_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPoi
  */
 
 GpStatus
-metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments, 
-	float tension)
+metafile_DrawCurve3 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, int offset, int numOfSegments,
+		     float tension)
 {
 	/* TODO */
 	return Ok;
@@ -114,9 +114,9 @@ metafile_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *point
  * DrawEllipse - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawEllipse.html
  */
 
-GpStatus 
+GpStatus
 metafile_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height)
-{	
+{
 	/* TODO */
 	return Ok;
 }
@@ -136,7 +136,7 @@ metafile_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, fl
  * DrawLines - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/DrawLines.html
  */
 
-GpStatus 
+GpStatus
 metafile_DrawLines (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count)
 {
 	/* TODO */
@@ -169,8 +169,8 @@ metafile_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
  */
 
 GpStatus
-metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle)
+metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height,
+		  float startAngle, float sweepAngle)
 {
 	/* TODO */
 	return Ok;
@@ -181,8 +181,8 @@ metafile_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float widt
  */
 
 GpStatus
-metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle)
+metafile_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height,
+		  float startAngle, float sweepAngle)
 {
 	/* TODO */
 	return Ok;
@@ -232,7 +232,7 @@ metafile_FillRectangle (GpGraphics *graphics, GpBrush *brush, float x, float y, 
 	return Ok;
 }
 
-GpStatus 
+GpStatus
 metafile_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpRectF *rects, int count)
 {
 	/* TODO */
@@ -320,7 +320,7 @@ metafile_SetPageTransform (GpGraphics *graphics, GpUnit unit, float scale)
  * SetRenderingOrigin - http://www.aces.uiuc.edu/~jhtodd/Metafile/MetafileRecords/SetRenderingOrigin.html
  */
 
-GpStatus 
+GpStatus
 metafile_SetRenderingOrigin (GpGraphics *graphics, int x, int y)
 {
 	/* TODO */

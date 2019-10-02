@@ -52,11 +52,11 @@ typedef struct _BrushClass {
 } BrushClass;
 
 typedef struct _Brush {
-	BrushClass	*vtable;
-	BOOL		changed;
+	BrushClass *vtable;
+	BOOL changed;
 } Brush;
 
-void gdip_brush_init (GpBrush *brush, BrushClass* vtable) GDIP_INTERNAL;
+void gdip_brush_init (GpBrush *brush, BrushClass *vtable) GDIP_INTERNAL;
 GpStatus gdip_brush_setup (GpGraphics *graphics, GpBrush *brush) GDIP_INTERNAL;
 
 #include "brush.h"

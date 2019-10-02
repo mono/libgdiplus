@@ -37,23 +37,23 @@ static GpStatus gdip_solidfill_destroy (GpBrush *brush);
  * all instances of solidbrush.
  */
 
-static BrushClass vtable = { BrushTypeSolidColor,
-			     gdip_solidfill_setup, 
-			     gdip_solidfill_clone,
-			     gdip_solidfill_destroy };
+static BrushClass vtable = {BrushTypeSolidColor,
+			    gdip_solidfill_setup,
+			    gdip_solidfill_clone,
+			    gdip_solidfill_destroy};
 
-static void 
+static void
 gdip_solidfill_init (GpSolidFill *brush)
 {
 	gdip_brush_init (&brush->base, &vtable);
 	brush->color = 0x00000000;
 }
 
-static GpSolidFill*
+static GpSolidFill *
 gdip_solidfill_new ()
 {
 	GpSolidFill *result = (GpSolidFill *) GdipAlloc (sizeof (GpSolidFill));
-	
+
 	if (result)
 		gdip_solidfill_init (result);
 
@@ -84,8 +84,7 @@ gdip_solidfill_setup (GpGraphics *graphics, GpBrush *brush)
 			solid->R = 0;
 			solid->G = 0;
 			solid->B = 0;
-		}
-		else {
+		} else {
 			solid->A = (double) a / 255.0;
 			solid->R = (double) r / 255.0;
 			solid->G = (double) g / 255.0;
@@ -109,8 +108,8 @@ gdip_solidfill_clone (GpBrush *brush, GpBrush **clonedBrush)
 
 	solid = (GpSolidFill *) brush;
 
-	result->base = solid->base;
-	result->color = solid->color;
+	result->base	 = solid->base;
+	result->color	= solid->color;
 	result->base.changed = TRUE;
 
 	*clonedBrush = (GpBrush *) result;
@@ -140,7 +139,7 @@ GdipCreateSolidFill (ARGB color, GpSolidFill **brush)
 		return OutOfMemory;
 
 	result->color = color;
-	
+
 	*brush = result;
 	return Ok;
 }
@@ -151,7 +150,7 @@ GdipSetSolidFillColor (GpSolidFill *brush, ARGB color)
 	if (!brush)
 		return InvalidParameter;
 
-	brush->color = color;
+	brush->color	= color;
 	brush->base.changed = TRUE;
 
 	return Ok;

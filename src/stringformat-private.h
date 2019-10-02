@@ -38,18 +38,18 @@
 #include "gdiplus-private.h"
 
 struct _StringFormat {
-	StringAlignment		alignment;
-	StringAlignment		lineAlignment;
-	HotkeyPrefix		hotkeyPrefix;
-	StringFormatFlags	formatFlags;
-	StringTrimming		trimming;
-	StringDigitSubstitute	substitute;
-	LANGID			language;
-	CharacterRange		*charRanges;
-	float			firstTabOffset;
-	float			*tabStops;
-	int			numtabStops;
-	int			charRangeCount;
+	StringAlignment alignment;
+	StringAlignment lineAlignment;
+	HotkeyPrefix hotkeyPrefix;
+	StringFormatFlags formatFlags;
+	StringTrimming trimming;
+	StringDigitSubstitute substitute;
+	LANGID language;
+	CharacterRange *charRanges;
+	float firstTabOffset;
+	float *tabStops;
+	int numtabStops;
+	int charRangeCount;
 };
 
 void gdip_create_generic_stringformats () GDIP_INTERNAL;

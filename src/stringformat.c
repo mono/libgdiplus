@@ -47,17 +47,17 @@ gdip_string_format_clear (GpStringFormat *format)
 static void
 gdip_string_format_init (GpStringFormat *result)
 {
-	result->alignment = StringAlignmentNear;
-	result->lineAlignment =  StringAlignmentNear;
-	result->hotkeyPrefix = HotkeyPrefixNone;
-	result->formatFlags = 0;
-	result->trimming = StringTrimmingCharacter;
-	result->substitute = StringDigitSubstituteUser;
-	result->language = 0;
+	result->alignment      = StringAlignmentNear;
+	result->lineAlignment  = StringAlignmentNear;
+	result->hotkeyPrefix   = HotkeyPrefixNone;
+	result->formatFlags    = 0;
+	result->trimming       = StringTrimmingCharacter;
+	result->substitute     = StringDigitSubstituteUser;
+	result->language       = 0;
 	result->firstTabOffset = 0;
-	result->tabStops = NULL;
-	result->numtabStops = 0;
-	result->charRanges = NULL;
+	result->tabStops       = NULL;
+	result->numtabStops    = 0;
+	result->charRanges     = NULL;
 	result->charRangeCount = 0;
 }
 
@@ -68,7 +68,7 @@ gdip_create_generic_stringformats ()
 
 	gdip_string_format_init (&stringFormatTypographic);
 	stringFormatTypographic.formatFlags = StringFormatFlagsNoFitBlackBox | StringFormatFlagsLineLimit | StringFormatFlagsNoClip;
-	stringFormatTypographic.trimming = StringTrimmingNone;
+	stringFormatTypographic.trimming    = StringTrimmingNone;
 }
 
 void
@@ -142,7 +142,7 @@ GdipStringFormatGetGenericTypographic (GpStringFormat **format)
 
 /* coverity[+alloc : arg-*1] */
 GpStatus WINGDIPAPI
-GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFormat)
+GdipCloneStringFormat (GDIPCONST GpStringFormat *format, GpStringFormat **newFormat)
 {
 	GpStringFormat *result;
 
@@ -153,15 +153,15 @@ GdipCloneStringFormat (GDIPCONST GpStringFormat *format,  GpStringFormat **newFo
 	if (!result)
 		goto error;
 
-	result->alignment = format->alignment;
-	result->lineAlignment =  format->lineAlignment;
-	result->hotkeyPrefix = format->hotkeyPrefix;
-	result->formatFlags = format->formatFlags;
-	result->trimming = format->trimming;
-	result->substitute = format->substitute;
-	result->language = format->language;
+	result->alignment      = format->alignment;
+	result->lineAlignment  = format->lineAlignment;
+	result->hotkeyPrefix   = format->hotkeyPrefix;
+	result->formatFlags    = format->formatFlags;
+	result->trimming       = format->trimming;
+	result->substitute     = format->substitute;
+	result->language       = format->language;
 	result->firstTabOffset = format->firstTabOffset;
-	result->numtabStops = format->numtabStops;
+	result->numtabStops    = format->numtabStops;
 	result->charRangeCount = format->charRangeCount;
 
 	/* Create a copy of tab stops for the clone */
@@ -286,7 +286,7 @@ GdipGetStringFormatFlags (GDIPCONST GpStringFormat *format, INT *flags)
 }
 
 GpStatus WINGDIPAPI
-GdipSetStringFormatTrimming (GpStringFormat *format,  StringTrimming trimming)
+GdipSetStringFormatTrimming (GpStringFormat *format, StringTrimming trimming)
 {
 	if (!format || trimming < StringTrimmingNone || trimming > StringTrimmingEllipsisPath)
 		return InvalidParameter;
@@ -337,7 +337,7 @@ GdipSetStringFormatTabStops (GpStringFormat *format, REAL firstTabOffset, INT co
 	}
 
 	format->firstTabOffset = firstTabOffset;
-	format->numtabStops = count;
+	format->numtabStops    = count;
 	memcpy (format->tabStops, tabStops, count * sizeof (REAL));
 
 	return Ok;
@@ -364,7 +364,7 @@ GdipSetStringFormatDigitSubstitution (GpStringFormat *format, LANGID language, S
 	if (!format)
 		return InvalidParameter;
 
-	format->language = language;
+	format->language   = language;
 	format->substitute = substitute;
 	return Ok;
 }
@@ -387,7 +387,7 @@ GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *
 	if (!format || !firstTabOffset || !tabStops || count < 0)
 		return InvalidParameter;
 
-	elems = count<format->numtabStops ? count : format->numtabStops;
+	elems = count < format->numtabStops ? count : format->numtabStops;
 
 	*firstTabOffset = format->firstTabOffset;
 	memcpy (tabStops, format->tabStops, elems * sizeof (REAL));
@@ -398,7 +398,7 @@ GdipGetStringFormatTabStops (GDIPCONST GpStringFormat *format, INT count, REAL *
 GpStatus WINGDIPAPI
 GdipGetStringFormatMeasurableCharacterRangeCount (GDIPCONST GpStringFormat *format, INT *count)
 {
-	if (! format || !count)
+	if (!format || !count)
 		return InvalidParameter;
 
 	*count = format->charRangeCount;
@@ -420,18 +420,16 @@ GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeC
 		if (format->charRangeCount == rangeCount) {
 			/* Avoid allocating memory if the count is the same. */
 			rangesResult = format->charRanges;
-		}
-		else {
+		} else {
 			rangesResult = (CharacterRange *) GdipAlloc (rangeCount * sizeof (CharacterRange));
 			if (!rangesResult)
 				return OutOfMemory;
 		}
 
 		memcpy (rangesResult, ranges, rangeCount * sizeof (CharacterRange));
-	}
-	else {
+	} else {
 		rangesResult = NULL;
-		rangeCount = 0;
+		rangeCount   = 0;
 	}
 
 	if (format->charRanges && format->charRangeCount != rangeCount) {
@@ -439,7 +437,7 @@ GdipSetStringFormatMeasurableCharacterRanges (GpStringFormat *format, INT rangeC
 		format->charRanges = NULL;
 	}
 
-	format->charRanges = rangesResult;
+	format->charRanges     = rangesResult;
 	format->charRangeCount = rangeCount;
 
 	return Ok;

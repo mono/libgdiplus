@@ -22,7 +22,7 @@
  * Author: Ravindra (rkumar@novell.com)
  *
  */
- 
+
 #include "graphics-pathiterator-private.h"
 #include "general-private.h"
 #include "graphics-path-private.h"
@@ -57,9 +57,9 @@ GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 		}
 	}
 
-	iter->path = clone;
-	iter->markerPosition = 0;
-	iter->subpathPosition = 0;
+	iter->path	     = clone;
+	iter->markerPosition   = 0;
+	iter->subpathPosition  = 0;
 	iter->pathTypePosition = 0;
 
 	*iterator = iter;
@@ -127,8 +127,8 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 	if (!iterator || !resultCount || !points || !types)
 		return InvalidParameter;
 
-	if (!iterator->path || (startIndex >= iterator->path->count) || (startIndex > endIndex) || 
-		(endIndex >= iterator->path->count) || (startIndex < 0) || (endIndex < 0)) {
+	if (!iterator->path || (startIndex >= iterator->path->count) || (startIndex > endIndex) ||
+	    (endIndex >= iterator->path->count) || (startIndex < 0) || (endIndex < 0)) {
 		*resultCount = 0;
 		return Ok;
 	}
@@ -150,8 +150,8 @@ GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *poi
 
 	if (iterator->path) {
 		for (; i < count && i < iterator->path->count; i++) {
-			points [i] = iterator->path->points[i];
-			types [i] = iterator->path->types[i];
+			points[i] = iterator->path->points[i];
+			types[i]  = iterator->path->types[i];
 		}
 	}
 
@@ -205,7 +205,7 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 		*resultCount = 0;
 		return Ok;
 	}
-	
+
 	/* Check for next marker */
 	for (index = iterator->markerPosition; index < iterator->path->count; index++) {
 		type = iterator->path->types[index];
@@ -215,9 +215,9 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 		}
 	}
 
-	*startIndex = iterator->markerPosition;
-	*endIndex = index - 1;
-	*resultCount =  (*endIndex) - (*startIndex) + 1;
+	*startIndex  = iterator->markerPosition;
+	*endIndex    = index - 1;
+	*resultCount = (*endIndex) - (*startIndex) + 1;
 
 	iterator->markerPosition = index;
 
@@ -256,10 +256,10 @@ GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, BYTE *path
 				break;
 		}
 
-		*startIndex = iterator->pathTypePosition;
-		*endIndex = index - 1;
+		*startIndex  = iterator->pathTypePosition;
+		*endIndex    = index - 1;
 		*resultCount = (*endIndex) - (*startIndex) + 1;
-		*pathType = lastTypeSeen;
+		*pathType    = lastTypeSeen;
 
 		/* If lastTypeSeen is a line, it becomes the starting point for the next
 		 * path type. We get this when we have connected figures. We need to step
@@ -307,11 +307,11 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 		return InvalidParameter;
 
 	/* There are no subpaths or we are done with all the subpaths */
-	if (!iterator->path || (iterator->path->count == 0) || 
+	if (!iterator->path || (iterator->path->count == 0) ||
 	    (iterator->subpathPosition == iterator->path->count)) {
 		/* we don't touch startIndex and endIndex in this case */
 		*resultCount = 0;
-		*isClosed = TRUE;
+		*isClosed    = TRUE;
 		return Ok;
 	}
 
@@ -322,12 +322,12 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 			break;
 	}
 
-	*startIndex = iterator->subpathPosition;
-	*endIndex = index - 1;
+	*startIndex  = iterator->subpathPosition;
+	*endIndex    = index - 1;
 	*resultCount = (*endIndex) - (*startIndex) + 1;
 	/* set positions for next iteration */
 	iterator->pathTypePosition = iterator->subpathPosition;
-	iterator->subpathPosition = index;
+	iterator->subpathPosition  = index;
 
 	/* check if last subpath was closed */
 	currentType = iterator->path->types[index - 1];
@@ -346,8 +346,8 @@ GdipPathIterRewind (GpPathIterator *iterator)
 		return InvalidParameter;
 
 	/* Reset the marker and subpath positions */
-	iterator->markerPosition = 0;
-	iterator->subpathPosition = 0;
+	iterator->markerPosition   = 0;
+	iterator->subpathPosition  = 0;
 	iterator->pathTypePosition = 0;
 
 	return Ok;

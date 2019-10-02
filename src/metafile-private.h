@@ -35,23 +35,23 @@
  *	http://wvware.sourceforge.net/caolan/ora-wmf.html
  */
 
-#define ALDUS_PLACEABLE_METAFILE_KEY	0x9AC6CDD7
-#define WMF_TYPE_AND_HEADERSIZE_KEY	0x00090001
-#define EMF_EMR_HEADER_KEY		0x1
+#define ALDUS_PLACEABLE_METAFILE_KEY 0x9AC6CDD7
+#define WMF_TYPE_AND_HEADERSIZE_KEY 0x00090001
+#define EMF_EMR_HEADER_KEY 0x1
 
-#define MM_PER_INCH			25.4f
+#define MM_PER_INCH 25.4f
 
 /* object types */
-#define METAOBJECT_TYPE_EMPTY	0
-#define METAOBJECT_TYPE_PEN	1
-#define METAOBJECT_TYPE_BRUSH	2
+#define METAOBJECT_TYPE_EMPTY 0
+#define METAOBJECT_TYPE_PEN 1
+#define METAOBJECT_TYPE_BRUSH 2
 
-#define gdip_get_metaheader(image)	(&((GpMetafile*)image)->metafile_header)
+#define gdip_get_metaheader(image) (&((GpMetafile *) image)->metafile_header)
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define GETDW(x)	(*(DWORD*)(data + (x)))
+#define GETDW(x) (*(DWORD *) (data + (x)))
 #else
-#define GETDW(x)	(GUINT32_FROM_LE(*(DWORD*)(data + (x))))
+#define GETDW(x) (GUINT32_FROM_LE (*(DWORD *) (data + (x))))
 #endif
 
 typedef struct {
@@ -65,7 +65,7 @@ struct _Metafile {
 	BOOL delete;
 	BYTE *data;
 	int length;
-	BOOL recording;		/* recording into memory (data), file (fp) or user stream (stream) */
+	BOOL recording; /* recording into memory (data), file (fp) or user stream (stream) */
 	FILE *fp;
 	void *stream;
 };
@@ -113,9 +113,9 @@ typedef struct {
 } PointFList;
 
 typedef struct {
-	DWORD	cbPixelFormat;
-	DWORD	offPixelFormat;
-	DWORD	bOpenGL;
+	DWORD cbPixelFormat;
+	DWORD offPixelFormat;
+	DWORD bOpenGL;
 } HeaderExtension1;
 
 GpStatus gdip_get_metafile_from (void *pointer, GpMetafile **metafile, ImageSource source) GDIP_INTERNAL;
@@ -128,16 +128,16 @@ GpStatus gdip_metafile_stop_recording (GpMetafile *metafile) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_play_emf (MetafilePlayContext *context) GDIP_INTERNAL;
 GpStatus gdip_metafile_play_wmf (MetafilePlayContext *context) GDIP_INTERNAL;
-GpStatus gdip_metafile_play_emfplus_block (MetafilePlayContext *context, BYTE* data, int length) GDIP_INTERNAL;
+GpStatus gdip_metafile_play_emfplus_block (MetafilePlayContext *context, BYTE *data, int length) GDIP_INTERNAL;
 
-MetafilePlayContext* gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int y, int width, 
-	int height) GDIP_INTERNAL;
+MetafilePlayContext *gdip_metafile_play_setup (GpMetafile *metafile, GpGraphics *graphics, int x, int y, int width,
+					       int height) GDIP_INTERNAL;
 GpStatus gdip_metafile_play (MetafilePlayContext *context) GDIP_INTERNAL;
 GpStatus gdip_metafile_play_cleanup (MetafilePlayContext *context) GDIP_INTERNAL;
 
-GpPen* gdip_metafile_GetSelectedPen (MetafilePlayContext *context) GDIP_INTERNAL;
-GpBrush* gdip_metafile_GetSelectedBrush (MetafilePlayContext *context) GDIP_INTERNAL;
-GpStatus GdiComment (MetafilePlayContext *context, BYTE* data, DWORD size) GDIP_INTERNAL;
+GpPen *gdip_metafile_GetSelectedPen (MetafilePlayContext *context) GDIP_INTERNAL;
+GpBrush *gdip_metafile_GetSelectedBrush (MetafilePlayContext *context) GDIP_INTERNAL;
+GpStatus GdiComment (MetafilePlayContext *context, BYTE *data, DWORD size) GDIP_INTERNAL;
 
 GpStatus gdip_metafile_SaveDC (MetafilePlayContext *context) GDIP_INTERNAL;
 GpStatus gdip_metafile_SetBkMode (MetafilePlayContext *context, DWORD bkMode) GDIP_INTERNAL;
@@ -159,15 +159,15 @@ GpStatus gdip_metafile_MoveTo (MetafilePlayContext *context, int x, int y) GDIP_
 GpStatus gdip_metafile_SetMiterLimit (MetafilePlayContext *context, float eNewLimit, float *peOldLimit) GDIP_INTERNAL;
 GpStatus gdip_metafile_CreatePenIndirect (MetafilePlayContext *context, DWORD style, DWORD width, DWORD color) GDIP_INTERNAL;
 GpStatus gdip_metafile_ExtCreatePen (MetafilePlayContext *context, DWORD dwPenStyle, DWORD dwWidth, CONST LOGBRUSH *lplb,
-	DWORD dwStyleCount, CONST DWORD *lpStyle) GDIP_INTERNAL;
+				     DWORD dwStyleCount, CONST DWORD *lpStyle) GDIP_INTERNAL;
 GpStatus gdip_metafile_CreateBrushIndirect (MetafilePlayContext *context, DWORD style, DWORD color, DWORD hatch) GDIP_INTERNAL;
-GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom, 
-	int xstart, int ystart, int xend, int yend) GDIP_INTERNAL;
+GpStatus gdip_metafile_Arc (MetafilePlayContext *context, int left, int top, int right, int bottom,
+			    int xstart, int ystart, int xend, int yend) GDIP_INTERNAL;
 GpStatus gdip_metafile_Rectangle (MetafilePlayContext *context, int bottomRect, int rightRect, int topRect, int leftRect) GDIP_INTERNAL;
 GpStatus gdip_metafile_SetPixel (MetafilePlayContext *context, DWORD color, int x, int y) GDIP_INTERNAL;
-GpStatus gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight, 
-	int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo, 
-	UINT iUsage, DWORD dwRop) GDIP_INTERNAL;
+GpStatus gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest, int nDestWidth, int nDestHeight,
+				      int XSrc, int YSrc, int nSrcWidth, int nSrcHeight, CONST void *lpBits, CONST BITMAPINFO *lpBitsInfo,
+				      UINT iUsage, DWORD dwRop) GDIP_INTERNAL;
 GpStatus gdip_metafile_PolyBezier (MetafilePlayContext *context, GpPointF *points, int count) GDIP_INTERNAL;
 GpStatus gdip_metafile_Polygon (MetafilePlayContext *context, GpPointF *points, int count) GDIP_INTERNAL;
 GpStatus gdip_metafile_BeginPath (MetafilePlayContext *context) GDIP_INTERNAL;

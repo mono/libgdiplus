@@ -24,7 +24,7 @@
 #define __BRUSH_H__
 
 typedef struct _InterpolationColors {
-	ARGB* colors;
+	ARGB *colors;
 	float *positions;
 	int count;
 } InterpolationColors;

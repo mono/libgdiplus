@@ -35,7 +35,7 @@
 #include "codecs.h"
 
 /* Maximum CODEC signature length, which is the minimum size we need to read from an image file to detect it's type */
-#define MAX_CODEC_SIG_LENGTH		44
+#define MAX_CODEC_SIG_LENGTH 44
 
 typedef enum {
 	File,
@@ -44,14 +44,13 @@ typedef enum {
 } ImageSource;
 
 typedef struct {
-	BYTE* ptr;
+	BYTE *ptr;
 	int size;
 	int pos;
 } MemorySource;
 
-
-static const CLSID gdip_image_frameDimension_page_guid = {0x7462dc86U, 0x6180U, 0x4c7eU, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
-static const CLSID gdip_image_frameDimension_time_guid = {0x6aedbd6dU, 0x3fb5U, 0x418aU, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
+static const CLSID gdip_image_frameDimension_page_guid       = {0x7462dc86U, 0x6180U, 0x4c7eU, {0x8e, 0x3f, 0xee, 0x73, 0x33, 0xa7, 0xa4, 0x83}};
+static const CLSID gdip_image_frameDimension_time_guid       = {0x6aedbd6dU, 0x3fb5U, 0x418aU, {0x83, 0xa6, 0x7f, 0x45, 0x22, 0x9d, 0xc8, 0x72}};
 static const CLSID gdip_image_frameDimension_resolution_guid = {0x84236f7bU, 0x3bd3U, 0x428fU, {0x8d, 0xab, 0x4e, 0xa1, 0x43, 0x9c, 0xa3, 0x15}};
 
 const EncoderParameter *gdip_find_encoder_parameter (GDIPCONST EncoderParameters *eps, const GUID *guid) GDIP_INTERNAL;

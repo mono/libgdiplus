@@ -40,44 +40,44 @@
 #include "stringformat-private.h"
 
 /* Flags and Support structure for MeasureOrDrawString */
-#define STRING_DETAIL_TAB		(1<<0)
-#define STRING_DETAIL_LF		(1<<1)
-#define STRING_DETAIL_HOTKEY		(1<<2)
-#define STRING_DETAIL_BREAK		(1<<3)
-#define STRING_DETAIL_HIDDEN		(1<<4)
-#define STRING_DETAIL_LINESTART		(1<<5)
+#define STRING_DETAIL_TAB (1 << 0)
+#define STRING_DETAIL_LF (1 << 1)
+#define STRING_DETAIL_HOTKEY (1 << 2)
+#define STRING_DETAIL_BREAK (1 << 3)
+#define STRING_DETAIL_HIDDEN (1 << 4)
+#define STRING_DETAIL_LINESTART (1 << 5)
 
-#define text_DrawString			cairo_DrawString
-#define text_MeasureString		cairo_MeasureString
-#define text_MeasureCharacterRanges	cairo_MeasureCharacterRanges
+#define text_DrawString cairo_DrawString
+#define text_MeasureString cairo_MeasureString
+#define text_MeasureCharacterRanges cairo_MeasureCharacterRanges
 
 /* cache for computed information during MeasureString that can be reused during DrawString */
 typedef struct {
-	BOOL	has_hotkeys;
-	int	align_horz;
-	int	align_vert;
-	int	line_height;
-	int	max_y;
-	int	descent;
+	BOOL has_hotkeys;
+	int align_horz;
+	int align_vert;
+	int line_height;
+	int max_y;
+	int descent;
 } GpDrawTextData;
 
 typedef struct {
-	unsigned long	Flags;
-	unsigned long	Linefeeds;
-	float		PosX;		/* We call it X, even though it might become Y for vertical drawing */
-	float		PosY;		/* We call it Y, even though it might become X for vertical drawing */
-	float		Width;		/* Width of the character; height is defined in font structure */
-	int		LineLen;	/* If LineStart how many chars is the line long? */
+	unsigned long Flags;
+	unsigned long Linefeeds;
+	float PosX;  /* We call it X, even though it might become Y for vertical drawing */
+	float PosY;  /* We call it Y, even though it might become X for vertical drawing */
+	float Width; /* Width of the character; height is defined in font structure */
+	int LineLen; /* If LineStart how many chars is the line long? */
 } GpStringDetailStruct;
 
 GpStatus cairo_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
+			   GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;
 
 GpStatus cairo_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format,  RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
-	GDIP_INTERNAL;
+			      GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, RectF *boundingBox, INT *codepointsFitted, INT *linesFilled)
+    GDIP_INTERNAL;
 
 GpStatus cairo_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions) GDIP_INTERNAL;
+				       GDIPCONST GpRectF *layout, GDIPCONST GpStringFormat *format, INT regionCount, GpRegion **regions) GDIP_INTERNAL;
 
 #endif

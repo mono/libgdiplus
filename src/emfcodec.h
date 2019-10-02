@@ -33,29 +33,29 @@
  * http://www.undocprint.org/formats/winspool/emf
  */
 
-#define EMF_MIN_RECORD_SIZE	8
+#define EMF_MIN_RECORD_SIZE 8
 
-#define EMF_CHECK_PARAMS(x)	do { \
+#define EMF_CHECK_PARAMS(x)                     \
+	do {                                    \
 		if (params < (x)) goto cleanup; \
 	} while (0)
 
-#define EMF_FUNCTION	0
-#define EMF_RECORDSIZE	4
-#define DWP1		8
-#define DWP2		12
-#define DWP3		16
-#define DWP4		20
-#define DWP5		24
-#define DWP6		28
-#define DWP7		32
-#define DWP8		36
-#define DWP9		40
-#define DWP10		44
-#define DWP11		48
-#define DWP(y)		(8 + ((y) << 2))
+#define EMF_FUNCTION 0
+#define EMF_RECORDSIZE 4
+#define DWP1 8
+#define DWP2 12
+#define DWP3 16
+#define DWP4 20
+#define DWP5 24
+#define DWP6 28
+#define DWP7 32
+#define DWP8 36
+#define DWP9 40
+#define DWP10 44
+#define DWP11 48
+#define DWP(y) (8 + ((y) << 2))
 
-
-#define gdip_read_emf_data	gdip_read_bmp_data
+#define gdip_read_emf_data gdip_read_bmp_data
 
 GpStatus gdip_load_emf_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
@@ -63,6 +63,6 @@ GpStatus gdip_load_emf_image_from_stream_delegate (dstream_t *loader, GpImage **
 
 /* no save functions as the EMF "codec" is a decoder only */
 
-ImageCodecInfo* gdip_getcodecinfo_emf () GDIP_INTERNAL;
+ImageCodecInfo *gdip_getcodecinfo_emf () GDIP_INTERNAL;
 
 #endif

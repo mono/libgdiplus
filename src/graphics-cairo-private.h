@@ -28,7 +28,7 @@
 #include "matrix-private.h"
 
 /* constant for make_ellipse */
-#define C1	0.552285
+#define C1 0.552285
 
 /*
  * Handling of pens with a width greater than 1 is not identical between GDI+ and Cairo
@@ -36,26 +36,25 @@
  * On cairo >= 1.12 pen adjustment is not required or tons of tests senstive to this break.
  */
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 12, 0)
-#define gdip_cairo_pen_width_needs_adjustment(pen)	(0)
+#define gdip_cairo_pen_width_needs_adjustment(pen) (0)
 #else
-#define gdip_cairo_pen_width_needs_adjustment(pen)	(((int)(pen->width) & 1) == 0)
+#define gdip_cairo_pen_width_needs_adjustment(pen) (((int) (pen->width) & 1) == 0)
 #endif
 
 cairo_fill_rule_t gdip_convert_fill_mode (FillMode fill_mode) GDIP_INTERNAL;
 GpStatus gdip_plot_path (GpGraphics *graphics, GpPath *path, BOOL antialiasing) GDIP_INTERNAL;
 
-
-GpStatus cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle, 
-	float sweepAngle) GDIP_INTERNAL;
+GpStatus cairo_DrawArc (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, float startAngle,
+			float sweepAngle) GDIP_INTERNAL;
 
 GpStatus cairo_DrawBeziers (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
 
-GpStatus cairo_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, 
-	float tension) GDIP_INTERNAL;
-GpStatus cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	float tension, GpFillMode fillMode) GDIP_INTERNAL;
-GpStatus cairo_DrawCurve3 (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPointF *points, int count, int offset, 
-	int numOfSegments, float tension) GDIP_INTERNAL;
+GpStatus cairo_DrawClosedCurve2 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count,
+				 float tension) GDIP_INTERNAL;
+GpStatus cairo_FillClosedCurve2 (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count,
+				 float tension, GpFillMode fillMode) GDIP_INTERNAL;
+GpStatus cairo_DrawCurve3 (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count, int offset,
+			   int numOfSegments, float tension) GDIP_INTERNAL;
 
 GpStatus cairo_DrawEllipse (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height) GDIP_INTERNAL;
 GpStatus cairo_FillEllipse (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height) GDIP_INTERNAL;
@@ -68,14 +67,14 @@ GpStatus cairo_FillRectangles (GpGraphics *graphics, GpBrush *brush, GDIPCONST G
 GpStatus cairo_DrawPath (GpGraphics *graphics, GpPen *pen, GpPath *path) GDIP_INTERNAL;
 GpStatus cairo_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path) GDIP_INTERNAL;
 
-GpStatus cairo_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
-GpStatus cairo_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height, 
-	float startAngle, float sweepAngle) GDIP_INTERNAL;
+GpStatus cairo_DrawPie (GpGraphics *graphics, GpPen *pen, float x, float y, float width, float height,
+			float startAngle, float sweepAngle) GDIP_INTERNAL;
+GpStatus cairo_FillPie (GpGraphics *graphics, GpBrush *brush, float x, float y, float width, float height,
+			float startAngle, float sweepAngle) GDIP_INTERNAL;
 
 GpStatus cairo_DrawPolygon (GpGraphics *graphics, GpPen *pen, GDIPCONST GpPointF *points, int count) GDIP_INTERNAL;
-GpStatus cairo_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count, 
-	FillMode fillMode) GDIP_INTERNAL;
+GpStatus cairo_FillPolygon (GpGraphics *graphics, GpBrush *brush, GDIPCONST GpPointF *points, int count,
+			    FillMode fillMode) GDIP_INTERNAL;
 
 GpStatus cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region) GDIP_INTERNAL;
 

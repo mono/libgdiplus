@@ -81,7 +81,7 @@ read_from_buffer (dstream_private *loader, void *buffer, int size)
 
 	if (nbytes > size)
 		nbytes = size;
-	
+
 	memcpy (buffer, loader->buffer + loader->position, nbytes);
 	loader->position += nbytes;
 	return nbytes;
@@ -98,7 +98,7 @@ fill_buffer (dstream_private *loader)
 
 	if (loader->allocated == 0) {
 		loader->allocated = 65536;
-		loader->buffer = GdipAlloc (loader->allocated);
+		loader->buffer    = GdipAlloc (loader->allocated);
 		if (loader->buffer == NULL) {
 			/* what? */
 			return;
@@ -114,7 +114,7 @@ fill_buffer (dstream_private *loader)
 
 	if (offset != 0) {
 		loader->position = 0;
-		loader->used = offset;
+		loader->used     = offset;
 	}
 
 	/* First chunk read */
@@ -158,7 +158,7 @@ dstream_skip (dstream_t *st, int nbytes)
 		if (remain > 0) {
 			if (nbytes >= remain) {
 				nbytes -= remain;
-				loader->used = 0;
+				loader->used     = 0;
 				loader->position = 0;
 			} else {
 				loader->position += nbytes;
@@ -173,14 +173,14 @@ dstream_skip (dstream_t *st, int nbytes)
 	}
 
 	/* Invalidate buffer */
-	loader->used = 0;
+	loader->used     = 0;
 	loader->position = 0;
 }
 
 void
 dstream_keep_exif_buffer (dstream_t *st)
 {
-	dstream_private *loader = st->pvt;
+	dstream_private *loader  = st->pvt;
 	loader->keep_exif_buffer = TRUE;
 }
 
@@ -190,10 +190,10 @@ dstream_get_exif_buffer (dstream_t *st, BYTE **ptr, unsigned int *length)
 	dstream_private *loader = st->pvt;
 
 	if (loader->keep_exif_buffer) {
-		*ptr = loader->exif_buffer;
+		*ptr    = loader->exif_buffer;
 		*length = loader->exif_datasize;
 	} else {
-		*ptr = NULL;
+		*ptr    = NULL;
 		*length = 0;
 	}
 }

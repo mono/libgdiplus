@@ -45,25 +45,25 @@
 #include "config.h"
 
 #if HAVE_VISIBILITY_HIDDEN
-	#define GDIP_INTERNAL __attribute__((visibility ("hidden")))
+#define GDIP_INTERNAL __attribute__ ((visibility ("hidden")))
 #else
-	#define GDIP_INTERNAL
+#define GDIP_INTERNAL
 #endif
 
 #ifdef _MSC_VER
-#define WINGDIPAPI __declspec( dllexport )
+#define WINGDIPAPI __declspec(dllexport)
 #else
 #define WINGDIPAPI
 #endif
 
 #include <cairo/cairo.h>
 #ifdef CAIRO_HAS_FT_FONT
-	#include <cairo/cairo-ft.h>
+#include <cairo/cairo-ft.h>
 #endif
 
 #if defined(HAVE_X11)
 #ifdef CAIRO_HAS_XLIB_SURFACE
-	#include <cairo/cairo-xlib.h>
+#include <cairo/cairo-xlib.h>
 #endif
 #endif
 

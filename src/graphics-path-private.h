@@ -45,7 +45,7 @@ typedef struct _Path {
 	int size;
 	BYTE *types;
 	GpPointF *points;
-	BOOL start_new_fig;	/* Flag to keep track if we need to start a new figure */
+	BOOL start_new_fig; /* Flag to keep track if we need to start a new figure */
 } Path;
 
 BOOL gdip_path_has_curve (GpPath *path) GDIP_INTERNAL;

@@ -16,13 +16,13 @@
 
 GpStatus gdip_load_gif_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 
-GpStatus gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seekFunc, 
-	GpImage **image) GDIP_INTERNAL;
-					   
+GpStatus gdip_load_gif_image_from_stream_delegate (GetBytesDelegate getBytesFunc, SeekDelegate seekFunc,
+						   GpImage **image) GDIP_INTERNAL;
+
 GpStatus gdip_save_gif_image_to_file (unsigned char *filename, GpImage *image) GDIP_INTERNAL;
 
-GpStatus gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image, 
-	GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
+GpStatus gdip_save_gif_image_to_stream_delegate (PutBytesDelegate putBytesFunc, GpImage *image,
+						 GDIPCONST EncoderParameters *params) GDIP_INTERNAL;
 
 ImageCodecInfo *gdip_getcodecinfo_gif () GDIP_INTERNAL;
 
@@ -30,10 +30,10 @@ GpStatus gdip_fill_encoder_parameter_list_gif (EncoderParameters *buffer, UINT s
 
 typedef struct
 {
-  UINT count;
-  EncoderParameter imageItems;
-  EncoderParameter saveFlag;
-  LONG saveFlagValue;
+	UINT count;
+	EncoderParameter imageItems;
+	EncoderParameter saveFlag;
+	LONG saveFlagValue;
 } GifEncoderParameters;
 
 #endif /* _GIFCODEC_H */

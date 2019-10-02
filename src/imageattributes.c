@@ -29,24 +29,24 @@
 #include "general-private.h"
 
 static void
-gdip_init_image_attribute (GpImageAttribute* attr)
+gdip_init_image_attribute (GpImageAttribute *attr)
 {
-	attr->flags = 0;
-	attr->colormap = NULL;
-	attr->colormap_elem = 0;
-	attr->gamma_correction = 0.0f;
-	attr->key_colorlow = 0;
-	attr->key_colorhigh = 0;
-	attr->colormatrix = NULL;
-	attr->graymatrix = NULL;
-	attr->colormatrix_flags = ColorMatrixFlagsDefault;
-	attr->threshold = 0;
-	attr->outputchannel_flags = 0;
+	attr->flags		    = 0;
+	attr->colormap		    = NULL;
+	attr->colormap_elem	 = 0;
+	attr->gamma_correction      = 0.0f;
+	attr->key_colorlow	  = 0;
+	attr->key_colorhigh	 = 0;
+	attr->colormatrix	   = NULL;
+	attr->graymatrix	    = NULL;
+	attr->colormatrix_flags     = ColorMatrixFlagsDefault;
+	attr->threshold		    = 0;
+	attr->outputchannel_flags   = 0;
 	attr->colorprofile_filename = NULL;
 }
 
 static void
-gdip_dispose_image_attribute (GpImageAttribute* attr)
+gdip_dispose_image_attribute (GpImageAttribute *attr)
 {
 	if (attr->colormap) {
 		GdipFree (attr->colormap);
@@ -70,45 +70,45 @@ gdip_dispose_image_attribute (GpImageAttribute* attr)
 }
 
 static GpStatus
-gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone)
+gdip_clone_image_attribute (const GpImageAttribute *attr, GpImageAttribute *clone)
 {
 	if (attr->colormap && attr->colormap_elem > 0) {
-		clone->colormap = GdipAlloc(sizeof(ColorMap) * attr->colormap_elem);
+		clone->colormap = GdipAlloc (sizeof (ColorMap) * attr->colormap_elem);
 
 		if (!clone->colormap) {
-			gdip_dispose_image_attribute(clone);
+			gdip_dispose_image_attribute (clone);
 			return OutOfMemory;
 		}
 
-		memcpy(clone->colormap, attr->colormap, sizeof(ColorMap) * attr->colormap_elem);
+		memcpy (clone->colormap, attr->colormap, sizeof (ColorMap) * attr->colormap_elem);
 	}
 
 	if (attr->colormatrix) {
-		clone->colormatrix = GdipAlloc(sizeof(ColorMatrix));
+		clone->colormatrix = GdipAlloc (sizeof (ColorMatrix));
 
 		if (!clone->colormatrix) {
-			gdip_dispose_image_attribute(clone);
+			gdip_dispose_image_attribute (clone);
 			return OutOfMemory;
 		}
 
-		memcpy(clone->colormatrix, attr->colormatrix, sizeof(ColorMatrix));
+		memcpy (clone->colormatrix, attr->colormatrix, sizeof (ColorMatrix));
 	}
 
 	if (attr->graymatrix) {
-		clone->graymatrix = GdipAlloc(sizeof(ColorMatrix));
+		clone->graymatrix = GdipAlloc (sizeof (ColorMatrix));
 
 		if (!clone->graymatrix) {
-			gdip_dispose_image_attribute(clone);
+			gdip_dispose_image_attribute (clone);
 			return OutOfMemory;
 		}
 
-		memcpy(clone->graymatrix, attr->graymatrix, sizeof(ColorMatrix));
+		memcpy (clone->graymatrix, attr->graymatrix, sizeof (ColorMatrix));
 	}
 
 	if (attr->colorprofile_filename) {
 		clone->colorprofile_filename = strdup (attr->colorprofile_filename);
 		if (!clone->colorprofile_filename) {
-			gdip_dispose_image_attribute(clone);
+			gdip_dispose_image_attribute (clone);
 			return OutOfMemory;
 		}
 	}
@@ -116,10 +116,10 @@ gdip_clone_image_attribute(const GpImageAttribute* attr, GpImageAttribute* clone
 	return Ok;
 }
 
-static GpImageAttribute*
-gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
+static GpImageAttribute *
+gdip_get_image_attribute (GpImageAttributes *attr, ColorAdjustType type)
 {
-	switch (type)	{
+	switch (type) {
 	case ColorAdjustTypeDefault:
 		return &attr->def;
 	case ColorAdjustTypeBitmap:
@@ -136,23 +136,23 @@ gdip_get_image_attribute (GpImageAttributes* attr, ColorAdjustType type)
 }
 
 GpStatus
-gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes* attr, BOOL *allocated)
+gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes *attr, BOOL *allocated)
 {
 	GpStatus status;
 	GpImageAttribute *imgattr, *def;
 	GpImageAttribute *colormap, *gamma, *trans, *cmatrix, *treshold, *cmyk;
 	GpBitmap *bmpdest;
 	ARGB color;
-	BYTE *color_p = (BYTE*) &color;
+	BYTE *color_p = (BYTE *) &color;
 
 	*allocated = FALSE;
-	bmpdest = NULL;
+	bmpdest    = NULL;
 
 	if (!bitmap || !dest || !attr)
 		return Ok;
 
 	imgattr = gdip_get_image_attribute (attr, ColorAdjustTypeBitmap);
-	def = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
+	def     = gdip_get_image_attribute (attr, ColorAdjustTypeDefault);
 	if (imgattr->flags & ImageAttributeFlagsColorRemapTableEnabled) {
 		colormap = imgattr;
 	} else {
@@ -185,17 +185,11 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	if (imgattr->flags & ImageAttributeFlagsOutputChannelEnabled) {
 		cmyk = imgattr;
-	}
-	else {
+	} else {
 		cmyk = def;
 	}
 
-	if ((!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled))
-		|| (!(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled))
-		|| (!(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled))
-		|| (!(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL)
-		|| (!(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled))
-		|| (!(cmyk->flags & ImageAttributeFlagsNoOp) && (cmyk->flags & ImageAttributeFlagsOutputChannelEnabled))) {
+	if ((!(colormap->flags & ImageAttributeFlagsNoOp) && (colormap->flags & ImageAttributeFlagsColorRemapTableEnabled)) || (!(gamma->flags & ImageAttributeFlagsNoOp) && (gamma->flags & ImageAttributeFlagsGammaEnabled)) || (!(trans->flags & ImageAttributeFlagsNoOp) && (trans->flags & ImageAttributeFlagsColorKeysEnabled)) || (!(cmatrix->flags & ImageAttributeFlagsNoOp) && (cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled) && cmatrix->colormatrix != NULL) || (!(treshold->flags & ImageAttributeFlagsNoOp) && (treshold->flags & ImageAttributeFlagsThresholdEnabled)) || (!(cmyk->flags & ImageAttributeFlagsNoOp) && (cmyk->flags & ImageAttributeFlagsOutputChannelEnabled))) {
 		bmpdest = gdip_bitmap_new_with_frame (NULL, FALSE);
 		if (!bmpdest)
 			return OutOfMemory;
@@ -210,7 +204,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 		bmpdest->frames[0].count = 1;
 		gdip_bitmap_setactive (bmpdest, NULL, 0);
-		*dest = bmpdest->active_bitmap->scan0;
+		*dest      = bmpdest->active_bitmap->scan0;
 		*allocated = TRUE;
 	}
 
@@ -221,9 +215,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 	/* Color mapping */
 	if (!(colormap->flags & ImageAttributeFlagsNoOp) && colormap->flags & ImageAttributeFlagsColorRemapTableEnabled) {
-		for (int y = 0; y <bitmap->active_bitmap->height; y++) {
-			for (int x = 0; x <bitmap->active_bitmap->width; x++) {
-				ColorMap* clrmap = colormap->colormap;
+		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
+			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
+				ColorMap *clrmap = colormap->colormap;
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
@@ -244,7 +238,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
-				BYTE r,g,b,a;
+				BYTE r, g, b, a;
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
@@ -253,27 +247,26 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				g = (color & 0x0000ff00) >> 8;
 				b = (color & 0x000000ff);
 
-				r = (int) roundf(powf(r / 255.0, gamma->gamma_correction) * 255.0);
-				g = (int) roundf(powf(g / 255.0, gamma->gamma_correction) * 255.0);
-				b = (int) roundf(powf(b / 255.0, gamma->gamma_correction) * 255.0);
+				r = (int) roundf (powf (r / 255.0, gamma->gamma_correction) * 255.0);
+				g = (int) roundf (powf (g / 255.0, gamma->gamma_correction) * 255.0);
+				b = (int) roundf (powf (b / 255.0, gamma->gamma_correction) * 255.0);
 
-				color = ((guint32)a << 24) | (r << 16) | (g  << 8) | b;
+				color = ((guint32) a << 24) | (r << 16) | (g << 8) | b;
 				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}
 		}
-
 	}
 
 	/* Treshold correction */
 	if (!(treshold->flags & ImageAttributeFlagsNoOp) && treshold->flags & ImageAttributeFlagsThresholdEnabled) {
-		BYTE cutoff = (BYTE)round(treshold->threshold * 255.0);
+		BYTE cutoff = (BYTE) round (treshold->threshold * 255.0);
 
 		for (int y = 0; y < bitmap->active_bitmap->height; y++) {
 			for (int x = 0; x < bitmap->active_bitmap->width; x++) {
 
 				BYTE r, g, b, a;
 
-				GdipBitmapGetPixel(bmpdest, x, y, &color);
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
 				a = (color & 0xff000000) >> 24;
 				r = (color & 0x00ff0000) >> 16;
@@ -284,8 +277,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				g = g > cutoff ? 255 : 0;
 				b = b > cutoff ? 255 : 0;
 
-				color = ((guint32)a << 24) | (r << 16) | (g << 8) | b;
-				GdipBitmapSetPixel(bmpdest, x, y, color);
+				color = ((guint32) a << 24) | (r << 16) | (g << 8) | b;
+				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}
 		}
 	}
@@ -297,7 +290,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 				BYTE r, g, b, a, C, M, Y, K;
 
-				GdipBitmapGetPixel(bmpdest, x, y, &color);
+				GdipBitmapGetPixel (bmpdest, x, y, &color);
 
 				a = (color & 0xff000000) >> 24;
 				r = (color & 0x00ff0000) >> 16;
@@ -307,8 +300,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				C = 255 - r;
 				M = 255 - g;
 				Y = 255 - b;
-				K = min(min(C, M), Y);
-				
+				K = min (min (C, M), Y);
+
 				/* correct complementary color lever based on k */
 				C -= K;
 				M -= K;
@@ -331,8 +324,8 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					return InvalidParameter;
 				}
 
-				color = ((guint32)a << 24) | (r << 16) | (g << 8) | b;
-				GdipBitmapSetPixel(bmpdest, x, y, color);
+				color = ((guint32) a << 24) | (r << 16) | (g << 8) | b;
+				GdipBitmapSetPixel (bmpdest, x, y, color);
 			}
 		}
 	}
@@ -348,7 +341,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				color &= ~ALPHA_MASK;
-				
+
 				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
 					GdipBitmapSetPixel (bmpdest, x, y, 0x00FFFFFF /* transparent white */);
 				}
@@ -359,17 +352,17 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 	/* Apply Color Matrix */
 	if (!(cmatrix->flags & ImageAttributeFlagsNoOp) && cmatrix->flags & ImageAttributeFlagsColorMatrixEnabled && cmatrix->colormatrix) {
 		ActiveBitmapData *data = bmpdest->active_bitmap;
-		BYTE *v = ((BYTE*)data->scan0);
+		BYTE *v		       = ((BYTE *) data->scan0);
 		ARGB *scan;
 		ColorMatrixFlags flags = cmatrix->colormatrix_flags;
 		ColorMatrix *cm;
 		BOOL bmpdest_is_premultiplied = !gdip_bitmap_format_needs_premultiplication (bmpdest);
 
 		for (int y = 0; y < data->height; y++) {
-			scan = (ARGB*) v;
+			scan = (ARGB *) v;
 			for (int x = 0; x < data->width; x++) {
-				BYTE r,g,b,a;
-				int r_new,g_new,b_new,a_new;
+				BYTE r, g, b, a;
+				int r_new, g_new, b_new, a_new;
 
 				get_pixel_bgra (*scan, b, g, r, a);
 
@@ -410,9 +403,9 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 					if (bmpdest_is_premultiplied && a != (BYTE) a_new && a_new < 0xff) {
 						/* apply new pre-multiplication */
 						a = (BYTE) a_new;
-						r = pre_multiplied_table [r][a];
-						g = pre_multiplied_table [g][a];
-						b = pre_multiplied_table [b][a];
+						r = pre_multiplied_table[r][a];
+						g = pre_multiplied_table[g][a];
+						b = pre_multiplied_table[b][a];
 					} else {
 						a = (BYTE) a_new;
 					}
@@ -456,7 +449,7 @@ GdipCreateImageAttributes (GpImageAttributes **imageattr)
 	gdip_init_image_attribute (&result->brush);
 	gdip_init_image_attribute (&result->pen);
 	gdip_init_image_attribute (&result->text);
-	result->color = 0x00000000;
+	result->color    = 0x00000000;
 	result->wrapmode = WrapModeClamp;
 
 	*imageattr = result;
@@ -481,44 +474,43 @@ GdipCloneImageAttributes (GDIPCONST GpImageAttributes *imageattr, GpImageAttribu
 	memcpy (result, imageattr, sizeof (GpImageAttributes));
 
 	GpStatus ret = Ok;
-	ret = gdip_clone_image_attribute(&imageattr->def, &result->def);
+	ret	  = gdip_clone_image_attribute (&imageattr->def, &result->def);
 
 	if (ret) {
-		GdipDisposeImageAttributes(result);
+		GdipDisposeImageAttributes (result);
 		return ret;
 	}
 
-	ret = gdip_clone_image_attribute(&imageattr->bitmap, &result->bitmap);
+	ret = gdip_clone_image_attribute (&imageattr->bitmap, &result->bitmap);
 
 	if (ret) {
-		GdipDisposeImageAttributes(result);
+		GdipDisposeImageAttributes (result);
 		return ret;
 	}
 
-	ret = gdip_clone_image_attribute(&imageattr->brush, &result->brush);
+	ret = gdip_clone_image_attribute (&imageattr->brush, &result->brush);
 
 	if (ret) {
-		GdipDisposeImageAttributes(result);
+		GdipDisposeImageAttributes (result);
 		return ret;
 	}
 
-	ret = gdip_clone_image_attribute(&imageattr->pen, &result->pen);
+	ret = gdip_clone_image_attribute (&imageattr->pen, &result->pen);
 
 	if (ret) {
-		GdipDisposeImageAttributes(result);
+		GdipDisposeImageAttributes (result);
 		return ret;
 	}
 
-	ret = gdip_clone_image_attribute(&imageattr->text, &result->text);
+	ret = gdip_clone_image_attribute (&imageattr->text, &result->text);
 
 	if (ret) {
-		GdipDisposeImageAttributes(result);
+		GdipDisposeImageAttributes (result);
 		return ret;
 	}
 
 	*cloneImageattr = result;
 	return Ok;
-
 }
 
 GpStatus WINGDIPAPI
@@ -574,7 +566,7 @@ GdipResetImageAttributes (GpImageAttributes *imageattr, ColorAdjustType type)
 }
 
 GpStatus WINGDIPAPI
-GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold)
+GdipSetImageAttributesThreshold (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL threshold)
 {
 	GpImageAttribute *imgattr;
 
@@ -589,13 +581,11 @@ GdipSetImageAttributesThreshold ( GpImageAttributes *imageattr, ColorAdjustType 
 	if (enableFlag) {
 		imgattr->threshold = threshold;
 		imgattr->flags |= ImageAttributeFlagsThresholdEnabled;
-	}
-	else
+	} else
 		imgattr->flags &= ~ImageAttributeFlagsThresholdEnabled;
 
 	return Ok;
 }
-
 
 GpStatus WINGDIPAPI
 GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, REAL gamma)
@@ -616,8 +606,7 @@ GdipSetImageAttributesGamma (GpImageAttributes *imageattr, ColorAdjustType type,
 
 		imgattr->gamma_correction = gamma;
 		imgattr->flags |= ImageAttributeFlagsGammaEnabled;
-	}
-	else
+	} else
 		imgattr->flags &= ~ImageAttributeFlagsGammaEnabled;
 
 	return Ok;
@@ -644,7 +633,6 @@ GdipSetImageAttributesNoOp (GpImageAttributes *imageattr, ColorAdjustType type, 
 	return Ok;
 }
 
-
 GpStatus WINGDIPAPI
 GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, ARGB colorLow, ARGB colorHigh)
 {
@@ -670,11 +658,10 @@ GdipSetImageAttributesColorKeys (GpImageAttributes *imageattr, ColorAdjustType t
 		if (rLow > rHigh || gLow > gHigh || bLow > bHigh)
 			return InvalidParameter;
 
-		imgattr->key_colorlow = colorLow;
+		imgattr->key_colorlow  = colorLow;
 		imgattr->key_colorhigh = colorHigh;
 		imgattr->flags |= ImageAttributeFlagsColorKeysEnabled;
-	}
-	else
+	} else
 		imgattr->flags &= ~ImageAttributeFlagsColorKeysEnabled;
 
 	return Ok;
@@ -714,13 +701,11 @@ GdipSetImageAttributesOutputChannelColorProfile (GpImageAttributes *imageattr, C
 
 		imgattr->colorprofile_filename = utf8;
 		imgattr->flags |= ImageAttributeFlagsOutputChannelColorProfileEnabled;
-	}
-	else
+	} else
 		imgattr->flags &= ~ImageAttributeFlagsOutputChannelColorProfileEnabled;
 
 	return Ok;
 }
-
 
 GpStatus WINGDIPAPI
 GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag, UINT mapSize, GDIPCONST ColorMap *map)
@@ -740,7 +725,7 @@ GdipSetImageAttributesRemapTable (GpImageAttributes *imageattr, ColorAdjustType 
 			return InvalidParameter;
 
 		/* Copy colormap table */
-		int size = mapSize * sizeof (ColorMap);
+		int size	      = mapSize * sizeof (ColorMap);
 		ColorMap *newColorMap = GdipAlloc (size);
 		if (!newColorMap)
 			return OutOfMemory;
@@ -769,7 +754,7 @@ GdipSetImageAttributesWrapMode (GpImageAttributes *imageattr, WrapMode wrap, ARG
 		return InvalidParameter;
 
 	imageattr->wrapmode = wrap;
-	imageattr->color = argb;
+	imageattr->color    = argb;
 	return Ok;
 }
 
@@ -797,7 +782,7 @@ GdipGetImageAttributesAdjustedPalette (GpImageAttributes *imageattr, ColorPalett
 
 GpStatus WINGDIPAPI
 GdipSetImageAttributesColorMatrix (GpImageAttributes *imageattr, ColorAdjustType type, BOOL enableFlag,
-	GDIPCONST ColorMatrix* colorMatrix, GDIPCONST ColorMatrix* grayMatrix, ColorMatrixFlags flags)
+				   GDIPCONST ColorMatrix *colorMatrix, GDIPCONST ColorMatrix *grayMatrix, ColorMatrixFlags flags)
 {
 	GpImageAttribute *imgattr;
 

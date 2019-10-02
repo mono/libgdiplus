@@ -38,14 +38,14 @@
 #include "gdiplus-private.h"
 
 typedef enum {
-	ImageAttributeFlagsNoOp = 0x01,
-	ImageAttributeFlagsColorMatrixEnabled = 0x02,
-	ImageAttributeFlagsThresholdEnabled = 0x04,
-	ImageAttributeFlagsGammaEnabled = 0x08,
-	ImageAttributeFlagsColorKeysEnabled = 0x10,
-	ImageAttributeFlagsColorRemapTableEnabled = 0x20,
-	ImageAttributeFlagsOutputChannelEnabled = 0x40,
-	ImageAttributeFlagsGrayMatrixEnabled = 0x80,
+	ImageAttributeFlagsNoOp				    = 0x01,
+	ImageAttributeFlagsColorMatrixEnabled		    = 0x02,
+	ImageAttributeFlagsThresholdEnabled		    = 0x04,
+	ImageAttributeFlagsGammaEnabled			    = 0x08,
+	ImageAttributeFlagsColorKeysEnabled		    = 0x10,
+	ImageAttributeFlagsColorRemapTableEnabled	   = 0x20,
+	ImageAttributeFlagsOutputChannelEnabled		    = 0x40,
+	ImageAttributeFlagsGrayMatrixEnabled		    = 0x80,
 	ImageAttributeFlagsOutputChannelColorProfileEnabled = 0x100
 } ImageAttributeFlags;
 
@@ -59,9 +59,9 @@ typedef struct {
 	ColorMatrix *colormatrix;
 	ColorMatrix *graymatrix;
 	ColorMatrixFlags colormatrix_flags;
-	float threshold; // Not implemented.
+	float threshold;		       // Not implemented.
 	ColorChannelFlags outputchannel_flags; // Not implemented.
-	char *colorprofile_filename; // Not implemented.
+	char *colorprofile_filename;	   // Not implemented.
 } GpImageAttribute;
 
 typedef struct _ImageAttributes {

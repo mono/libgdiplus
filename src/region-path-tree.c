@@ -29,7 +29,7 @@
  *
  * Recursively clear (delete path and free memory) the specified path tree.
  */
-void 
+void
 gdip_region_clear_tree (GpPathTree *tree)
 {
 	if (!tree)
@@ -45,7 +45,6 @@ gdip_region_clear_tree (GpPathTree *tree)
 		GdipFree (tree->branch2);
 	}
 }
-
 
 /*
  * gdip_region_copy_tree:
@@ -72,8 +71,8 @@ gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest)
 		dest->branch1 = NULL;
 		dest->branch2 = NULL;
 	} else {
-		dest->path = NULL;
-		dest->mode = source->mode;
+		dest->path    = NULL;
+		dest->mode    = source->mode;
 		dest->branch1 = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 		if (!dest->branch1)
 			return OutOfMemory;
@@ -94,7 +93,6 @@ gdip_region_copy_tree (GpPathTree *source, GpPathTree *dest)
 	return Ok;
 }
 
-
 /*
  * gdip_region_get_tree_size:
  * @tree: a GpPathTree
@@ -108,9 +106,9 @@ gdip_region_get_tree_size (GpPathTree *tree)
 
 	if (tree->path) {
 		/* tag, count, fillmode, types and points */
-		result = 3 * sizeof (UINT) + 
-			(tree->path->count * sizeof (BYTE)) +
-			(tree->path->count * sizeof (GpPointF));
+		result = 3 * sizeof (UINT) +
+			 (tree->path->count * sizeof (BYTE)) +
+			 (tree->path->count * sizeof (GpPointF));
 	} else {
 		/* tag, operation, size (branch1), branch1, size (branch2), branch2 */
 		result = 4 * sizeof (guint32);
@@ -119,7 +117,6 @@ gdip_region_get_tree_size (GpPathTree *tree)
 	}
 	return result;
 }
-
 
 /*
  * gdip_region_deserialize_tree:
@@ -147,7 +144,7 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		guint32 count;
 		FillMode mode;
 
-		tree->mode = CombineModeReplace;
+		tree->mode    = CombineModeReplace;
 		tree->branch1 = NULL;
 		tree->branch2 = NULL;
 		/* count */
@@ -161,13 +158,12 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		/* check that the size match the length of the type (byte) and 
 		   GpPointF for the specified count */
 		if (size == count + count * sizeof (GpPointF)) {
-			BYTE* types = data;
-			GpPointF *points = (GpPointF*) (data + count);
+			BYTE *types      = data;
+			GpPointF *points = (GpPointF *) (data + count);
 			return (GdipCreatePath2 (points, types, count, mode, &tree->path) == Ok);
 		}
 		return FALSE;
-		}
-		break;
+	} break;
 	case REGION_TAG_TREE: {
 		guint branch_size;
 		tree->path = NULL;
@@ -180,7 +176,7 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		data += len;
 		size -= len;
 		/* deserialize a tree from the memory blob */
-		tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		tree->branch1 = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 		if (!tree->branch1)
 			return FALSE;
 
@@ -192,21 +188,19 @@ gdip_region_deserialize_tree (BYTE *data, int size, GpPathTree *tree)
 		memcpy (&branch_size, data, len);
 		data += len;
 		size -= len;
-		tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		tree->branch2 = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 		if (!tree->branch2)
 			return FALSE;
 
 		if (!gdip_region_deserialize_tree (data, branch_size, tree->branch2))
 			return FALSE;
-		}
-		break;
+	} break;
 	default:
 		g_warning ("Invalid tag %d", tag);
 		return FALSE;
 	}
 	return TRUE;
 }
-
 
 /*
  * gdip_region_serialize_tree:
@@ -226,7 +220,7 @@ gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UIN
 	if (tree->path) {
 		/* tag */
 		guint32 temp = REGION_TAG_PATH;
-		int len = sizeof (guint32);
+		int len      = sizeof (guint32);
 		memcpy (buffer, &temp, len);
 		buffer += len;
 		*sizeFilled += len;
@@ -252,8 +246,8 @@ gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UIN
 	} else {
 		/* tag */
 		BYTE *original = buffer;
-		guint32 temp = REGION_TAG_TREE;
-		int len = sizeof (guint32);
+		guint32 temp   = REGION_TAG_TREE;
+		int len	= sizeof (guint32);
 		memcpy (buffer, &temp, len);
 		buffer += len;
 		*sizeFilled += len;
@@ -281,7 +275,6 @@ gdip_region_serialize_tree (GpPathTree *tree, BYTE *buffer, UINT bufferSize, UIN
 	return TRUE;
 }
 
-
 /*
  * gdip_region_transform_tree:
  * @tree: a GpPathTree
@@ -302,7 +295,6 @@ gdip_region_transform_tree (GpPathTree *tree, GpMatrix *matrix)
 		return status;
 	}
 }
-
 
 /*
  * gdip_region_translate_tree:

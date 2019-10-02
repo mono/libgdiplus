@@ -28,7 +28,7 @@
 #include "graphics-private.h"
 
 void
-gdip_brush_init (GpBrush *brush, BrushClass* vtable)
+gdip_brush_init (GpBrush *brush, BrushClass *vtable)
 {
 	brush->vtable = vtable;
 
@@ -52,7 +52,7 @@ gdip_brush_setup (GpGraphics *graphics, GpBrush *brush)
 	else {
 		GpStatus status = brush->vtable->setup (graphics, brush);
 		if (status == Ok) {
-			brush->changed = FALSE;
+			brush->changed       = FALSE;
 			graphics->last_brush = brush;
 		}
 

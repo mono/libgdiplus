@@ -36,23 +36,23 @@ static GpStatus gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpC
  * all instances of adjustable arrowcap.
  */
 
-static CapClass vtable = { CustomLineCapTypeAdjustableArrow,
-			   gdip_adjust_arrowcap_setup,
-			   gdip_adjust_arrowcap_clone_cap,
-			   gdip_adjust_arrowcap_destroy,
-			   gdip_adjust_arrowcap_draw };
+static CapClass vtable = {CustomLineCapTypeAdjustableArrow,
+			  gdip_adjust_arrowcap_setup,
+			  gdip_adjust_arrowcap_clone_cap,
+			  gdip_adjust_arrowcap_destroy,
+			  gdip_adjust_arrowcap_draw};
 
 static void
 gdip_adjust_arrowcap_init (GpAdjustableArrowCap *arrow)
 {
 	gdip_custom_linecap_init (&arrow->base, &vtable);
-	arrow->fill_state = TRUE;
+	arrow->fill_state   = TRUE;
 	arrow->middle_inset = 0.0;
-	arrow->width = 0.0;
-	arrow->height = 0.0;
+	arrow->width	= 0.0;
+	arrow->height       = 0.0;
 }
 
-static GpAdjustableArrowCap*
+static GpAdjustableArrowCap *
 gdip_adjust_arrowcap_new (void)
 {
 	GpAdjustableArrowCap *result = (GpAdjustableArrowCap *) GdipAlloc (sizeof (GpAdjustableArrowCap));
@@ -119,9 +119,9 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 		penwidth = 2.0;
 	}
 
-	arrowcap = (GpAdjustableArrowCap *)customCap;
-	w = arrowcap->width / 2;
-	h = arrowcap->height;
+	arrowcap = (GpAdjustableArrowCap *) customCap;
+	w	= arrowcap->width / 2;
+	h	= arrowcap->height;
 
 	angle = gdip_custom_linecap_angle (x, y, otherend_x, otherend_y);
 
@@ -132,8 +132,8 @@ gdip_adjust_arrowcap_draw (GpGraphics *graphics, GpPen *pen, GpCustomLineCap *cu
 	cairo_rotate (graphics->ct, angle);
 
 	gdip_cairo_move_to (graphics, 0, 0, TRUE, TRUE);
-	gdip_cairo_line_to (graphics, (double)-w * penwidth, (double)-h * penwidth, TRUE, TRUE);
-	gdip_cairo_line_to (graphics, (double)w * penwidth, (double)-h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, (double) -w * penwidth, (double) -h * penwidth, TRUE, TRUE);
+	gdip_cairo_line_to (graphics, (double) w * penwidth, (double) -h * penwidth, TRUE, TRUE);
 	gdip_cairo_line_to (graphics, 0, 0, TRUE, TRUE);
 
 	if (arrowcap->fill_state) {
@@ -181,8 +181,8 @@ GdipCreateAdjustableArrowCap (REAL height, REAL width, BOOL isFilled, GpAdjustab
 	}
 
 	result->fill_state = isFilled;
-	result->width = width;
-	result->height = height;
+	result->width      = width;
+	result->height     = height;
 	update_adjustablearrowcap (result);
 
 	*cap = result;

@@ -27,12 +27,11 @@
 #define __LINEAR_GRADIENT_H__
 
 typedef enum {
-	LinearGradientModeHorizontal		= 0,	/* angle = 0 deg    */
-	LinearGradientModeVertical		= 1,	/* angle = 90 deg   */
-	LinearGradientModeForwardDiagonal	= 2,	/* angle = 45 deg  */
-	LinearGradientModeBackwardDiagonal	= 3	/* angle = 135 deg */
+	LinearGradientModeHorizontal       = 0, /* angle = 0 deg    */
+	LinearGradientModeVertical	 = 1, /* angle = 90 deg   */
+	LinearGradientModeForwardDiagonal  = 2, /* angle = 45 deg  */
+	LinearGradientModeBackwardDiagonal = 3  /* angle = 135 deg */
 } LinearGradientMode;
-
 
 GpStatus WINGDIPAPI GdipCreateLineBrushI (GDIPCONST GpPoint *point1, GDIPCONST GpPoint *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient);
 GpStatus WINGDIPAPI GdipCreateLineBrush (GDIPCONST GpPointF *point1, GDIPCONST GpPointF *point2, ARGB color1, ARGB color2, GpWrapMode wrapMode, GpLineGradient **lineGradient);
@@ -51,7 +50,7 @@ GpStatus WINGDIPAPI GdipGetLinePresetBlend (GpLineGradient *brush, ARGB *blend, 
 GpStatus WINGDIPAPI GdipSetLineColors (GpLineGradient *brush, ARGB color1, ARGB color2);
 GpStatus WINGDIPAPI GdipGetLineColors (GpLineGradient *brush, ARGB *colors);
 GpStatus WINGDIPAPI GdipGetLineRectI (GpLineGradient *brush, GpRect *rect);
-GpStatus WINGDIPAPI GdipGetLineRect (GpLineGradient * brush, GpRectF *rect);
+GpStatus WINGDIPAPI GdipGetLineRect (GpLineGradient *brush, GpRectF *rect);
 GpStatus WINGDIPAPI GdipSetLineTransform (GpLineGradient *brush, GDIPCONST GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipGetLineTransform (GpLineGradient *brush, GpMatrix *matrix);
 GpStatus WINGDIPAPI GdipSetLineWrapMode (GpLineGradient *brush, GpWrapMode wrapMode);

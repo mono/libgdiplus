@@ -25,25 +25,29 @@
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
 
-void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
+void
+gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi)
+{
 	*h_dpi = *v_dpi = 96.0f;
 
 	if (getenv ("MONO_MWF_MAC_DETECT_DPI") != NULL) {
-		CGSize size = CGDisplayScreenSize(kCGDirectMainDisplay);
+		CGSize size = CGDisplayScreenSize (kCGDirectMainDisplay);
 
-		if (!CGSizeEqualToSize(size, CGSizeZero)) {
-			const float mmpi = 25.4;
+		if (!CGSizeEqualToSize (size, CGSizeZero)) {
+			const float mmpi  = 25.4;
 			float h_size_inch = size.width / mmpi;
 			float v_size_inch = size.height / mmpi;
-			*h_dpi = CGDisplayPixelsWide (kCGDirectMainDisplay) / h_size_inch;
-			*v_dpi = CGDisplayPixelsHigh (kCGDirectMainDisplay) / v_size_inch;
+			*h_dpi		  = CGDisplayPixelsWide (kCGDirectMainDisplay) / h_size_inch;
+			*v_dpi		  = CGDisplayPixelsHigh (kCGDirectMainDisplay) / v_size_inch;
 		}
 	}
 }
 #else
 #include <glib.h>
 
-void gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi) {
+void
+gdip_get_display_dpi_carbon (float *h_dpi, float *v_dpi)
+{
 	g_assert_not_reached ();
 }
 #endif

@@ -39,7 +39,7 @@ display32 (BYTE *shape, int width, int height)
 
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
-			printf ("%s", (shape [(i*width + j) * 4] == 0) ? "." : "X");
+			printf ("%s", (shape[(i * width + j) * 4] == 0) ? "." : "X");
 		}
 		printf ("\n");
 	}
@@ -47,7 +47,7 @@ display32 (BYTE *shape, int width, int height)
 }
 
 void
-display (char* message, GpRegionBitmap *bitmap)
+display (char *message, GpRegionBitmap *bitmap)
 {
 	int i = 0, j = 0, k;
 
@@ -56,8 +56,8 @@ display (char* message, GpRegionBitmap *bitmap)
 	if (!bitmap->Mask)
 		return;
 
-	while (i < SHAPE_SIZE(bitmap)) {
-		BYTE b = bitmap->Mask [i++];
+	while (i < SHAPE_SIZE (bitmap)) {
+		BYTE b = bitmap->Mask[i++];
 		for (k = 0; k < 8; k++) {
 			if (j++ == bitmap->Width) {
 				j = 1;
@@ -71,9 +71,7 @@ display (char* message, GpRegionBitmap *bitmap)
 
 #endif
 
-
 /* Helpers */
-
 
 /*
  * rect_union:
@@ -92,12 +90,11 @@ rect_union (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, GpRect *rect)
 	int max_y_1 = bitmap1->Y + bitmap1->Height;
 	int max_y_2 = bitmap2->Y + bitmap2->Height;
 
-	rect->X = (bitmap1->X < bitmap2->X) ? bitmap1->X : bitmap2->X;
-	rect->Y = (bitmap1->Y < bitmap2->Y) ? bitmap1->Y : bitmap2->Y;
-	rect->Width = ((max_x_1 > max_x_2) ? max_x_1 : max_x_2) - rect->X;
+	rect->X      = (bitmap1->X < bitmap2->X) ? bitmap1->X : bitmap2->X;
+	rect->Y      = (bitmap1->Y < bitmap2->Y) ? bitmap1->Y : bitmap2->Y;
+	rect->Width  = ((max_x_1 > max_x_2) ? max_x_1 : max_x_2) - rect->X;
 	rect->Height = ((max_y_1 > max_y_2) ? max_y_1 : max_y_2) - rect->Y;
 }
-
 
 /*
  * rect_intersect:
@@ -111,14 +108,11 @@ rect_union (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, GpRect *rect)
 static void
 rect_intersect (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, GpRect *rect)
 {
-	rect->X = (bitmap1->X > bitmap2->X) ? bitmap1->X : bitmap2->X;
-	rect->Y = (bitmap1->Y > bitmap2->Y) ? bitmap1->Y : bitmap2->Y;
-	rect->Width = (((bitmap1->X + bitmap1->Width) < (bitmap2->X + bitmap2->Width)) ? 
-		(bitmap1->X + bitmap1->Width) : (bitmap2->X + bitmap2->Width)) - rect->X;
-	rect->Height = (((bitmap1->Y + bitmap1->Height) < (bitmap2->Y + bitmap2->Height)) ? 
-		(bitmap1->Y + bitmap1->Height) : (bitmap2->Y + bitmap2->Height)) - rect->Y;
+	rect->X      = (bitmap1->X > bitmap2->X) ? bitmap1->X : bitmap2->X;
+	rect->Y      = (bitmap1->Y > bitmap2->Y) ? bitmap1->Y : bitmap2->Y;
+	rect->Width  = (((bitmap1->X + bitmap1->Width) < (bitmap2->X + bitmap2->Width)) ? (bitmap1->X + bitmap1->Width) : (bitmap2->X + bitmap2->Width)) - rect->X;
+	rect->Height = (((bitmap1->Y + bitmap1->Height) < (bitmap2->Y + bitmap2->Height)) ? (bitmap1->Y + bitmap1->Height) : (bitmap2->Y + bitmap2->Height)) - rect->Y;
 }
-
 
 /*
  * rect_adjust_horizontal:
@@ -148,7 +142,6 @@ rect_adjust_horizontal (int *x, int *width)
 	}
 }
 
-
 /*
  * alloc_bitmap_memory:
  * @size: the size of the required allocation
@@ -160,18 +153,18 @@ rect_adjust_horizontal (int *x, int *width)
  * requested (very large region) or if the memory couldn't be allocated (low
  * memory).
  */
-static BYTE*
+static BYTE *
 alloc_bitmap_memory (int size, BOOL clear)
 {
 	BYTE *buffer;
 
 	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE)) {
-		g_warning ("Requested %d bytes. Maximum size for region is %d bytes.", 
-			size, REGION_MAX_BITMAP_SIZE);
+		g_warning ("Requested %d bytes. Maximum size for region is %d bytes.",
+			   size, REGION_MAX_BITMAP_SIZE);
 		return NULL;
 	}
 
-	buffer = (BYTE*) GdipAlloc (size);
+	buffer = (BYTE *) GdipAlloc (size);
 	if (!buffer)
 		return NULL;
 
@@ -180,7 +173,6 @@ alloc_bitmap_memory (int size, BOOL clear)
 
 	return buffer;
 }
-
 
 /*
  * alloc_bitmap_with_buffer:
@@ -198,24 +190,23 @@ alloc_bitmap_memory (int size, BOOL clear)
  * - The bitmap @x and @width MUST BE multiple of 8.
  * - The supplied @buffer MUST match the supplied width and height parameters.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 alloc_bitmap_with_buffer (int x, int y, int width, int height, BYTE *buffer)
 {
-	GpRegionBitmap *result = (GpRegionBitmap*) GdipAlloc (sizeof (GpRegionBitmap));
+	GpRegionBitmap *result = (GpRegionBitmap *) GdipAlloc (sizeof (GpRegionBitmap));
 	if (!result) {
 		return NULL;
 	}
 
-	result->X = x;
-	result->Y = y;
-	result->Width = width;
-	result->Height = height;
-	result->Mask = buffer;
+	result->X       = x;
+	result->Y       = y;
+	result->Width   = width;
+	result->Height  = height;
+	result->Mask    = buffer;
 	result->reduced = FALSE; /* bitmap size isn't optimal wrt contents */
 
 	return result;
 }
-
 
 /*
  * alloc_bitmap:
@@ -230,7 +221,7 @@ alloc_bitmap_with_buffer (int x, int y, int width, int height, BYTE *buffer)
  * - The allocated structure must be freed using gdip_region_bitmap_free.
  * - The bitmap @x and @width will be adjusted to a multiple of 8.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 alloc_bitmap (int x, int y, int width, int height)
 {
 	BYTE *buffer;
@@ -239,12 +230,11 @@ alloc_bitmap (int x, int y, int width, int height)
 	/* ensure X and Width are multiple of 8 */
 	rect_adjust_horizontal (&x, &width);
 
-	size = (width * height >> 3); /* 1 bit per pixel */
+	size   = (width * height >> 3); /* 1 bit per pixel */
 	buffer = alloc_bitmap_memory (size, TRUE);
 
 	return alloc_bitmap_with_buffer (x, y, width, height, buffer);
 }
-
 
 /*
  * alloc_merged_bitmap:
@@ -257,7 +247,7 @@ alloc_bitmap (int x, int y, int width, int height)
  * Notes:
  * - The allocated structure must be freed using gdip_region_bitmap_free.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 alloc_merged_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
 {
 	GpRect rect;
@@ -265,7 +255,6 @@ alloc_merged_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
 	rect_union (bitmap1, bitmap2, &rect);
 	return alloc_bitmap (rect.X, rect.Y, rect.Width, rect.Height);
 }
-
 
 /*
  * alloc_intersected_bitmap:
@@ -279,7 +268,7 @@ alloc_merged_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
  * - The allocated structure must be freed using gdip_region_bitmap_free.
  * - The bitmap width will be adjusted to a multiple of 8.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 alloc_intersected_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
 {
 	GpRect rect;
@@ -287,7 +276,6 @@ alloc_intersected_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
 	rect_intersect (bitmap1, bitmap2, &rect);
 	return alloc_bitmap (rect.X, rect.Y, rect.Width, rect.Height);
 }
-
 
 /*
  * gdip_region_bitmap_clone:
@@ -297,7 +285,7 @@ alloc_intersected_bitmap (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2)
  *
  * Note: the allocated structure must be freed using gdip_region_bitmap_free.
  */
-GpRegionBitmap*
+GpRegionBitmap *
 gdip_region_bitmap_clone (GpRegionBitmap *bitmap)
 {
 	BYTE *buffer;
@@ -313,7 +301,6 @@ gdip_region_bitmap_clone (GpRegionBitmap *bitmap)
 	return alloc_bitmap_with_buffer (bitmap->X, bitmap->Y, bitmap->Width, bitmap->Height, buffer);
 }
 
-
 /*
  * empty_bitmap:
  * @bitmap: a GpRegionBitmap
@@ -324,9 +311,9 @@ gdip_region_bitmap_clone (GpRegionBitmap *bitmap)
 static void
 empty_bitmap (GpRegionBitmap *bitmap)
 {
-	bitmap->X = 0;
-	bitmap->Y = 0;
-	bitmap->Width = 0;
+	bitmap->X      = 0;
+	bitmap->Y      = 0;
+	bitmap->Width  = 0;
 	bitmap->Height = 0;
 
 	if (bitmap->Mask) {
@@ -334,7 +321,6 @@ empty_bitmap (GpRegionBitmap *bitmap)
 		bitmap->Mask = NULL;
 	}
 }
-
 
 /*
  * gdip_region_bitmap_free:
@@ -349,7 +335,6 @@ gdip_region_bitmap_free (GpRegionBitmap *bitmap)
 	GdipFree (bitmap);
 }
 
-
 /*
  * gdip_region_bitmap_from_tree:
  * @tree: a GpPathTree
@@ -359,7 +344,7 @@ gdip_region_bitmap_free (GpRegionBitmap *bitmap)
  *
  * Note: the allocated structure must be freed using gdip_region_bitmap_free.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_from_tree (GpPathTree *tree)
 {
 	GpRegionBitmap *result;
@@ -386,7 +371,6 @@ gdip_region_bitmap_from_tree (GpPathTree *tree)
 	return result;
 }
 
-
 /*
  * gdip_region_bitmap_ensure:
  * @region: a GpRegion
@@ -404,7 +388,6 @@ gdip_region_bitmap_ensure (GpRegion *region)
 	/* redraw the bitmap from the original path + all other operations/paths */
 	region->bitmap = gdip_region_bitmap_from_tree (region->tree);
 }
-
 
 /*
  * gdip_region_bitmap_invalidate:
@@ -447,7 +430,7 @@ gdip_region_bitmap_to_cairo_surface (GpRegionBitmap *bitmap)
  *
  * Note: the allocated structure must be freed using gdip_region_bitmap_free.
  */
-GpRegionBitmap*
+GpRegionBitmap *
 gdip_region_bitmap_from_path (GpPath *path)
 {
 	GpRect bounds;
@@ -456,7 +439,7 @@ gdip_region_bitmap_from_path (GpPath *path)
 	int length = path->count;
 	unsigned long long int size;
 	cairo_surface_t *surface = NULL;
-	cairo_t *cr = NULL;
+	cairo_t *cr		 = NULL;
 
 	/* empty path == empty bitmap */
 	if (length == 0)
@@ -474,10 +457,10 @@ gdip_region_bitmap_from_path (GpPath *path)
 		return alloc_bitmap_with_buffer (bounds.X, bounds.Y, bounds.Width, bounds.Height, NULL);
 
 	/* replay the path list and the operations to reconstruct the bitmap */
-	size = (unsigned long long int)(bounds.Width >> 3) * bounds.Height;
+	size = (unsigned long long int) (bounds.Width >> 3) * bounds.Height;
 	if ((size < 1) || (size > REGION_MAX_BITMAP_SIZE)) {
 		g_warning ("Path conversion requested %llu bytes (%d x %d). Maximum size is %d bytes.",
-			size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE);
+			   size, bounds.Width, bounds.Height, REGION_MAX_BITMAP_SIZE);
 		return NULL;
 	}
 
@@ -486,13 +469,13 @@ gdip_region_bitmap_from_path (GpPath *path)
 		return NULL;
 
 	surface = gdip_region_bitmap_to_cairo_surface (bitmap);
-	cr = cairo_create (surface);
+	cr      = cairo_create (surface);
 
 	idx = 0;
 	for (i = 0; i < length; ++i) {
 		GpPointF pt = path->points[i];
-		BYTE type = path->types[i];
-		GpPointF pts [3];
+		BYTE type   = path->types[i];
+		GpPointF pts[3];
 		/* mask the bits so that we get only the type value not the other flags */
 		switch (type & PathPointTypePathTypeMask) {
 		case PathPointTypeStart:
@@ -504,14 +487,14 @@ gdip_region_bitmap_from_path (GpPath *path)
 		case PathPointTypeBezier:
 			/* make sure we only add at most 3 points to pts */
 			if (idx < 3) {
-				pts [idx] = pt;
-				idx ++;
+				pts[idx] = pt;
+				idx++;
 			}
 			/* once we've added 3 pts, we can draw the curve */
 			if (idx == 3) {
-				cairo_curve_to (cr, pts [0].X - bounds.X, pts [0].Y - bounds.Y, 
-					pts [1].X - bounds.X, pts [1].Y - bounds.Y, 
-					pts [2].X - bounds.X, pts [2].Y - bounds.Y);
+				cairo_curve_to (cr, pts[0].X - bounds.X, pts[0].Y - bounds.Y,
+						pts[1].X - bounds.X, pts[1].Y - bounds.Y,
+						pts[2].X - bounds.X, pts[2].Y - bounds.Y);
 				idx = 0;
 			}
 			break;
@@ -532,7 +515,6 @@ gdip_region_bitmap_from_path (GpPath *path)
 	return bitmap;
 }
 
-
 /*
  * gdip_region_bitmap_get_smallest_rect:
  * @bitmap: a GpRegionBitmap
@@ -543,19 +525,19 @@ gdip_region_bitmap_from_path (GpPath *path)
 void
 gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 {
-	int first_y = bitmap->Height + 1;	/* empty (top) lines */
-	int last_y = -1;			/* empty (bottom) lines */
-	int first_x = bitmap->Width + 1;	/* empty (left) columns */
-	int last_x = -1;			/* empty (right) columns */
-	int i = 0;
-	int original_size = SHAPE_SIZE(bitmap);
+	int first_y       = bitmap->Height + 1; /* empty (top) lines */
+	int last_y	= -1;			/* empty (bottom) lines */
+	int first_x       = bitmap->Width + 1;  /* empty (left) columns */
+	int last_x	= -1;			/* empty (right) columns */
+	int i		  = 0;
+	int original_size = SHAPE_SIZE (bitmap);
 	int x = 0, y = 0;
 	int k;
 
 	while (i < original_size) {
-		if (bitmap->Mask [i] != 0) {
+		if (bitmap->Mask[i] != 0) {
 			for (k = 0; k < 8; k++) {
-				if ((bitmap->Mask [i] & (1 << k)) != 0) {
+				if ((bitmap->Mask[i] & (1 << k)) != 0) {
 					if (x < first_x)
 						first_x = x;
 					if (x > last_x)
@@ -563,14 +545,14 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 					if (y < first_y)
 						first_y = y;
 					if (y > last_y)
-						last_y = y;				
+						last_y = y;
 				}
 				x++;
 			}
 		} else {
 			x += 8;
 		}
-		i++;		
+		i++;
 		if (x == bitmap->Width) {
 			x = 0;
 			y++;
@@ -582,13 +564,12 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 		rect->X = rect->Y = rect->Width = rect->Height = 0;
 	} else {
 		// convert to pixel values
-		rect->X = bitmap->X + first_x;
-		rect->Y = bitmap->Y + first_y;
-		rect->Width = last_x - first_x + 1;
+		rect->X      = bitmap->X + first_x;
+		rect->Y      = bitmap->Y + first_y;
+		rect->Width  = last_x - first_x + 1;
 		rect->Height = last_y - first_y + 1;
 	}
 }
-
 
 /*
  * is_worth_shrinking:
@@ -607,7 +588,6 @@ is_worth_shrinking (int original_size, int new_size)
 	/* FIXME - we can do better than checking if we "save" 4kb */
 	return ((original_size - new_size) > 4096);
 }
-
 
 /*
  * gdip_region_bitmap_shrink:
@@ -648,8 +628,8 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 	/* ensure X and Width are multiple of 8 */
 	rect_adjust_horizontal (&rect.X, &rect.Width);
 
-	original_size = SHAPE_SIZE(bitmap);
-	new_size = (rect.Height * rect.Width) >> 3; /* bits->bytes */
+	original_size  = SHAPE_SIZE (bitmap);
+	new_size       = (rect.Height * rect.Width) >> 3; /* bits->bytes */
 	can_be_reduced = (new_size < original_size);
 
 	/* shrink if:
@@ -664,13 +644,13 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 
 		int old_width_byte, new_width_byte;
 
-		BYTE* newline = NULL;
-		BYTE* oldline = NULL;
+		BYTE *newline = NULL;
+		BYTE *oldline = NULL;
 
 		if (!new_mask)
 			return;
 
-		new_width = rect.Width;
+		new_width  = rect.Width;
 		new_height = rect.Height;
 
 		old_width_byte = bitmap->Width >> 3;
@@ -686,16 +666,15 @@ gdip_region_bitmap_shrink (GpRegionBitmap *bitmap, BOOL always_shrink)
 		}
 
 		/* replace current data */
-		bitmap->X = rect.X;
-		bitmap->Y = rect.Y;
-		bitmap->Width = rect.Width;
+		bitmap->X      = rect.X;
+		bitmap->Y      = rect.Y;
+		bitmap->Width  = rect.Width;
 		bitmap->Height = rect.Height;
 		GdipFree (bitmap->Mask);
-		bitmap->Mask = new_mask;
+		bitmap->Mask    = new_mask;
 		bitmap->reduced = TRUE;
 	}
 }
-
 
 /*
  * is_point_visible:
@@ -717,12 +696,11 @@ is_point_visible (GpRegionBitmap *bitmap, int x, int y)
 	y -= bitmap->Y;
 
 	pixel = (y * bitmap->Width + x);
-	pos = (pixel >> 3);
-	mask = (pixel & 7);
+	pos   = (pixel >> 3);
+	mask  = (pixel & 7);
 
-	return ((bitmap->Mask [pos] & (1 << mask)) != 0);
+	return ((bitmap->Mask[pos] & (1 << mask)) != 0);
 }
-
 
 /*
  * gdip_region_bitmap_is_point_visible:
@@ -749,7 +727,6 @@ gdip_region_bitmap_is_point_visible (GpRegionBitmap *bitmap, int x, int y)
 
 	return is_point_visible (bitmap, x, y);
 }
-
 
 /*
  * gdip_region_bitmap_is_point_visible:
@@ -788,7 +765,6 @@ gdip_region_bitmap_is_rect_visible (GpRegionBitmap *bitmap, GpRect *rect)
 	return FALSE;
 }
 
-
 /*
  * get_buffer_pos:
  * @shape: a GpRegionBitmap
@@ -812,7 +788,6 @@ get_buffer_pos (GpRegionBitmap *shape, int x, int y)
 	return ((y * shape->Width + x) >> 3);
 }
 
-
 /*
  * get_byte:
  * @shape: a GpRegionBitmap
@@ -827,9 +802,8 @@ get_byte (GpRegionBitmap *shape, int x, int y)
 {
 	/* out of bounds == empty (no pixel) */
 	int pos = get_buffer_pos (shape, x, y);
-	return (pos == -1) ? 0 : shape->Mask [pos];
+	return (pos == -1) ? 0 : shape->Mask[pos];
 }
-
 
 /*
  * Process a single line for gdip_region_bitmap_get_scans.
@@ -838,8 +812,8 @@ static BOOL
 process_line (GpRegionBitmap *bitmap, int y, int *x, int *w)
 {
 	int pos = *x;
-	*x = -1;
-	*w = -1;
+	*x      = -1;
+	*w      = -1;
 
 	while (pos < bitmap->X + bitmap->Width) {
 		BOOL visible = gdip_region_bitmap_is_point_visible (bitmap, pos, y);
@@ -865,7 +839,6 @@ process_line (GpRegionBitmap *bitmap, int y, int *x, int *w)
 	return FALSE;
 }
 
-
 /*
  * gdip_region_bitmap_get_scans:
  * @bitmap: a GpRegionBitmap
@@ -883,8 +856,8 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect)
 	GpRect actual;
 	int x, y, w;
 	int n = 0;
-	
-	actual.X = REGION_INFINITE_POSITION;
+
+	actual.X     = REGION_INFINITE_POSITION;
 	actual.Width = REGION_INFINITE_LENGTH;
 	/* for each line in the bitmap */
 	for (y = bitmap->Y; y < bitmap->Y + bitmap->Height; y++) {
@@ -901,19 +874,19 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect)
 			if ((x == actual.X) && (w == actual.Width)) {
 				/* then augment it's Height by one */
 				if (rect && (n > 0)) {
-					rect [n - 1].Height++;
+					rect[n - 1].Height++;
 				}
 			} else {
-				actual.X = x;
-				actual.Y = y;
-				actual.Width = w;
+				actual.X      = x;
+				actual.Y      = y;
+				actual.Width  = w;
 				actual.Height = 1;
 
 				if (rect) {
-					rect [n].X = actual.X;
-					rect [n].Y = actual.Y;
-					rect [n].Width = actual.Width;
-					rect [n].Height = actual.Height;
+					rect[n].X      = actual.X;
+					rect[n].Y      = actual.Y;
+					rect[n].Width  = actual.Width;
+					rect[n].Height = actual.Height;
 				}
 				n++;
 			}
@@ -924,11 +897,9 @@ gdip_region_bitmap_get_scans (GpRegionBitmap *bitmap, GpRectF *rect)
 	return n;
 }
 
-
 /*
  * Binary operators helper functions
  */
-
 
 /* 
  * bitmap_intersect:
@@ -947,7 +918,6 @@ bitmap_intersect (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 		(shape1->Y < shape2->Y + shape2->Height) &&
 		(shape1->Y + shape1->Height > shape2->Y));
 }
-
 
 /* 
  * gdip_region_bitmap_compare:
@@ -979,7 +949,6 @@ gdip_region_bitmap_compare (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	return TRUE;
 }
 
-
 /*
  * Binary operators on bitmap regions
  *
@@ -987,7 +956,6 @@ gdip_region_bitmap_compare (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  * - All operations requires the bitmap x origin and it's width to be multiple
  *   of 8.
  */
-
 
 /*
  * gdip_region_bitmap_union:
@@ -997,7 +965,7 @@ gdip_region_bitmap_compare (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  * Return a new bitmap containing the union of the two specified region 
  * bitmaps.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_union (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 {
 	GpRegionBitmap *op = alloc_merged_bitmap (shape1, shape2);
@@ -1006,7 +974,7 @@ gdip_region_bitmap_union (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			op->Mask [p++] = get_byte (shape1, x, y) | get_byte (shape2, x, y);
+			op->Mask[p++] = get_byte (shape1, x, y) | get_byte (shape2, x, y);
 		}
 	}
 
@@ -1014,7 +982,6 @@ gdip_region_bitmap_union (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	   unless the original bitmap were oversized) */
 	return op;
 }
-
 
 /*
  * gdip_region_bitmap_intersection:
@@ -1024,7 +991,7 @@ gdip_region_bitmap_union (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  * Return a new bitmap containing the intersection of the two specified region
  * bitmaps.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_intersection (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 {
 	GpRegionBitmap *op;
@@ -1042,7 +1009,7 @@ gdip_region_bitmap_intersection (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			op->Mask [p++] = get_byte (shape1, x, y) & get_byte (shape2, x, y);
+			op->Mask[p++] = get_byte (shape1, x, y) & get_byte (shape2, x, y);
 		}
 	}
 
@@ -1051,7 +1018,6 @@ gdip_region_bitmap_intersection (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	return op;
 }
 
-
 /*
  * gdip_region_bitmap_exclude:
  * @shape1: a GpRegionBitmap
@@ -1059,7 +1025,7 @@ gdip_region_bitmap_intersection (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  *
  * Return a new bitmap containing the first shape minus the second shape.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_exclude (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 {
 	GpRegionBitmap *op;
@@ -1076,8 +1042,8 @@ gdip_region_bitmap_exclude (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			BYTE b1 = get_byte (shape1, x, y);
-			op->Mask [p++] = b1 - (b1 & get_byte (shape2, x, y));
+			BYTE b1       = get_byte (shape1, x, y);
+			op->Mask[p++] = b1 - (b1 & get_byte (shape2, x, y));
 		}
 	}
 
@@ -1086,7 +1052,6 @@ gdip_region_bitmap_exclude (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	return op;
 }
 
-
 /*
  * gdip_region_bitmap_complement:
  * @shape1: a GpRegionBitmap
@@ -1094,7 +1059,7 @@ gdip_region_bitmap_exclude (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  *
  * Return a new bitmap containing the second shape minus the first shape.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_complement (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 {
 	GpRegionBitmap *op;
@@ -1111,8 +1076,8 @@ gdip_region_bitmap_complement (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			BYTE b2 = get_byte (shape2, x, y);
-			op->Mask [p++] = b2 - (b2 & get_byte (shape1, x, y));
+			BYTE b2       = get_byte (shape2, x, y);
+			op->Mask[p++] = b2 - (b2 & get_byte (shape1, x, y));
 		}
 	}
 
@@ -1120,7 +1085,6 @@ gdip_region_bitmap_complement (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	gdip_region_bitmap_shrink (op, FALSE);
 	return op;
 }
-
 
 /*
  * gdip_region_bitmap_xor:
@@ -1130,7 +1094,7 @@ gdip_region_bitmap_complement (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  * Return a new bitmap containing the exclusive-or of the two specified region
  * bitmaps.
  */
-static GpRegionBitmap*
+static GpRegionBitmap *
 gdip_region_bitmap_xor (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 {
 	GpRegionBitmap *op;
@@ -1148,7 +1112,7 @@ gdip_region_bitmap_xor (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	for (y = op->Y; y < op->Y + op->Height; y++) {
 		int p = get_buffer_pos (op, op->X, y);
 		for (x = op->X; x < op->X + op->Width; x += 8) {
-			op->Mask [p++] = get_byte (shape1, x, y) ^ get_byte (shape2, x, y);
+			op->Mask[p++] = get_byte (shape1, x, y) ^ get_byte (shape2, x, y);
 		}
 	}
 
@@ -1156,7 +1120,6 @@ gdip_region_bitmap_xor (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
 	gdip_region_bitmap_shrink (op, FALSE);
 	return op;
 }
-
 
 /*
  * gdip_region_bitmap_combine:
@@ -1167,8 +1130,8 @@ gdip_region_bitmap_xor (GpRegionBitmap *shape1, GpRegionBitmap *shape2)
  * Return a new GpRegionBitmap containing a new bitmap resulting from applying
  * the @combineMode to @shape1 and @shape2 bitmaps.
  */
-GpRegionBitmap*
-gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap* bitmap2, CombineMode combineMode)
+GpRegionBitmap *
+gdip_region_bitmap_combine (GpRegionBitmap *bitmap1, GpRegionBitmap *bitmap2, CombineMode combineMode)
 {
 	if (!bitmap1 || !bitmap2)
 		return NULL;

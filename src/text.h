@@ -29,19 +29,19 @@
 /* Text public API (only!) */
 
 GpStatus WINGDIPAPI GdipDrawString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, GpBrush *brush);
+				    GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, GpBrush *brush);
 
 GpStatus WINGDIPAPI GdipMeasureString (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat,  RectF *boundingBox, INT *codepointsFitted,
-	INT *linesFilled);
+				       GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, RectF *boundingBox, INT *codepointsFitted,
+				       INT *linesFilled);
 
 GpStatus WINGDIPAPI GdipMeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *string, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, INT regionCount, GpRegion **regions);
+						GDIPCONST RectF *layoutRect, GDIPCONST GpStringFormat *stringFormat, INT regionCount, GpRegion **regions);
 
 GpStatus WINGDIPAPI GdipDrawDriverString (GpGraphics *graphics, GDIPCONST UINT16 *text, INT length, GDIPCONST GpFont *font,
-	GpBrush *brush, GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix);
+					  GpBrush *brush, GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix);
 
 GpStatus WINGDIPAPI GdipMeasureDriverString (GpGraphics *graphics, GDIPCONST UINT16 *text, INT length, GDIPCONST GpFont *font,
-	GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix, RectF *boundingBox);
+					     GDIPCONST PointF *positions, INT flags, GDIPCONST GpMatrix *matrix, RectF *boundingBox);
 
 #endif
