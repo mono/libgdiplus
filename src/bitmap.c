@@ -2249,9 +2249,13 @@ void gdip_bitmap_flush_surface (GpBitmap *bitmap)
 void gdip_bitmap_invalidate_surface (GpBitmap *bitmap)
 {
 	if (bitmap->surface != NULL) {
+		BYTE *surface_scan0 = cairo_image_surface_get_data (bitmap->surface);
 		gdip_bitmap_flush_surface (bitmap);
 		cairo_surface_destroy (bitmap->surface);
 		bitmap->surface = NULL;
+		if (surface_scan0 != bitmap->active_bitmap->scan0) {
+			GdipFree (surface_scan0);
+		}
 	}
 }
 
