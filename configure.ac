@@ -1,4 +1,4 @@
-AC_INIT(libgdiplus, [6.0.2],
+AC_INIT(libgdiplus, [6.0.3],
 	[https://github.com/mono/mono/issues/new])
 
 AC_CONFIG_SRCDIR([README.md])
