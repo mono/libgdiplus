@@ -98,7 +98,6 @@ static void test_valid1bpp()
 
 static void test_valid2bpp ()
 {
-#if defined(USE_WINDOWS_GDIPLUS)
 	BYTE grayscale2bpp1x1Interlaced[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x01, 0x07, 0xC9, 0xB3, 0x62,
@@ -118,7 +117,6 @@ static void test_valid2bpp ()
 		/* IDAT */      0x00, 0x00, 0x00, 0x0A, 'I', 'D', 'A', 'T', 0x18, 0xD3, 0x63, 0x70, 0x00, 0x00, 0x00, 0x42, 0x00, 0x41, 0xF9, 0xFB, 0x3C, 0x49,
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
-#endif
 	BYTE indexed2bpp1x1PaletteFirst[] = {
 		/* Signature */ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		/* IHDR */      0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R', 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x00, 0x00, 0x01, 0x15, 0x7C, 0x1C, 0x8C,
@@ -136,13 +134,9 @@ static void test_valid2bpp ()
 	};
 #endif
 
-	// FIXME: this causes an AV in libgdiplus when trying to convert this image to 32bpp as we assume
-	// the image has a palette.
-#if defined(USE_WINDOWS_GDIPLUS)
 	createFileSuccess (grayscale2bpp1x1Interlaced, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale2bpp6x4NotInterlaced, PixelFormat32bppARGB, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale2bpp1x1WithPalette, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
-#endif
 	createFileSuccess (indexed2bpp1x1PaletteFirst, PixelFormat32bppARGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	// FIXME: GDI+ allows indexed images with palettes last.
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -188,12 +182,8 @@ static void test_valid4bpp()
 	};
 #endif
 
-	// FIXME: GDI+ converts grayscale alpha 4bpp images to 32bpp.
-#if defined(USE_WINDOWS_GDIPLUS)
+	// GDI+ converts grayscale alpha 4bpp images to 32bpp.
 	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
-#else
-	PixelFormat expectedGrayscalePixelFormat = PixelFormat4bppIndexed;
-#endif
 	createFileSuccess (grayscaleWithAlpha1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscaleWithAlpha6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscaleWithAlpha1x1WithPalette, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
@@ -280,12 +270,8 @@ static void test_valid8bpp ()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 
-	// FIXME: GDI+ converts grayscale 8bpp images to 32bpp.
-#if defined(USE_WINDOWS_GDIPLUS)
+	// GDI+ converts grayscale 8bpp images to 32bpp.
 	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
-#else
-	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed;
-#endif
 	createFileSuccess (grayscale1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale1x1WithPalette, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
@@ -362,14 +348,9 @@ static void test_valid16bpp ()
 		/* IEND */      0x00, 0x00, 0x00, 0x00, 'I', 'E', 'N', 'D', 0xAE, 0x42, 0x60, 0x82
 	};
 	
-	// FIXME: GDI+ converts grayscale 16bpp images to 32bpp.
-#if defined(USE_WINDOWS_GDIPLUS)
+	// GDI+ converts grayscale 16bpp images to 32bpp.
 	PixelFormat expectedGrayscalePixelFormat = PixelFormat32bppARGB;
 	PixelFormat expectedTrueColorPixelFormat = PixelFormat32bppARGB;
-#else
-	PixelFormat expectedGrayscalePixelFormat = PixelFormat8bppIndexed ;
-	PixelFormat expectedTrueColorPixelFormat = PixelFormat24bppRGB ;
-#endif
 
 	createFileSuccess (grayscale1x1Interlaced, expectedGrayscalePixelFormat, 1, 1, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);
 	createFileSuccess (grayscale6x4NotInterlaced, expectedGrayscalePixelFormat, 6, 4, ImageFlagsColorSpaceGRAY | ImageFlagsHasRealPixelSize | ImageFlagsHasAlpha | ImageFlagsReadOnly, 3);

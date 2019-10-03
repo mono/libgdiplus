@@ -253,6 +253,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	int		bit_depth;
 	int		channels;
 	BYTE		color_type;
+	BYTE		original_color_type;
 	int 	num_palette = 0;
 	png_colorp	png_palette = NULL;
 
@@ -283,21 +284,51 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		png_set_read_fn (png_ptr, (void *) getBytesFunc, _gdip_png_stream_read_data);
 	}
 
-	/* Pass PNG_TRANSFORM_STRIP_16, which basically reduces the color palette from 16-bits to 8-bits
+	png_read_info(png_ptr, info_ptr);
+
+	bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+	original_color_type = png_get_color_type(png_ptr, info_ptr);
+	channels = png_get_channels(png_ptr, info_ptr);
+
+	/* Apply png_set_strip_16, which basically reduces the color palette from 16-bits to 8-bits
 	 * for 16-bit color depths. The current implementation of libgdiplus doesn't handle bit depths > 8,
 	 * so this acts as a workaround. Net impact is that the quality of the image is slightly reduced instead
 	 * of refusing to process the image (and potentially crashing the application) altogether;
 	 * proper support would mean supporting 16-bit color channels.
 	 * Partially fixes http://bugzilla.ximian.com/show_bug.cgi?id=80693 */
-	png_read_png (png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16, NULL);
+	if (bit_depth == 16) {
+		png_set_strip_16 (png_ptr);
+		png_set_gray_to_rgb (png_ptr);
+		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+		channels = 4;
+	}
+
+	if (bit_depth == 2
+		|| (bit_depth == 4 && original_color_type != PNG_COLOR_TYPE_PALETTE)
+		|| (bit_depth == 8 && original_color_type != PNG_COLOR_TYPE_PALETTE)) {
+		png_set_expand (png_ptr);
+		png_set_gray_to_rgb (png_ptr);
+		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+	}
+
+	if (bit_depth == 8 && !(channels == 1 && (original_color_type == PNG_COLOR_TYPE_PALETTE || original_color_type == PNG_COLOR_TYPE_GRAY))) {
+		png_set_bgr (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+	}
+
+	// Update the image properties after the transformations have been applied.
+	// The channels property is not refreshed; the original value will be used
+	// later to set the pixel format.
+	png_read_update_info (png_ptr, info_ptr);
 
 	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
-	channels = png_get_channels (png_ptr, info_ptr);
 	color_type = png_get_color_type (png_ptr, info_ptr);
 	png_get_PLTE( png_ptr, info_ptr, &png_palette, &num_palette );
 
 	/* 2bpp is a special case (promoted to 32bpp ARGB by MS GDI+) */
-	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) && 
+	if ((bit_depth <= 8) && (bit_depth != 2) && (channels == 1) &&
 		((color_type == PNG_COLOR_TYPE_PALETTE)	|| (color_type == PNG_COLOR_TYPE_GRAY))) {
 		int		width;
 		int		height;
@@ -318,23 +349,31 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		gdip_align_stride (dest_stride);
 
 		/* Copy image data. */
-		row_pointers = png_get_rows (png_ptr, info_ptr);
-
 		unsigned long long int size = (unsigned long long int)dest_stride * height;
 		if (size > G_MAXINT32) {
 			status = OutOfMemory;
 			goto error;
 		}
 
-		rawdata = GdipAlloc(size);
-		if (!rawdata) {
+		row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+		if (!row_pointers) {
 			status = OutOfMemory;
 			goto error;
 		}
 
-		for (i=0; i < height; i++) {
-			memcpy (rawdata + i * dest_stride, row_pointers[i], source_stride);
+		rawdata = GdipAlloc(dest_stride * height);
+		if (!rawdata) {
+			status = OutOfMemory;
+			free(row_pointers);
+			goto error;
 		}
+
+		for (i=0; i < height; i++) {
+			row_pointers[i] = rawdata + i * dest_stride;
+		}
+
+		png_read_image(png_ptr, row_pointers);
+		free(row_pointers);
 
 		/* Copy palette. */
 		num_colours = 1 << bit_depth;
@@ -443,18 +482,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;
 		result->active_bitmap->palette = palette;
-	}
-
-	/* 2bpp needs to enter here too */
-	if (!result) {
+	} else if (bit_depth == 8 && (color_type == PNG_COLOR_TYPE_RGBA || color_type == PNG_COLOR_TYPE_RGB)) {
 		int		width;
 		int		height;
 		BYTE		bit_depth;
 		int		stride;
 		png_bytep *row_pointers;
-		BYTE *rawptr;
-		int i, j;
-		BYTE	alpha[4] = {0xFF, 0xFF, 0xFF, 0xFF};	/* Transparency values for 2bpp - default to fully opaque. */
+		int i;
 
 		width = png_get_image_width (png_ptr, info_ptr);
 		height = png_get_image_height (png_ptr, info_ptr);
@@ -470,7 +504,12 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		stride = (width * 4);
 		gdip_align_stride (stride);
 
-		row_pointers = png_get_rows (png_ptr, info_ptr);
+		/* Copy image data. */
+		row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+		if (!row_pointers) {
+			status = OutOfMemory;
+			goto error;
+		}
 
 		unsigned long long int size = (unsigned long long int)stride * height;
 		if (size > G_MAXINT32) {
@@ -481,118 +520,17 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		rawdata = GdipAlloc (size);
 		if (!rawdata) {
 			status = OutOfMemory;
+			free(row_pointers);
 			goto error;
 		}
 
-		rawptr = rawdata;
-		switch (channels) {
-			case 4: {
-				for (i = 0; i < height; i++) {
-					png_bytep rowp = row_pointers[i];
-					for (j = 0; j < width; j++) {
-						BYTE b = rowp[2];
-						BYTE g = rowp[1];
-						BYTE r = rowp[0];
-						BYTE a = rowp[3];
-
-						set_pixel_bgra (rawptr, 0, b, g, r, a);
-						rowp += 4;
-						rawptr += 4;
-					}
-				}
-				break;
-			}
-
-			case 3: {
-				for (i = 0; i < height; i++) {
-					png_bytep rowp = row_pointers[i];
-					for (j = 0; j < width; j++) {
-						set_pixel_bgra (rawptr, 0, rowp[2], rowp[1], rowp[0], 0xff);
-						rowp += 3;
-						rawptr += 4;
-					}
-				}
-				break;
-			}
-
-			case 2: {
-				for (i = 0; i < height; i++) {
-					png_bytep rowp = row_pointers[i];
-					for (j = 0; j < width; j++) {
-						set_pixel_bgra (rawptr, 0, rowp[0], rowp[0], rowp[0], rowp[1]);
-						rowp += 2;
-						rawptr += 4;
-					}
-				}
-				break;
-			}
-
-			case 1:
-				if (bit_depth == 2) {
-					/* Make sure transparency is respected for 2bpp images. */
-					int num_trans = 0;
-					BYTE * trans = NULL;
-					png_color_16p dummy = NULL;
-					if (png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, &dummy)) {
-						if (num_trans > 0 && trans != NULL) {
-							memcpy(alpha, trans, MIN(num_trans, 4));
-						}
-					}
-				}
-				for (i = 0; i < height; i++) {
-					png_bytep rowp = row_pointers[i];
-					rawptr = rawdata + i * stride;	/* Ensure each output row starts at the right place. */
-					if (bit_depth == 2) {
-						// 4 pixels for each byte
-						for (j = 0; j < width; j++) {
-							png_byte palette = 0;
-							png_byte pix = *rowp++;
-
-							palette = (pix >> 6) & 0x03;
-							set_pixel_bgra (rawptr, 0,
-								png_palette[palette].blue,
-								png_palette[palette].green,
-								png_palette[palette].red,
-								alpha[palette]);
-							if (++j >= width)
-								break;
-
-							palette = (pix >> 4) & 0x03;
-							set_pixel_bgra (rawptr, 4,
-								png_palette[palette].blue,
-								png_palette[palette].green,
-								png_palette[palette].red,
-								alpha[palette]);
-							if (++j >= width)
-								break;
-
-							palette = (pix >> 2) & 0x03;
-							set_pixel_bgra (rawptr, 8,
-								png_palette[palette].blue,
-								png_palette[palette].green,
-								png_palette[palette].red,
-								alpha[palette]);
-							if (++j >= width)
-								break;
-
-							palette = pix & 0x03;
-							set_pixel_bgra (rawptr, 12,
-								png_palette[palette].blue,
-								png_palette[palette].green,
-								png_palette[palette].red,
-								alpha[palette]);
-							rawptr += 16;
-						}
-					} else {
-						for (j = 0; j < width; j++) {
-							png_byte pix = *rowp++;
-							set_pixel_bgra (rawptr, 0, pix, pix, pix, 0xff);
-							rawptr += 4;
-						}
-					}
-				}
-				break;
+		for (i = 0; i < height; i++) {
+			row_pointers[i] = rawdata + i * stride;
 		}
+
+		png_read_image(png_ptr, row_pointers);
+
+		free(row_pointers);
 
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		if (!result) {
@@ -626,12 +564,15 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
 		}
 
-		if (color_type & PNG_COLOR_MASK_ALPHA)
+		if (original_color_type & PNG_COLOR_MASK_ALPHA)
 			 result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
 
 		result->active_bitmap->image_flags |= ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 		result->active_bitmap->dpi_horz = 0;
 		result->active_bitmap->dpi_vert = 0;
+	} else {
+		status = InvalidParameter;
+		goto error;
 	}
 
 	status = gdip_load_png_properties(png_ptr, info_ptr, end_info_ptr, result->active_bitmap);
