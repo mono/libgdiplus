@@ -652,6 +652,7 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT l
 			} else {
 				// Nothing was fitted. Most likely either the input length was zero or LineLimit prevented fitting any lines (the height of the first line is greater than the height of the bounding box).
 				charsFitted = 0;
+				lines = 0;
 			}
 			*codepointsFitted = charsFitted;
 		}
