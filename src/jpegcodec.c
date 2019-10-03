@@ -719,6 +719,8 @@ gdip_save_jpeg_image_internal (FILE *fp, PutBytesDelegate putBytesFunc, GpImage 
 	int		need_argb_conversion = 0;
 	GpStatus	status;
 
+	cinfo.mem = NULL;
+
 	/* Verify that we can support this pixel format */
 	switch (image->active_bitmap->pixel_format) {
 		case PixelFormat32bppARGB:
