@@ -76,9 +76,10 @@ stages:
         - bash: |
             export CFLAGS="-m64 -arch x86_64 -mmacosx-version-min=10.9"
             export LDFLAGS="-m64 -arch x86_64"
-            ./autogen.sh --enable-warnaserror --without-x11 --host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0
+            ./autogen.sh --prefix=/tmp/libgdiplus-dev --enable-warnaserror --without-x11 --host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0
             make -j4
-          displayName: 'Build libgdiplus'
+            make install
+          displayName: 'Build and Install libgdiplus'
 
         - bash: |
             if ! make check; then
@@ -86,6 +87,29 @@ stages:
               exit 1
             fi
           displayName: 'Run libgdiplus tests'
+
+        - bash: |
+            brew install gettext cmake git
+            git clone --depth 1 --recurse-submodules https://github.com/mono/mono /tmp/mono
+            cd /tmp/mono
+            ./autogen.sh --prefix=/tmp/mono-dev --with-libgdiplus=/tmp/libgdiplus-dev/lib/libgdiplus.dylib --disable-boehm
+            make -j4
+          displayName: 'Clone and Build mono'
+
+        - bash: |
+            make -C /tmp/mono/mcs/class/System.Drawing run-test
+          displayName: 'Run mono System.Drawing tests'
+
+        - bash: |
+            make -C /tmp/mono/mcs/class/System.Drawing run-xunit-test
+          displayName: 'Run mono System.Drawing xunit tests'
+
+        - task: PublishTestResults@2
+          condition: succeededOrFailed()
+          inputs:
+            testRunner: NUnit
+            testResultsFiles: '/tmp/mono/mcs/class/**/TestResult*.xml'
+            failTaskOnFailedTests: true
 
     ############ WINDOWS BUILD ############
     - job: Build_Windows_x86_x64
@@ -141,6 +165,52 @@ stages:
           displayName: 'Clone and Build mono-netcore'
 
         - bash: |
+            make -C /tmp/mono/netcore run-tests-corefx-System.Drawing.Common.Tests
+          displayName: 'Run mono-netcore System.Drawing.Common tests'
+
+        - task: PublishTestResults@2
+          condition: succeededOrFailed()
+          inputs:
+            testRunner: xUnit
+            testResultsFiles: '/tmp/mono/netcore/corefx/tests/TestResult*.xml'
+            failTaskOnFailedTests: true
+
+    ############ MACOS MONO-NETCORE BUILD ############
+    - job: Build_Mac_x64_mono_netcore
+      displayName: macOS x64 mono-netcore
+      timeoutInMinutes: 120
+      pool:
+        vmImage: macOS-10.14
+      steps:
+        - bash: |
+            brew install glib cairo libexif libjpeg giflib libtiff autoconf libtool automake pango pkg-config
+          displayName: 'Install macOS dependencies'
+
+        - bash: |
+            export CFLAGS="-m64 -arch x86_64 -mmacosx-version-min=10.9"
+            export LDFLAGS="-m64 -arch x86_64"
+            ./autogen.sh --prefix=/tmp/libgdiplus-dev --enable-warnaserror --without-x11 --host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0
+            make -j4
+            make install
+          displayName: 'Build and Install libgdiplus'
+
+        - bash: |
+            if ! make check; then
+              cat ./tests/test-suite.log
+              exit 1
+            fi
+          displayName: 'Run libgdiplus tests'
+
+        - bash: |
+            brew install gettext cmake git
+            git clone --depth 1 https://github.com/mono/mono /tmp/mono
+            cd /tmp/mono/netcore
+            ./build.sh
+          displayName: 'Clone and Build mono-netcore'
+
+        - bash: |
+            make -C /tmp/mono/netcore update-tests-corefx
+            cp /tmp/libgdiplus-dev/lib/libgdiplus.0.dylib /tmp/mono/netcore/corefx/tests/extracted/System.Drawing.Common.Tests/libgdiplus.dylib
             make -C /tmp/mono/netcore run-tests-corefx-System.Drawing.Common.Tests
           displayName: 'Run mono-netcore System.Drawing.Common tests'
 
