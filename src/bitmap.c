@@ -639,6 +639,8 @@ gdip_bitmap_clone (GpBitmap *bitmap, GpBitmap **clonedbitmap)
 		return OutOfMemory;
 	}
 
+	gdip_bitmap_flush_surface (bitmap);
+
 	/* Copy simple types */
 	result->type = bitmap->type;
 	result->image_format = bitmap->image_format;
