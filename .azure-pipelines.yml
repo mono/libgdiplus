@@ -217,13 +217,6 @@ stages:
           displayName: 'Build and Install libgdiplus'
 
         - bash: |
-            if ! make check; then
-              cat ./tests/test-suite.log
-              exit 1
-            fi
-          displayName: 'Run libgdiplus tests'
-
-        - bash: |
             brew install gettext
             git clone --depth 1 https://github.com/mono/mono /tmp/mono
             cd /tmp/mono/netcore
