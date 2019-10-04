@@ -95,3 +95,6 @@ coverage.info
 /coverage
 
 *.tmp
+
+# googletest build output
+gtest_build/
