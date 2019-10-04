@@ -3,6 +3,7 @@
 .libs/
 Makefile
 Makefile.in
+TestResult.xml
 testadjustablearrowcap
 testbits
 testbitmap
@@ -41,3 +42,4 @@ testtexturebrush
 testtiffcodec
 testwmfcodec
 test-image
+gtest
