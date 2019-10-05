@@ -361,7 +361,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 			goto error;
 		}
 
-		rawdata = GdipAlloc(dest_stride * height);
+		rawdata = GdipAlloc(size);
 		if (!rawdata) {
 			status = OutOfMemory;
 			free(row_pointers);
