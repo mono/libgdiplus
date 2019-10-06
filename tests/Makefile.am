@@ -389,8 +389,11 @@ GTEST_LIBS := $(GTEST_BUILDDIR)/googlemock/gtest/libgtest.a $(GTEST_BUILDDIR)/go
 $(GTEST_BUILDDIR):
 	mkdir -p $(GTEST_BUILDDIR)
 
-$(GTEST_LIBS): | $(GTEST_BUILDDIR)
+$(GTEST_BUILDDIR)/.stamp-gtest: | $(GTEST_BUILDDIR)
 	cd $(GTEST_BUILDDIR) && $(CMAKE) . $(top_srcdir)/external/googletest && $(MAKE)
+	touch $@
+
+$(GTEST_LIBS): $(GTEST_BUILDDIR)/.stamp-gtest
 
 gtest_SOURCES = gtest.cpp
 gtest_DEPENDENCIES = $(TEST_DEPS) $(GTEST_LIBS)
