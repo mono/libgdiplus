@@ -534,7 +534,14 @@ gdip_font_clear_pattern_cache (void)
 	if (patterns_hashtable) {
 		g_hash_table_foreach_remove (patterns_hashtable, free_cached_pattern, NULL);
 		g_hash_table_destroy (patterns_hashtable);
+		patterns_hashtable = NULL;
 	}
+	familySerif = NULL;
+	familySansSerif = NULL;
+	familyMonospace = NULL;
+	ref_familySerif = 0;
+	ref_familySansSerif = 0;
+	ref_familyMonospace = 0;
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_unlock (&patterns_mutex);
 #else
