@@ -61,9 +61,9 @@ if test $coverage = "yes"; then
   LDFLAGS="$LDFLAGS --coverage"
 fi
 
-CAIRO_LIBS="`pkg-config --libs cairo `"
-CAIRO_CFLAGS="`pkg-config --cflags cairo `"
-cairo_info="`pkg-config --modversion cairo ` (system)"
+CAIRO_LIBS="`$PKG_CONFIG --libs cairo `"
+CAIRO_CFLAGS="`$PKG_CONFIG --cflags cairo `"
+cairo_info="`$PKG_CONFIG --modversion cairo ` (system)"
 GDIPLUS_PKG_REQ="cairo"
 
 PANGO_REQUIRED_VERSION="1.40.14"
@@ -75,8 +75,8 @@ if test $text_v = "default"; then
 	  [text_v=pango], [text_v=cairo])
 fi
 if test $text_v = "pango"; then
-	PANGO_LIBS="`pkg-config --libs pangocairo `"
-	PANGO_CFLAGS="`pkg-config --cflags pangocairo `"
+	PANGO_LIBS="`$PKG_CONFIG --libs pangocairo `"
+	PANGO_CFLAGS="`$PKG_CONFIG --cflags pangocairo `"
 	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text])
 	GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 fi
