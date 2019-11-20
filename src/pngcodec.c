@@ -412,6 +412,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		result = gdip_bitmap_new_with_frame (&gdip_image_frameDimension_page_guid, TRUE);
 		if (!result) {
 			status = OutOfMemory;
+			GdipFree(palette);
 			goto error;
 		}
 
