@@ -943,8 +943,10 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	if (!tangents)
 		return OutOfMemory;
 
-	if (!gdip_path_ensure_size (path, path->count + (3 * (count - 1)) + 1))
+	if (!gdip_path_ensure_size(path, path->count + (3 * (count - 1)) + 1)) {
+		GdipFree(tangents);
 		return OutOfMemory;
+	}
 
 	append_curve (path, points, tangents, 0, count - 1, CURVE_OPEN);
 
