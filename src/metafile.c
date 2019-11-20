@@ -945,6 +945,8 @@ gdip_metafile_clone (GpMetafile *metafile, GpMetafile **clonedmetafile)
 	}
 
 	mf->base = *base;
+	GdipFree(base);
+	base = NULL;
 
 	memcpy (&mf->metafile_header, &metafile->metafile_header, sizeof (MetafileHeader));
 	if (metafile->length > 0) {
