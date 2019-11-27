@@ -1197,6 +1197,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 			status = gdip_read_bmp_indexed (pointer, pixels, upsidedown, originalFormat, originalStride, result->active_bitmap->width, result->active_bitmap->height, source);
 			if (status != Ok) {
 				gdip_bitmap_dispose (result);
+				GdipFree(pixels);
 				return status;
 			}
 		}
@@ -1204,6 +1205,7 @@ gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source)
 		status = gdip_read_bmp_scans (pointer, pixels, upsidedown, originalFormat, originalStride, result->active_bitmap->stride, result->active_bitmap->width, result->active_bitmap->height, source);
 		if (status != Ok) {
 			gdip_bitmap_dispose (result);
+			GdipFree(pixels);
 			return status;
 		}
 	}

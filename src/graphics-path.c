@@ -943,8 +943,10 @@ GdipAddPathCurve2 (GpPath *path, const GpPointF *points, int count, float tensio
 	if (!tangents)
 		return OutOfMemory;
 
-	if (!gdip_path_ensure_size (path, path->count + (3 * (count - 1)) + 1))
+	if (!gdip_path_ensure_size(path, path->count + (3 * (count - 1)) + 1)) {
+		GdipFree(tangents);
 		return OutOfMemory;
+	}
 
 	append_curve (path, points, tangents, 0, count - 1, CURVE_OPEN);
 
@@ -973,9 +975,11 @@ GdipAddPathCurve3 (GpPath *path, const GpPointF *points, int count,
 	if (!tangents)
 		return OutOfMemory;
 
-	if (!gdip_path_ensure_size (path, path->count + (3 * numberOfSegments) + 1))
+	if (!gdip_path_ensure_size (path, path->count + (3 * numberOfSegments) + 1)) {
+		GdipFree(tangents);
 		return OutOfMemory;
-
+	}
+	
 	append_curve (path, points, tangents, offset, numberOfSegments, CURVE_OPEN);
 
 	GdipFree (tangents);
@@ -1001,8 +1005,10 @@ GdipAddPathClosedCurve2 (GpPath *path, const GpPointF *points, int count, float 
 	if (!tangents)
 		return OutOfMemory;
 
-	if (!gdip_path_ensure_size (path, path->count + (3 * count) + 1))
+	if (!gdip_path_ensure_size (path, path->count + (3 * count) + 1)) {
+		GdipFree(tangents);
 		return OutOfMemory;
+	}
 
 	append_curve (path, points, tangents, 0, count - 1, CURVE_CLOSE);
 
