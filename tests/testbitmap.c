@@ -1210,6 +1210,25 @@ static void test_bitmapUnlockBits ()
 	GdipDisposeImage ((GpImage *) image);
 }
 
+static void test_readExifResolution ()
+{
+	REAL resolution;
+	GpBitmap *bitmap;
+	WCHAR *bitmapFile = createWchar ("test-exif.jpg");
+
+	assertEqualInt (GdipCreateBitmapFromFile (bitmapFile, &bitmap), Ok);
+
+	assertEqualInt (GdipGetImageVerticalResolution (bitmap, &resolution), Ok);
+	assertEqualInt (resolution, 72);
+
+	assertEqualInt (GdipGetImageHorizontalResolution (bitmap, &resolution), Ok);
+	assertEqualInt (resolution, 72);
+
+	GdipDisposeImage ((GpImage *) bitmap);
+	freeWchar (bitmapFile);
+}
+
+
 int
 main(int argc, char**argv)
 {
@@ -1225,6 +1244,7 @@ main(int argc, char**argv)
 	test_bitmapGetPixel ();
 	test_bitmapLockBits ();
 	test_bitmapUnlockBits ();
+	test_readExifResolution ();
 
 	SHUTDOWN;
 	return 0;
