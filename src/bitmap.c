@@ -779,6 +779,7 @@ GdipCreateBitmapFromFile (GDIPCONST WCHAR* filename, GpBitmap **bitmap)
 		GdipDisposeImage (image);
 		return status;
 	default:
+		GdipDisposeImage (image);
 		return GenericError;
 	}
 }
