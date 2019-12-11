@@ -1590,14 +1590,14 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 		return OutOfMemory;
 	}
 
-    int isSurfaceSource = 0;
-    if (image->surface != NULL && gdip_bitmap_format_needs_premultiplication(image)) {
-        isSurfaceSource = 1;
-        source = initial_source_offset + (BYTE*)(cairo_image_surface_get_data(image->surface));
-    }
-    else {
-        source = initial_source_offset + (BYTE *)image->active_bitmap->scan0;
-    }
+	int isSurfaceSource = 0;
+	if (image->surface != NULL && gdip_bitmap_format_needs_premultiplication(image)) {
+		isSurfaceSource = 1;
+		source = initial_source_offset + (BYTE*)(cairo_image_surface_get_data(image->surface));
+	}
+	else {
+		source = initial_source_offset + (BYTE *)image->active_bitmap->scan0;
+	}
 	target = initial_target_offset + rotated;
 
 	for (y = 0; y < source_height;
@@ -1623,14 +1623,14 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	image->active_bitmap->scan0 = rotated;
 	image->active_bitmap->reserved |= GBD_OWN_SCAN0;
 
-    if (isSurfaceSource == 0)
-        gdip_bitmap_invalidate_surface(image);
-    else {
-        /* recalculate surface from rotated scan0 */
-        cairo_surface_destroy(image->surface);
-        image->surface = NULL;
-        gdip_bitmap_ensure_surface(image);
-    }
+	if (isSurfaceSource == 0)
+		gdip_bitmap_invalidate_surface(image);
+	else {
+		/* recalculate surface from rotated scan0 */
+		cairo_surface_destroy(image->surface);
+		image->surface = NULL;
+		gdip_bitmap_ensure_surface(image);
+	}
 
 	return Ok;
 }
