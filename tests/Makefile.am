@@ -385,7 +385,7 @@ endif
 if HAVE_CMAKE
 
 GTEST_BUILDDIR := $(top_builddir)/gtest_build
-GTEST_LIBS := $(GTEST_BUILDDIR)/googlemock/gtest/libgtest.a $(GTEST_BUILDDIR)/googlemock/gtest/libgtest_main.a
+GTEST_LIBS := $(GTEST_BUILDDIR)/lib/libgtest.a $(GTEST_BUILDDIR)/lib/libgtest_main.a
 $(GTEST_BUILDDIR):
 	mkdir -p $(GTEST_BUILDDIR)
 
@@ -398,7 +398,7 @@ $(GTEST_LIBS): $(GTEST_BUILDDIR)/.stamp-gtest
 gtest_SOURCES = gtest.cpp
 gtest_DEPENDENCIES = $(TEST_DEPS) $(GTEST_LIBS)
 gtest_LDADD = $(LDADDS) $(GTEST_LIBS)
-gtest_CPPFLAGS = -pthread -I$(top_srcdir)/external/googletest/googletest/include -I$(top_srcdir)/src $(GDIPLUS_INCLUDES)
+gtest_CPPFLAGS = -pthread -std=c++11 -I$(top_srcdir)/external/googletest/googletest/include -I$(top_srcdir)/src $(GDIPLUS_INCLUDES)
 
 noinst_PROGRAMS += gtest
 
