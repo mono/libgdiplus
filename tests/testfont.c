@@ -225,6 +225,10 @@ static void test_privateAddFontFile ()
 	assertEqualInt (status, Ok);
 	assert (stringsEqual (name, "Code New Roman"));
 
+	// This causes a crash in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	GdipDeleteFontFamily (families[0]);
+#endif
 	GdipDeletePrivateFontCollection (&collection);
 
 	// Valid OTF file.
@@ -245,6 +249,10 @@ static void test_privateAddFontFile ()
 	assertEqualInt (status, Ok);
 	assert (stringsEqual (name, "Code New Roman"));
 
+	// This causes a crash in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	GdipDeleteFontFamily (families[0]);
+#endif
 	GdipDeletePrivateFontCollection (&collection);
 
 	// Invalid file.
@@ -306,6 +314,10 @@ static void test_privateAddMemoryFont ()
 	assert (stringsEqual (name, "Code New Roman"));
 
 	free (memory);
+	// This causes a crash in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	GdipDeleteFontFamily (families[0]);
+#endif
 	GdipDeletePrivateFontCollection (&collection);
 
 	// Valid OTF file.
@@ -328,6 +340,10 @@ static void test_privateAddMemoryFont ()
 	assert (stringsEqual (name, "Code New Roman"));
 
 	free (memory);
+	// This causes a crash in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	GdipDeleteFontFamily (families[0]);
+#endif
 	GdipDeletePrivateFontCollection (&collection);
 
 	// Invalid memory is ignored.
@@ -603,6 +619,7 @@ static void test_cloneFont ()
 
 	GdipDeleteFont (font);
 	GdipDeleteFont (clonedFont);
+	GdipDeleteFontFamily (family);
 }
 
 static void test_deleteFont ()
@@ -810,6 +827,7 @@ static void test_getLogfontA ()
 
 	GdipDeleteFont (font);
 	GdipDeleteFontFamily (originalFamily);
+	GdipDeleteGraphics (graphics);
 	GdipDisposeImage ((GpImage *) image);
 }
 
@@ -855,6 +873,7 @@ static void test_getLogfontW ()
 
 	GdipDeleteFont (font);
 	GdipDeleteFontFamily (originalFamily);
+	GdipDeleteGraphics (graphics);
 	GdipDisposeImage ((GpImage *) image);
 }
 

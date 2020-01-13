@@ -1430,6 +1430,7 @@ static void test_resetLineTransform ()
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (transform);
 }
 
 static void test_multiplyLineTransform ()

@@ -68,6 +68,10 @@ static void test_createMetafileFromFile ()
 
     status = GdipCreateMetafileFromFile (bitmapFilePath, &metafile);
     assertEqualInt (status, GenericError);
+
+    freeWchar (noSuchFilePath);
+    freeWchar (invalidFilePath);
+    freeWchar (bitmapFilePath);
 }
 
 static void test_createMetafileFromStream ()

@@ -391,6 +391,7 @@ ATTRIBUTE_USED static void verifyRegionScansImpl (GpRegion *region, RectF *expec
 	}
 
 	GdipDeleteMatrix (matrix);
+    free (scans);
 }
 
 #define verifyRegionScans(region, expectedScans, expectedCount) \

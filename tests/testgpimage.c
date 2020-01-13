@@ -692,6 +692,8 @@ static void test_getEncoderParameterList ()
 	assertEqualInt (parameters->Parameter[1].Type, EncoderParameterValueTypeLong);
 	assertEqualInt (((LONG *) parameters->Parameter[1].Value)[0], EncoderValueMultiFrame);
 
+	free (parameters);
+
 	// PNG encoder.
 	GdipGetEncoderParameterListSize (image, &pngEncoderClsid, &pngSize);
 	parameters = (EncoderParameters *) malloc (pngSize);
@@ -704,6 +706,8 @@ static void test_getEncoderParameterList ()
 	assertEqualInt (parameters->Parameter[0].NumberOfValues, 0);
 	assertEqualInt (parameters->Parameter[0].Type, (EncoderParameterValueType) 9);
 	assert (!parameters->Parameter[0].Value);
+
+	free (parameters);
 
 	// JPEG encoder.
 	GdipGetEncoderParameterListSize (image, &jpegEncoderClsid, &jpegSize);
@@ -742,6 +746,8 @@ static void test_getEncoderParameterList ()
 	assertEqualInt (parameters->Parameter[4].NumberOfValues, 0);
 	assertEqualInt (parameters->Parameter[4].Type, (EncoderParameterValueType) 9);
 	assert (!parameters->Parameter[4].Value);
+
+	free (parameters);
 
 	// Negative tests.
 	status = GdipGetEncoderParameterList (NULL, &emfEncoderClsid, 100, &buffer);

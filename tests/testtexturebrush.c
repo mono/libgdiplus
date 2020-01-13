@@ -1830,6 +1830,7 @@ static void test_resetTextureTransform ()
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDisposeImage (image);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (transform);
 }
 
 static void test_multiplyTextureTransform ()
