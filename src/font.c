@@ -890,7 +890,8 @@ gdip_get_cairo_font_face (GpFont *font)
 {
 	if (!font->cairofnt) {
 		FcPattern *pattern = FcPatternBuild (
-			FcPatternDuplicate (font->family->pattern),
+			NULL,
+			FC_FAMILY, FcTypeString,  font->face,
 			FC_SLANT,  FcTypeInteger, ((font->style & FontStyleItalic) ? FC_SLANT_ITALIC : FC_SLANT_ROMAN), 
 			FC_WEIGHT, FcTypeInteger, ((font->style & FontStyleBold)   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM),
 			NULL);
