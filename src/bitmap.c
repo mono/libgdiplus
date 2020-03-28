@@ -590,6 +590,7 @@ gdip_bitmap_setactive(GpBitmap *bitmap, const GUID *dimension, int index)
 	}
 
 	/* Invalidate the cached surface */
+	gdip_bitmap_flush_surface (bitmap);
 	gdip_bitmap_invalidate_surface (bitmap);
 
 	if ((bitmap->num_of_frames == 0) || (bitmap->frames == NULL)) {
@@ -728,6 +729,8 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 	if (!bitmap)
 		return Ok;
 
+	gdip_bitmap_invalidate_surface (bitmap);
+
 	if (bitmap->frames) {
 		int frame;
 		for (frame = 0; frame < bitmap->num_of_frames; frame++) {
@@ -735,11 +738,6 @@ gdip_bitmap_dispose (GpBitmap *bitmap)
 		}
 		GdipFree (bitmap->frames);
 		bitmap->frames = NULL;
-	}
-
-	if (bitmap->surface) {
-		cairo_surface_destroy (bitmap->surface);
-		bitmap->surface = NULL;
 	}
 
 	GdipFree (bitmap);
@@ -2253,7 +2251,6 @@ void gdip_bitmap_invalidate_surface (GpBitmap *bitmap)
 {
 	if (bitmap->surface != NULL) {
 		BYTE *surface_scan0 = cairo_image_surface_get_data (bitmap->surface);
-		gdip_bitmap_flush_surface (bitmap);
 		cairo_surface_destroy (bitmap->surface);
 		bitmap->surface = NULL;
 		if (surface_scan0 != bitmap->active_bitmap->scan0) {
