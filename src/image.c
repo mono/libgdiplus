@@ -859,10 +859,11 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	}
 
 	if (allocated) {
+		gdip_bitmap_invalidate_surface (image);
 		image->active_bitmap->scan0 = org;
 		image->active_bitmap->pixel_format = org_format;
 		image->surface = org_surface;
-		GdipFree (dest);
+		// NOTE: dest is freed by gdip_bitmap_invalidate_surface above
 	}
 	
 	return Ok;
@@ -1616,6 +1617,7 @@ gdip_rotate_orthogonal_flip_x (GpImage *image, int angle, BOOL flip_x)
 	image->active_bitmap->scan0 = rotated;
 	image->active_bitmap->reserved |= GBD_OWN_SCAN0;	
 
+	gdip_bitmap_flush_surface (image);
 	gdip_bitmap_invalidate_surface (image);
 
 	return Ok;
@@ -1794,6 +1796,7 @@ gdip_rotate_flip_packed_indexed (GpImage *image, PixelFormat pixel_format, int a
 
 	/* It shouldn't be possible for an indexed image to have one,
 	 * but if it does, it needs to be killed. */
+	gdip_bitmap_flush_surface (image);
 	gdip_bitmap_invalidate_surface (image);
 
 	return Ok;
