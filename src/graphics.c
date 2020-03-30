@@ -2002,7 +2002,10 @@ GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, 
 			return status;
 	}
 
-	return GdipSetClipRegion (graphics, region, combineMode);
+	status = GdipSetClipRegion (graphics, region, combineMode);
+	GdipDeleteRegion (region);
+
+	return status;
 }
 
 GpStatus WINGDIPAPI
