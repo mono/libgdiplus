@@ -362,12 +362,14 @@ gdpi_ensureFamiliesCreated (GpFontCollection *font_collection)
 	}
 
 	font_collection->families = GdipAlloc (sizeof (GpFontFamily) * font_collection->fontset->nfont);
-	if (font_collection->families != NULL) {
-		for (int i = 0; i < font_collection->fontset->nfont; i++) {
-			gdip_fontfamily_init (font_collection->families + i);
-			font_collection->families[i].collection = font_collection;
-			font_collection->families[i].pattern = font_collection->fontset->fonts[i];
-		}
+	if (font_collection->families == NULL) {
+		return OutOfMemory;
+	}
+
+	for (int i = 0; i < font_collection->fontset->nfont; i++) {
+		gdip_fontfamily_init (font_collection->families + i);
+		font_collection->families[i].collection = font_collection;
+		font_collection->families[i].pattern = font_collection->fontset->fonts[i];
 	}
 
 	return Ok;
