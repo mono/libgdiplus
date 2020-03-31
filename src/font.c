@@ -152,6 +152,7 @@ GdipNewInstalledFontCollection (GpFontCollection **fontCollection)
 
 		system_fonts->fontset = col;
 		system_fonts->config = NULL;
+		system_fonts->families = NULL;
 
 #if USE_PANGO_RENDERING
 		system_fonts->pango_font_map = pango_cairo_font_map_new_for_font_type (CAIRO_FONT_TYPE_FT);
@@ -180,6 +181,7 @@ GdipNewPrivateFontCollection (GpFontCollection **fontCollection)
 
 	result->fontset = NULL;
 	result->config = FcConfigCreate ();
+	result->families = NULL;
 
 #if USE_PANGO_RENDERING
 	result->pango_font_map = pango_cairo_font_map_new_for_font_type (CAIRO_FONT_TYPE_FT);
@@ -207,6 +209,10 @@ GdipDeletePrivateFontCollection (GpFontCollection **fontCollection)
 			(*fontCollection)->pango_font_map = NULL;
 		}
 #endif
+		if ((*fontCollection)->families != NULL) {
+			GdipFree ((*fontCollection)->families);
+			(*fontCollection)->families = NULL;
+		}
 		if ((*fontCollection)->fontset != NULL) {
 			FcFontSetDestroy ((*fontCollection)->fontset);
 			(*fontCollection)->fontset = NULL;
@@ -283,6 +289,17 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 	if (!fontFamily)
 		return InvalidParameter;
 
+	if (fontFamily->collection != NULL &&
+	    fontFamily->collection->families != NULL &&
+	    fontFamily >= fontFamily->collection->families &&
+	    fontFamily < fontFamily->collection->families + fontFamily->collection->fontset->nfont) {
+		// GpFontFamily objects coming from GpFontCollection are owned by the collection.
+		// Silently ignore the error when someone tries to delete them in release mode
+		// but make it an assert in debug builds.
+		g_assert_not_reached ();
+		delete = FALSE;
+	}
+
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_lock (&generic);
 #else
@@ -346,20 +363,44 @@ gdip_createPrivateFontSet (GpFontCollection *font_collection)
 	font_collection->fontset = col;
 }
 
+static GpStatus
+gdpi_ensureFamiliesCreated (GpFontCollection *font_collection)
+{
+	if (font_collection->fontset == NULL) {
+		return OutOfMemory;
+	}
+
+	font_collection->families = GdipAlloc (sizeof (GpFontFamily) * font_collection->fontset->nfont);
+	if (font_collection->families != NULL) {
+		for (int i = 0; i < font_collection->fontset->nfont; i++) {
+			gdip_fontfamily_init (font_collection->families + i);
+			font_collection->families[i].collection = font_collection;
+			font_collection->families[i].pattern = font_collection->fontset->fonts[i];
+			font_collection->families[i].allocated = FALSE;
+		}
+	}
+
+	return Ok;
+}
+
 GpStatus WINGDIPAPI
 GdipGetFontCollectionFamilyCount (GpFontCollection *fontCollection, INT *numFound)
 {
+	GpStatus status;
+
 	if (!fontCollection  || !numFound)
 		return InvalidParameter;
 
 	if (fontCollection->config)
 		gdip_createPrivateFontSet (fontCollection);
 
-	if (fontCollection->fontset)
-		*numFound = fontCollection->fontset->nfont;
-	else
+	status = gdpi_ensureFamiliesCreated (fontCollection);
+	if (status != Ok) {
 		*numFound = 0;
+		return status;
+	}
 
+	*numFound = fontCollection->fontset->nfont;
 	return Ok;
 }
 
@@ -367,6 +408,7 @@ GpStatus WINGDIPAPI
 GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought, GpFontFamily *gpfamilies[], INT *numFound)
 {
 	int i;
+	GpStatus status;
 
 	if (!fontCollection || !gpfamilies || !numFound)
 		return InvalidParameter;
@@ -374,19 +416,14 @@ GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought
 	if (fontCollection->config)
 		gdip_createPrivateFontSet (fontCollection);
 
-	for (i = 0; i < numSought && i < fontCollection->fontset->nfont; i++) {
-		gpfamilies[i] = gdip_fontfamily_new ();
-		if (!gpfamilies[i]) {
-			while (--i >= 0) {
-				GdipFree (gpfamilies[i]);
-				gpfamilies[i] = NULL;
-			}
-			return OutOfMemory;
-		}
+	status = gdpi_ensureFamiliesCreated (fontCollection);
+	if (status != Ok) {
+		*numFound = 0;
+		return status;
+	}
 
-		gpfamilies[i]->collection = fontCollection;
-		gpfamilies[i]->pattern = fontCollection->fontset->fonts[i];
-		gpfamilies[i]->allocated = FALSE;
+	for (i = 0; i < numSought && i < fontCollection->fontset->nfont; i++) {
+		gpfamilies[i] = fontCollection->families + i;
 	}
 	
 	*numFound = i;

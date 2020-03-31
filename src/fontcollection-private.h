@@ -40,6 +40,7 @@
 struct _FontCollection {
 	FcFontSet*	fontset;
 	FcConfig*	config;		/* Only for private collections */
+	GpFontFamily*	families;
 #ifdef USE_PANGO_RENDERING
 	PangoFontMap*	pango_font_map;
 #endif
