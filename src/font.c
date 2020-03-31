@@ -69,7 +69,6 @@ gdip_fontfamily_init (GpFontFamily *fontFamily)
 	fontFamily->celldescent = -1;
 	fontFamily->cellascent = -1;
 	fontFamily->pattern = NULL;
-	fontFamily->allocated = FALSE;
 }
 
 static GpFontFamily *
@@ -271,11 +270,7 @@ GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
 	result->linespacing = fontFamily->linespacing;
 	result->celldescent = fontFamily->celldescent;
 	result->cellascent = fontFamily->cellascent;
-
-	if (fontFamily->pattern) {
-		result->pattern = FcPatternDuplicate (fontFamily->pattern);
-		result->allocated = TRUE;
-	}
+	result->pattern = fontFamily->pattern;
 
 	*clonedFontFamily = result;
 	return Ok;
@@ -337,10 +332,6 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 #endif
 	
 	if (delete) {
-		if (fontFamily->allocated) {
-			FcPatternDestroy (fontFamily->pattern);
-			fontFamily->pattern = NULL;
-		}
 		GdipFree (fontFamily);
 	}
 	
@@ -376,7 +367,6 @@ gdpi_ensureFamiliesCreated (GpFontCollection *font_collection)
 			gdip_fontfamily_init (font_collection->families + i);
 			font_collection->families[i].collection = font_collection;
 			font_collection->families[i].pattern = font_collection->fontset->fonts[i];
-			font_collection->families[i].allocated = FALSE;
 		}
 	}
 
@@ -536,7 +526,6 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 		ff = gdip_fontfamily_new ();
 		if (ff) {
 			ff->pattern = pat;
-			ff->allocated = FALSE;
 			ff->collection = font_collection;
 			status = Ok;
 		} else 
@@ -600,7 +589,6 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 					return OutOfMemory;
 
 				result->pattern = *gpfam;
-				result->allocated = FALSE;
 				result->collection = font_collection;
 
 				*fontFamily = result;
