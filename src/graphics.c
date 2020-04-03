@@ -2451,8 +2451,7 @@ GdipIsVisiblePointI (GpGraphics *graphics, INT x, INT y, BOOL *result)
 GpStatus WINGDIPAPI
 GdipIsVisibleRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, BOOL *result)
 {
-	float posy, posx;
-	GpRectF recthit, boundsF;
+	GpRectF boundsF;
 
 	if (!graphics || !result)
 		return InvalidParameter;
