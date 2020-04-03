@@ -86,6 +86,7 @@ typedef struct {
 	cairo_matrix_t		matrix;
 	cairo_matrix_t		previous_matrix;
 	GpRegion*		clip;
+	GpRegion		*previous_clip;
 	cairo_matrix_t		clip_matrix;
 	CompositingMode    	composite_mode;
 	CompositingQuality 	composite_quality;
@@ -129,6 +130,7 @@ typedef struct _Graphics {
 	cairo_surface_t		*metasurface;	/* bogus surface to satisfy some API calls */
 	/* common-stuff */
 	GpRegion*		clip;
+	GpRegion		*previous_clip;
 	GpMatrix*		clip_matrix;
 	GpRect			bounds;
 	GpRect			orig_bounds;
