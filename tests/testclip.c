@@ -194,6 +194,292 @@ test_gdip_clip_transform()
 }
 
 static void
+test_gdip_clip_containers()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+	GpRegion *clip;
+	GpRectF bounds;
+	static const int width = 100;
+	static const int height = 100;
+	BYTE *scan0 = (BYTE*) GdipAlloc (width * height * 4);
+	BOOL is_infinite = 0;
+	GraphicsContainer container1, container2;
+	ARGB colour;
+
+	C (GdipCreateBitmapFromScan0 (100, 100, 100 * 4, PixelFormat32bppARGB, scan0, &bitmap));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	// Check the clipping region is infinite
+	C (GdipCreateRegion (&clip));
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	C (GdipGraphicsClear (graphics, 0xFFFF0000));
+
+	// Test setting clip as rectangle
+	C (GdipSetClipRect (graphics, 10, 10, 60, 60, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	C (GdipBeginContainer2 (graphics, &container1));
+	assert (container1);
+
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	C (GdipGraphicsClear (graphics, 0xFF00FF00));
+
+	C (GdipSetClipRect (graphics, 20, 0, 40, 80, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 0);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 80);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 60);
+
+	C (GdipGraphicsClear (graphics, 0xFF0000FF));
+
+	C (GdipBeginContainer2 (graphics, &container2));
+	assert (container2);
+
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 60);
+
+	C (GdipSetClipRect (graphics, -20, 20, 140, 20, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == -20);
+	assert (bounds.Y == 20);
+	assert (bounds.Width == 140);
+	assert (bounds.Height == 20);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 20);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 20);
+
+	C (GdipGraphicsClear (graphics, 0xFF00FFFF));
+
+	C (GdipEndContainer (graphics, container2));
+
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 0);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 80);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 60);
+
+	C (GdipEndContainer (graphics, container1));
+
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 60);
+
+	C (GdipBitmapGetPixel (bitmap, 30, 5, &colour)); // Drawn with no clipping
+	assert (colour == 0xFFFF0000);
+
+	C (GdipBitmapGetPixel (bitmap, 15, 15, &colour)); // Drawn inside container1, clipping set outside (10, 10, 60, 60)
+	assert (colour == 0xFF00FF00);
+
+	C (GdipBitmapGetPixel (bitmap, 30, 15, &colour)); // Drawn inside container1, clipping set inside (20, 10, 40, 60)
+	assert (colour == 0xFF0000FF);
+
+	C (GdipBitmapGetPixel (bitmap, 30, 30, &colour)); // Drawn inside container2, clipping set inside (20, 20, 40, 20)
+	assert (colour == 0xFF00FFFF);
+
+	C (GdipDeleteRegion (clip));
+	C (GdipDeleteGraphics (graphics));
+	C (GdipDisposeImage (bitmap));
+
+	GdipFree (scan0);
+}
+
+static void
+test_gdip_clip_visible()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+	GpRegion *clip;
+	GpRectF bounds;
+	static const int width = 100;
+	static const int height = 100;
+	BYTE *scan0 = (BYTE*) GdipAlloc (width * height * 4);
+	BOOL is_infinite = 0;
+	GraphicsContainer container;
+	BOOL contains;
+
+	C (GdipCreateBitmapFromScan0 (100, 100, 100 * 4, PixelFormat32bppARGB, scan0, &bitmap));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	// Check the clipping region is infinite
+	C (GdipCreateRegion (&clip));
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 0);
+	assert (bounds.Y == 0);
+	assert (bounds.Width == 100);
+	assert (bounds.Height == 100);
+
+	C (GdipIsVisiblePoint (graphics, -5, 30, &contains));
+	assert (!contains);
+
+	C (GdipIsVisiblePoint (graphics, 150, 30, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, 100, 60, 150, 150, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, -50, 5, 50, 100, &contains));
+	assert (!contains);
+
+	// Test setting clip as rectangle
+	C (GdipSetClipRect (graphics, 10, 10, 60, 120, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 120);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 90);
+
+	C (GdipIsVisiblePoint (graphics, 15, 99, &contains));
+	assert (contains);
+
+	C (GdipIsVisiblePoint (graphics, 5, 30, &contains));
+	assert (!contains);
+
+	C (GdipIsVisiblePoint (graphics, 20, 101, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, 60, 60, 150, 150, &contains));
+	assert (contains);
+
+	C (GdipIsVisibleRect (graphics, 5, 5, 10, 5, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, 0, 101, 100, 30, &contains));
+	assert (!contains);
+
+	C (GdipBeginContainer2 (graphics, &container));
+	assert (container);
+
+	C (GdipGetClip (graphics, clip));
+	C (GdipIsInfiniteRegion (clip, graphics, &is_infinite));
+	assert (is_infinite);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 10);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 60);
+	assert (bounds.Height == 90);
+
+	C (GdipSetClipRect (graphics, 20, -20, 40, 140, CombineModeReplace));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == -20);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 140);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 90);
+
+	C (GdipIsVisiblePoint (graphics, 30, 30, &contains));
+	assert (contains);
+
+	C (GdipIsVisiblePoint (graphics, 15, 30, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, 10, 5, 20, 15, &contains));
+	assert (contains);
+
+	C (GdipIsVisibleRect (graphics, 30, 20, 20, 70, &contains));
+	assert (contains);
+
+	C (GdipIsVisibleRect (graphics, 60, 60, 150, 150, &contains));
+	assert (!contains);
+
+	C (GdipSetClipRect (graphics, 30, 20, 20, 20, CombineModeExclude));
+	C (GdipGetClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == -20);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 140);
+
+	C (GdipGetVisibleClipBounds (graphics, &bounds));
+	assert (bounds.X == 20);
+	assert (bounds.Y == 10);
+	assert (bounds.Width == 40);
+	assert (bounds.Height == 90);
+
+	C (GdipIsVisiblePoint (graphics, 29, 30, &contains));
+	assert (contains);
+
+	C (GdipIsVisiblePoint (graphics, 31, 30, &contains));
+	assert (!contains);
+
+	C (GdipIsVisibleRect (graphics, 35, 25, 20, 10, &contains));
+	assert (contains);
+
+	C (GdipIsVisibleRect (graphics, 31, 21, 18, 18, &contains));
+	assert (!contains);
+
+	C (GdipEndContainer (graphics, container));
+
+	C (GdipDeleteRegion (clip));
+	C (GdipDeleteGraphics (graphics));
+	C (GdipDisposeImage (bitmap));
+
+	GdipFree (scan0);
+}
+
+static void
 test_gdip_clip_path ()
 {
 	GpBitmap *bitmap = 0;
@@ -262,6 +548,8 @@ main(int argc, char**argv)
 
 	test_gdip_clip();
 	test_gdip_clip_transform();
+	test_gdip_clip_containers ();
+	test_gdip_clip_visible ();
 	test_gdip_clip_path ();
 
 	SHUTDOWN;
