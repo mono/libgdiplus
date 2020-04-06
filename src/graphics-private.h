@@ -129,6 +129,7 @@ typedef struct _Graphics {
 	GpMetafile		*metafile;
 	cairo_surface_t		*metasurface;	/* bogus surface to satisfy some API calls */
 	/* common-stuff */
+	GpRegion		*overall_clip;
 	GpRegion*		clip;
 	GpRegion		*previous_clip;
 	GpMatrix*		clip_matrix;
@@ -158,6 +159,7 @@ typedef struct _Graphics {
 float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc) GDIP_INTERNAL;
 
 void gdip_set_cairo_clipping (GpGraphics *graphics) GDIP_INTERNAL;
+GpStatus gdip_calculate_overall_clipping (GpGraphics *graphics) GDIP_INTERNAL;
 
 GpGraphics* gdip_graphics_new (cairo_surface_t *surface) GDIP_INTERNAL;
 GpGraphics* gdip_metafile_graphics_new (GpMetafile *metafile) GDIP_INTERNAL;

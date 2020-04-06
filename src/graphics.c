@@ -144,6 +144,7 @@ gdip_graphics_common_init (GpGraphics *graphics)
 
 	GdipCreateRegion (&graphics->clip);
 	GdipCreateMatrix (&graphics->clip_matrix);
+	graphics->overall_clip = graphics->clip;
 	graphics->previous_clip = NULL;
 	graphics->bounds.X = graphics->bounds.Y = graphics->bounds.Width = graphics->bounds.Height = 0;
 	graphics->orig_bounds.X = graphics->orig_bounds.Y = graphics->orig_bounds.Width = graphics->orig_bounds.Height = 0;
@@ -415,6 +416,12 @@ GdipDeleteGraphics (GpGraphics *graphics)
 		graphics->copy_of_ctm = NULL;
 	}
 
+	if (graphics->overall_clip) {
+		if (graphics->overall_clip != graphics->clip)
+			GdipDeleteRegion (graphics->overall_clip);
+		graphics->overall_clip = NULL;
+	}
+
 	if (graphics->clip) {
 		GdipDeleteRegion (graphics->clip);
 		graphics->clip = NULL;
@@ -524,8 +531,11 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 
 	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
 
-	if (graphics->clip)
+	if (graphics->clip) {
+		if (graphics->overall_clip == graphics->clip)
+			graphics->overall_clip = NULL; // Don't double-free!
 		GdipDeleteRegion (graphics->clip);
+	}
 	status = GdipCloneRegion (pos_state->clip, &graphics->clip);
 	if (status != Ok)
 		return status;
@@ -541,6 +551,8 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 	}
 
 	gdip_cairo_matrix_copy (graphics->clip_matrix, &pos_state->clip_matrix);
+
+	gdip_calculate_overall_clipping (graphics);
 
 	graphics->composite_mode = pos_state->composite_mode;
 	graphics->composite_quality = pos_state->composite_quality;
@@ -1919,9 +1931,9 @@ GdipBeginContainer2 (GpGraphics *graphics, GraphicsContainer* state)
 	status = GdipSaveGraphics (graphics, state);
 	if (status == Ok) {
 		if (graphics->previous_clip) {
-			status = GdipCombineRegionRegion (graphics->previous_clip, graphics->clip, CombineModeIntersect);
-			if (status != Ok)
-				return status;
+			GdipDeleteRegion(graphics->previous_clip);
+			graphics->previous_clip = graphics->overall_clip;
+			graphics->overall_clip = NULL;
 		} else if (!gdip_is_InfiniteRegion (graphics->clip)) {
 			GpRegion *clip;
 			status = GdipCloneRegion (graphics->clip, &clip);
@@ -1989,6 +2001,23 @@ GdipFlush (GpGraphics *graphics, GpFlushIntention intention)
 	}
 #endif
 	return Ok;
+}
+
+GpStatus gdip_calculate_overall_clipping (GpGraphics *graphics)
+{
+	GpStatus status = Ok;
+
+	if (!graphics->previous_clip) {
+		graphics->overall_clip = graphics->clip;
+	} else {
+		if (graphics->overall_clip && graphics->overall_clip != graphics->clip)
+			GdipDeleteRegion(graphics->overall_clip);
+		status = GdipCloneRegion (graphics->previous_clip, &graphics->overall_clip);
+		if (status != Ok)
+			return status;
+		status = GdipCombineRegionRegion (graphics->overall_clip, graphics->clip, CombineModeIntersect);
+	}
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -2081,6 +2110,10 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 	if (status != Ok)
 		goto cleanup;
 
+	status = gdip_calculate_overall_clipping (graphics);
+	if (status != Ok)
+		goto cleanup;
+
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
 		/* adjust cairo clipping according to graphics->clip */
@@ -2130,6 +2163,10 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (status != Ok)
 		goto cleanup;
 
+	status = gdip_calculate_overall_clipping (graphics);
+	if (status != Ok)
+		goto cleanup;
+
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
 		/* adjust cairo clipping according to graphics->clip */
@@ -2166,6 +2203,8 @@ GdipSetClipHrgn (GpGraphics *graphics, void *hRgn, CombineMode combineMode)
 GpStatus WINGDIPAPI
 GdipResetClip (GpGraphics *graphics)
 {
+	GpStatus status;
+
 	if (!graphics)
 		return InvalidParameter;
 
@@ -2180,6 +2219,10 @@ GdipResetClip (GpGraphics *graphics)
 	} else {
 		cairo_matrix_init_identity (graphics->clip_matrix);
 	}
+
+	status = gdip_calculate_overall_clipping (graphics);
+	if (status != Ok)
+		return status;
 
 	switch (graphics->backend) {
 	case GraphicsBackEndCairo:
@@ -2207,6 +2250,10 @@ GdipTranslateClip (GpGraphics *graphics, REAL dx, REAL dy)
 		return ObjectBusy;
 
 	status = GdipTranslateRegion (graphics->clip, dx, dy);
+	if (status != Ok)
+		return status;
+
+	status = gdip_calculate_overall_clipping (graphics);
 	if (status != Ok)
 		return status;
 
@@ -2331,6 +2378,35 @@ GdipSetVisibleClip_linux (GpGraphics *graphics, GpRect *rect)
 	return Ok;
 }
 
+GpStatus gdip_get_visible_clip (GpGraphics *graphics, GpRegion **visible_clip)
+{
+	GpStatus status = Ok;
+	GpRegion *clip = NULL;
+	BOOL empty;
+
+	GdipIsEmptyRegion (graphics->overall_clip, graphics, &empty);
+	if (empty) {
+		status = GdipCloneRegion (graphics->overall_clip, visible_clip);
+	} else if (!gdip_is_InfiniteRegion (graphics->overall_clip)) {
+		status = GdipCloneRegion (graphics->overall_clip, &clip);
+		if (status != Ok)
+			return status;
+
+		if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
+			GdipTransformRegion (clip, graphics->clip_matrix);
+		}
+
+		status = GdipCombineRegionRectI (clip, &graphics->bounds, CombineModeIntersect);
+		*visible_clip = clip;
+	} else {
+		status = GdipCreateRegionRectI (&graphics->bounds, visible_clip);
+	}
+
+	if (status != Ok && clip)
+		GdipDeleteRegion (clip);
+	return status;
+}
+
 GpStatus WINGDIPAPI
 GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 {
@@ -2341,17 +2417,8 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 		return ObjectBusy;
 
 	GpStatus status = Ok;
-	GpRegion *clip = graphics->clip;
+	GpRegion *clip = graphics->overall_clip;
 	BOOL empty;
-
-	if (graphics->previous_clip) {
-		status = GdipCloneRegion (graphics->previous_clip, &clip);
-		if (status != Ok)
-			return status;
-		status = GdipCombineRegionRegion (clip, graphics->clip, CombineModeIntersect);
-		if (status != Ok)
-			goto cleanup;
-	}
 
 	// The clip bounds for empty bounds should be translated.
 	GdipIsEmptyRegion (clip, graphics, &empty);
@@ -2365,8 +2432,7 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 	} else if (!gdip_is_InfiniteRegion (clip)) {
 		/* if the matrix is empty, avoid region cloning and transform */
 		if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
-			if (clip == graphics->clip)
-				GdipCloneRegion (graphics->clip, &clip);
+			GdipCloneRegion (graphics->overall_clip, &clip);
 			GdipTransformRegion (clip, graphics->clip_matrix);
 		}
 
@@ -2390,7 +2456,7 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 	}
 
 cleanup:
-	if (clip != graphics->clip)
+	if (clip != graphics->overall_clip)
 		GdipDeleteRegion (clip);
 	return status;
 }
@@ -2432,14 +2498,20 @@ GdipIsVisibleClipEmpty (GpGraphics *graphics, BOOL *result)
 GpStatus WINGDIPAPI
 GdipIsVisiblePoint (GpGraphics *graphics, REAL x, REAL y, BOOL *result)
 {
-	GpRectF rectF;
+	GpRegion *visible_clip;
+	GpStatus status;
 
 	if (!graphics || !result)
 		return InvalidParameter;
 
-	GdipGetVisibleClipBounds (graphics, &rectF);
-	*result = gdip_is_Point_in_RectF_inclusive (x, y, &rectF);
-	return Ok;
+	status = gdip_get_visible_clip (graphics, &visible_clip);
+	if (status != Ok)
+		return status;
+
+	status = GdipIsVisibleRegionPoint (visible_clip, x, y, graphics, result);
+
+	GdipDeleteRegion(visible_clip);
+	return status;
 }
 
 GpStatus WINGDIPAPI
@@ -2451,7 +2523,8 @@ GdipIsVisiblePointI (GpGraphics *graphics, INT x, INT y, BOOL *result)
 GpStatus WINGDIPAPI
 GdipIsVisibleRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, BOOL *result)
 {
-	GpRectF boundsF;
+	GpRegion *visible_clip;
+	GpStatus status;
 
 	if (!graphics || !result)
 		return InvalidParameter;
@@ -2461,14 +2534,14 @@ GdipIsVisibleRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height
 		return Ok;
 	}
 
-	GdipGetVisibleClipBounds (graphics, &boundsF);
+	status = gdip_get_visible_clip (graphics, &visible_clip);
+	if (status != Ok)
+		return status;
 
-	*result = (boundsF.X < x + width &&
-		boundsF.X + boundsF.Width > x &&
-		boundsF.Y < y + height &&
-		boundsF.Y + boundsF.Height > y);
+	status = GdipIsVisibleRegionRect (visible_clip, x, y, width, height, graphics, result);
 
-	return Ok;
+	GdipDeleteRegion(visible_clip);
+	return status;
 }
 
 GpStatus WINGDIPAPI
