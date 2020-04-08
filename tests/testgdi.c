@@ -127,6 +127,7 @@ win_draw(win_t *win)
 
 	printf("bmp drawn \n");
 
+	GdipDeleteGraphics(gp);
 }
 
 int
