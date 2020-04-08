@@ -349,7 +349,7 @@ gdip_process_bitmap_attributes (GpBitmap *bitmap, void **dest, GpImageAttributes
 				GdipBitmapGetPixel (bmpdest, x, y, &color);
 				color &= ~ALPHA_MASK;
 				
-				if (color >= trans->key_colorlow && color <= trans->key_colorhigh) {
+				if (color >= (trans->key_colorlow & ~ALPHA_MASK) && color <= (trans->key_colorhigh & ~ALPHA_MASK)) {
 					GdipBitmapSetPixel (bmpdest, x, y, 0x00FFFFFF /* transparent white */);
 				}
 			}
