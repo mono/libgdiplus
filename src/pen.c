@@ -144,7 +144,7 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 {
 	GpStatus status;
 	cairo_matrix_t product;
-	double widthx;
+	double widthx, widthy;
 
 	if (!graphics || !pen)
 		return InvalidParameter;
@@ -179,12 +179,12 @@ gdip_pen_setup (GpGraphics *graphics, GpPen *pen)
 	if (pen == graphics->last_pen && !pen->changed)
 		return Ok;
 
-	if (pen->width < 1.0) { /* we draw a pixel wide line if width is < 1.0 */
-		double widthy = 1.0;
-		widthx = 1.0;
-
-		cairo_device_to_user_distance (graphics->ct, &widthx, &widthy);
-	} else {
+	widthx = 1.0;
+	widthy = 1.0;
+	cairo_device_to_user_distance (graphics->ct, &widthx, &widthy);
+	widthx = fmax(fabs(widthx), fabs(widthy));
+	
+	if (pen->width > widthx) { /* we draw a pixel wide line if the output width is < 1.0 */
 		widthx = (double) pen->width;
 	}
 	cairo_set_line_width (graphics->ct, widthx);
