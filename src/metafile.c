@@ -1721,7 +1721,8 @@ GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceabl
 		if (wmfPlaceableFileHeader) {
 			status = GdipGetMetafileHeaderFromWmf (hWmf, wmfPlaceableFileHeader, &(*metafile)->metafile_header);
 			if (status != Ok) {
-				GdipFree (*metafile);
+				gdip_metafile_dispose (*metafile);
+				*metafile = NULL;
 				return status;
 			}
 		}
@@ -1732,7 +1733,7 @@ GdipCreateMetafileFromWmf (HMETAFILE hWmf, BOOL deleteWmf, GDIPCONST WmfPlaceabl
 	case MetafileTypeEmfPlusOnly:
 	case MetafileTypeEmfPlusDual:
 	default:
-		GdipFree (*metafile);
+		gdip_metafile_dispose (*metafile);
 		*metafile = NULL;
 		return GenericError;
 	}
