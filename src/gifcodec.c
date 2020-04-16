@@ -495,6 +495,8 @@ AddExtensionBlockMono(SavedImage *New, int Function, int Len, BYTE ExtData[])
 	ep->Bytes = (char *)GdipAlloc(ep->ByteCount);
 #endif
 	if (ep->Bytes == NULL) {
+		GdipFree (New->ExtensionBlocks);
+		New->ExtensionBlocks = NULL;
 		return (GIF_ERROR);
 	}
 
@@ -546,29 +548,29 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 	do {
 		if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR) {
-			return (GIF_ERROR);
+			goto error;
 		}
 
 		switch (RecordType) {
 			case IMAGE_DESC_RECORD_TYPE: {
 				if (DGifGetImageDesc(GifFile) == GIF_ERROR) {
-					return (GIF_ERROR);
+					goto error;
 				}
 
 				sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
 				/* Allocate memory for the image */
 				if (sp->ImageDesc.Width < 0 && sp->ImageDesc.Height < 0 && sp->ImageDesc.Width > (INT_MAX / sp->ImageDesc.Height)) {
-					return GIF_ERROR;
+					goto error;
 				}
 
 				ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
 				if (ImageSize == 0 || ImageSize > (SIZE_MAX / sizeof(GifPixelType))) {
-					return GIF_ERROR;
+					goto error;
 				}
 
 				sp->RasterBits = (BYTE *) GdipAlloc (ImageSize * sizeof(GifPixelType));
 				if (sp->RasterBits == NULL) {
-					return GIF_ERROR;
+					goto error;
 				}
 
 				if (sp->ImageDesc.Interlace) {
@@ -583,12 +585,12 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 					for (i = 0; i < 4; i++) {
 						for (j = InterlacedOffset[i]; j < sp->ImageDesc.Height; j += InterlacedJumps[i]) {
 							if (DGifGetLine(GifFile, sp->RasterBits + j * sp->ImageDesc.Width, sp->ImageDesc.Width) == GIF_ERROR)
-								return GIF_ERROR;
+								goto error;
 						}
 					}
 				}
 				else if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) == GIF_ERROR) {
-					return (GIF_ERROR);
+					goto error;
 				}
 
 				if (temp_save.ExtensionBlocks) {
@@ -609,16 +611,16 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 				while (ExtData != NULL) {
 					/* Create an extension block with our data */
 					if (AddExtensionBlockMono(&temp_save, Function, ExtData[0], &ExtData[1]) == GIF_ERROR) {
-						return (GIF_ERROR);
+						goto error;
 					}
 
 					if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR) {
-						return (GIF_ERROR);
+						goto error;
 					}
 
 					/* Graphics control blocks cannot contain any sub blocks. */
 					if (Function == 0xF9 && ExtData) {
-						return GIF_ERROR;
+						goto error;
 					}
 				}
 				break;
@@ -636,16 +638,21 @@ DGifSlurpMono(GifFileType * GifFile, SavedImage *TrailingExtensions)
 
 	/* The gif file must contain at least one image block. */
 	if (GifFile->ImageCount == 0)
-		return GIF_ERROR;
+		goto error;
 
 	/* In case the Gif has an extension block without an associated
 	* image we return it in TrailingExtensions, if provided */
 	if ((TrailingExtensions != NULL) && (temp_save.ExtensionBlocks != NULL)) {
 		*TrailingExtensions = temp_save;
+	} else {
+		FreeExtensionMono (&temp_save);
 	}
 
-
 	return (GIF_OK);
+
+error:
+	FreeExtensionMono (&temp_save);
+	return GIF_ERROR;
 }
 
 static GpStatus 
