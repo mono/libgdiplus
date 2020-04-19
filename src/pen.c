@@ -821,26 +821,31 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashstyle)
 	case DashStyleSolid:
 		pen->dash_array = NULL;
 		pen->dash_count = 0;
+		pen->own_dash_array = FALSE;
 		break;
 
 	case DashStyleDashDot:
 		pen->dash_array = DashDot;
 		pen->dash_count = 4;
+		pen->own_dash_array = FALSE;
 		break;
 
 	case DashStyleDashDotDot:
 		pen->dash_array = DashDotDot;
 		pen->dash_count = 6;
+		pen->own_dash_array = FALSE;
 		break;
 
 	case DashStyleDot:
 		pen->dash_array = Dot;
 		pen->dash_count = 2;
+		pen->own_dash_array = FALSE;
 		break;
 
 	case DashStyleDash:
 		pen->dash_array = Dash;
 		pen->dash_count = 2;
+		pen->own_dash_array = FALSE;
 		break;
 
 	case DashStyleCustom:
