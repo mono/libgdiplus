@@ -817,6 +817,13 @@ GdipSetPenDashStyle (GpPen *pen, GpDashStyle dashstyle)
 	if (!pen)
 		return InvalidParameter;
 
+	/* Free old custom dash style if we are going to override it */
+	if (pen->dash_count != 0 && pen->own_dash_array && dashstyle < DashStyleCustom) {
+		GdipFree (pen->dash_array);
+		pen->dash_count = 0;
+		pen->dash_array = NULL;
+	}
+
 	switch (dashstyle) {
 	case DashStyleSolid:
 		pen->dash_array = NULL;
