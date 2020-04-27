@@ -1502,6 +1502,7 @@ gdip_combine_exclude_from_infinite (GpRegion *region, GpPath *path)
 		region->tree->path = region_path;
 		return FALSE;
 	}
+	GdipDeletePath (region_path);
 	return TRUE;
 }
 
