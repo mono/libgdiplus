@@ -531,9 +531,12 @@ GdipRestoreGraphics (GpGraphics *graphics, GraphicsState state)
 
 	GdipSetRenderingOrigin (graphics, pos_state->org_x, pos_state->org_y);
 
+	if (graphics->overall_clip != graphics->clip) {
+		GdipDeleteRegion (graphics->overall_clip);
+	}
+	graphics->overall_clip = NULL;
+
 	if (graphics->clip) {
-		if (graphics->overall_clip == graphics->clip)
-			graphics->overall_clip = NULL; // Don't double-free!
 		GdipDeleteRegion (graphics->clip);
 	}
 	status = GdipCloneRegion (pos_state->clip, &graphics->clip);
