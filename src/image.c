@@ -602,12 +602,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	cairo_pattern_t	*pattern;
 	cairo_pattern_t	*orig;
 	cairo_matrix_t	mat;
-	void		*dest;
-	void		*org;
-	int		org_format;
-	cairo_surface_t *org_surface;
-	BOOL		allocated = FALSE;
-	cairo_surface_t	*original = NULL;
+	GpBitmap *preprocessed_image = NULL;
 	
 	if (!graphics)
 		return InvalidParameter;
@@ -668,17 +663,12 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		return Ok;
 	}
 
-	org = dest = image->active_bitmap->scan0; 
-	org_format = image->active_bitmap->pixel_format;
-	org_surface = image->surface;
-	status = gdip_process_bitmap_attributes (image, &dest, (GpImageAttributes *) imageAttributes, &allocated);
-	if (status != Ok)
+	status = gdip_process_bitmap_attributes (image, (GpImageAttributes *) imageAttributes, &preprocessed_image);
+	if (status != Ok) {
 		return status;
-
-	/*  If allocated is true we have a newly allocated and altered Scan0 in dest */
-	if (allocated) {
-		image->active_bitmap->scan0 = dest;
-		image->surface = NULL;
+	}
+	if (preprocessed_image == NULL) {
+		preprocessed_image = (GpBitmap *) image;
 	}
 
 	cairo_matrix_init (&mat, 1, 0, 0, 1, 0, 0);
@@ -694,8 +684,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		GpBitmap	*imgflipY = NULL;
 		GpBitmap	*imgflipXY = NULL;
 
-		float img_width = image->active_bitmap->width *  (dstwidth / srcwidth);
-		float img_height = image->active_bitmap->height * (dstheight / srcheight);
+		float img_width = preprocessed_image->active_bitmap->width *  (dstwidth / srcwidth);
+		float img_height = preprocessed_image->active_bitmap->height * (dstheight / srcheight);
 		cairo_surface_t *cur_surface;
 
 		if (imageAttributes->wrapmode == WrapModeTileFlipXY) {
@@ -705,7 +695,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		if (flipXOn) {			
 			/* We're ok just cloning the bitmap, we don't need the image data
 			 * and we destroy it before we leave this function */
-			status = gdip_bitmap_clone (image, &imgflipX);
+			status = gdip_bitmap_clone (preprocessed_image, &imgflipX);
 			if (status != Ok) {
 				gdip_bitmap_dispose(imgflipX);
 				return status;
@@ -721,7 +711,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipYOn) {			
-			status = gdip_bitmap_clone (image, &imgflipY);
+			status = gdip_bitmap_clone (preprocessed_image, &imgflipY);
 			if (status != Ok) {
 				gdip_bitmap_dispose(imgflipX);
 				gdip_bitmap_dispose(imgflipY);
@@ -739,7 +729,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		}
 		
 		if (flipXOn && flipYOn) {			
-			status = gdip_bitmap_clone (image, &imgflipXY);
+			status = gdip_bitmap_clone (preprocessed_image, &imgflipXY);
 			if (status != Ok) {
 				gdip_bitmap_dispose(imgflipX);
 				gdip_bitmap_dispose(imgflipY);
@@ -766,7 +756,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 			gdip_bitmap_ensure_surface (imgflipXY);			
 		}
 		
-		gdip_bitmap_ensure_surface (image);
+		gdip_bitmap_ensure_surface (preprocessed_image);
 
 		for (posy = 0; posy < dstheight; posy += img_height) {
 			for (posx = 0; posx < dstwidth; posx += img_width) {
@@ -779,7 +769,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 						if (flipY) {
 							cur_surface = imgflipY->surface;
 						} else {
-							cur_surface = image->surface;
+							cur_surface = preprocessed_image->surface;
 						}
 					}
 				}
@@ -788,30 +778,29 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 				cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 				cairo_matrix_translate (&mat, - (dstx + posx), - (dsty + posy));
 
-				pattern = cairo_pattern_create_for_surface(cur_surface);
+				pattern = cairo_pattern_create_for_surface (cur_surface);
 				cairo_pattern_set_matrix (pattern, &mat);
 
-				orig = cairo_get_source(graphics->ct);
-				cairo_pattern_reference(orig);
+				orig = cairo_get_source (graphics->ct);
+				cairo_pattern_reference (orig);
 
-				cairo_set_source(graphics->ct, pattern);
+				cairo_set_source (graphics->ct, pattern);
 				cairo_rectangle (graphics->ct, dstx + posx, dsty + posy, img_width, img_height);
 				cairo_fill (graphics->ct);
 
-				cairo_set_source(graphics->ct, orig);
+				cairo_set_source (graphics->ct, orig);
 
 				cairo_matrix_init_identity (&mat);
 				cairo_pattern_set_matrix (pattern, &mat);
 
-				cairo_pattern_destroy(orig);
-				cairo_pattern_destroy(pattern);
+				cairo_pattern_destroy (orig);
+				cairo_pattern_destroy (pattern);
 
 				if (flipXOn) {
 					flipX = !flipX;
 				}
-			
 			}
-					
+
 			if (flipYOn) {
 				flipY = !flipY; 
 			}
@@ -831,10 +820,9 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 	} else {
 		cairo_pattern_t *filter;
 
-		gdip_bitmap_ensure_surface (image);
-		original = image->surface;
+		gdip_bitmap_ensure_surface (preprocessed_image);
 
-		filter = cairo_pattern_create_for_surface (original);
+		filter = cairo_pattern_create_for_surface (preprocessed_image->surface);
 		cairo_pattern_set_filter (filter, gdip_get_cairo_filter (graphics->interpolation));
 
 		cairo_matrix_translate (&mat, srcx, srcy);
@@ -844,7 +832,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		cairo_matrix_translate (&mat, -dstx, -dsty);
 
-		pattern = cairo_pattern_create_for_surface(original);
+		pattern = cairo_pattern_create_for_surface (preprocessed_image->surface);
 		cairo_pattern_set_matrix (pattern, &mat);
 
 		g_assert (cairo_status (graphics->ct) == CAIRO_STATUS_SUCCESS);
@@ -865,12 +853,8 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		cairo_pattern_destroy (filter);
 	}
 
-	if (allocated) {
-		gdip_bitmap_invalidate_surface (image);
-		image->active_bitmap->scan0 = org;
-		image->active_bitmap->pixel_format = org_format;
-		image->surface = org_surface;
-		GdipFree (dest);
+	if (preprocessed_image != image) {
+		GdipDisposeImage ((GpImage *) preprocessed_image);
 	}
 	
 	return Ok;
