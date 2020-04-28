@@ -96,6 +96,8 @@ test_gdip_clip()
 	// Clear the clipped image (background)
 	C (GdipGraphicsClear (graphics, 0x80ff0000));
 
+	C (GdipDeleteGraphics (graphics));
+
 	// Now onto the second image
 
 	// Get the graphics

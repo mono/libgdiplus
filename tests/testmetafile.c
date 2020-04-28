@@ -649,6 +649,7 @@ static void test_recordMetafile ()
     status = GdipRecordMetafile (hdc, EmfTypeEmfPlusDual, &rect, MetafileFrameUnitPixel, wmfFilePath, NULL);
     assertEqualInt (status, InvalidParameter);
 
+    GdipReleaseDC (graphics, hdc);
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
     GdipDisposeImage (bitmap);
