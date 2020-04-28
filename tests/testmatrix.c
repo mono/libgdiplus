@@ -257,6 +257,8 @@ static void test_setMatrixElements ()
 	// Negative tests.
 	status = GdipSetMatrixElements (NULL, 1, 2, 3, 4, 5, 6);
 	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteMatrix (matrix);
 }
 
 static void test_multiplyMatrix ()
@@ -679,6 +681,8 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
+
+	GdipDeleteMatrix (matrix);
 	
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
@@ -697,7 +701,9 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 7);
 	assertEqualFloat (points[2].X, 7);
 	assertEqualFloat (points[2].Y, 9);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -715,7 +721,9 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -733,7 +741,9 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -751,7 +761,9 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 19);
 	assertEqualFloat (points[2].X, 12);
 	assertEqualFloat (points[2].Y, 27);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -769,7 +781,9 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 13);
 	assertEqualFloat (points[2].X, 25);
 	assertEqualFloat (points[2].Y, 19);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -788,6 +802,8 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[2].X, 28);
 	assertEqualFloat (points[2].Y, 34);
 
+	GdipDeleteMatrix (matrix);
+
 	// Complex matrix.
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	points[0].X = 1;
@@ -805,6 +821,8 @@ static void test_transformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 28);
 	assertEqualFloat (points[2].X, 28);
 	assertEqualFloat (points[2].Y, 40);
+
+	GdipDeleteMatrix (matrix);
 
 	// Rounding.
 	GdipCreateMatrix2 (1.5, 0, 0, 1.5, 0, 0, &matrix);
@@ -870,7 +888,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -888,7 +908,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 7);
 	assertEqualInt (points[2].X, 7);
 	assertEqualInt (points[2].Y, 9);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -906,7 +928,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -924,7 +948,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -942,7 +968,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 19);
 	assertEqualInt (points[2].X, 12);
 	assertEqualInt (points[2].Y, 27);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -960,7 +988,9 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 13);
 	assertEqualInt (points[2].X, 25);
 	assertEqualInt (points[2].Y, 19);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -979,6 +1009,8 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[2].X, 28);
 	assertEqualInt (points[2].Y, 34);
 
+	GdipDeleteMatrix (matrix);
+
 	// Complex matrix.
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	points[0].X = 1;
@@ -996,6 +1028,8 @@ static void test_transformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 28);
 	assertEqualInt (points[2].X, 28);
 	assertEqualInt (points[2].Y, 40);
+
+	GdipDeleteMatrix (matrix);
 
 	// Rounding.
 	GdipCreateMatrix2 (1.5, 0, 0, 1.5, 0, 0, &matrix);
@@ -1066,7 +1100,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1084,7 +1120,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 4);
 	assertEqualFloat (points[2].X, 5);
 	assertEqualFloat (points[2].Y, 6);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1102,7 +1140,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1120,7 +1160,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1138,7 +1180,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 16);
 	assertEqualFloat (points[2].X, 10);
 	assertEqualFloat (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1156,7 +1200,9 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 10);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1175,6 +1221,8 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[2].X, 28);
 	assertEqualFloat (points[2].Y, 34);
 
+	GdipDeleteMatrix (matrix);
+
 	// Complex matrix.
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	points[0].X = 1;
@@ -1192,6 +1240,8 @@ static void test_vectorTransformMatrixPoints ()
 	assertEqualFloat (points[1].Y, 22);
 	assertEqualFloat (points[2].X, 23);
 	assertEqualFloat (points[2].Y, 34);
+
+	GdipDeleteMatrix (matrix);
 
 	// Rounding.
 	GdipCreateMatrix2 (1.5, 0, 0, 1.5, 0, 0, &matrix);
@@ -1257,7 +1307,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate only matrix.
 	GdipCreateMatrix2 (1, 0, 0, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1275,7 +1327,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 4);
 	assertEqualInt (points[2].X, 5);
 	assertEqualInt (points[2].Y, 6);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1293,7 +1347,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1311,7 +1367,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and scale only matrix.
 	GdipCreateMatrix2 (2, 0, 0, 4, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1329,7 +1387,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 16);
 	assertEqualInt (points[2].X, 10);
 	assertEqualInt (points[2].Y, 24);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Translate and shear only matrix.
 	GdipCreateMatrix2 (1, 2, 3, 1, 2, 3, &matrix);
 	points[0].X = 1;
@@ -1347,7 +1407,9 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 10);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 16);
-	
+
+	GdipDeleteMatrix (matrix);
+
 	// Scale and shear only matrix.
 	GdipCreateMatrix2 (2, 2, 3, 4, 0, 0, &matrix);
 	points[0].X = 1;
@@ -1366,6 +1428,8 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[2].X, 28);
 	assertEqualInt (points[2].Y, 34);
 
+	GdipDeleteMatrix (matrix);
+
 	// Complex matrix.
 	GdipCreateMatrix2 (1, 2, 3, 4, 5, 6, &matrix);
 	points[0].X = 1;
@@ -1383,6 +1447,8 @@ static void test_vectorTransformMatrixPointsI ()
 	assertEqualInt (points[1].Y, 22);
 	assertEqualInt (points[2].X, 23);
 	assertEqualInt (points[2].Y, 34);
+
+	GdipDeleteMatrix (matrix);
 
 	// Rounding.
 	GdipCreateMatrix2 (1.5, 0, 0, 1.5, 0, 0, &matrix);
@@ -1440,6 +1506,8 @@ static void test_getMatrixElements ()
 
 	status = GdipGetMatrixElements (matrix, NULL);
 	assertEqualInt (status, InvalidParameter);
+
+	GdipDeleteMatrix (matrix);
 }
 
 static void test_isMatrixInvertible ()

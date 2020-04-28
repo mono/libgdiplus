@@ -68,6 +68,10 @@ static void test_createMetafileFromFile ()
 
     status = GdipCreateMetafileFromFile (bitmapFilePath, &metafile);
     assertEqualInt (status, GenericError);
+
+    freeWchar (noSuchFilePath);
+    freeWchar (invalidFilePath);
+    freeWchar (bitmapFilePath);
 }
 
 static void test_createMetafileFromStream ()
@@ -645,6 +649,7 @@ static void test_recordMetafile ()
     status = GdipRecordMetafile (hdc, EmfTypeEmfPlusDual, &rect, MetafileFrameUnitPixel, wmfFilePath, NULL);
     assertEqualInt (status, InvalidParameter);
 
+    GdipReleaseDC (graphics, hdc);
     GdipDisposeImage (wmfMetafile);
     GdipDisposeImage (emfMetafile);
     GdipDisposeImage (bitmap);

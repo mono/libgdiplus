@@ -1604,6 +1604,9 @@ static void test_getPointCount ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 
+	GdipDeletePath (emptyPath);
+	GdipDeletePath (path);
+
 	// Non Empty.
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
 	status = GdipGetPointCount (path, &count);
@@ -1617,7 +1620,6 @@ static void test_getPointCount ()
 	status = GdipGetPointCount (path, NULL);
 	assertEqualInt (status, InvalidParameter);
 	
-	GdipDeletePath (emptyPath);
 	GdipDeletePath (path);
 }
 
@@ -2970,6 +2972,8 @@ static void test_flattenPath ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
 	
+	GdipDeletePath (path);
+
 	// Non empty ellipse - null, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -4050,6 +4054,8 @@ static void test_addPathStringI ()
 
 	status = GdipAddPathStringI (path, string, -1, family, 0, 72, &layoutRect, format);
 	assertEqualInt (status, Ok);
+
+	GdipDeletePath (path);
 
 	// Minus one length - empty string.
 	GdipCreatePath (FillModeAlternate, &path);

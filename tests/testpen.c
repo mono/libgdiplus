@@ -705,6 +705,7 @@ static void test_setPenStartCap ()
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
+	GdipDeletePath (path);
 	GdipDeleteCustomLineCap (penCustomLineCap);
 	GdipDeleteCustomLineCap (customStartCap);
 }
@@ -772,6 +773,7 @@ static void test_setPenEndCap ()
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
+	GdipDeletePath (path);
 	GdipDeleteCustomLineCap (penCustomLineCap);
 	GdipDeleteCustomLineCap (customEndCap);
 }
@@ -996,6 +998,7 @@ static void test_setPenCustomStartCap ()
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
+	GdipDeletePath (path);
 	GdipDeleteCustomLineCap (penCustomLineCap);
 	GdipDeleteCustomLineCap (customStartCap);
 }
@@ -1055,6 +1058,7 @@ static void test_setPenCustomEndCap ()
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeletePen (pen);
+	GdipDeletePath (path);
 	GdipDeleteCustomLineCap (penCustomLineCap);
 	GdipDeleteCustomLineCap (customEndCap);
 }
@@ -1738,6 +1742,7 @@ static void test_setPenBrushFill ()
 	GdipDeleteBrush ((GpBrush *) solidBrush);
 	GdipDisposeImage (image);
 	GdipDeleteBrush ((GpBrush *) textureBrush);
+	GdipDeleteBrush ((GpBrush *) brush);
 }
 
 static void test_getPenBrushFill ()
@@ -2342,6 +2347,8 @@ static void test_getPenCompoundArray ()
 
 	status = GdipGetPenCompoundArray (pen, compounds, 1);
 	assertEqualInt (status, InvalidParameter);
+
+	GdipDeletePen (pen);
 }
 
 static void test_deletePen ()

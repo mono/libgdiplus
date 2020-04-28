@@ -298,6 +298,8 @@ static void test_createPathGradientI ()
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, 1, 2, 4, 11, 0xFF000000, 3, 7, WrapModeTile);
 
+    GdipDeleteBrush ((GpBrush *) brush);
+
     // Negative tests.
     brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientI (NULL, 2, WrapModeClamp, &brush);
@@ -430,6 +432,8 @@ static void test_createPathGradientFromPath ()
     assertEqualInt (status, Ok);
     verifyPathGradientBrush (brush, 10, 20, 30, 40, 0xFFFFFFFF, 25, 40, WrapModeClamp);
 
+    GdipDeleteBrush ((GpBrush *) brush);
+
     // Negative tests.
     brush = (GpPathGradient *) 0xCC;
     status = GdipCreatePathGradientFromPath (NULL, &brush);
@@ -450,7 +454,6 @@ static void test_createPathGradientFromPath ()
     status = GdipCreatePathGradientFromPath (emptyPath, NULL);
     assertEqualInt (status, InvalidParameter);
 
-    GdipDeleteBrush ((GpBrush *) brush);
     GdipDeletePath (linePath);
     GdipDeletePath (emptyPath);
 }
@@ -568,6 +571,8 @@ static void test_getPathGradientSurroundColorsWithCount ()
     colors[2] = 0x00000000;
     colors[3] = 0x00000000;
     colors[4] = 0x00000000;
+
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // From path.
     GdipCreatePathGradientFromPath (path, &brush);
@@ -721,6 +726,8 @@ static void test_setPathGradientSurroundColorsWithCount ()
     colors[1] = 0x00000000;
     colors[2] = 0x00000000;
     colors[3] = 0x00000000;
+
+    GdipDeleteBrush ((GpBrush *) brush);
 
     // One surround color.
     GdipCreatePathGradient (threePoints, 3, WrapModeTileFlipX, &brush);
@@ -1809,6 +1816,7 @@ static void test_setPathGradientTransform ()
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (nonInvertibleMatrix);
     GdipDeleteMatrix (transform);
 }
 
@@ -1837,6 +1845,7 @@ static void test_resetPathGradientTransform ()
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteMatrix (matrix);
+    GdipDeleteMatrix (transform);
 }
 
 static void test_multiplyPathGradientTransform ()
@@ -2360,6 +2369,7 @@ static void test_cloneWithPath ()
 
     GdipDeleteBrush ((GpBrush *) brush);
     GdipDeleteBrush ((GpBrush *) clonedBrush);
+    GdipDeletePath (path);
     GdipDeleteMatrix (transform);
     GdipDeleteMatrix (matrix);
 }

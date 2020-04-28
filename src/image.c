@@ -663,6 +663,11 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		srcheight = gdip_unit_conversion (srcUnit, UnitCairoPoint, graphics->dpi_y, graphics->type, srcheight);
 	}
 
+	if (gdip_near_zero (srcwidth) || gdip_near_zero (dstwidth) ||
+	    gdip_near_zero (srcheight) || gdip_near_zero (dstheight)) {
+		return Ok;
+	}
+
 	org = dest = image->active_bitmap->scan0; 
 	org_format = image->active_bitmap->pixel_format;
 	org_surface = image->surface;
@@ -834,7 +839,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 
 		cairo_matrix_translate (&mat, srcx, srcy);
 
-		if (!gdip_near_zero(srcwidth - dstwidth) || !gdip_near_zero(srcheight - dstheight))
+		if (!gdip_near_zero(srcwidth - dstwidth) && !gdip_near_zero(srcheight - dstheight))
 			cairo_matrix_scale (&mat, srcwidth / dstwidth, srcheight / dstheight);
 
 		cairo_matrix_translate (&mat, -dstx, -dsty);
@@ -842,14 +847,16 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		pattern = cairo_pattern_create_for_surface(original);
 		cairo_pattern_set_matrix (pattern, &mat);
 
-		orig = cairo_get_source(graphics->ct);
-		cairo_pattern_reference(orig);
+		g_assert (cairo_status (graphics->ct) == CAIRO_STATUS_SUCCESS);
 
-		cairo_set_source(graphics->ct, pattern);
+		orig = cairo_get_source (graphics->ct);
+		cairo_pattern_reference (orig);
+
+		cairo_set_source (graphics->ct, pattern);
 		cairo_rectangle (graphics->ct, dstx, dsty, dstwidth, dstheight);
 		cairo_fill (graphics->ct);
 		
-		cairo_set_source(graphics->ct, orig);
+		cairo_set_source (graphics->ct, orig);
 		cairo_pattern_destroy (orig);
 
 		cairo_matrix_init_identity (&mat);
@@ -863,7 +870,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		image->active_bitmap->scan0 = org;
 		image->active_bitmap->pixel_format = org_format;
 		image->surface = org_surface;
-		// NOTE: dest is freed by gdip_bitmap_invalidate_surface above
+		GdipFree (dest);
 	}
 	
 	return Ok;
@@ -916,6 +923,12 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 	if (count == 4)
 		return NotImplemented;
 
+	/* Short circuit empty destination rectangle to avoid creating non-invertible matrix */
+	if (points[2].X + points[1].X - points[0].X - points[0].X == 0 &&
+	    points[2].Y + points[1].Y - points[0].Y - points[0].Y == 0) {
+		return Ok;
+	}
+
 	rect.X = 0; 
 	rect.Y = 0; 
 	if (image->type == ImageTypeBitmap) {
@@ -935,6 +948,7 @@ GdipDrawImagePointsRect (GpGraphics *graphics, GpImage *image, GDIPCONST GpPoint
 
 	cairo_get_matrix (graphics->ct, &orig_matrix);
 	gdip_cairo_set_matrix (graphics, matrix);
+	g_assert (cairo_status (graphics->ct) == CAIRO_STATUS_SUCCESS);
 	status = GdipDrawImageRectRect (graphics, image, rect.X, rect.Y, rect.Width, rect.Height, srcx, srcy, 
 		srcwidth, srcheight, srcUnit, imageAttributes, callback, callbackData);
 	cairo_set_matrix (graphics->ct, &orig_matrix);

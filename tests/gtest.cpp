@@ -24,7 +24,7 @@
 TEST(RegionTests, GetRegionScans_CustomMatrix_TransformsRegionScans) {
 	STARTUP
 
-		GpMatrix* matrix = NULL;
+	GpMatrix* matrix = NULL;
 
 	ASSERT_EQ(0, GdipCreateMatrix(&matrix));
 	ASSERT_EQ(0, GdipTranslateMatrix(matrix, 10, 11, MatrixOrderPrepend));
@@ -43,13 +43,16 @@ TEST(RegionTests, GetRegionScans_CustomMatrix_TransformsRegionScans) {
 	int scansCount;
 	ASSERT_EQ(0, GdipGetRegionScans(region, &rects, &scansCount, matrix));
 
+	ASSERT_EQ(Ok, GdipDeleteRegion(region));
+	ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
+
 	SHUTDOWN
 }
 
 TEST(RegionTests, GdipGetPathWorldBounds) {
 	STARTUP
 
-		GpRegion* region = NULL;
+	GpRegion* region = NULL;
 	ASSERT_EQ(0, GdipCreateRegion(&region));
 
 	GpRectF rectangles[] =
@@ -67,6 +70,9 @@ TEST(RegionTests, GdipGetPathWorldBounds) {
 	ASSERT_EQ(bounds.Y, rectangles[0].Y);
 	ASSERT_EQ(bounds.Width, rectangles[0].Width);
 	ASSERT_EQ(bounds.Height, rectangles[0].Height);
+
+	ASSERT_EQ(Ok, GdipDeletePath(path));
+	ASSERT_EQ(Ok, GdipDeleteRegion(region));
 
 	SHUTDOWN
 }
@@ -169,6 +175,9 @@ TEST(MatrixTests, Ctor_FloatingPointBoundsInElements) {
 		GdipGetMatrixElements(matrix, elements);
 		ASSERT_EQ(0, elements[4]);
 		ASSERT_EQ(0, elements[5]);
+
+		ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
+		free(elements);
 	}
 
 	SHUTDOWN
@@ -187,6 +196,8 @@ TEST(MatrixTests, Invert_FloatBounds_ThrowsArgumentException) {
 		ASSERT_EQ(0, GdipCreateMatrix2(f, 0, 0, 1, 0, 0, &matrix));
 
 		ASSERT_EQ(InvalidParameter, GdipInvertMatrix(matrix));
+
+		ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
 	}
 
 	SHUTDOWN
@@ -212,6 +223,10 @@ TEST(MatrixTests, Multiply_Matrix_Success) {
 		ASSERT_EQ(FLT_MAX, elements[i]);
 	}
 
+	ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
+	ASSERT_EQ(Ok, GdipDeleteMatrix(multiple));
+	free(elements);
+
 	SHUTDOWN
 }
 
@@ -226,7 +241,6 @@ TEST(MatrixTests, Multiply_Matrix_Success2) {
 
 	ASSERT_EQ(0, GdipMultiplyMatrix(matrix, multiple, MatrixOrderAppend));
 
-
 	REAL* elements = (REAL*)malloc(6 * sizeof(float));
 	GdipGetMatrixElements(matrix, elements);
 
@@ -234,6 +248,10 @@ TEST(MatrixTests, Multiply_Matrix_Success2) {
 	{
 		ASSERT_EQ(0, elements[i]);
 	}
+
+	ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
+	ASSERT_EQ(Ok, GdipDeleteMatrix(multiple));
+	free(elements);
 
 	SHUTDOWN
 }
@@ -258,6 +276,10 @@ TEST(MatrixTests, Multiply_Matrix_Success3) {
 	}
 	ASSERT_EQ(50, elements[4]);
 	ASSERT_EQ(60, elements[5]);
+
+	ASSERT_EQ(Ok, GdipDeleteMatrix(matrix));
+	ASSERT_EQ(Ok, GdipDeleteMatrix(multiple));
+	free(elements);
 
 	SHUTDOWN
 }
@@ -294,6 +316,10 @@ TEST(CustomLineCapTests, Ctor_InvalidLineCap_ReturnsFlat) {
 		LineCap baseCap;
 		ASSERT_EQ(Ok, GdipGetCustomLineCapBaseCap(lineCap, &baseCap));
 		ASSERT_EQ(LineCapFlat, baseCap);
+
+		ASSERT_EQ(Ok, GdipDeleteCustomLineCap(lineCap));
+		ASSERT_EQ(Ok, GdipDeletePath(fillPath));
+		ASSERT_EQ(Ok, GdipDeletePath(strokePath));
 	}
 
 	SHUTDOWN
@@ -364,6 +390,10 @@ TEST(CustomLineCapTests, Ctor_Path_Path_LineCap_Float) {
 		LineCap baseCap;
 		ASSERT_EQ(Ok, GdipGetCustomLineCapBaseCap(lineCap, &baseCap));
 		ASSERT_EQ(expectedCap, baseCap);
+
+		ASSERT_EQ(Ok, GdipDeleteCustomLineCap(lineCap));
+		ASSERT_EQ(Ok, GdipDeletePath(fillPath));
+		ASSERT_EQ(Ok, GdipDeletePath(strokePath));
 	}
 
 	SHUTDOWN
@@ -445,6 +475,7 @@ TEST(ImageAttributesTests, ClearColorMatrix_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -484,6 +515,7 @@ TEST(ImageAttributesTests, ClearNoOp_Type_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(0xFF210000, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -511,6 +543,7 @@ TEST(ImageAttributesTests, SetGamma_Gamma_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(0xFF21FF00, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -539,6 +572,7 @@ TEST(ImageAttributesTests, ClearColorKey_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -567,6 +601,7 @@ TEST(ImageAttributesTests, ClearGamma_Type_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -595,6 +630,7 @@ TEST(ImageAttributesTests, ClearOutputChannelColorProfile_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -625,6 +661,7 @@ TEST(ImageAttributesTests, ClearRemapTable_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(colorMap[0].oldColor.Argb, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -652,6 +689,7 @@ TEST(ImageAttributesTests, ClearThreshold_ThresholdTypeI_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -678,6 +716,7 @@ TEST(ImageAttributesTests, GetAdjustedPalette_Disposed_ThrowsArgumentException) 
 	ASSERT_EQ(InvalidParameter, GdipGetImageAttributesAdjustedPalette(attributes, palette, ColorAdjustTypeDefault));
 
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
+	free(palette);
 
 	SHUTDOWN
 }
@@ -745,9 +784,9 @@ TEST(ImageAttributesTests, SetNoOp_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(green, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
-
 
 	SHUTDOWN
 }
@@ -774,6 +813,7 @@ TEST(ImageAttributesTests, SetThreshold_Threshold_Success) {
 	ASSERT_EQ(Ok, GdipBitmapGetPixel(bitmap, 0, 0, &actualColor));
 	ASSERT_EQ(0xFFFF00FF, actualColor);
 
+	ASSERT_EQ(Ok, GdipDisposeImageAttributes(attributes));
 	ASSERT_EQ(Ok, GdipDisposeImage(bitmap));
 	ASSERT_EQ(Ok, GdipDeleteGraphics(graphics));
 
@@ -822,6 +862,10 @@ TEST(GraphicsPathTests, AddArc_Rectangle_Success) {
 	ASSERT_NEAR(2.01370716, bounds.Y, 0.001);
 	ASSERT_NEAR(0, bounds.Width, 0.001);
 	ASSERT_NEAR(0.0137047768, bounds.Height, 0.001);
+
+	ASSERT_EQ(Ok, GdipDeletePath(path));
+	free(points);
+	free(types);
 
 	SHUTDOWN
 }
