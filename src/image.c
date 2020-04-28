@@ -870,7 +870,7 @@ GdipDrawImageRectRect (GpGraphics *graphics, GpImage *image,
 		image->active_bitmap->scan0 = org;
 		image->active_bitmap->pixel_format = org_format;
 		image->surface = org_surface;
-		// NOTE: dest is freed by gdip_bitmap_invalidate_surface above
+		GdipFree (dest);
 	}
 	
 	return Ok;
