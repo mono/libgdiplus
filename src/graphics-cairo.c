@@ -831,14 +831,14 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 	int i;
 
 	cairo_reset_clip (graphics->ct);
- 
-	if (gdip_is_InfiniteRegion (graphics->clip))
+
+	if (gdip_is_InfiniteRegion (graphics->overall_clip))
 		return Ok;
 
 	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
-		work = graphics->clip;
+		work = graphics->overall_clip;
 	} else {
-		GdipCloneRegion (graphics->clip, &work);
+		GdipCloneRegion (graphics->overall_clip, &work);
 		GdipTransformRegion (work, graphics->clip_matrix);
 	}
 
@@ -877,7 +877,7 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 	cairo_clip (graphics->ct);
 
 	/* destroy the clone, if one was needed */
-	if (work != graphics->clip)
+	if (work != graphics->overall_clip)
 		GdipDeleteRegion (work);
 
 	return Ok;
