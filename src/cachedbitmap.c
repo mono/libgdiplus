@@ -14,7 +14,7 @@ GpStatus WINGDIPAPI GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphi
     if (bitmap->type != ImageTypeBitmap)
         return InvalidParameter;
 
-    surface = cairo_surface_create_similar_image(bitmap->surface, bitmap->cairo_format, bitmap->active_bitmap->width, bitmap->active_bitmap->height)
+    surface = cairo_surface_create_similar_image(bitmap->surface, bitmap->cairo_format, bitmap->active_bitmap->width, bitmap->active_bitmap->height);
 
 	status = cairo_surface_status (surface);
     if (status != CAIRO_STATUS_SUCCESS) {

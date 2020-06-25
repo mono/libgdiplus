@@ -2084,7 +2084,7 @@ GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, 
 	}
 
 	status = GdipSetClipRegion (graphics, region, combineMode);
-	GdipDeleteRe	gion (region);
+	GdipDeleteRegion (region);
 
 	return status;
 }
