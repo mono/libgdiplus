@@ -1367,6 +1367,9 @@ GdipDrawCachedBitmap (GpGraphics *graphics, GpCachedBitmap *cachedBitmap, INT x,
 {
 	if (!graphics || !cachedBitmap)
 		return InvalidParameter;
+
+	cairo_set_source_surface(graphics->ct, cachedBitmap->surface, x, y);
+	cairo_paint(graphics->ct);
 }
 
 /*
