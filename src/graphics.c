@@ -35,6 +35,7 @@
 #include "brush-private.h"
 #include "matrix-private.h"
 #include "bitmap-private.h"
+#include "cachedbitmap-private.h"
 #include "metafile-private.h"
 
 #include <cairo-features.h>
@@ -1361,6 +1362,13 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, IN
 	return status;
 }
 
+GpStatus WINGDIPAPI 
+GdipDrawCachedBitmap (GpGraphics *graphics, GpCachedBitmap *cachedBitmap, INT x, INT y)
+{
+	if (!graphics || !cachedBitmap)
+		return InvalidParameter;
+}
+
 /*
  * Fills
  */
@@ -2073,7 +2081,7 @@ GdipSetClipRect (GpGraphics *graphics, REAL x, REAL y, REAL width, REAL height, 
 	}
 
 	status = GdipSetClipRegion (graphics, region, combineMode);
-	GdipDeleteRegion (region);
+	GdipDeleteRe	gion (region);
 
 	return status;
 }
