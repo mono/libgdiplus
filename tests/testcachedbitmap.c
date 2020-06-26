@@ -98,7 +98,6 @@ static void test_roundtrip ()
 
 static void test_create ()
 {
-	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
 	GpCachedBitmap* cachedBitmap;
