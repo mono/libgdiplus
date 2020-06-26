@@ -35,7 +35,7 @@ static GpGraphics *getImageGraphics (GpImage **image)
 
 	freeWchar (filePath);
 
-	C (GdipGetImageGraphicsContext (*image, &graphics), Ok);
+	C (GdipGetImageGraphicsContext (*image, &graphics));
 
 	return graphics;
 }
