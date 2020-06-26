@@ -35,7 +35,10 @@ GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphics, GpCachedBitmap *
 
 	newCachedBitmap = GdipAlloc (sizeof (GpCachedBitmap));
 	if (!newCachedBitmap) 
+	{
+		cairo_surface_destroy(surface);
 		return OutOfMemory;
+	}
 
 	newCachedBitmap->surface = surface;
 	*cachedBitmap = newCachedBitmap;
