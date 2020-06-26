@@ -11,8 +11,8 @@ libgdiplus_la_SOURCES = \
 	brush.c				\
 	brush.h				\
 	brush-private.h			\
-	cachedbitmap.c		\
-	cachedbitmap.h		\
+	cachedbitmap.c			\
+	cachedbitmap.h			\
 	cachedbitmap-private.h		\
 	carbon-private.c		\
 	carbon-private.h		\

@@ -291,7 +291,7 @@ EXTRA_DIST =			\
 	$(testbits_SOURCES)	\
 	$(testbmpcodec_SOURCES)	\
 	$(testbrush_SOURCES) \
-	$(testcachedbitmap_SOURCES)
+	$(testcachedbitmap_SOURCES) \
 	$(testclip_SOURCES)	\
 	$(test_codecs_SOURCES)	\
 	$(testcustomlinecap_SOURCES)	\

@@ -3,54 +3,54 @@
 #include "graphics-private.h"
 #include "cachedbitmap-private.h"
 
-GpStatus WINGDIPAPI GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphics, GpCachedBitmap **cachedBitmap)
+GpStatus WINGDIPAPI 
+GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphics, GpCachedBitmap **cachedBitmap)
 {
-    cairo_t *ct;
-    cairo_surface_t *surface;
-    GpCachedBitmap *newCachedBitmap;
-    cairo_status_t status;
+	cairo_t *ct;
+	cairo_surface_t *surface;
+	GpCachedBitmap *newCachedBitmap;
+	cairo_status_t status;
 
-    if (!bitmap || !graphics || !cachedBitmap)
-        return InvalidParameter;
-    if (bitmap->type != ImageTypeBitmap)
-        return InvalidParameter;                        
-                        
-    gdip_bitmap_ensure_surface(bitmap);
+	if (!bitmap || !graphics || !cachedBitmap)
+		return InvalidParameter;
+	if (bitmap->type != ImageTypeBitmap)
+		return InvalidParameter;
 
-    surface = cairo_surface_create_similar(bitmap->surface, CAIRO_CONTENT_COLOR_ALPHA, bitmap->active_bitmap->width, bitmap->active_bitmap->height);
+	gdip_bitmap_ensure_surface (bitmap);
 
-    ct = cairo_create(surface);
+	surface = cairo_surface_create_similar (bitmap->surface, CAIRO_CONTENT_COLOR_ALPHA, bitmap->active_bitmap->width, bitmap->active_bitmap->height);
 
-    cairo_set_source_surface (ct, bitmap->surface, 0, 0);
-    cairo_paint (ct);
+	ct = cairo_create (surface);
 
-    cairo_destroy(ct);
-    
+	cairo_set_source_surface (ct, bitmap->surface, 0, 0);
+	cairo_paint (ct);
+
+	cairo_destroy (ct);
+
 	status = cairo_surface_status (surface);
-    if (status != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy (surface);
-        return gdip_get_status (status);
-    }
-    
-    newCachedBitmap = GdipAlloc (sizeof (GpCachedBitmap));
-    if (!newCachedBitmap) 
-        return OutOfMemory;
+	if (status != CAIRO_STATUS_SUCCESS) {
+		cairo_surface_destroy (surface);
+		return gdip_get_status (status);
+	}
 
-    newCachedBitmap->surface = surface;
+	newCachedBitmap = GdipAlloc (sizeof (GpCachedBitmap));
+	if (!newCachedBitmap) 
+		return OutOfMemory;
 
-    *cachedBitmap = newCachedBitmap;
+	newCachedBitmap->surface = surface;
+	*cachedBitmap = newCachedBitmap;
 
-
-    return Ok;
+	return Ok;
 }
 
-GpStatus WINGDIPAPI GdipDeleteCachedBitmap (GpCachedBitmap *cachedBitmap)
+GpStatus WINGDIPAPI 
+GdipDeleteCachedBitmap (GpCachedBitmap *cachedBitmap)
 {
-    if (!cachedBitmap) 
-        return InvalidParameter;
+	if (!cachedBitmap) 
+		return InvalidParameter;
 
-    cairo_surface_destroy(cachedBitmap->surface);
-    GdipFree(cachedBitmap);
+	cairo_surface_destroy (cachedBitmap->surface);
+	GdipFree (cachedBitmap);
 
-    return Ok;
+	return Ok;
 }

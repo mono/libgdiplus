@@ -23,20 +23,19 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
+#define C(func) assert (func == Ok)
+
 static GpGraphics *getImageGraphics (GpImage **image)
 {
-	GpStatus status;
 	WCHAR *filePath;
 	GpGraphics *graphics;
 
 	filePath = createWchar ("test.bmp");
-	status = GdipLoadImageFromFile (filePath, image);
-	assertEqualInt (status, Ok);
+	C (GdipLoadImageFromFile (filePath, image));
 
 	freeWchar (filePath);
 
-	status = GdipGetImageGraphicsContext (*image, &graphics);
-	assertEqualInt (status, Ok);
+	C (GdipGetImageGraphicsContext (*image, &graphics), Ok);
 
 	return graphics;
 }
@@ -57,84 +56,76 @@ static GpImage* getImage (const char* fileName)
 
 static void test_roundtrip ()
 {
-    UINT width;
-    UINT height;
-    GpBitmap *originalBitmap;
-    GpBitmap *surface;
-    GpGraphics *graphics;
-    GpCachedBitmap *cached;
+	UINT width;
+	UINT height;
+	GpBitmap *originalBitmap;
+	GpBitmap *surface;
+	GpGraphics *graphics;
+	GpCachedBitmap *cached;
 
-    originalBitmap = getImage("test.bmp");
-    
-    
-    assertEqualInt(GdipGetImageWidth(originalBitmap, &width), Ok);
-    assertEqualInt(GdipGetImageHeight(originalBitmap, &height), Ok);
+	originalBitmap = getImage ("test.bmp");
 
-    assertEqualInt(GdipCreateBitmapFromScan0(width, height, 0, PixelFormat32bppARGB, 0, &surface), Ok);
-    assertEqualInt(GdipGetImageGraphicsContext(surface, &graphics), Ok);
+	C (GdipGetImageWidth (originalBitmap, &width));
+	C (GdipGetImageHeight (originalBitmap, &height));
 
-    GpRect rect = {
-        .X = 0,
-        .Y = 0,
-        .Width = width,
-        .Height = height
-    };
+	C (GdipCreateBitmapFromScan0 (width, height, 0, PixelFormat32bppARGB, 0, &surface));
+	C (GdipGetImageGraphicsContext (surface, &graphics));
 
+	GpRect rect = {
+		.X = 0,
+		.Y = 0,
+		.Width = width,
+		.Height = height
+	};
 
-    assertEqualInt(GdipSetVisibleClip_linux(graphics, &rect), Ok);
-    assertEqualInt(GdipCreateCachedBitmap(originalBitmap, graphics, &cached), Ok);
-    assertEqualInt(GdipDrawCachedBitmap(graphics, cached, 0, 0), Ok);
+	C (GdipSetVisibleClip_linux (graphics, &rect));
+	C (GdipCreateCachedBitmap (originalBitmap, graphics, &cached));
+	C (GdipDrawCachedBitmap (graphics, cached, 0, 0));
 
-	CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
-	WCHAR *filePath = createWchar ("HELP.png");
-	GdipSaveImageToFile (surface, filePath, &png_clsid, NULL);
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			ARGB drawn, original;
 
-    for (int x = 0; x < width; x++)
-    {
-        for (int y = 0; y < height; y++)
-        {
-            ARGB drawn, original;
-            assertEqualInt(GdipBitmapGetPixel(originalBitmap, x, y, &original), Ok);
+			C (GdipBitmapGetPixel (originalBitmap, x, y, &original));
+			C (GdipBitmapGetPixel (surface, x, y, &drawn));
 
-            assertEqualInt(GdipBitmapGetPixel(surface, x, y, &drawn), Ok);
-
-            assertEqualInt(drawn, original);
-        }
-    }
+			assertEqualInt (drawn, original);
+		}
+	}
 }
 
 static void test_create ()
 {
-    GpStatus status;
+	GpStatus status;
 	GpImage *image;
 	GpGraphics *graphics;
-    GpCachedBitmap* cachedBitmap;
+	GpCachedBitmap* cachedBitmap;
 
 	graphics = getImageGraphics (&image);
 
-    assertEqualInt(GdipCreateCachedBitmap(image, graphics, &cachedBitmap), Ok);
+	C (GdipCreateCachedBitmap(image, graphics, &cachedBitmap));
 
-    // Negative tests.
-    image = getImage ("test.wmf");
-    status = GdipCreateCachedBitmap(image, graphics, &cachedBitmap);
-    assertEqualInt(status, InvalidParameter);
+	// Negative tests.
+	image = getImage ("test.wmf");
+	assertEqualInt (GdipCreateCachedBitmap(image, graphics, &cachedBitmap), InvalidParameter);
 
-    assertEqualInt(GdipCreateCachedBitmap(image, graphics, NULL), InvalidParameter);
-    assertEqualInt(GdipCreateCachedBitmap(image, NULL, &cachedBitmap), InvalidParameter);
-    assertEqualInt(GdipCreateCachedBitmap(NULL, graphics, &cachedBitmap), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap(image, graphics, NULL), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap(image, NULL, &cachedBitmap), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap(NULL, graphics, &cachedBitmap), InvalidParameter);
 
-    GdipDeleteGraphics(graphics);
-    GdipDisposeImage(image);
+	C (GdipDeleteGraphics(graphics));
+	C (GdipDisposeImage(image));
 }
 
-int
-main (int argc, char**argv)
+int main (int argc, char**argv)
 {
-    STARTUP;
+	STARTUP;
 
-    test_create ();
-    test_roundtrip ();
+	test_create ();
+	test_roundtrip ();
 
-    SHUTDOWN;
-    return 0;
+	SHUTDOWN;
+	return 0;
 }
