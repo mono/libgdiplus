@@ -22,6 +22,7 @@ noinst_PROGRAMS =			\
 	testbits \
 	testbmpcodec \
 	testbrush \
+	testcachedbitmap \
 	testclip \
 	testcodecs \
 	testcustomlinecap \
@@ -90,6 +91,13 @@ testbrush_SOURCES =		\
 
 testbrush_DEPENDENCIES = $(TEST_DEPS)
 testbrush_LDADD = $(LDADDS)
+
+
+testcachedbitmap_SOURCES =	\
+	testcachedbitmap.c
+
+testcachedbitmap_DEPENDENCIES = $(TEST_DEPS)
+testcachedbitmap_LDADD = $(LDADDS)
 
 testclip_SOURCES =	\
 	testclip.c
@@ -283,6 +291,7 @@ EXTRA_DIST =			\
 	$(testbits_SOURCES)	\
 	$(testbmpcodec_SOURCES)	\
 	$(testbrush_SOURCES) \
+	$(testcachedbitmap_SOURCES)
 	$(testclip_SOURCES)	\
 	$(test_codecs_SOURCES)	\
 	$(testcustomlinecap_SOURCES)	\
@@ -339,6 +348,7 @@ TESTS = \
 	testbits \
 	testbmpcodec \
 	testbrush \
+	testcachedbitmap \
 	testclip \
 	testcodecs \
 	testcustomlinecap \
