@@ -5,6 +5,7 @@
 
 GpStatus WINGDIPAPI GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphics, GpCachedBitmap **cachedBitmap)
 {
+    cairo_t *ct;
     cairo_surface_t *surface;
     GpCachedBitmap *newCachedBitmap;
     cairo_status_t status;
@@ -12,16 +13,25 @@ GpStatus WINGDIPAPI GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphi
     if (!bitmap || !graphics || !cachedBitmap)
         return InvalidParameter;
     if (bitmap->type != ImageTypeBitmap)
-        return InvalidParameter;
+        return InvalidParameter;                        
+                        
+    gdip_bitmap_ensure_surface(bitmap);
 
-    surface = cairo_surface_create_similar_image(bitmap->surface, bitmap->cairo_format, bitmap->active_bitmap->width, bitmap->active_bitmap->height);
+    surface = cairo_surface_create_similar(bitmap->surface, CAIRO_CONTENT_COLOR_ALPHA, bitmap->active_bitmap->width, bitmap->active_bitmap->height);
 
+    ct = cairo_create(surface);
+
+    cairo_set_source_surface (ct, bitmap->surface, 0, 0);
+    cairo_paint (ct);
+
+    cairo_destroy(ct);
+    
 	status = cairo_surface_status (surface);
     if (status != CAIRO_STATUS_SUCCESS) {
         cairo_surface_destroy (surface);
         return gdip_get_status (status);
     }
-
+    
     newCachedBitmap = GdipAlloc (sizeof (GpCachedBitmap));
     if (!newCachedBitmap) 
         return OutOfMemory;
@@ -29,6 +39,8 @@ GpStatus WINGDIPAPI GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphi
     newCachedBitmap->surface = surface;
 
     *cachedBitmap = newCachedBitmap;
+
+
     return Ok;
 }
 
