@@ -118,12 +118,26 @@ static void test_create ()
 	C (GdipDisposeImage(image));
 }
 
+static void test_delete ()
+{
+	GpCachedBitmap *cachedBitmap;
+	GpBitmap *image;
+	GpGraphics *graphics = getImageGraphics ();
+
+	C (GdipCreateCachedBitmap(image, graphics, &cachedBitmap));
+	C (GdipDeleteCachedBitmap(cachedBitmap));
+
+	// Negative tests.
+	assertEqualInt (GdipDeleteCachedBitmap (NULL), InvalidParameter);
+}
+
 int main (int argc, char**argv)
 {
 	STARTUP;
 
 	test_create ();
 	test_roundtrip ();
+	test_delete ();
 
 	SHUTDOWN;
 	return 0;
