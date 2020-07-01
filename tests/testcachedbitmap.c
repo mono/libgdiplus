@@ -104,15 +104,15 @@ static void test_create ()
 
 	graphics = getImageGraphics (&image);
 
-	C (GdipCreateCachedBitmap(image, graphics, &cachedBitmap));
+	C (GdipCreateCachedBitmap (image, graphics, &cachedBitmap));
 
 	// Negative tests.
 	image = getImage ("test.wmf");
-	assertEqualInt (GdipCreateCachedBitmap(image, graphics, &cachedBitmap), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap (image, graphics, &cachedBitmap), InvalidParameter);
 
-	assertEqualInt (GdipCreateCachedBitmap(image, graphics, NULL), InvalidParameter);
-	assertEqualInt (GdipCreateCachedBitmap(image, NULL, &cachedBitmap), InvalidParameter);
-	assertEqualInt (GdipCreateCachedBitmap(NULL, graphics, &cachedBitmap), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap (image, graphics, NULL), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap (image, NULL, &cachedBitmap), InvalidParameter);
+	assertEqualInt (GdipCreateCachedBitmap (NULL, graphics, &cachedBitmap), InvalidParameter);
 
 	C (GdipDeleteGraphics(graphics));
 	C (GdipDisposeImage(image));
