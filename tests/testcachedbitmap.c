@@ -120,9 +120,11 @@ static void test_create ()
 
 static void test_delete ()
 {
-	GpCachedBitmap *cachedBitmap;
-	GpBitmap *image;
-	GpGraphics *graphics = getImageGraphics ();
+	GpImage *image;
+	GpGraphics *graphics;
+	GpCachedBitmap* cachedBitmap;
+
+	graphics = getImageGraphics (&image);
 
 	C (GdipCreateCachedBitmap(image, graphics, &cachedBitmap));
 	C (GdipDeleteCachedBitmap(cachedBitmap));
