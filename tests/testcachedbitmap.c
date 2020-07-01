@@ -23,7 +23,7 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-#define C(func) assert (func == Ok)
+#define C(func) assertEqualInt (func, Ok)
 
 static GpGraphics *getImageGraphics (GpImage **image)
 {
@@ -54,6 +54,81 @@ static GpImage* getImage (const char* fileName)
 	return image;
 }
 
+static void createBitmaps (GpBitmap **originalBitmap, GpBitmap **blankBitmap, GpGraphics **blankGraphics, UINT *width, UINT *height)
+{
+	*originalBitmap = getImage ("test.bmp");
+	C (GdipGetImageWidth (*originalBitmap, width));
+	C (GdipGetImageHeight (*originalBitmap, height));
+
+	C (GdipCreateBitmapFromScan0 (*width, *height, 0, PixelFormat32bppARGB, 0, blankBitmap));
+	C (GdipGetImageGraphicsContext (*blankBitmap, blankGraphics));
+}
+
+static void compareEqual (GpBitmap *expected, GpBitmap *actual, UINT width, UINT height)
+{
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			ARGB expectedColor, actualColor;
+
+			C (GdipBitmapGetPixel (expected, x, y, &expectedColor));
+			C (GdipBitmapGetPixel (actual, x, y, &actualColor));
+
+			assertEqualInt (expectedColor, actualColor);
+		}
+	}
+}
+
+CLSID png_clsid = { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x0, 0x0, 0xf8, 0x1e, 0xf3, 0x2e } };
+
+static void test_clip ()
+{
+	UINT width;
+	UINT height;
+	GpBitmap *originalBitmap;
+	GpBitmap *surface;
+	GpGraphics *graphics;
+	GpCachedBitmap *cached;
+
+	createBitmaps(&originalBitmap, &surface, &graphics, &width, &height);
+	
+	C (GdipSetClipRect (graphics, 20, 20, 20, 20, CombineModeReplace));
+
+	C (GdipCreateCachedBitmap (originalBitmap, graphics, &cached));
+	C (GdipDrawCachedBitmap (graphics, cached, 0, 0));
+
+	GpImage *expected = getImage("test-clipped.png");
+	compareEqual(expected, surface, width, height);
+}
+
+static void test_matrix ()
+{
+	UINT width;
+	UINT height;
+	GpBitmap *originalBitmap;
+	GpBitmap *surface;
+	GpGraphics *graphics;
+	GpCachedBitmap *cached;
+
+	createBitmaps(&originalBitmap, &surface, &graphics, &width, &height);
+
+	C (GdipTranslateWorldTransform(graphics, 30, 30, MatrixOrderAppend));
+
+	C (GdipCreateCachedBitmap (originalBitmap, graphics, &cached));
+	C (GdipDrawCachedBitmap (graphics, cached, 0, 0));
+
+	GpImage *expected = getImage("test-translated.png");
+	compareEqual(expected, surface, width, height);
+
+	// Negative tests.
+	C (GdipScaleWorldTransform(graphics, 30, 30, MatrixOrderAppend));
+	assertEqualInt (GdipDrawCachedBitmap(graphics, cached, 0, 0), WrongState);
+	C (GdipRotateWorldTransform(graphics, 30, MatrixOrderAppend));
+	assertEqualInt (GdipDrawCachedBitmap(graphics, cached, 0, 0), WrongState);
+}
+
+
 static void test_roundtrip ()
 {
 	UINT width;
@@ -63,37 +138,12 @@ static void test_roundtrip ()
 	GpGraphics *graphics;
 	GpCachedBitmap *cached;
 
-	originalBitmap = getImage ("test.bmp");
+	createBitmaps(&originalBitmap, &surface, &graphics, &width, &height);
 
-	C (GdipGetImageWidth (originalBitmap, &width));
-	C (GdipGetImageHeight (originalBitmap, &height));
-
-	C (GdipCreateBitmapFromScan0 (width, height, 0, PixelFormat32bppARGB, 0, &surface));
-	C (GdipGetImageGraphicsContext (surface, &graphics));
-
-	GpRect rect = {
-		.X = 0,
-		.Y = 0,
-		.Width = width,
-		.Height = height
-	};
-
-	C (GdipSetVisibleClip_linux (graphics, &rect));
 	C (GdipCreateCachedBitmap (originalBitmap, graphics, &cached));
 	C (GdipDrawCachedBitmap (graphics, cached, 0, 0));
 
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			ARGB drawn, original;
-
-			C (GdipBitmapGetPixel (originalBitmap, x, y, &original));
-			C (GdipBitmapGetPixel (surface, x, y, &drawn));
-
-			assertEqualInt (drawn, original);
-		}
-	}
+	compareEqual(originalBitmap, surface, width, height);
 }
 
 static void test_create ()
@@ -139,6 +189,8 @@ int main (int argc, char**argv)
 
 	test_create ();
 	test_roundtrip ();
+	test_clip ();
+	test_matrix ();
 	test_delete ();
 
 	SHUTDOWN;
