@@ -1370,7 +1370,15 @@ GdipDrawCachedBitmap (GpGraphics *graphics, GpCachedBitmap *cachedBitmap, INT x,
 	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
-	cairo_identity_matrix (graphics->ct);
+	// For compat with Windows, only support translation matrices. 
+	// Return WrongState otherwise.
+
+	cairo_matrix_t matrix;
+	cairo_get_matrix (graphics->ct, &matrix);
+	if (matrix.xx != 1 || matrix.yx != 0 || matrix.xy != 0 || matrix.yy != 1)
+	{
+		return WrongState;
+	}
 	
 	cairo_set_source_surface (graphics->ct, cachedBitmap->surface, x, y);
 	cairo_paint (graphics->ct);

@@ -53,7 +53,7 @@ GdipCreateCachedBitmap (GpBitmap *bitmap, GpGraphics *graphics, GpCachedBitmap *
 GpStatus WINGDIPAPI 
 GdipDeleteCachedBitmap (GpCachedBitmap *cachedBitmap)
 {
-	if (!cachedBitmap) 
+	if (!cachedBitmap)
 		return InvalidParameter;
 
 	cairo_surface_destroy (cachedBitmap->surface);
