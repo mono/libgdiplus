@@ -1,4 +1,19 @@
+#if defined(USE_WINDOWS_GDIPLUS)
+#include <Windows.h>
+#include <GdiPlus.h>
+
+#pragma comment(lib, "gdiplus")
+#else
+#include <GdiPlusFlat.h>
+#endif
+
+#if defined(USE_WINDOWS_GDIPLUS)
+using namespace Gdiplus;
+using namespace DllExports;
+#endif
+
 #include <gtest/gtest.h>
+#include "testhelpers.h"
 
 // Get INT32_MAX and INT32_MIN
 #define __STDC_LIMIT_MACROS
@@ -6,20 +21,10 @@
 
 // Define WIN32 to get a correct definition of ULONG_PTR
 // #define WIN32
+#if !defined(M_PI)
 #define M_PI 3.14159265358979323846
-#include <GdiPlusFlat.h>
+#endif
 #include <math.h>
-
-#define STARTUP \
-    ULONG_PTR gdiplusToken; \
-    GdiplusStartupInput gdiplusStartupInput; \
-    gdiplusStartupInput.GdiplusVersion = 1; \
-    gdiplusStartupInput.DebugEventCallback = NULL; \
-    gdiplusStartupInput.SuppressBackgroundThread = FALSE; \
-    gdiplusStartupInput.SuppressExternalCodecs = FALSE; \
-    GdiplusStartup (&gdiplusToken, &gdiplusStartupInput, NULL); \
-
-#define SHUTDOWN GdiplusShutdown (gdiplusToken);
 
 TEST(RegionTests, GetRegionScans_CustomMatrix_TransformsRegionScans) {
 	STARTUP
