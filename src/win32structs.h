@@ -338,7 +338,7 @@ typedef float REAL;
 
 #if defined(WIN32)
 #define NOGDI
-#include <Windows.h>
+#include <windows.h>
 #else
 
 typedef int INT;
