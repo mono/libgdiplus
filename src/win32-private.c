@@ -22,7 +22,7 @@
 
 #include "win32-private.h"
 
-#include <Windows.h>
+#include <windows.h>
 
 FILE *CreateTempFile (char *filename)
 {
