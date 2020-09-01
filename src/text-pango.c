@@ -470,8 +470,22 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	box_offset->Y = 0;
 
 	switch (fmt->lineAlignment) {
-	case StringAlignmentNear:
+	case StringAlignmentNear: {
+		// Some fonts have interesting metrics, and cause Pango to position them differently to Windows.
+		// For instance, Calibri and the free metric-equivalent Carlito. It is positioned higher, because Pango
+		// uses a different ascent value than Windows. We can handle that by drawing it slightly lower.
+		uint16_t ascent;
+		uint16_t em_size;
+		if (GdipGetCellAscent(font->family, (INT) font->style, &ascent) == Ok &&
+			GdipGetEmHeight(font->family, (INT) font->style, &em_size) == Ok) {
+
+			int baseline = pango_layout_get_baseline(layout) / PANGO_SCALE;
+			int correct_baseline = (int) ceil(font->sizeInPixels / em_size * ascent);
+			if (baseline < correct_baseline)
+				box_offset->Y = correct_baseline - baseline;
+		}
 		break;
+	}
 	case StringAlignmentCenter:
 		box_offset->Y += (FrameHeight - box->Height) * 0.5;
 		break;
