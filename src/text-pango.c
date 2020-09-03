@@ -177,7 +177,7 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 
 PangoLayout*
 gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved)
+	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, float *baseline_offset, GDIPCONST GpStringFormat *format, int **charsRemoved)
 {
 	GpStringFormat *fmt;
 	PangoLayout *layout;
@@ -468,24 +468,26 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 
 	box_offset->X = 0;
 	box_offset->Y = 0;
+	*baseline_offset = 0;
 
 	switch (fmt->lineAlignment) {
-	case StringAlignmentNear: {
-		// Some fonts have interesting metrics, and cause Pango to position them differently to Windows.
-		// For instance, Calibri and the free metric-equivalent Carlito. It is positioned higher, because Pango
-		// uses a different ascent value than Windows. We can handle that by drawing it slightly lower.
-		uint16_t ascent;
-		uint16_t em_size;
-		if (GdipGetCellAscent(font->family, (INT) font->style, &ascent) == Ok &&
-			GdipGetEmHeight(font->family, (INT) font->style, &em_size) == Ok) {
-
-			int baseline = pango_layout_get_baseline(layout) / PANGO_SCALE;
-			int correct_baseline = (int) ceil(font->sizeInPixels / em_size * ascent);
-			if (baseline < correct_baseline)
-				box_offset->Y = correct_baseline - baseline;
+	case StringAlignmentNear:
+		if (!(fmt->formatFlags & StringFormatFlagsDirectionVertical)) {
+			// Some fonts have interesting metrics, and cause Pango to position them differently to Windows.
+			// For instance, Calibri and the free metric-equivalent Carlito. It is positioned higher, because Pango
+			// uses a different ascent value than Windows. We can handle that by drawing it slightly lower.
+			USHORT ascent;
+			USHORT em_size;
+			if (GdipGetCellAscent(font->family, (INT) font->style, &ascent) == Ok &&
+				GdipGetEmHeight(font->family, (INT) font->style, &em_size) == Ok) {
+	
+				int baseline = pango_layout_get_baseline(layout) / PANGO_SCALE;
+				int correct_baseline = (int) ceil(font->sizeInPixels / em_size * ascent);
+				if (baseline < correct_baseline)
+					*baseline_offset = correct_baseline - baseline;
+			}
 		}
 		break;
-	}
 	case StringAlignmentCenter:
 		box_offset->Y += (FrameHeight - box->Height) * 0.5;
 		break;
@@ -542,6 +544,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT leng
 	PangoLayout *layout;
 	RectF box;
 	PointF box_offset;
+	float baseline_offset;
 
 	/* Setup cairo */
 	if (brush) {
@@ -552,7 +555,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT leng
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, &box, &box_offset, format, NULL);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, &box, &box_offset, &baseline_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -566,7 +569,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT leng
 		cairo_clip (graphics->ct);
 	}
 
-	gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y, FALSE, TRUE);
+	gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y + baseline_offset, FALSE, TRUE);
 	pango_cairo_show_layout (graphics->ct, layout);
 
 	g_object_unref (layout);
@@ -583,15 +586,17 @@ pango_MeasureString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT l
 	PangoRectangle logical;
 	PangoLayoutIter *iter;
 	PointF box_offset;
+	float baseline_offset;
 	int *charsRemoved = NULL;
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, boundingBox, &box_offset, format, &charsRemoved);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, rc, boundingBox, &box_offset, &baseline_offset, format, &charsRemoved);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
 	}
+	boundingBox->Height += baseline_offset;
 
 	if (codepointsFitted || linesFilled) {
 		int charsFitted;
@@ -692,6 +697,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 	int i, j;
 	GpRectF boundingBox;
 	GpPointF box_offset;
+	float baseline_offset;
 
 	if (layoutRect->Width <= 0.0 && layoutRect->Height < 0.0) {
 		/* special case only if BOTH values are negative */
@@ -702,7 +708,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 
 	cairo_save (graphics->ct);
 
-	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, format, NULL);
+	layout = gdip_pango_setup_layout (graphics->ct, stringUnicode, length, font, layoutRect, &boundingBox, &box_offset, &baseline_offset, format, NULL);
 	if (!layout) {
 		cairo_restore (graphics->ct);
 		return OutOfMemory;
@@ -764,6 +770,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 			}
 			charRect.X += box_offset.X + layoutRect->X;
 			charRect.Y += box_offset.Y + layoutRect->Y;
+			charRect.Height += baseline_offset;
 // g_warning ("[%d] [%d : %d-%d] %c [x %g y %g w %g h %g]", i, j, start, end, (char)stringUnicode[j], charRect.X, charRect.Y, charRect.Width, charRect.Height);
 			status = GdipCombineRegionRect (regions [i], &charRect, CombineModeUnion);
 			if (status != Ok)
