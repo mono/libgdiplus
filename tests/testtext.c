@@ -252,7 +252,7 @@ static void test_measure_string_alignment(void)
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100 },
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
-
+#if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentFar,    0, 0, 0, 0, 1.0, 0, 1.0, 0 },
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentCenter, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0 },
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentNear,   -1.0, 200, 0, 0, 0, 200, 1.0, 0 },
@@ -262,6 +262,7 @@ static void test_measure_string_alignment(void)
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentFar,    0, 0, -1.0, 100, 1.0, 0, 0, 100 },
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentCenter, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
 		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentNear,   -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
+#endif
 	};
 
 
@@ -281,7 +282,12 @@ static void test_measure_string_alignment(void)
 
 	GdipSetStringFormatMeasurableCharacterRanges (format, 1, &character_range);
 
+#if defined USE_PANGO_RENDERING || defined(USE_WINDOWS_GDIPLUS)
 	for (in_rect = 1; in_rect >= 0; in_rect--) {
+#else
+	{
+		in_rect = 1;
+#endif
 		for (i = 0; i < sizeof(td) / sizeof(td[0]); i++) {
 			GdipSetStringFormatFlags (format, td[i].flags);
 			GdipSetStringFormatAlign (format, td[i].alignment);
