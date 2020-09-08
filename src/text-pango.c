@@ -175,6 +175,22 @@ gdip_process_string (gchar *text, int length, int removeAccelerators, int trimSp
 	return res;
 }
 
+void
+gdip_process_vertical_text_box_position(GDIPCONST RectF *rc, GDIPCONST PointF *box_offset, GDIPCONST GpStringFormat *format, RectF *box)
+{
+	if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+		if (format->formatFlags & StringFormatFlagsDirectionRightToLeft) {
+			box->X = -box->X - box->Width;
+			if (rc->Height > 0)
+				box->X += rc->Width;
+		} else {
+			box->Y = -box->Y - box->Height;
+			if (rc->Height > 0)
+				box->Y += rc->Height;
+		}
+	}
+}
+
 PangoLayout*
 gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, int **charsRemoved)
@@ -263,8 +279,12 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
 		pango_context_set_base_dir (context, PANGO_DIRECTION_WEAK_RTL);
 		pango_layout_context_changed (layout);
+	} /* else: pango default base dir is WEAK_LTR, which is what we want */
 
-		/* horizontal alignment */
+	/* horizontal alignment */
+	// When we have either (but not both) of RightToLeft and Vertical, Near == Right.
+	// With neither or both, Near == Left.
+	if (((fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != 0) != ((fmt->formatFlags & StringFormatFlagsDirectionVertical) != 0)) {
 		if (use_horizontal_layout) {
 			switch (fmt->alignment) {
 			case StringAlignmentNear:
@@ -279,9 +299,6 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 			}
 		}
 	} else {
-		/* pango default base dir is WEAK_LTR, which is what we want */
-
-		/* horizontal alignment */
 		if (use_horizontal_layout) {
 			switch (fmt->alignment) {
 			case StringAlignmentNear:
@@ -481,16 +498,18 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 	}
 
 	if (!use_horizontal_layout) {
+		// When we have either (but not both) of RightToLeft and Vertical, Near == Right.
+		// With neither or both, Near == Left.
 		switch (fmt->alignment) {
 		case StringAlignmentNear:
-			if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft)
+			if (((fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != 0) != ((fmt->formatFlags & StringFormatFlagsDirectionVertical) != 0))
 				box_offset->X += (FrameWidth - box->Width);
 			break;
 		case StringAlignmentCenter:
 			box_offset->X += (FrameWidth - box->Width) * 0.5;
 			break;
 		case StringAlignmentFar:
-			if (!(fmt->formatFlags & StringFormatFlagsDirectionRightToLeft))
+			if (!(((fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) != 0) != ((fmt->formatFlags & StringFormatFlagsDirectionVertical) != 0)))
 				box_offset->X += (FrameWidth - box->Width);
 			break;
 		}
@@ -509,6 +528,13 @@ gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, int length
 		tmp = box_offset->X;
 		box_offset->X = box_offset->Y;
 		box_offset->Y = tmp;
+
+		if (fmt->formatFlags & StringFormatFlagsDirectionRightToLeft) {
+			box_offset->X = -box_offset->X;
+		} else {
+			box_offset->Y = -box_offset->Y;
+		}
+		gdip_process_vertical_text_box_position (rc, box_offset, fmt, box);
 	}
 
 	box->X += rc->X;
@@ -552,7 +578,17 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT leng
 		cairo_clip (graphics->ct);
 	}
 
-	gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y, FALSE, TRUE);
+	if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+		// The Cairo context is rotated, direction dependent on text direction, so the point to draw at must be rotated to match.
+		// To rotate 90 degrees, we swap X and Y, and invert one of them depending on which direction we're rotating.
+		if (format->formatFlags & StringFormatFlagsDirectionRightToLeft) {
+			gdip_cairo_move_to (graphics, rc->Y + box_offset.Y, -(rc->X + box_offset.X), FALSE, TRUE);
+		} else {
+			gdip_cairo_move_to (graphics, -(rc->Y + box_offset.Y), rc->X + box_offset.X, FALSE, TRUE);
+		}
+	} else {
+		gdip_cairo_move_to (graphics, rc->X + box_offset.X, rc->Y + box_offset.Y, FALSE, TRUE);
+	}
 	pango_cairo_show_layout (graphics->ct, layout);
 
 	g_object_unref (layout);
@@ -748,6 +784,7 @@ pango_MeasureCharacterRanges (GpGraphics *graphics, GDIPCONST WCHAR *stringUnico
 				charRect.Height = -charRect.Height;
 				charRect.Y -= charRect.Height;
 			}
+			gdip_process_vertical_text_box_position (layoutRect, &box_offset, format, &charRect);
 			charRect.X += box_offset.X + layoutRect->X;
 			charRect.Y += box_offset.Y + layoutRect->Y;
 // g_warning ("[%d] [%d : %d-%d] %c [x %g y %g w %g h %g]", i, j, start, end, (char)stringUnicode[j], charRect.X, charRect.Y, charRect.Width, charRect.Height);

@@ -292,7 +292,6 @@ static void test_measure_string_alignment(void)
 			rect.Width = 200.0 * in_rect;
 			rect.Height = 100.0 * in_rect;
 			set_rect_empty (&bounds);
-			g_warning("in_rect %d, i %d\n", in_rect, i);
 			status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
 			expect (Ok, status);
 			expectf_ (td[i].x_x0 * in_rect + td[i].x_xx * bounds.Width + 5.0, bounds.X, 0.6);
