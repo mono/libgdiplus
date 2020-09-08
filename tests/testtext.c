@@ -211,7 +211,7 @@ static void test_measure_string_alignment(void)
 	GpRectF rect, bounds;
 	GpRegion *region;
 	const WCHAR teststring1[] = { 'M', 0 };
-	INT i;
+	INT i, in_rect;
 	static const CharacterRange character_range = { 0, 1 };
 	static const struct test_data
 	{
@@ -251,7 +251,17 @@ static void test_measure_string_alignment(void)
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentCenter, -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentFar, StringAlignmentFar, 0, 0, -1.0, 100, 1.0, 0, 0, 100 },
 		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
-		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 }
+		{ StringFormatFlagsDirectionRightToLeft, StringAlignmentNear, StringAlignmentFar, -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
+
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentFar,    0, 0, 0, 0, 1.0, 0, 1.0, 0 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentCenter, -0.5, 100, 0, 0, 0.5, 100, 1.0, 0 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentNear,   StringAlignmentNear,   -1.0, 200, 0, 0, 0, 200, 1.0, 0 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentFar,    0, 0, -0.5, 50, 1.0, 0, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentCenter, -0.5, 100, -0.5, 50, 0.5, 100, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentCenter, StringAlignmentNear,   -1.0, 200, -0.5, 50, 0, 200, 0.5, 50 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentFar,    0, 0, -1.0, 100, 1.0, 0, 0, 100 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentCenter, -0.5, 100, -1.0, 100, 0.5, 100, 0, 100 },
+		{ StringFormatFlagsDirectionVertical | StringFormatFlagsDirectionRightToLeft, StringAlignmentFar,    StringAlignmentNear,   -1.0, 200, -1.0, 100, 0, 200, 0, 100 },
 	};
 
 
@@ -271,31 +281,34 @@ static void test_measure_string_alignment(void)
 
 	GdipSetStringFormatMeasurableCharacterRanges (format, 1, &character_range);
 
-	for (i = 0; i < sizeof(td) / sizeof(td[0]); i++) {
-		GdipSetStringFormatFlags (format, td[i].flags);
-		GdipSetStringFormatAlign (format, td[i].alignment);
-		GdipSetStringFormatLineAlign (format, td[i].line_alignment);
+	for (in_rect = 1; in_rect >= 0; in_rect--) {
+		for (i = 0; i < sizeof(td) / sizeof(td[0]); i++) {
+			GdipSetStringFormatFlags (format, td[i].flags);
+			GdipSetStringFormatAlign (format, td[i].alignment);
+			GdipSetStringFormatLineAlign (format, td[i].line_alignment);
 
-		rect.X = 5.0;
-		rect.Y = 10.0;
-		rect.Width = 200.0;
-		rect.Height = 100.0;
-		set_rect_empty (&bounds);
-		status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
-		expect (Ok, status);
-		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5.0, bounds.X, 0.6);
-		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 0.6);
-		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 0.6);
-		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 0.6);
+			rect.X = 5.0;
+			rect.Y = 10.0;
+			rect.Width = 200.0 * in_rect;
+			rect.Height = 100.0 * in_rect;
+			set_rect_empty (&bounds);
+			g_warning("in_rect %d, i %d\n", in_rect, i);
+			status = GdipMeasureString (graphics, teststring1, 1, font, &rect, format, &bounds, NULL, NULL);
+			expect (Ok, status);
+			expectf_ (td[i].x_x0 * in_rect + td[i].x_xx * bounds.Width + 5.0, bounds.X, 0.6);
+			expectf_ (td[i].y_y0 * in_rect + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 0.6);
+			expectf_ (td[i].right_x0 * in_rect + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 0.6);
+			expectf_ (td[i].bottom_y0 * in_rect + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 0.6);
 
-		status = GdipMeasureCharacterRanges (graphics, teststring1, 1, font, &rect, format, 1, &region);
-		expect (Ok, status);
-		status = GdipGetRegionBounds (region, graphics, &bounds);
-		expect (Ok, status);
-		expectf_ (td[i].x_x0 + td[i].x_xx * bounds.Width + 5.0, bounds.X, 3.0);
-		expectf_ (td[i].y_y0 + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 3.0);
-		expectf_ (td[i].right_x0 + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 3.0);
-		expectf_ (td[i].bottom_y0 + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 3.0);
+			status = GdipMeasureCharacterRanges (graphics, teststring1, 1, font, &rect, format, 1, &region);
+			expect (Ok, status);
+			status = GdipGetRegionBounds (region, graphics, &bounds);
+			expect (Ok, status);
+			expectf_ (td[i].x_x0 * in_rect + td[i].x_xx * bounds.Width + 5.0, bounds.X, 3.0);
+			expectf_ (td[i].y_y0 * in_rect + td[i].y_yy * bounds.Height + 10.0, bounds.Y, 3.0);
+			expectf_ (td[i].right_x0 * in_rect + td[i].right_xx * bounds.Width + 5.0, bounds.X + bounds.Width, 3.0);
+			expectf_ (td[i].bottom_y0 * in_rect + td[i].bottom_yy * bounds.Height + 10.0, bounds.Y + bounds.Height, 3.0);
+		}
 	}
 
 	GdipDeleteGraphics (graphics);
