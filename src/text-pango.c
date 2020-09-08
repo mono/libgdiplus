@@ -578,7 +578,7 @@ pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT leng
 		cairo_clip (graphics->ct);
 	}
 
-	if (format->formatFlags & StringFormatFlagsDirectionVertical) {
+	if (format != NULL && format->formatFlags & StringFormatFlagsDirectionVertical) {
 		// The Cairo context is rotated, direction dependent on text direction, so the point to draw at must be rotated to match.
 		// To rotate 90 degrees, we swap X and Y, and invert one of them depending on which direction we're rotating.
 		if (format->formatFlags & StringFormatFlagsDirectionRightToLeft) {
