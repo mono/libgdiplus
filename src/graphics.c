@@ -201,6 +201,11 @@ gdip_graphics_metafile_init (GpGraphics *graphics, GpMetafile *metafile)
 	graphics->metasurface = cairo_image_surface_create (CAIRO_FORMAT_A1, 1, 1);
 	graphics->ct = cairo_create (graphics->metasurface);
 	graphics->metafile = metafile;
+	graphics->own_metafile = FALSE;
+
+	g_assert (metafile->graphics == NULL);
+	/* Track the graphics instance in the metafile */
+	metafile->graphics = graphics;
 
 	gdip_graphics_common_init (graphics);
 }
@@ -455,8 +460,15 @@ GdipDeleteGraphics (GpGraphics *graphics)
 
 	if (graphics->backend == GraphicsBackEndMetafile) {
 		/* if recording this is where we save the metafile (stream or file) */
-		if (graphics->metafile->recording)
+		if (graphics->metafile && graphics->metafile->recording)
 			gdip_metafile_stop_recording (graphics->metafile);
+		/* break the link to the metafile */
+		if (graphics->metafile)
+			graphics->metafile->graphics = NULL;
+		if (graphics->own_metafile)
+			gdip_metafile_dispose (graphics->metafile);
+		graphics->metafile = NULL;
+		graphics->own_metafile = FALSE;
 		cairo_surface_destroy (graphics->metasurface);
 		graphics->metasurface = NULL;
 	}
