@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgdiplus", "src\libgdiplus.vcxproj", "{BE724C6E-BF07-4B3E-901B-7584BC7B6C8A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgdiplus-tests", "tests\libgdiplus-tests.vcxproj", "{01032ED3-5507-485E-9FAF-9A302C7B8AB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,19 @@ Global
 		{BE724C6E-BF07-4B3E-901B-7584BC7B6C8A}.Release|Win32.Build.0 = Release|Win32
 		{BE724C6E-BF07-4B3E-901B-7584BC7B6C8A}.Release|x64.ActiveCfg = Release|x64
 		{BE724C6E-BF07-4B3E-901B-7584BC7B6C8A}.Release|x64.Build.0 = Release|x64
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Debug|Win32.Build.0 = Debug|Win32
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Debug|x64.ActiveCfg = Debug|x64
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Debug|x64.Build.0 = Debug|x64
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Release|Win32.ActiveCfg = Release|Win32
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Release|Win32.Build.0 = Release|Win32
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Release|x64.ActiveCfg = Release|x64
+		{01032ED3-5507-485E-9FAF-9A302C7B8AB1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14C6BE85-CCB1-48B6-8070-E0AC9EC107EF}
 	EndGlobalSection
 EndGlobal

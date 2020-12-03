@@ -26,6 +26,8 @@ On **Windows** you can use [Vcpkg](https://github.com/Microsoft/vcpkg) to instal
 	vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x86-windows
 	vcpkg.exe install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
 
+Note: libfontconfig.dll appears to be missing when using recent versions of vcpkg. These steps have been validated with vcpkg version 2020.07.
+
 ### Build instructions
 
 To build on **OSX** without X11:
