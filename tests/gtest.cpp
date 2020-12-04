@@ -106,6 +106,67 @@ TEST(GraphicsTest, FromHicon_InvalidHandle_ThrowsArgumentException) {
 }
 #endif
 
+TEST(GraphicsTest, DrawImage_Test) {
+	STARTUP
+
+	const int sourceWidth = 16;
+	const int sourceHeight = 16;
+	const int targetWidth = 2;
+	const int targetHeight = 2;
+
+	BYTE* sourceBitmapData = (BYTE*)malloc(sourceWidth * sourceHeight * 4);
+	BYTE* targetBitmapData = (BYTE*)malloc(targetWidth * targetHeight * 4);
+	GpBitmap* sourceBitmap = NULL;
+	GpBitmap* targetBitmap = NULL;
+	GpGraphics* graphics = NULL;
+
+	memset(sourceBitmapData, 0x00FFFFFF, sourceWidth * sourceHeight);
+	memset(targetBitmapData, 0x00000000, targetWidth * targetHeight);
+
+	ASSERT_EQ(0, GdipCreateBitmapFromScan0(sourceWidth, sourceHeight, sourceWidth * 4, PixelFormat32bppRGB, sourceBitmapData, &sourceBitmap));
+	ASSERT_EQ(0, GdipCreateBitmapFromScan0(targetWidth, targetHeight, targetWidth * 4, PixelFormat32bppRGB, targetBitmapData, &targetBitmap));
+
+	ASSERT_EQ(0, GdipGetImageGraphicsContext(targetBitmap, &graphics));
+
+	ASSERT_EQ(0, GdipSetInterpolationMode(graphics, InterpolationModeHighQuality));
+
+	ASSERT_EQ(0, GdipDrawImageRectRectI(
+		graphics,
+		sourceBitmap,
+		0 /* dstx */,
+		0 /* dsty */,
+		targetWidth /* dstwidth */,
+		targetHeight /* dstheight */,
+		0 /* srcx */,
+		0 /* srcy */,
+		sourceWidth /* srcwidth */,
+		sourceHeight /* srcheight */,
+		UnitPixel,
+		NULL /* imageAttributes */,
+		NULL /* callback */,
+		NULL /* callbackData */));
+
+	ASSERT_EQ(0, GdipDeleteGraphics(graphics));
+
+	ASSERT_EQ(0, GdipDisposeImage(targetBitmap));
+	ASSERT_EQ(0, GdipDisposeImage(sourceBitmap));
+
+	for (int x = 0; x < targetWidth; x++)
+	{
+		for (int y = 0; y < targetHeight; y++)
+		{
+			ASSERT_NEAR(0xFF, targetBitmapData[4 * (x + y)], 0x1F);
+			ASSERT_NEAR(0xFF, targetBitmapData[4 * (x + y) + 1], 0x1F);
+			ASSERT_NEAR(0xFF, targetBitmapData[4 * (x + y) + 2], 0x1F);
+		}
+	}
+
+	free(sourceBitmapData);
+	free(targetBitmapData);
+
+	SHUTDOWN
+}
+
 TEST(ImageAttributesTests, Clone_Success) {
 	STARTUP
 
