@@ -398,11 +398,11 @@ void
 gdip_region_bitmap_ensure (GpRegion *region)
 {
 	/* we already have the bitmap */
-	if (region->bitmap)
+	if (region->cachedData.bitmap)
 		return;
 
 	/* redraw the bitmap from the original path + all other operations/paths */
-	region->bitmap = gdip_region_bitmap_from_tree (region->tree);
+	region->cachedData.bitmap = gdip_region_bitmap_from_tree (region->cachedData.tree);
 }
 
 
@@ -418,11 +418,11 @@ gdip_region_bitmap_invalidate (GpRegion *region)
 {
 	/* it's possible that the bitmap hasn't yet been created (e.g. if
 	   a rectangle region has just been converted to a path region) */
-	if (!region->bitmap)
+	if (!region->cachedData.bitmap)
 		return;
 
-	empty_bitmap (region->bitmap);
-	region->bitmap = NULL;
+	empty_bitmap (region->cachedData.bitmap);
+	region->cachedData.bitmap = NULL;
 }
 
 /*
