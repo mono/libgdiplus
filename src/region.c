@@ -534,7 +534,7 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
  * Create a region (path-tree) from a path.
  */
 static GpStatus
-gdip_region_create_from_path (GpRegion *region, GpPath *path)
+gdip_region_set_path (GpRegion *region, const GpPath *path)
 {
 	// Clear the region.
 	gdip_clear_region (region);
@@ -585,7 +585,7 @@ gdip_region_convert_to_path (GpRegion *region)
 		return NotImplemented;
 	}
 	
-	return gdip_region_create_from_path (region, path);
+	return gdip_region_set_path (region, path);
 }
 
 /*
@@ -1515,7 +1515,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		return gdip_region_create_from_path (region, path);
+		return gdip_region_set_path (region, path);
 	}
 	
 	BOOL infinite = gdip_is_InfiniteRegion (region);
@@ -1548,7 +1548,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		switch (combineMode) {
 		case CombineModeIntersect:
 			/* The intersection of the infinite region with X is X */
-			return gdip_region_create_from_path (region, path);
+			return gdip_region_set_path (region, path);
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
 			return GdipSetInfinite (region);
@@ -1576,7 +1576,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 			/* The union of the empty region and X is X */
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
-			return gdip_region_create_from_path (region, path);
+			return gdip_region_set_path (region, path);
 		default:
 			break;
 		}
@@ -2350,7 +2350,7 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
 	if (!result)
 		return OutOfMemory;
 
-	status = gdip_region_create_from_path (result, path);
+	status = gdip_region_set_path (result, path);
 	if (status != Ok) {
 		GdipDeleteRegion (result);
 		return status;
