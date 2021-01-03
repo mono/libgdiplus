@@ -2289,8 +2289,7 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
 
-	gdip_clear_region (region);
-	gdip_copy_region (graphics->clip, region);
+	gdip_region_set_region (region, graphics->clip);
 
 	if (gdip_is_matrix_empty (graphics->clip_matrix))
 		return Ok;

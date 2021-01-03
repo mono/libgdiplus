@@ -491,40 +491,44 @@ gdip_clear_region (GpRegion *region)
 }
 
 GpStatus
-gdip_copy_region (GpRegion *source, GpRegion *dest)
+gdip_region_set_region (GpRegion *region, const GpRegion *other)
 {
 	GpStatus status;
 
-	dest->type = source->type;
+	// Clear the region.
+	gdip_clear_region (region);
 
-	if (source->rects) {
-		dest->cnt = source->cnt;
-		dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
-		if (!dest->rects)
+	// Set the new data.
+	region->type = other->type;
+
+	if (other->rects) {
+		region->cnt = other->cnt;
+		region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * other->cnt);
+		if (!region->rects)
 			return OutOfMemory;
 
-		memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
+		memcpy (region->rects, other->rects, sizeof (GpRectF) * other->cnt);
 	} else {
-		dest->cnt = 0;
-		dest->rects = NULL;
+		region->cnt = 0;
+		region->rects = NULL;
 	}
 
-	if (source->tree) {
-		dest->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		if (!dest->tree)
+	if (other->tree) {
+		region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+		if (!region->tree)
 			return OutOfMemory;
 
-		status = gdip_region_copy_tree (source->tree, dest->tree);
+		status = gdip_region_copy_tree (other->tree, region->tree);
 		if (status != Ok)
 			return status;
 	} else {
-		dest->tree = NULL;
+		region->tree = NULL;
 	}
 
-	if (source->bitmap) {
-		dest->bitmap = gdip_region_bitmap_clone (source->bitmap);
+	if (other->bitmap) {
+		region->bitmap = gdip_region_bitmap_clone (other->bitmap);
 	} else {
-		dest->bitmap = NULL;
+		region->bitmap = NULL;
 	}
 
 	return Ok;
@@ -534,7 +538,7 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
  * Create a region (path-tree) from a path.
  */
 static GpStatus
-gdip_region_set_path (GpRegion *region, const GpPath *path)
+gdip_region_set_path (GpRegion *region, GpPath *path)
 {
 	// Clear the region.
 	gdip_clear_region (region);
@@ -772,13 +776,13 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 	if (!region || !cloneRegion)
 		return InvalidParameter;
 
-	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	result = (GpRegion *) gdip_region_new ();
 	if (!result)
 		return OutOfMemory;
 
-	status = gdip_copy_region (region, result);
+	status = gdip_region_set_region (result, region);
 	if (status != Ok) {
-		GdipFree (result);
+		GdipDeleteRegion (region);
 		return status;
 	}
 
@@ -1702,8 +1706,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		GdipSetEmpty (region);
-		return gdip_copy_region (region2, region);
+		return gdip_region_set_region (region, region2);
 	}
 
 	BOOL region1Empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
@@ -1721,7 +1724,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 			/* The union of the empty region and X is X */
 			GdipSetEmpty (region);
 			if (!region2Empty)
-				return gdip_copy_region (region2, region);
+				return gdip_region_set_region (region, region2);
 			
 			return Ok;
 		}
@@ -1738,8 +1741,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		}
 		if (region1Infinite) {
 			/* Everything intersects with the infinite region */
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 		if (region2Infinite) {
 			/* Everything intersects with the infinite region */
@@ -1774,8 +1776,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		}
 		if (region1Empty) {
 			/* The XOR of the empty region and X is X */
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 		if (region1Infinite && region2Infinite) {
 			/* The XOR of the infinite region and the infinite region is X */
@@ -1795,8 +1796,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 				return GdipSetInfinite (region);
 			}
 
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 
 		break;
