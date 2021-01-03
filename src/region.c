@@ -554,10 +554,11 @@ gdip_region_convert_to_path (GpRegion *region)
 {
 	GpStatus status;
 
-	/* no conversion is required for complex regions */
-	if (!region || (region->type == RegionTypePath))
+	// Don't convert regions that are already complex.
+	if (!region || region->type == RegionTypePath)
 		return Ok;
 
+	// Create a path from rectangle data.
 	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 	if (!region->tree)
 		return OutOfMemory;
@@ -566,10 +567,12 @@ gdip_region_convert_to_path (GpRegion *region)
 	if (status != Ok)
 		return status;
 
-	switch (region->type) {
-	case RegionTypeRect:
-	case RegionTypeInfinite: {
-		/* all rectangles are converted into a single path */
+	if (region->type == RegionTypeInfinite) {
+		status = GdipAddPathRectangle (region->tree->path, REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH);
+		if (status != Ok) {
+			return status;
+		}
+	} else if (region->type == RegionTypeRect) {
 		for (int i = 0; i < region->cnt; i++) {
 			RectF normalized;
 			gdip_normalize_rectangle (&region->rects[i], &normalized);
@@ -579,10 +582,7 @@ gdip_region_convert_to_path (GpRegion *region)
 				return status;
 			}
 		}
-
-		break;
-	}
-	default:
+	} else {
 		g_warning ("unknown type 0x%08X", region->type);
 		GdipDeletePath (region->tree->path);
 		return NotImplemented;
