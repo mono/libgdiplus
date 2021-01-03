@@ -555,20 +555,17 @@ gdip_region_convert_to_path (GpRegion *region)
 	GpStatus status;
 
 	// Don't convert regions that are already complex.
-	if (!region || region->type == RegionTypePath)
+	if (!region || (region->type == RegionTypePath))
 		return Ok;
 
 	// Create a path from rectangle data.
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
-		return OutOfMemory;
-
-	status = GdipCreatePath (FillModeAlternate, &region->tree->path);
+	GpPath *path;
+	status = GdipCreatePath (FillModeAlternate, &path);
 	if (status != Ok)
 		return status;
 
 	if (region->type == RegionTypeInfinite) {
-		status = GdipAddPathRectangle (region->tree->path, REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH);
+		status = GdipAddPathRectangle (path, REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH);
 		if (status != Ok) {
 			return status;
 		}
@@ -576,26 +573,19 @@ gdip_region_convert_to_path (GpRegion *region)
 		for (int i = 0; i < region->cnt; i++) {
 			RectF normalized;
 			gdip_normalize_rectangle (&region->rects[i], &normalized);
-			status = GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			status = GdipAddPathRectangle (path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
 			if (status != Ok) {
-				GdipDeletePath (region->tree->path);
+				GdipDeletePath (path);
 				return status;
 			}
 		}
 	} else {
 		g_warning ("unknown type 0x%08X", region->type);
-		GdipDeletePath (region->tree->path);
+		GdipDeletePath (path);
 		return NotImplemented;
 	}
-
-	if (region->rects) {
-		GdipFree (region->rects);
-		region->cnt = 0;
-		region->rects = NULL;
-	}
-
-	region->type = RegionTypePath;
-	return Ok;
+	
+	return gdip_region_create_from_path (region, path);
 }
 
 /*
