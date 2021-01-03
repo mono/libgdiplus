@@ -573,13 +573,18 @@ gdip_region_convert_to_path (GpRegion *region)
 		for (int i = 0; i < region->cnt; i++) {
 			RectF normalized;
 			gdip_normalize_rectangle (&region->rects[i], &normalized);
-			GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			status = GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			if (status != Ok) {
+				GdipDeletePath (region->tree->path);
+				return status;
+			}
 		}
 
 		break;
 	}
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
+		GdipDeletePath (region->tree->path);
 		return NotImplemented;
 	}
 
