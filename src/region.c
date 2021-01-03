@@ -530,6 +530,20 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 	return Ok;
 }
 
+/*
+ * Create a region (path-tree) from a path.
+ */
+static GpStatus
+gdip_region_create_from_path (GpRegion *region, GpPath *path)
+{
+	region->type = RegionTypePath;
+	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->tree)
+		return OutOfMemory;
+
+	return GdipClonePath (path, &region->tree->path);
+}
+
 /* convert a rectangle-based region to a path based region */
 static GpStatus
 gdip_region_convert_to_path (GpRegion *region)
@@ -573,20 +587,6 @@ gdip_region_convert_to_path (GpRegion *region)
 
 	region->type = RegionTypePath;
 	return Ok;
-}
-
-/*
- * Create a region (path-tree) from a path.
- */
-static GpStatus
-gdip_region_create_from_path (GpRegion *region, GpPath *path)
-{
-	region->type = RegionTypePath;
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
-		return OutOfMemory;
-
-	return GdipClonePath (path, &region->tree->path);
 }
 
 /*
