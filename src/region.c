@@ -536,6 +536,10 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 static GpStatus
 gdip_region_create_from_path (GpRegion *region, GpPath *path)
 {
+	// Clear the region.
+	gdip_clear_region (region);
+
+	// Set the new data.
 	region->type = RegionTypePath;
 	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
 	if (!region->tree)
@@ -1516,7 +1520,6 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		gdip_clear_region (region);
 		return gdip_region_create_from_path (region, path);
 	}
 	
@@ -1550,7 +1553,6 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		switch (combineMode) {
 		case CombineModeIntersect:
 			/* The intersection of the infinite region with X is X */
-			GdipSetEmpty (region);
 			return gdip_region_create_from_path (region, path);
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
@@ -1579,7 +1581,6 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 			/* The union of the empty region and X is X */
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
-			GdipSetEmpty (region);
 			return gdip_region_create_from_path (region, path);
 		default:
 			break;
