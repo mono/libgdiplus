@@ -530,6 +530,25 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 	return Ok;
 }
 
+GpStatus
+gdip_region_set_rect (GpRegion *region, const GpRectF *rect) {
+	GpRectF normalized;
+	gdip_normalize_rectangle (rect, &normalized);
+
+	if (normalized.Width <= 0 || normalized.Height <= 0) {
+		return GdipSetEmpty (region);
+	} else if (normalized.Width >= REGION_INFINITE_LENGTH && normalized.Height >= REGION_INFINITE_LENGTH) {
+		return GdipSetInfinite (region);
+	}
+
+	// Clear the region.
+	gdip_clear_region (region);
+
+	// Set the data.
+	region->type = RegionTypeRect;
+	return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+}
+
 /* convert a rectangle-based region to a path based region */
 static GpStatus
 gdip_region_convert_to_path (GpRegion *region)
@@ -1335,8 +1354,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		GdipSetEmpty (region);
-		return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
+		return gdip_region_set_rect (region, rect);
 	}
 
 	GpRectF normalized;
@@ -1404,6 +1422,21 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		default:
 			break;
 		}
+	}
+
+	// Handle infinite rects.
+	if (normalized.Width >= REGION_INFINITE_LENGTH && normalized.Height >= REGION_INFINITE_LENGTH) {
+		GpRegion infiniteRegion;
+		gdip_region_init (&infiniteRegion);
+		GpStatus status = GdipSetInfinite(&infiniteRegion);
+		if (status != Ok) {
+			GdipDeleteRegion (&infiniteRegion);
+			return status;
+		}
+
+		status = GdipCombineRegionRegion (region, &infiniteRegion, combineMode);
+		gdip_clear_region (&infiniteRegion);
+		return status;
 	}
 
 	switch (region->type) {
@@ -1601,7 +1634,9 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 	path_bitmap = gdip_region_bitmap_from_path (path);
 
 	result = gdip_region_bitmap_combine (region->bitmap, path_bitmap, combineMode);
-	gdip_region_bitmap_free (path_bitmap);
+	if (path_bitmap) {
+		gdip_region_bitmap_free (path_bitmap);
+	}
 	if (!result)
 		return NotImplemented;
 
@@ -1764,6 +1799,10 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 			if ((region2->type == RegionTypePath) && region2->tree && region2->tree->path &&
 				gdip_combine_exclude_from_infinite (region, region2->tree->path))
 				return Ok;
+		}
+		if (region2Infinite) {
+			// Region (Exclude) Infinite = Empty
+			return GdipSetEmpty (region);
 		}
 
 		break;

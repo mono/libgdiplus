@@ -53,7 +53,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
 	verifyRegionScans (region, &normalRect, sizeof (normalRect));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, > infinite height.
 	GpRectF greaterThanInfiniteGreaterThanInfiniteHeightRect = {1, 2, 8388609.0f, 8388609.0f};
 	status = GdipCreateRegionRect (&greaterThanInfiniteGreaterThanInfiniteHeightRect, &region);
@@ -61,7 +61,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388609.0f, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, infinite height.
 	GpRectF greaterThanInfiniteInfiniteHeightRect = {1, 2, 8388609.0f, 8388608.0f};
 	status = GdipCreateRegionRect (&greaterThanInfiniteInfiniteHeightRect, &region);
@@ -69,7 +69,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388609.0f, 8388608.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, positive height.
 	GpRectF greaterThanInfinitePositiveHeightRect = {1, 2, 8388609.0f, 4};
 	status = GdipCreateRegionRect (&greaterThanInfinitePositiveHeightRect, &region);
@@ -77,7 +77,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388609.0f, 4, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, zero height.
 	GpRectF greaterThanInfiniteZeroHeightRect = {1, 2, 8388609.0f, 0};
 	status = GdipCreateRegionRect (&greaterThanInfiniteZeroHeightRect, &region);
@@ -85,7 +85,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388609.0f, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// > Infinite width, negative height.
 	GpRectF greaterThanInfiniteNegativeHeightRect = {1, 2, 8388609.0f, -4};
 	status = GdipCreateRegionRect (&greaterThanInfiniteNegativeHeightRect, &region);
@@ -93,7 +93,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388609.0f, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, > infinite height.
 	GpRectF infiniteWidthGreaterThanInfiniteHeightRect = {1, 2, 8388608.0f, 8388609.0f};
 	status = GdipCreateRegionRect (&infiniteWidthGreaterThanInfiniteHeightRect, &region);
@@ -101,7 +101,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388608.0f, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, infinite height.
 	GpRectF infiniteWidthInfiniteHeightRect = {1, 2, 8388608.0f, 8388608.0f};
 	status = GdipCreateRegionRect (&infiniteWidthInfiniteHeightRect, &region);
@@ -109,7 +109,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388608.0f, 8388608.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, positive height.
 	GpRectF infiniteWidthPositiveHeightRect = {1, 2, 8388608.0f, 4};
 	status = GdipCreateRegionRect (&infiniteWidthPositiveHeightRect, &region);
@@ -117,7 +117,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388608.0f, 4, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, zero height.
 	GpRectF infiniteWidthZeroHeightRect = {1, 2, 8388608.0f, 0};
 	status = GdipCreateRegionRect (&infiniteWidthZeroHeightRect, &region);
@@ -125,7 +125,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388608.0f, 0, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Infinite width, negative height.
 	GpRectF infiniteWidthNegativeHeightRect = {1, 2, 8388608.0f, -4};
 	status = GdipCreateRegionRect (&infiniteWidthNegativeHeightRect, &region);
@@ -133,7 +133,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 8388608.0f, -4, TRUE, FALSE);
 	verifyRegionScans (region, emptyScans, sizeof (emptyScans));
 	GdipDeleteRegion (region);
-	
+
 	// Positive width, > infinite height.
 	GpRectF positiveWidthGreaterThanInfiniteHeightRect = {1, 2, 3, 8388609.0f};
 	status = GdipCreateRegionRect (&positiveWidthGreaterThanInfiniteHeightRect, &region);
@@ -141,7 +141,7 @@ static void test_createRegionRect ()
 	verifyRegion (region, 1, 2, 3, 8388609.0f, FALSE, TRUE);
 	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
-	
+
 	// Positive width, infinite height.
 	GpRectF positiveWidthInfiniteHeightRect = {1, 2, 3, 8388608.0f};
 	status = GdipCreateRegionRect (&positiveWidthInfiniteHeightRect, &region);
@@ -408,7 +408,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */ 0x03, 0x00, 0x00, 0x10
 	};
@@ -418,7 +418,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0xFE, 0x53, 0x9E, 0x1B,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */ 0x02, 0x00, 0x00, 0x10
 	};
@@ -464,7 +464,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0xD2, 0xC2, 0x10, 0xBB,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -478,7 +478,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0x2C, 0x49, 0xE4, 0xA1,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -492,7 +492,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0x09, 0x1B, 0x4F, 0xF6,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -506,7 +506,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0x65, 0x20, 0x5D, 0x5D,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -520,7 +520,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0xD7, 0x13, 0x03, 0x01,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -579,7 +579,7 @@ static void test_createRegionRgnData ()
 		/* Checksum */      0xCA, 0x7C, 0x8B, 0x34,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */      0x01, 0x00, 0x00, 0x10,
 		/* Size */      0x20, 0x00, 0x00, 0x00,
@@ -593,7 +593,7 @@ static void test_createRegionRgnData ()
 		/* Start */     0x00,
 		/* LineTo */    0x01,
 		/* LineTo */    0x01,
-		/* CloseLine */ 0x81,
+		/* CloseLine */ 0x81
 	};
 #endif
 
@@ -601,70 +601,70 @@ static void test_createRegionRgnData ()
 	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	// Empty.
 	status = GdipCreateRegionRgnData (emptyRegionData, sizeof (emptyRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	// Rect.
 	status = GdipCreateRegionRgnData (rectMagicNumber2, sizeof (rectMagicNumber2), &region);
 	assertEqualInt (status, Ok);
-	GpRectF expectedRect = { 1, 2, 3, 4 };
+	GpRectF expectedRect = {1, 2, 3, 4};
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectMagicNumber1, sizeof (rectMagicNumber1), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectEmpty, sizeof (rectEmpty), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (rectInfinite, sizeof (rectInfinite), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (zeroWidthRectRegionData, sizeof (zeroWidthRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
-	
+
 	status = GdipCreateRegionRgnData (zeroHeightRectRegionData, sizeof (zeroHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
-	
+
 	status = GdipCreateRegionRgnData (zeroWidthAndHeightRectRegionData, sizeof (zeroWidthAndHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (negativeWidthRectRegionData, sizeof (negativeWidthRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	status = GdipCreateRegionRgnData (negativeHeightRectRegionData, sizeof (negativeHeightRectRegionData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
+	verifyRegionScans (region, emptyScans, 0);
 	GdipDeleteRegion (region);
 
 	// Path.
@@ -673,7 +673,7 @@ static void test_createRegionRgnData ()
 	status = GdipCreateRegionRgnData (pathData, sizeof (pathData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
 	GdipDeleteRegion (region);
 #endif
 
@@ -725,7 +725,7 @@ static void test_getRegionData ()
 	GpStatus status;
 	BYTE buffer[1024];
 	UINT sizeFilled;
-	
+
 	// Infinite region.
 	GdipCreateRegion (&region);
 	BYTE infiniteRegionData[] = {
@@ -734,7 +734,7 @@ static void test_getRegionData ()
 		/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */ 0x03, 0x00, 0x00, 0x10
 	};
@@ -750,13 +750,13 @@ static void test_getRegionData ()
 		/* Checksum */      0xFE, 0x53, 0x9E, 0x1B,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */ 0x02, 0x00, 0x00, 0x10
 	};
 	verifyRegionData (region, emptyRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Infinite Rect.
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GdipCreateRegionRect (&infiniteRect, &region);
@@ -766,7 +766,7 @@ static void test_getRegionData ()
 		/* Checksum */      0x19, 0x83, 0xAD, 0x2A,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0xCA,
@@ -776,7 +776,7 @@ static void test_getRegionData ()
 	};
 	verifyRegionData (region, infiniteRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Empty Rect.
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GdipCreateRegionRect (&emptyRect, &region);
@@ -786,7 +786,7 @@ static void test_getRegionData ()
 		/* Checksum */      0xF6, 0xCF, 0xA7, 0x8B,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x00, 0x00,
@@ -806,7 +806,7 @@ static void test_getRegionData ()
 		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -816,7 +816,7 @@ static void test_getRegionData ()
 	};
 	verifyRegionData (region, nonEmptyRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Width Rect.
 	GpRectF zeroWidthRect = {1, 2, 0, 4};
 	GdipCreateRegionRect (&zeroWidthRect, &region);
@@ -826,7 +826,7 @@ static void test_getRegionData ()
 		/* Checksum */      0xD2, 0xC2, 0x10, 0xBB,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -836,7 +836,7 @@ static void test_getRegionData ()
 	};
 	verifyRegionData (region, zeroWidthRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Height Rect.
 	GpRectF zeroHeightRect = {1, 2, 3, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
@@ -846,7 +846,7 @@ static void test_getRegionData ()
 		/* Checksum */      0x2C, 0x49, 0xE4, 0xA1,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -856,7 +856,7 @@ static void test_getRegionData ()
 	};
 	verifyRegionData (region, zeroHeightRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Zero Width and Height Rect.
 	GpRectF zeroWidthAndHeightRect = {1, 2, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
@@ -866,7 +866,7 @@ static void test_getRegionData ()
 		/* Checksum */      0x09, 0x1B, 0x4F, 0xF6,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -886,7 +886,7 @@ static void test_getRegionData ()
 		/* Checksum */      0x65, 0x20, 0x5D, 0x5D,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -896,7 +896,7 @@ static void test_getRegionData ()
 	};
 	verifyRegionData (region, negativeWidthRectRegionData);
 	GdipDeleteRegion (region);
-	
+
 	// Negative Height Rect.
 	GpRectF negativeHeightRect = {1, 2, 3, -4};
 	GdipCreateRegionRect (&negativeHeightRect, &region);
@@ -906,7 +906,7 @@ static void test_getRegionData ()
 		/* Checksum */      0xD7, 0x13, 0x03, 0x01,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -929,7 +929,7 @@ static void test_getRegionData ()
 		/* Checksum */      0xCA, 0x7C, 0x8B, 0x34,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */      0x01, 0x00, 0x00, 0x10,
 		/* Size */      0x20, 0x00, 0x00, 0x00,
@@ -943,52 +943,388 @@ static void test_getRegionData ()
 		/* Start */     0x00,
 		/* LineTo */    0x01,
 		/* LineTo */    0x01,
-		/* CloseLine */ 0x81,
+		/* CloseLine */ 0x81
 	};
 	verifyRegionData (region, pathRegionData);
 #endif
 	GdipDeletePath (path);
 
 	// Negative tests.
-	status = GdipGetRegionData (NULL, buffer, sizeof(buffer), &sizeFilled);
+	status = GdipGetRegionData (NULL, buffer, sizeof (buffer), &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipGetRegionData (region, NULL, sizeof(buffer), &sizeFilled);
+	status = GdipGetRegionData (region, NULL, sizeof (buffer), &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionData (region, buffer, 0, &sizeFilled);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionData (region, buffer, 1, &sizeFilled);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetRegionData (region, buffer, 2, &sizeFilled);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetRegionData (region, buffer, sizeof (buffer), NULL);
 	assertEqualInt (status, Ok);
-	
+
 	GdipDeleteRegion (region);
+}
+
+static void test_getRegionDataSetEmpty ()
+{
+	GpRegion *region;
+	GpPath *path;
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	verifyRegionData (region, emptyRegionData);
+	GdipDeleteRegion (region);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	GdipSetEmpty (region);
+	verifyRegionData (region, emptyRegionData);
+	GdipDeleteRegion (region);
+
+	// Rect.
+	GpRectF rect = {1, 2, 3, 4};
+	GdipCreateRegionRect (&rect, &region);
+	GdipSetEmpty (region);
+	verifyRegionData (region, emptyRegionData);
+	GdipDeleteRegion (region);
+
+	// Path
+	GdipCreatePath (FillModeWinding, &path);
+	GdipCreateRegionPath (path, &region);
+	GdipSetEmpty (region);
+	verifyRegionData (region, emptyRegionData);
+	GdipDeletePath (path);
+}
+
+static void test_getRegionDataSetInfinite ()
+{
+	GpRegion *region;
+	GpPath *path;
+
+	// Infinite region.
+	GdipCreateRegion (&region);
+	GdipSetInfinite (region);
+	verifyRegionData (region, infiniteRegionData);
+	GdipDeleteRegion (region);
+
+	// Empty region.
+	GdipCreateRegion (&region);
+	GdipSetEmpty (region);
+	GdipSetInfinite (region);
+	verifyRegionData (region, infiniteRegionData);
+	GdipDeleteRegion (region);
+
+	// Rect.
+	GpRectF rect = {1, 2, 3, 4};
+	GdipCreateRegionRect (&rect, &region);
+	GdipSetInfinite (region);
+	verifyRegionData (region, infiniteRegionData);
+	GdipDeleteRegion (region);
+
+	// Path
+	GdipCreatePath (FillModeWinding, &path);
+	GdipCreateRegionPath (path, &region);
+	GdipSetInfinite (region);
+	verifyRegionData (region, infiniteRegionData);
+	GdipDeletePath (path);
+}
+
+static void verifyRegionDataCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, BYTE *data, INT count, const char *file, const char *function, int line)
+{
+	GpStatus status = GdipCombineRegionRegion (region, region2, mode);
+	assertEqualIntImpl (status, Ok, NULL, file, function, line);
+
+	verifyRegionDataImpl (region, data, count, file, function, line);
+}
+
+#define verifyRegionDataCombineRegionWithRegion(region, region2, mode, data) \
+	verifyRegionDataCombineRegionWithRegionImpl (region, region2, mode, data, sizeof (data), __FILE__, __func__, __LINE__)
+
+#define verifyRegionDataCombineRegionWithEmpty(region, mode, data) \
+{ \
+	GpRegion *region2; \
+	GdipCreateRegion (&region2); \
+	GdipSetEmpty (region2); \
+	\
+	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region2); \
+}
+
+#define verifyRegionDataCombineRegionWithInfinite(region, mode, data) \
+{ \
+	GpRegion *region2; \
+	GdipCreateRegion (&region2); \
+	\
+	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region2); \
+}
+
+static void verifyRegionDataCombineRegionWithRectImpl (GpRegion *region, RectF *rect, CombineMode mode, BYTE *data, INT count, const char *file, const char *function, int line)
+{
+	GpRegion *clone;
+	GdipCloneRegion (region, &clone);
+
+	/* First, test combining with a rect region, but only if it is valid. */
+	if (rect->X >= -0x400000 && rect->Y >= -0x400000 && rect->Width > 0 && rect->Height > 0) {
+		GpRegion *region2;
+		if (rect->Width >= 0x800000 && rect->Height >= 0x800000) {
+			GdipCreateRegion (&region2);
+		}
+		else {
+			GdipCreateRegionRect (rect, &region2);
+		}
+		verifyRegionDataCombineRegionWithRegionImpl (region, region2, mode, data, count, file, function, line);
+		GdipDeleteRegion (region2);
+	}
+
+	/* Second, test combining with an actual rect. */
+	GdipCombineRegionRect (clone, rect, mode);
+	verifyRegionDataImpl (clone, data, count, file, function, line);
+	GdipDeleteRegion (clone);
+}
+
+#define verifyRegionDataCombineRegionWithRect(region, rect, mode, data) \
+	verifyRegionDataCombineRegionWithRectImpl (region, rect, mode, data, sizeof (data), __FILE__, __func__, __LINE__)
+
+static void verifyRegionDataCombineRegionWithPathImpl (GpRegion *region, GpPath *path, CombineMode mode, BYTE *data, INT count, const char *file, const char *function, int line)
+{
+	GpRegion *clone;
+	GdipCloneRegion (region, &clone);
+
+	/* First, test combining with a path region. */
+	GpRegion *region2;
+	GdipCreateRegionPath (path, &region2);
+	verifyRegionDataCombineRegionWithRegionImpl (region, region2, mode, data, count, file, function, line);
+	GdipDeleteRegion (region2);
+
+	/* Second, test combining with an actual path. */
+	GdipCombineRegionPath (clone, path, mode);
+	verifyRegionDataImpl (clone, data, count, file, function, line);
+	GdipDeleteRegion (clone);
+}
+
+#define verifyRegionDataCombineRegionWithPath(region, path, mode, data) \
+	verifyRegionDataCombineRegionWithPathImpl (region, path, mode, data, sizeof (data), __FILE__, __func__, __LINE__)
+
+#define verifyRegionDataCombineInfiniteWithRegion(region2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineInfiniteWithInfinite(mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyRegionDataCombineRegionWithInfinite  (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineInfiniteWithEmpty(mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyRegionDataCombineRegionWithEmpty (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineInfiniteWithRect(rect, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyRegionDataCombineRegionWithRect (region, rect, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineInfiniteWithPath(path, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyRegionDataCombineRegionWithPath (region, path, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineEmptyWithRegion(region2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineEmptyWithInfinite(mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyRegionDataCombineRegionWithInfinite  (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineEmptyWithEmpty(mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyRegionDataCombineRegionWithEmpty (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineEmptyWithRect(rect, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyRegionDataCombineRegionWithRect (region, rect, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineEmptyWithPath(path, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyRegionDataCombineRegionWithPath (region, path, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRectWithRegion(rect, region2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRectWithInfinite(rect, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithInfinite  (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRectWithEmpty(rect, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithEmpty (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRectWithRect(rect, rect2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithRect (region, rect2, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRects(rects, rectsCount, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rects, &region); \
+	int _c = rectsCount / sizeof (GpRectF); \
+ \
+	for (int _i = 1; _i < _c - 1; _i++) \
+		GdipCombineRegionRect (region, &rects[_i], mode); \
+	verifyRegionDataCombineRegionWithRect (region, &rects[_c - 1], mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombineRectWithPath(rect, path, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithPath (region, path, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombinePathWithRegion(path, region2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithRegion (region, region2, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombinePathWithInfinite(path, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithInfinite  (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombinePathWithEmpty(path, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithEmpty (region, mode, data); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyRegionDataCombinePathWithRect(path, rect, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithRect (region, rect, mode, data); \
+	GdipDeleteRegion (region); \
+} \
+
+#define verifyRegionDataCombinePathWithPath(path, path2, mode, data) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyRegionDataCombineRegionWithPath (region, path2, mode, data); \
+	GdipDeleteRegion (region); \
 }
 
 static void test_getRegionDataReplace ()
 {
-	GpRegion *region;
-	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
-	GpRectF rect2 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -996,155 +1332,1090 @@ static void test_getRegionDataReplace ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
 
-	// Infinite Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
 
-	// Infinite Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Rect.
-	GdipCreateRegion (&region);
-	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Empty Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeReplace, infiniteRegionData);
 
-	// Empty Region + Rect.
-	GdipCreateRegion (&region);
-	GdipSetEmpty (region);
-	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Rect Region + Infinite Region.
-	GdipCreateRegionRect (&rect1, &region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Rect Region + Empty Region.
-	GdipCreateRegionRect (&rect1, &region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Rect Region + Rect Region.
-	GdipCreateRegionRect (&rect2, &region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeReplace, emptyRegionData);
 
-	// Rect Region + Rect.
-	GdipCreateRegionRect (&rect2, &region);
-	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Path Region + Infinite Region.
-	GdipCreateRegionPath (path, &region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Path Region + Empty Region.
-	GdipCreateRegionPath (path, &region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Path Region + Rect Region.
-	GdipCreateRegionPath (path, &region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipCombineRegionRegion (region, other, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Rect.
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeReplace, rectRegionData);
 
-	// Path Region + Rect.
-	GdipCreateRegionPath (path, &region);
-	GdipCombineRegionRect (region, &rect1, CombineModeReplace);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
+	// Infinite + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeReplace, pathRegionData);
+#endif
+
+	// Empty Region + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeReplace, infiniteRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeReplace, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeReplace, rectRegionData);
+
+	// Empty + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeReplace, pathRegionData);
+#endif
+
+	// Rect + Infinite.
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeReplace, infiniteRegionData);
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeReplace, emptyRegionData);
+
+	// Rect + Rect.
+	GpRectF rect2 = {2, 3, 4, 5};
+	BYTE rect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x12, 0xEB, 0x9A, 0xE8,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0x40,
+		/* Y */             0x00, 0x00, 0x40, 0x40,
+		/* Width */         0x00, 0x00, 0x80, 0x40,
+		/* Height */        0x00, 0x00, 0xA0, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeReplace, rect2RegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xB3, 0xF3, 0x26, 0x52,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeReplace, negativeRect1RegionData);
+
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xB8, 0x90, 0xEE, 0x8A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeReplace, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xFC, 0xF3, 0x73, 0x34,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeReplace, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x8A, 0xAB, 0x33, 0x94,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeReplace, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x34, 0xD1, 0xEA, 0x40,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeReplace, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x77, 0x7A, 0x0A, 0xEB,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeReplace, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x27, 0x13, 0xC5, 0xF9,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeReplace, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xA7, 0xF9, 0x74, 0xFE,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeReplace, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x1B, 0x70, 0x52, 0xE4,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeReplace, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x69, 0xC4, 0x3F, 0x32,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeReplace, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x85, 0x24, 0xD6, 0x3A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeReplace, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0A, 0x41, 0x82, 0x93,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeReplace, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0A, 0x41, 0x82, 0x93,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeReplace, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xDC, 0x3A, 0x26, 0x5E,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeReplace, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE4, 0x52, 0x94, 0x55,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeReplace, infiniteRect12RegionData);
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeReplace, infiniteRegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeReplace, infiniteRegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeReplace, infiniteRegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeReplace, infiniteRegionData);
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeReplace, emptyRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeReplace, emptyRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeReplace, emptyRegionData);
+
+	// Rect + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeReplace, pathRegionData);
+#endif
+
+	// Path + Infinite.
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeReplace, infiniteRegionData);
+
+	// Path + Empty.
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeReplace, emptyRegionData);
+
+	// Path + Rect.
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeReplace, rectRegionData);
+
+	// Path + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeReplace, pathRegionData);
+#endif
+
+	GdipDeletePath (path);
+}
+
+static void test_getRegionDataIntersect ()
+{
+	GpPath *path;
+	GpRectF rect1 = {1, 2, 3, 4};
+
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	BYTE rectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* -- Entry -- */
+		/* Type */   0x00, 0x00, 0x00, 0x10,
+		/* X */      0x00, 0x00, 0x80, 0x3F,
+		/* Y */      0x00, 0x00, 0x00, 0x40,
+		/* Width */  0x00, 0x00, 0x40, 0x40,
+		/* Height */ 0x00, 0x00, 0x80, 0x40
+	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
+
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeIntersect, infiniteRegionData);
+
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeIntersect, emptyRegionData);
+
+	// Infinite + Rect.
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeIntersect, rectRegionData);
+
+	// Infinite + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeIntersect, pathRegionData);
+#endif
+
+	// Empty Region + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeIntersect, emptyRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeIntersect, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeIntersect, emptyRegionData);
+
+	// Empty + Path.
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeIntersect, emptyRegionData);
+
+	// Rect + Infinite.
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeIntersect, rectRegionData);
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeIntersect, emptyRegionData);
+
+	// Rect + Rect.
+	// FIXME: combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rect2 = {1, 2, 3, 4};
+	BYTE rectRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x94, 0xE0, 0x1B, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeIntersect, rectRectRegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xD0, 0x83, 0x86, 0x52,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeIntersect, negativeRect1RegionData);
+
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xDB, 0xE0, 0x4E, 0x8A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeIntersect, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x9F, 0x83, 0xD3, 0x34,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeIntersect, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE9, 0xDB, 0x93, 0x94,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeIntersect, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x57, 0xA1, 0x4A, 0x40,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeIntersect, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x14, 0x0A, 0xAA, 0xEB,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeIntersect, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x44, 0x63, 0x65, 0xF9,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeIntersect, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xC4, 0x89, 0xD4, 0xFE,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeIntersect, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x78, 0x00, 0xF2, 0xE4,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeIntersect, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0A, 0xB4, 0x9F, 0x32,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeIntersect, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE6, 0x54, 0x76, 0x3A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeIntersect, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x69, 0x31, 0x22, 0x93,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeIntersect, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x69, 0x31, 0x22, 0x93,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeIntersect, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xBF, 0x4A, 0x86, 0x5E,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeIntersect, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x87, 0x22, 0x34, 0x55,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeIntersect, infiniteRect12RegionData);
+#endif
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeIntersect, rectRegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeIntersect, rectRegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeIntersect, rectRegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeIntersect, rectRegionData);
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeIntersect, emptyRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeIntersect, emptyRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeIntersect, emptyRegionData);
+
+	// Rect + Path.
+	// FIXME: path and combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x05, 0x26, 0x64, 0x99,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeIntersect, rectPathRegionData);
+#endif
+
+	// Path + Infinite.
+	// FIXME: path data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeIntersect, pathRegionData);
+#endif
+
+	// Path + Empty.
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeIntersect, emptyRegionData);
+
+	// Path + Rect.
+	// FIXME: path and combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6F, 0x1F, 0xA9, 0xCC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeIntersect, pathRectRegionData);
+
+	// Path + Path.
+	BYTE pathPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x5C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x11, 0x12, 0x9C, 0x58,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x01, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeIntersect, pathPathRegionData);
+#endif
 
 	GdipDeletePath (path);
 }
 
 static void test_getRegionDataUnion ()
 {
-	GpRegion *region;
-	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -1152,124 +2423,2180 @@ static void test_getRegionDataUnion ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
 
-	// Infinite Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
 
-	// Infinite Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Rect.
-	GdipCreateRegion (&region);
-	GdipCombineRegionRect (region, &rect1, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	
-	// Infinite Region + Path.
-	GdipCreateRegion (&region);
-	GdipCombineRegionPath (region, path, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	
-	// Empty Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeUnion, infiniteRegionData);
 
-	// Empty Region + Rect.
-	GdipCreateRegion (&region);
-	GdipSetEmpty (region);
-	GdipCombineRegionRect (region, &rect1, CombineModeUnion);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Rect Region + Infinite Region.
-	GdipCreateRegionRect (&rect1, &region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Rect Region + Empty Region.
-	GdipCreateRegionRect (&rect1, &region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeUnion, infiniteRegionData);
 
-	// Path Region + Infinite Region.
-	GdipCreateRegionPath (path, &region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeUnion);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Rect.
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeUnion, infiniteRegionData);
+
+	// Infinite + Path.
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeUnion, infiniteRegionData);
+
+	// Empty Region + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeUnion, infiniteRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeUnion, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeUnion, rectRegionData);
+
+	// Empty + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeUnion, pathRegionData);
+#endif
+
+	// Rect + Infinite.
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeUnion, infiniteRegionData);
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeUnion, rectRegionData);
+
+	// Rect + Rect.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rect2 = {1, 2, 3, 4};
+	BYTE rectRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x32, 0xA8, 0x63, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeUnion, rectRectRegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x76, 0xCB, 0xFE, 0x2C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeUnion, negativeRect1RegionData);
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x7D, 0xA8, 0x36, 0xF4,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeUnion, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x39, 0xCB, 0xAB, 0x4A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeUnion, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x4F, 0x93, 0xEB, 0xEA,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeUnion, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF1, 0xE9, 0x32, 0x3E,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeUnion, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xB2, 0x42, 0xD2, 0x95,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeUnion, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE2, 0x2B, 0x1D, 0x87,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeUnion, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x62, 0xC1, 0xAC, 0x80,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeUnion, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xDE, 0x48, 0x8A, 0x9A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeUnion, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xAC, 0xFC, 0xE7, 0x4C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeUnion, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x40, 0x1C, 0x0E, 0x44,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeUnion, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCF, 0x79, 0x5A, 0xED,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeUnion, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCF, 0x79, 0x5A, 0xED,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeUnion, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x19, 0x02, 0xFE, 0x20,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeUnion, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x21, 0x6A, 0x4C, 0x2B,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeUnion, infiniteRect12RegionData);
+#endif
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeUnion, infiniteRegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeUnion, infiniteRegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeUnion, infiniteRegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeUnion, infiniteRegionData);
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeUnion, rectRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeUnion, rectRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeUnion, rectRegionData);
+
+	// Rect + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0xFB, 0x56, 0x4A, 0xD3,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeUnion, rectPathRegionData);
+#endif
+
+	// Path + Infinite.
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeUnion, infiniteRegionData);
+
+	// Path + Empty.
+
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeUnion, pathRegionData);
+
+	// Path + Rect.
+	BYTE pathRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x91, 0x6F, 0x87, 0x86,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeUnion, pathRectRegionData);
+
+	// Path + Path.
+	BYTE pathPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x5C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x40, 0xF3, 0x98, 0xB6,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeUnion, pathPathRegionData);
+#endif
+
+	GdipDeletePath (path);
+}
+
+static void test_getRegionDataXor ()
+{
+	GpPath *path;
+	GpRectF rect1 = {1, 2, 3, 4};
+
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	BYTE rectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* -- Entry -- */
+		/* Type */   0x00, 0x00, 0x00, 0x10,
+		/* X */      0x00, 0x00, 0x80, 0x3F,
+		/* Y */      0x00, 0x00, 0x00, 0x40,
+		/* Width */  0x00, 0x00, 0x40, 0x40,
+		/* Height */ 0x00, 0x00, 0x80, 0x40
+	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
+
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeXor, emptyRegionData);
+
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeXor, infiniteRegionData);
+
+	// Infinite + Rect.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE infiniteRectData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x24, 0x00, 0x00, 0x00,
+		/* Checksum */      0x9E, 0x02, 0xC5, 0xC0,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeXor, infiniteRectData);
+#endif
+
+	// Infinite + Path.
+	// FIXME: path and combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE infinitePathData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x38, 0x00, 0x00, 0x00,
+		/* Checksum */      0x7D, 0x40, 0x8B, 0xD3,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeXor, infinitePathData);
+#endif
+
+	// Empty + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeXor, infiniteRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeXor, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeXor, rectRegionData);
+
+	// Empty + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeXor, pathRegionData);
+#endif
+
+	// Rect + Infinite.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectInfiniteRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x24, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0E, 0x75, 0x69, 0x0D,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10
+	};
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeXor, rectInfiniteRegionData);
+#endif
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeXor, rectRegionData);
+
+	// Rect + Rect.
+	// FIXME: combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rect2 = {1, 2, 3, 4};
+	BYTE rectRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x50, 0x90, 0x4B, 0xB8,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeXor, rectRectRegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x14, 0xF3, 0xD6, 0x06,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeXor, negativeRect1RegionData);
+
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x1F, 0x90, 0x1E, 0xDE,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeXor, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x5B, 0xF3, 0x83, 0x60,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeXor, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x2D, 0xAB, 0xC3, 0xC0,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeXor, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x93, 0xD1, 0x1A, 0x14,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeXor, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xD0, 0x7A, 0xFA, 0xBF,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeXor, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x80, 0x13, 0x35, 0xAD,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeXor, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x00, 0xF9, 0x84, 0xAA,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeXor, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xBC, 0x70, 0xA2, 0xB0,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeXor, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCE, 0xC4, 0xCF, 0x66,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeXor, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x22, 0x24, 0x26, 0x6E,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeXor, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xAD, 0x41, 0x72, 0xC7,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeXor, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xAD, 0x41, 0x72, 0xC7,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeXor, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x7B, 0x3A, 0xD6, 0x0A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeXor, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x43, 0x52, 0x64, 0x01,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeXor, infiniteRect12RegionData);
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeXor, rectInfiniteRegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeXor, rectInfiniteRegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeXor, rectInfiniteRegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeXor, rectInfiniteRegionData);
+#endif
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeXor, rectRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeXor, rectRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeXor, rectRegionData);
+
+	// Rect + Path.
+	// FIXME: path and combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6E, 0x7B, 0x7F, 0x5C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeXor, rectPathRegionData);
+
+	// Path + Infinite.
+	BYTE pathInfiniteRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x38, 0x00, 0x00, 0x00,
+		/* Checksum */      0xAF, 0x55, 0x5C, 0xD5,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10
+	};
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeXor, pathInfiniteRegionData);
+
+	// Path + Empty.
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeXor, pathRegionData);
+
+	// Path + Rect.
+	BYTE pathRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x04, 0x42, 0xB2, 0x09,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeXor, pathRectRegionData);
+
+	// Path + Path.
+	BYTE pathPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x5C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x8F, 0x53, 0x9B, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x03, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeXor, pathPathRegionData);
+#endif
+
+	GdipDeletePath (path);
+}
+
+static void test_getRegionDataExclude ()
+{
+	GpPath *path;
+	GpRectF rect1 = {1, 2, 3, 4};
+
+	GdipCreatePath (FillModeWinding, &path);
+	GdipAddPathRectangle (path, 10, 20, 30, 40);
+	BYTE rectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* -- Entry -- */
+		/* Type */   0x00, 0x00, 0x00, 0x10,
+		/* X */      0x00, 0x00, 0x80, 0x3F,
+		/* Y */      0x00, 0x00, 0x00, 0x40,
+		/* Width */  0x00, 0x00, 0x40, 0x40,
+		/* Height */ 0x00, 0x00, 0x80, 0x40
+	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
+
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeExclude, emptyRegionData);
+
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeExclude, infiniteRegionData);
+
+	// Infinite + Rect.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE infiniteRectData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x24, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCD, 0xF1, 0xCC, 0xC4,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeExclude, infiniteRectData);
+#endif
+
+	// Infinite + Path.
+	// FIXME: path and combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE infinitePathData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x38, 0x00, 0x00, 0x00,
+		/* Checksum */      0x69, 0xC6, 0x9E, 0x63,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeExclude, infinitePathData);
+#endif
+
+	// Empty + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeExclude, emptyRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeExclude, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeExclude, emptyRegionData);
+
+	// Empty + Path.
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeExclude, emptyRegionData);
+
+	// Rect + Infinite.
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeExclude, emptyRegionData);
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeExclude, rectRegionData);
+
+	// Rect + Rect.
+	// FIXME: combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rect2 = {1, 2, 3, 4};
+	BYTE rectRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x7E, 0x39, 0x93, 0x6E,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeExclude, rectRectRegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x3A, 0x5A, 0x0E, 0xD0,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeExclude, negativeRect1RegionData);
+
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x31, 0x39, 0xC6, 0x08,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeExclude, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x75, 0x5A, 0x5B, 0xB6,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeExclude, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x03, 0x02, 0x1B, 0x16,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeExclude, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xBD, 0x78, 0xC2, 0xC2,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeExclude, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xFE, 0xD3, 0x22, 0x69,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeExclude, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xAE, 0xBA, 0xED, 0x7B,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeExclude, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x2E, 0x50, 0x5C, 0x7C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeExclude, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x92, 0xD9, 0x7A, 0x66,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeExclude, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE0, 0x6D, 0x17, 0xB0,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeExclude, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0C, 0x8D, 0xFE, 0xB8,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeExclude, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x83, 0xE8, 0xAA, 0x11,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeExclude, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x83, 0xE8, 0xAA, 0x11,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeExclude, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x93, 0x0E, 0xDC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeExclude, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6D, 0xFB, 0xBC, 0xD7,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeExclude, infiniteRect12RegionData);
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeExclude, emptyRegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeExclude, emptyRegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeExclude, emptyRegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeExclude, emptyRegionData);
+#endif
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeExclude, rectRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeExclude, rectRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeExclude, rectRegionData);
+
+	// Rect + Path.
+	// FIXME: path and combine data is incorrect
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x07, 0xB7, 0x16, 0x47,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeExclude, rectPathRegionData);
+#endif
+
+	// Path + Infinite.
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeExclude, emptyRegionData);
+
+	// Path + Empty.
+	// FIXME: path and combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeExclude, pathRegionData);
+
+	// Path + Rect.
+	BYTE pathRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6D, 0x8E, 0xDB, 0x12,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeExclude, pathRectRegionData);
+
+	// Path + Path.
+	BYTE pathPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x5C, 0x00, 0x00, 0x00,
+		/* Checksum */      0xA3, 0x37, 0xE0, 0xB1,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x04, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeExclude, pathPathRegionData);
+#endif
 
 	GdipDeletePath (path);
 }
 
 static void test_getRegionDataComplement ()
 {
-	GpRegion *region;
-	GpRegion *other;
 	GpPath *path;
-	GpRectF rect1 = { 1, 2, 3, 4 };
+	GpRectF rect1 = {1, 2, 3, 4};
 
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
 	BYTE rectRegionData[] = {
 		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
+
 		/* -- Entry -- */
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
@@ -1277,109 +4604,779 @@ static void test_getRegionDataComplement ()
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE pathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x30, 0x00, 0x00, 0x00,
+		/* Checksum */      0x55, 0x64, 0x2A, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
 
-	// Infinite Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+		/* --Entry-- */
+		/* Type */         0x01, 0x00, 0x00, 0x10,
+		/* Size */         0x20, 0x00, 0x00, 0x00,
+		/* Magic */        0x02, 0x10, 0xC0, 0xDB,
+		/* Count */        0x04, 0x00, 0x00, 0x00,
+		/* Flags */        0x00, 0x60, 0x00, 0x00,
+		/* Point */        0x0A, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x14, 0x00,
+		/* Point */        0x28, 0x00, 0x3C, 0x00,
+		/* Point */        0x0A, 0x00, 0x3C, 0x00,
+		/* Type */        0x00,
+		/* Type */        0x01,
+		/* Type */        0x01,
+		/* Type */        0x81
+	};
+#endif
 
-	// Infinite Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Infinite.
+	verifyRegionDataCombineInfiniteWithInfinite (CombineModeComplement, emptyRegionData);
 
-	// Infinite Region + Path Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionPath (path, &other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Infinite Region + Rect.
-	GdipCreateRegion (&region);
-	GdipCombineRegionRect (region, &rect1, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	
-	// Infinite Region + Path.
-	GdipCreateRegion (&region);
-	GdipCombineRegionPath (region, path, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	
-	// Empty Region + Infinite Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, infiniteRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Empty Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (region);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Empty Region + Rect Region.
-	GdipCreateRegion (&region);
-	GdipCreateRegionRect (&rect1, &other);
-	GdipSetEmpty (region);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Empty.
+	verifyRegionDataCombineInfiniteWithEmpty (CombineModeComplement, emptyRegionData);
 
-	// Empty Region + Rect.
-	GdipCreateRegion (&region);
-	GdipSetEmpty (region);
-	GdipCombineRegionRect (region, &rect1, CombineModeComplement);
-	verifyRegionData (region, rectRegionData);
-	GdipDeleteRegion (region);
-	
-	// Rect Region + Empty Region.
-	GdipCreateRegionRect (&rect1, &region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
-	
-	// Path Region + Empty Region.
-	GdipCreateRegionPath (path, &region);
-	GdipCreateRegion (&other);
-	GdipSetEmpty (other);
-	GdipCombineRegionRegion (region, other, CombineModeComplement);
-	verifyRegionData (region, emptyRegionData);
-	GdipDeleteRegion (region);
-	GdipDeleteRegion (other);
+	// Infinite + Rect.
+	verifyRegionDataCombineInfiniteWithRect (&rect1, CombineModeComplement, emptyRegionData);
+
+	// Infinite + Path.
+	verifyRegionDataCombineInfiniteWithPath (path, CombineModeComplement, emptyRegionData);
+
+	// Empty Region + Infinite.
+	verifyRegionDataCombineEmptyWithInfinite (CombineModeComplement, infiniteRegionData);
+
+	// Empty + Empty.
+	verifyRegionDataCombineEmptyWithEmpty (CombineModeComplement, emptyRegionData);
+
+	// Empty + Rect.
+	verifyRegionDataCombineEmptyWithRect (&rect1, CombineModeComplement, rectRegionData);
+
+	// Empty + Path.
+	// FIXME: path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	verifyRegionDataCombineEmptyWithPath (path, CombineModeComplement, pathRegionData);
+#endif
+
+	// Rect + Infinite.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectInfiniteRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x24, 0x00, 0x00, 0x00,
+		/* Checksum */      0x40, 0x7B, 0xD5, 0x08,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10
+	};
+	verifyRegionDataCombineRectWithInfinite (&rect1, CombineModeComplement, rectInfiniteRegionData);
+#endif
+
+	// Rect + Empty.
+	verifyRegionDataCombineRectWithEmpty (&rect1, CombineModeComplement, emptyRegionData);
+
+	// Rect + Rect.
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rect2 = {1, 2, 3, 4};
+	BYTE rectRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x1C, 0x01, 0xBB, 0x44,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &rect2, CombineModeComplement, rectRectRegionData);
+
+	// Rect + Negative Rect.
+	GpRectF negativeRect1 = {1, 2, -3, 4};
+	BYTE negativeRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x58, 0x62, 0x26, 0xFA,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect1, CombineModeComplement, negativeRect1RegionData);
+	GpRectF negativeRect2 = {1, 2, 3, -4};
+	BYTE negativeRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x53, 0x01, 0xEE, 0x22,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect2, CombineModeComplement, negativeRect2RegionData);
+	GpRectF negativeRect3 = {1, 2, -3, -4};
+	BYTE negativeRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x17, 0x62, 0x73, 0x9C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0xC0,
+		/* Y */             0x00, 0x00, 0x00, 0xC0,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &negativeRect3, CombineModeComplement, negativeRect3RegionData);
+
+	// Rect + Infinite Rect.
+	// - Infinite width.
+	GpRectF infiniteRect1 = {1, 2, 0x800000, 4};
+	BYTE infiniteRect1RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x61, 0x3A, 0x33, 0x3C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect1, CombineModeComplement, infiniteRect1RegionData);
+
+	// - Infinite Height.
+	GpRectF infiniteRect2 = {1, 2, 3, 0x800000};
+	BYTE infiniteRect2RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xDF, 0x40, 0xEA, 0xE8,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect2, CombineModeComplement, infiniteRect2RegionData);
+
+	// - Infinite x.
+	GpRectF infiniteRect3 = {-0x400000, 2, 3, 4};
+	BYTE infiniteRect3RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x9C, 0xEB, 0x0A, 0x43,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect3, CombineModeComplement, infiniteRect3RegionData);
+
+	// - Infinite y.
+	GpRectF infiniteRect4 = {1, -0x400000, 3, 4};
+	BYTE infiniteRect4RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCC, 0x82, 0xC5, 0x51,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect4, CombineModeComplement, infiniteRect4RegionData);
+
+	// - Infinite x and infinite y.
+	GpRectF infiniteRect5 = {-0x400000, -0x400000, 3, 4};
+	BYTE infiniteRect5RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x4C, 0x68, 0x74, 0x56,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect5, CombineModeComplement, infiniteRect5RegionData);
+
+	// - <Infinite x.
+	GpRectF infiniteRect6 = {-0x400001, 2, 3, 4};
+	BYTE infiniteRect6RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF0, 0xE1, 0x52, 0x4C,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect6, CombineModeComplement, infiniteRect6RegionData);
+
+	// - <Infinite y.
+	GpRectF infiniteRect7 = {1, -0x400001, 3, 4};
+	BYTE infiniteRect7RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x82, 0x55, 0x3F, 0x9A,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect7, CombineModeComplement, infiniteRect7RegionData);
+
+	// - <Infinite x and <infinite y.
+	GpRectF infiniteRect8 = {-0x400001, -0x400001, 3, 4};
+	BYTE infiniteRect8RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6E, 0xB5, 0xD6, 0x92,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x00, 0x40,
+		/* Height */        0x00, 0x00, 0x40, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect8, CombineModeComplement, infiniteRect8RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect9 = {-0x400001, 2, 0x800000, 4};
+	BYTE infiniteRect9RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE1, 0xD0, 0x82, 0x3B,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect9, CombineModeComplement, infiniteRect9RegionData);
+
+	// - <Infinite x and >infinite width.
+	GpRectF infiniteRect10 = {-0x400001, 2, 0x800001, 4};
+	BYTE infiniteRect10RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0xE1, 0xD0, 0x82, 0x3B,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x00, 0x4B,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect10, CombineModeComplement, infiniteRect10RegionData);
+
+	// - <Infinite x and infinite width.
+	GpRectF infiniteRect11 = {1, 2, -0x400001, 0x800000};
+	BYTE infiniteRect11RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x37, 0xAB, 0x26, 0xF6,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0xCA,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x02, 0x00, 0x80, 0x4A,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect11, CombineModeComplement, infiniteRect11RegionData);
+
+	// - <Infinite x and infinite height.
+	GpRectF infiniteRect12 = {1, -0x400001, 3, 0x800001};
+	BYTE infiniteRect12RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x34, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0F, 0xC3, 0x94, 0xFD,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x80, 0xCA,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x00, 0x4B
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect12, CombineModeComplement, infiniteRect12RegionData);
+
+	GpRectF infiniteRect13 = {1, 2, 0x800000, 0x800000};
+	BYTE rectInfiniteRect13RegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x24, 0x00, 0x00, 0x00,
+		/* Checksum */      0x40, 0x7B, 0xD5, 0x08,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10
+	};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect13, CombineModeComplement, rectInfiniteRect13RegionData);
+
+	GpRectF infiniteRect14 = {1, 2, 0x800001, 0x800000};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect14, CombineModeComplement, rectInfiniteRect13RegionData);
+
+	GpRectF infiniteRect15 = {1, 2, 0x800000, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect15, CombineModeComplement, rectInfiniteRect13RegionData);
+
+	GpRectF infiniteRect16 = {1, 2, 0x800001, 0x800001};
+	verifyRegionDataCombineRectWithRect (&rect1, &infiniteRect16, CombineModeComplement, rectInfiniteRect13RegionData);
+#endif
+
+	// Rect + Empty Rect.
+	GpRectF emptyRect1 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect1, CombineModeComplement, emptyRegionData);
+	GpRectF emptyRect2 = {1, 2, 0, 4};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect2, CombineModeComplement, emptyRegionData);
+	GpRectF emptyRect3 = {1, 2, 0, 0};
+	verifyRegionDataCombineRectWithRect (&rect1, &emptyRect3, CombineModeComplement, emptyRegionData);
+
+	// Rect + Path.
+	// FIXME: combine and path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	BYTE rectPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0x92, 0x9A, 0x23, 0xC8,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombineRectWithPath (&rect1, path, CombineModeComplement, rectPathRegionData);
+
+	// Path + Infinite.
+	BYTE pathInfiniteRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x38, 0x00, 0x00, 0x00,
+		/* Checksum */      0x67, 0x3F, 0xF8, 0x58,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x03, 0x00, 0x00, 0x10
+	};
+	verifyRegionDataCombinePathWithInfinite (path, CombineModeComplement, pathInfiniteRegionData);
+#endif
+
+	// Path + Empty.
+	verifyRegionDataCombinePathWithEmpty (path, CombineModeComplement, emptyRegionData);
+
+	// FIXME: combine and path data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	// Path + Rect.
+	BYTE pathRectRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x48, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF8, 0xA3, 0xEE, 0x9D,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	verifyRegionDataCombinePathWithRect (path, &rect1, CombineModeComplement, pathRectRegionData);
+
+	// Path + Path.
+	BYTE pathPathRegionData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x5C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6C, 0x97, 0xE3, 0xEB,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x02, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x05, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81,
+
+		/* --Right-- */
+		/* Type */          0x01, 0x00, 0x00, 0x10,
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Count */         0x04, 0x00, 0x00, 0x00,
+		/* Flags */         0x00, 0x60, 0x00, 0x00,
+		/* Point */         0x0A, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x14, 0x00,
+		/* Point */         0x28, 0x00, 0x3C, 0x00,
+		/* Point */         0x0A, 0x00, 0x3C, 0x00,
+		/* Type */          0x00,
+		/* Type */          0x01,
+		/* Type */          0x01,
+		/* Type */          0x81
+	};
+	verifyRegionDataCombinePathWithPath (path, path, CombineModeComplement, pathPathRegionData);
+#endif
 
 	GdipDeletePath (path);
 }
 
-static void test_getRegionDataSize()
+static void test_getRegionDataMultiple()
+{
+	// FIXME: combine data is incorrect.
+#if defined(USE_WINDOWS_GDIPLUS)
+	GpRectF rects[] = {
+		{1, 2, 3, 4},
+		{2, 3, 4, 5},
+		{3, 4, 5, 6}
+	};
+	BYTE rectsData[] = {
+		/* --RegionHeader-- */
+		/* Size */          0x4C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x92, 0xCB, 0x20, 0x99,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x04, 0x00, 0x00, 0x00,
+
+		/* --Entry-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left-- */
+		/* Type */          0x02, 0x00, 0x00, 0x00,
+
+		/* --Left->Left-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40,
+
+		/* --Left->Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x00, 0x40,
+		/* Y */             0x00, 0x00, 0x40, 0x40,
+		/* Width */         0x00, 0x00, 0x80, 0x40,
+		/* Height */        0x00, 0x00, 0xA0, 0x40,
+
+		/* --Right-- */
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x40, 0x40,
+		/* Y */             0x00, 0x00, 0x80, 0x40,
+		/* Width */         0x00, 0x00, 0xA0, 0x40,
+		/* Height */        0x00, 0x00, 0xC0, 0x40
+	};
+	verifyRegionDataCombineRects (rects, sizeof (rects), CombineModeUnion, rectsData);
+#endif
+}
+
+static void test_getRegionDataSize ()
 {
 	GpStatus status;
 	GpRegion *region;
@@ -1390,10 +5387,10 @@ static void test_getRegionDataSize()
 	// Negative tests.
 	status = GdipGetRegionDataSize (NULL, &bufferSize);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetRegionDataSize (region, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeleteRegion (region);
 }
 
@@ -1407,7 +5404,7 @@ static void test_cloneRegion ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipCloneRegion (region, &clone);
 	assertEqualInt (status, Ok);
 	verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
@@ -1418,14 +5415,14 @@ static void test_cloneRegion ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipCloneRegion (region, &clone);
 	assertEqualInt (status, Ok);
 	verifyRegion (clone, 10, 20, 30, 40, FALSE, FALSE);
 	GdipDeleteRegion (region);
 	GdipDeleteRegion (clone);
 	GdipDeletePath (path);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -1462,7 +5459,7 @@ static void test_deleteRegion ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipDeleteRegion (region);
 	assertEqualInt (status, Ok);
 
@@ -1470,7 +5467,7 @@ static void test_deleteRegion ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipDeleteRegion (region);
 	assertEqualInt (status, Ok);
 
@@ -1503,7 +5500,7 @@ static void test_setInfinite ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipSetInfinite (region);
 	assertEqualInt (status, Ok);
 	verifyInfiniteRegion (region);
@@ -1513,7 +5510,7 @@ static void test_setInfinite ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipSetInfinite (region);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 	assertEqualInt (status, Ok);
@@ -1551,7 +5548,7 @@ static void test_setEmpty ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipSetEmpty (region);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 	assertEqualInt (status, Ok);
@@ -1561,7 +5558,7 @@ static void test_setEmpty ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipSetEmpty (region);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
 	assertEqualInt (status, Ok);
@@ -1620,13 +5617,13 @@ static void test_isEmptyRegion ()
 	GdipCreateRegion (&region);
 
 	// Negative tests.
-	status = GdipIsEmptyRegion (NULL, graphics, &isEmpty);
+	status = GdipIsEmptyRegion(NULL, graphics, &isEmpty);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipIsEmptyRegion (region, NULL, &isEmpty);
+	status = GdipIsEmptyRegion(region, NULL, &isEmpty);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipIsEmptyRegion (region, graphics, NULL);
+	status = GdipIsEmptyRegion(region, graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteRegion (region);
@@ -1682,7 +5679,7 @@ static void test_isEqualRegion ()
 
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GdipCreateRegionRect (&infiniteRect, &infiniteRectRegion1);
-	
+
 	GdipCreateRegionRect (&infiniteRect, &infiniteRectRegion2);
 
 	GdipCreateRegion (&emptyRegion1);
@@ -1693,27 +5690,27 @@ static void test_isEqualRegion ()
 
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion1);
-	
+
 	GdipCreateRegionRect (&emptyRect, &emptyRectRegion2);
-	
+
 	GpRectF zeroWidthRect = {1, 2, 0, 4};
 	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion1);
 
 	GdipCreateRegionRect (&zeroWidthRect, &zeroWidthRectRegion2);
-	
+
 	GpRectF zeroHeightRect = {1, 2, 3, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion1);
-	
+
 	GdipCreateRegionRect (&zeroHeightRect, &zeroHeightRectRegion2);
-	
+
 	GpRectF negativeWidthRect = {1, 2, -1, 4};
 	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion1);
-	
+
 	GdipCreateRegionRect (&negativeWidthRect, &negativeWidthRectRegion2);
-	
+
 	GpRectF negativeHeightRect = {1, 2, 3, -1};
 	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion1);
-	
+
 	GdipCreateRegionRect (&negativeHeightRect, &negativeHeightRectRegion2);
 
 	GpRectF rect1 = {1, 2, 3, 4};
@@ -1738,32 +5735,32 @@ static void test_isEqualRegion ()
 	GpRectF multiRect1_2 = {6, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect1_1, &multiRectRegion1);
 	GdipCombineRegionRect (multiRectRegion1, &multiRect1_2, CombineModeUnion);
-	
+
 	GpRectF multiRect2_1 = {1, 2, 3, 4};
 	GpRectF multiRect2_2 = {6, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect2_1, &multiRectRegion2);
 	GdipCombineRegionRect (multiRectRegion2, &multiRect2_2, CombineModeUnion);
-	
+
 	GpRectF multiRect3_1 = {1, 2, 3, 4};
 	GpRectF multiRect3_2 = {7, 7, 8, 9};
 	GdipCreateRegionRect (&multiRect3_1, &multiRectRegion3);
 	GdipCombineRegionRect (multiRectRegion3, &multiRect3_2, CombineModeUnion);
-	
+
 	GpRectF multiRect4_1 = {1, 2, 3, 4};
 	GpRectF multiRect4_2 = {6, 8, 8, 9};
 	GdipCreateRegionRect (&multiRect4_1, &multiRectRegion4);
 	GdipCombineRegionRect (multiRectRegion4, &multiRect4_2, CombineModeUnion);
-	
+
 	GpRectF multiRect5_1 = {1, 2, 3, 4};
 	GpRectF multiRect5_2 = {6, 7, 9, 9};
 	GdipCreateRegionRect (&multiRect5_1, &multiRectRegion5);
 	GdipCombineRegionRect (multiRectRegion5, &multiRect5_2, CombineModeUnion);
-	
+
 	GpRectF multiRect6_1 = {1, 2, 3, 4};
 	GpRectF multiRect6_2 = {6, 7, 8, 10};
 	GdipCreateRegionRect (&multiRect6_1, &multiRectRegion6);
 	GdipCombineRegionRect (multiRectRegion6, &multiRect6_2, CombineModeUnion);
-	
+
 	GpPath *emptyPath;
 	GdipCreatePath (FillModeAlternate, &emptyPath);
 	GdipCreateRegionPath (emptyPath, &emptyPathRegion1);
@@ -1776,32 +5773,32 @@ static void test_isEqualRegion ()
 	GdipCreateRegionPath (infinitePath, &infinitePathRegion1);
 
 	GdipCreateRegionPath (infinitePath, &infinitePathRegion2);
-	
+
 	GpPath *path1;
 	GdipCreatePath (FillModeAlternate, &path1);
 	GdipAddPathRectangle (path1, 1, 2, 3, 4);
 	GdipCreateRegionPath (path1, &pathRegion1);
-	
+
 	GpPath *path2;
 	GdipCreatePath (FillModeAlternate, &path2);
 	GdipAddPathRectangle (path2, 1, 2, 3, 4);
 	GdipCreateRegionPath (path2, &pathRegion2);
-	
+
 	GpPath *path3;
 	GdipCreatePath (FillModeAlternate, &path3);
 	GdipAddPathRectangle (path3, 2, 2, 3, 4);
 	GdipCreateRegionPath (path3, &pathRegion3);
-	
+
 	GpPath *path4;
 	GdipCreatePath (FillModeAlternate, &path4);
 	GdipAddPathRectangle (path4, 1, 3, 3, 4);
 	GdipCreateRegionPath (path4, &pathRegion4);
-	
+
 	GpPath *path5;
 	GdipCreatePath (FillModeAlternate, &path5);
 	GdipAddPathRectangle (path5, 1, 2, 4, 4);
 	GdipCreateRegionPath (path5, &pathRegion5);
-	
+
 	GpPath *path6;
 	GdipCreatePath (FillModeAlternate, &path6);
 	GdipAddPathRectangle (path6, 1, 2, 3, 5);
@@ -1811,11 +5808,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1827,31 +5824,31 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (infiniteRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -1868,7 +5865,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, emptyRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1900,15 +5897,15 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -1929,7 +5926,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (infiniteRectRegion1, infiniteRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -1986,7 +5983,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2010,11 +6007,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2030,11 +6027,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Rectangular region - zero width.
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2043,7 +6040,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2071,11 +6068,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2091,11 +6088,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroWidthRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Rectangular region - zero height.
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2104,7 +6101,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2132,11 +6129,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2152,7 +6149,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (zeroHeightRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2165,7 +6162,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2193,11 +6190,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2213,7 +6210,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeWidthRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2226,7 +6223,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
@@ -2254,11 +6251,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2274,7 +6271,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (negativeHeightRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2287,11 +6284,11 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, rectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2299,43 +6296,43 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, rectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2343,19 +6340,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, pathRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2363,7 +6360,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (rectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (rectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2372,75 +6369,75 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infiniteRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, zeroWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, zeroHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, negativeWidthRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, negativeHeightRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, rectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, multiRectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, emptyPathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (multiRectRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	// Path region - infinite.
 	status = GdipIsEqualRegion (infinitePathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
@@ -2550,7 +6547,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (emptyPathRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (emptyPathRegion1, pathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2567,7 +6564,7 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, pathRegion2, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, TRUE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, infiniteRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2583,19 +6580,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, emptyRectRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, rectRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2611,19 +6608,19 @@ static void test_isEqualRegion ()
 	status = GdipIsEqualRegion (pathRegion1, infinitePathRegion1, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion3, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion4, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion5, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
-	
+
 	status = GdipIsEqualRegion (pathRegion1, pathRegion6, graphics, &isEqual);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isEqual, FALSE);
@@ -2699,13 +6696,13 @@ static void test_isInfiniteRegion ()
 	GdipCreateRegion (&region);
 
 	// Negative tests.
-	status = GdipIsInfiniteRegion (NULL, graphics, &isInfinite);
+	status = GdipIsInfiniteRegion(NULL, graphics, &isInfinite);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipIsInfiniteRegion (region, NULL, &isInfinite);
+	status = GdipIsInfiniteRegion(region, NULL, &isInfinite);
 	assertEqualInt (status, InvalidParameter);
 
-	status = GdipIsInfiniteRegion (region, graphics, NULL);
+	status = GdipIsInfiniteRegion(region, graphics, NULL);
 	assertEqualInt (status, InvalidParameter);
 
 	GdipDeleteRegion (region);
@@ -2951,7 +6948,7 @@ static void test_isVisibleRegionPointI ()
 	status = GdipIsVisibleRegionPointI (region, 0, 0, graphics, &isVisible);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isVisible, FALSE);
-	
+
 	status = GdipIsVisibleRegionPointI (region, 10, 20, graphics, &isVisible);
 	assertEqualInt (status, Ok);
 	assertEqualInt (isVisible, FALSE);
@@ -3484,7 +7481,7 @@ static void test_getRegionScansCount ()
 	// Rect region.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3494,17 +7491,17 @@ static void test_getRegionScansCount ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
 	GdipDeletePath (path);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
@@ -3512,7 +7509,7 @@ static void test_getRegionScansCount ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipGetRegionScansCount (region, &count, matrix);
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 1);
@@ -3557,7 +7554,7 @@ static void test_getRegionScans ()
 	// Rect region - non null rects.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3581,7 +7578,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualRectFInline (scans[0], 60, 131, 150, 240);
 	assertEqualInt (count, 1);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, complexMatrix);
 	assertEqualInt (status, Ok);
@@ -3623,7 +7620,7 @@ static void test_getRegionScans ()
 	assertEqualRectFInline (scans[0], 11, 21, 30, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region == 0.5 - non null rects.
 	GpRectF pointFiveRect = {10.5f, 20.5f, 30.5f, 40.5f};
 	GdipCreateRegionRect (&pointFiveRect, &region);
@@ -3636,7 +7633,7 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region > 0.5 - non null rects.
 	GpRectF greaterThanPointFiveRect = {10.6f, 20.6f, 30.6f, 40.6f};
 	GdipCreateRegionRect (&greaterThanPointFiveRect, &region);
@@ -3649,7 +7646,7 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width - non null rects.
 	GpRectF zeroWidthRect = {10, 20, 0, 40};
 	status = GdipCreateRegionRect (&zeroWidthRect, &region);
@@ -3658,7 +7655,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero height - non null rects.
 	GpRectF zeroHeightRect = {10, 20, 30, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
@@ -3667,7 +7664,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width and height - non null rects.
 	GpRectF zeroWidthAndHeightRect = {10, 20, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
@@ -3676,7 +7673,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width - non null rects.
 	GpRectF negativeWidthRect = {10, 20, -30, 40};
 	status = GdipCreateRegionRect (&negativeWidthRect, &region);
@@ -3685,7 +7682,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative height - non null rects.
 	GpRectF negativeHeightRect = {10, 20, 30, -40};
 	status = GdipCreateRegionRect (&negativeHeightRect, &region);
@@ -3694,7 +7691,7 @@ static void test_getRegionScans ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width and height - non null rects.
 	GpRectF negativeWidthAndHeightRect = {10, 20, 30, -40};
 	status = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
@@ -3708,7 +7705,7 @@ static void test_getRegionScans ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3725,12 +7722,12 @@ static void test_getRegionScans ()
 	assertEqualInt (count, 1);
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region < 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.2f, 20.2f, 30.2f, 40.2f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3744,15 +7741,15 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Width, 30);
 	assertEqualFloat (scans[0].Height, 40);
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region == 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.5f, 20.5f, 30.5f, 40.5f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3774,15 +7771,15 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[1].Height, 39);
 	assertEqualInt (count, 2);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region > 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.6f, 20.6f, 30.6f, 40.6f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3797,14 +7794,14 @@ static void test_getRegionScans ()
 	assertEqualFloat (scans[0].Height, 39);
 #endif
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region - non null rects.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3819,7 +7816,7 @@ static void test_getRegionScans ()
 
 	// Infinite region - non null rects.
 	GdipCreateRegion (&region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScans (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3867,7 +7864,7 @@ static void test_getRegionScansI ()
 	// Rect region - non null rects.
 	GpRectF rect = {10, 20, 30, 40};
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3896,7 +7893,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region == 0.5 - non null rects.
 	GpRectF pointFiveRect = {10.5f, 20.5f, 30.5f, 40.5f};
 	GdipCreateRegionRect (&pointFiveRect, &region);
@@ -3909,7 +7906,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region > 0.5 - non null rects.
 	GpRectF greaterThanPointFiveRect = {10.6f, 20.6f, 30.6f, 40.6f};
 	GdipCreateRegionRect (&greaterThanPointFiveRect, &region);
@@ -3922,7 +7919,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width - non null rects.
 	GpRectF zeroWidthRect = {10, 20, 0, 40};
 	status = GdipCreateRegionRect (&zeroWidthRect, &region);
@@ -3931,7 +7928,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero height - non null rects.
 	GpRectF zeroHeightRect = {10, 20, 30, 0};
 	GdipCreateRegionRect (&zeroHeightRect, &region);
@@ -3940,7 +7937,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region zero width and height - non null rects.
 	GpRectF zeroWidthAndHeightRect = {10, 20, 0, 0};
 	GdipCreateRegionRect (&zeroWidthAndHeightRect, &region);
@@ -3949,7 +7946,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width - non null rects.
 	GpRectF negativeWidthRect = {10, 20, -30, 40};
 	status = GdipCreateRegionRect (&negativeWidthRect, &region);
@@ -3958,7 +7955,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative height - non null rects.
 	GpRectF negativeHeightRect = {10, 20, 30, -40};
 	status = GdipCreateRegionRect (&negativeHeightRect, &region);
@@ -3967,7 +7964,7 @@ static void test_getRegionScansI ()
 	assertEqualInt (status, Ok);
 	assertEqualInt (count, 0);
 	GdipDeleteRegion (region);
-	
+
 	// Rect region negative width and height - non null rects.
 	GpRectF negativeWidthAndHeightRect = {10, 20, 30, -40};
 	status = GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
@@ -3981,7 +7978,7 @@ static void test_getRegionScansI ()
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -3998,12 +7995,12 @@ static void test_getRegionScansI ()
 	assertEqualInt (count, 1);
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region < 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.2f, 20.2f, 30.2f, 40.2f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -4015,15 +8012,15 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Width, 30);
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region == 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.5f, 20.5f, 30.5f, 40.5f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -4035,15 +8032,15 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 40);
 	assertEqualInt (count, 1);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Path region > 0.5 - non null rects.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10.6f, 20.6f, 30.6f, 40.6f);
 	GdipCreateRegionPath (path, &region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -4055,14 +8052,14 @@ static void test_getRegionScansI ()
 	assertEqualInt (scans[0].Height, 41);
 	assertEqualInt (count, 1);
 #endif
-	
+
 	GdipDeletePath (path);
 	GdipDeleteRegion (region);
-	
+
 	// Empty region - non null rects.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -4077,7 +8074,7 @@ static void test_getRegionScansI ()
 
 	// Infinite region - non null rects.
 	GdipCreateRegion (&region);
-	
+
 	count = 0xFF;
 	status = GdipGetRegionScansI (region, scans, &count, matrix);
 	assertEqualInt (status, Ok);
@@ -4107,7 +8104,7 @@ static void test_getRegionScansI ()
 	GdipDeleteRegion (region);
 }
 
-static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF * scans, INT scansCount, const char *file, const char *function, int line)
+static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *region2, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
 {
 	GpStatus status = GdipCombineRegionRegion (region, region2, mode);
 	assertEqualIntImpl (status, Ok, NULL, file, function, line);
@@ -4119,16 +8116,43 @@ static void verifyCombineRegionWithRegionImpl (GpRegion *region, GpRegion *regio
 #define verifyCombineRegionWithRegion(region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, __FILE__, __func__, __LINE__)
 
+#define verifyCombineRegionWithInfinite(region, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region2; \
+	GdipCreateRegion (&region2); \
+ \
+	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region2); \
+}
+
+#define verifyCombineRegionWithEmpty(region, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region2; \
+	GdipCreateRegion (&region2); \
+	GdipSetEmpty (&region2); \
+ \
+	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region2); \
+}
+
 static void verifyCombineRegionWithRectImpl (GpRegion *region, RectF *rect, CombineMode mode, float x, float y, float width, float height, BOOL isEmpty, BOOL isInfinite, RectF *scans, INT scansCount, const char *file, const char *function, int line)
 {
 	GpRegion *clone;
 	GdipCloneRegion (region, &clone);
 
 	/* First, test combining with a rect region. */
-	GpRegion *region2;
-	GdipCreateRegionRect (rect, &region2);
-	verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, file, function, line);
-	GdipDeleteRegion (region2);
+	/* First, test combining with a rect region, but only if it is valid. */
+	if (rect->X >= -0x400000 && rect->Y >= -0x400000 && rect->Width > 0 && rect->Height > 0) {
+		GpRegion *region2;
+		if (rect->Width >= 0x800000 && rect->Height >= 0x800000) {
+			GdipCreateRegion (&region2);
+		}
+		else {
+			GdipCreateRegionRect (rect, &region2);
+		}
+		verifyCombineRegionWithRegionImpl (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount, file, function, line);
+		GdipDeleteRegion (region2);
+	}
 
 	/* Second, test combining with an actual rect. */
 	GdipCombineRegionRect (clone, rect, mode);
@@ -4168,7 +8192,25 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
 	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
+
+#define verifyCombineInfiniteWithInfinite(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyCombineRegionWithInfinite (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyCombineInfiniteWithEmpty(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+ \
+	verifyCombineRegionWithEmpty (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
 
 #define verifyCombineInfiniteWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4177,7 +8219,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
 	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineInfiniteWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4186,7 +8228,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
 	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineEmptyWithRegion(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4196,7 +8238,27 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
+
+#define verifyCombineEmptyWithInfinite(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyCombineRegionWithInfinite (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyCombineEmptyWithEmpty(region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegion (&region); \
+	GdipSetEmpty (region); \
+ \
+ 	verifyCombineRegionWithEmpty (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
 
 #define verifyCombineEmptyWithRect(rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4206,7 +8268,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineEmptyWithPath(path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4216,7 +8278,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineRectWithRegion(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4225,7 +8287,25 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
+
+#define verifyCombineRectWithInfinite(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyCombineRegionWithInfinite (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyCombineRectWithEmpty(rect, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionRect (rect, &region); \
+ \
+ 	verifyCombineRegionWithEmpty (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
 
 #define verifyCombineRectWithRect(rect, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4234,7 +8314,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRect (region, rect2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineRects(rects, rectsCount, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4246,7 +8326,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
 		GdipCombineRegionRect (region, &rects[_i], mode); \
 	verifyCombineRegionWithRect (region, &rects[_c - 1], mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombineRectWithPath(rect, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4255,7 +8335,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithPath (region, path, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombinePathWithRegion(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4264,7 +8344,25 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRegion (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
+
+#define verifyCombinePathWithInfinite(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyCombineRegionWithInfinite (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
+
+#define verifyCombinePathWithEmpty(path, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
+{ \
+	GpRegion *region; \
+	GdipCreateRegionPath (path, &region); \
+ \
+ 	verifyCombineRegionWithEmpty (region, region2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
+	GdipDeleteRegion (region); \
+}
 
 #define verifyCombinePathWithRect(path, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4273,7 +8371,7 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithRect (region, rect, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
 #define verifyCombinePathWithPath(path, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount) \
 { \
@@ -4282,9 +8380,9 @@ static void verifyCombineRegionWithPathImpl (GpRegion *region, GpPath *path, Com
  \
  	verifyCombineRegionWithPath (region, path2, mode, x, y, width, height, isEmpty, isInfinite, scans, scansCount); \
 	GdipDeleteRegion (region); \
-} \
+}
 
-static GpPath *createPathFromRect(RectF *rect)
+static GpPath *createPathFromRect (RectF *rect)
 {
 	GpPath *path;
 	GdipCreatePath (FillModeAlternate, &path);
@@ -4450,7 +8548,7 @@ static void test_combineIntersect ()
 
 	// Infinite + Empty = Empty.
 	verifyCombineInfiniteWithRegion (emptyRegion, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Infinite + Infinite Rect = Infinite.
 	verifyCombineInfiniteWithRect (&infiniteRect, CombineModeIntersect, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -4459,7 +8557,7 @@ static void test_combineIntersect ()
 
 	// Infinite + Rect = Rect.
 	verifyCombineInfiniteWithRect (&rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite + Negative Rect = Rect.
 	{
 		GpRegion *region;
@@ -4508,7 +8606,7 @@ static void test_combineIntersect ()
 
 	// Empty + Rect = Rect.
 	verifyCombineEmptyWithRect (&rect, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Empty + Infinite Rect = Empty.
 	verifyCombineEmptyWithPath (infinitePath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -4532,7 +8630,7 @@ static void test_combineIntersect ()
 
 	// Infinite Rect + Rect = Rect.
 	verifyCombineRectWithRect (&infiniteRect, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite Path = Infinite.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/411
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -4784,7 +8882,7 @@ static void test_combineIntersect ()
 
 	// Rect + No Intersect Bottom Left = Empty.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Infinite Path + Infinite = Infinite.
 	verifyCombinePathWithRegion (infinitePath, infiniteRegion, CombineModeIntersect, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -4799,7 +8897,7 @@ static void test_combineIntersect ()
 
 	// Infinite Path + Rect = Rect.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeIntersect, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Path + Infinite Path = Infinite.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/411
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -4986,7 +9084,7 @@ static void test_combineIntersect ()
 
 	// Path + Intersect Bottom Left = Calculation.
 	verifyCombinePathWithPath (path, intersectBottomLeftPath, CombineModeIntersect, 10, 30, 20, 30, FALSE, FALSE, &intersectBottomLeftScan, sizeof (intersectBottomLeftScan));
-	
+
 	// Path + Touching Left = Empty.
 	verifyCombinePathWithPath (path, touchingLeftPath, CombineModeIntersect, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -5175,7 +9273,7 @@ static void test_combineUnion ()
 
 	// Infinite + Rect = Infinite.
 	verifyCombineInfiniteWithRect (&rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	verifyCombineInfiniteWithRect (&negativeRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5214,7 +9312,7 @@ static void test_combineUnion ()
 
 	// Empty + Path = Path.
 	verifyCombineEmptyWithPath (path, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&infiniteRect, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5238,7 +9336,7 @@ static void test_combineUnion ()
 
 	// Infinite Rect + Path = Infinite.
 	verifyCombineRectWithPath (&infiniteRect, path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Empty Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&emptyRect, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5273,10 +9371,7 @@ static void test_combineUnion ()
 	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Rect + Infinite Rect = Infinite.
-	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithRect (&rect, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-#endif
 
 	// Rect + Empty Rect = Rect.
 	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -5301,7 +9396,7 @@ static void test_combineUnion ()
 	RectF intersectTopScan = {10, 10, 30, 50};
 	RectF intersectTopScansRect[] = {intersectTopScan};
 	verifyCombineRectWithRect (&rect, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, intersectTopScansRect, sizeof (intersectTopScansRect));
-	
+
 	// Rect + Intersect Right = Calculation.
 	RectF intersectRightScan = {10, 20, 40, 40};
 	verifyCombineRectWithRect (&rect, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
@@ -5388,7 +9483,7 @@ static void test_combineUnion ()
 		touchingBottomLeftRect
 	};
 	verifyCombineRectWithRect (&rect, &touchingBottomLeftRect, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Rect + No Intersect Left = Both.
 	RectF noIntersectLeftScans[] = {
 		noIntersectLeftRect,
@@ -5416,12 +9511,12 @@ static void test_combineUnion ()
 		noIntersectBottomRect
 	};
 	verifyCombineRectWithRect (&rect, &noIntersectBottomRect, CombineModeUnion, 10, 20, 30, 81, FALSE, FALSE, noIntersectBottomScans, sizeof (noIntersectBottomScans));
-	
+
 	// Rect + Intersect Left Narrow = Calculation.
 	RectF intersectLeftNarrowScans[] = {
 		{10, 20, 30, 10},
 		{-30, 30, 70, 10},
-		{10, 40, 30, 20},
+		{10, 40, 30, 20}
 	};
 	verifyCombineRectWithRect (&rect, &intersectLeftNarrowRect, CombineModeUnion, -30, 20, 70, 40, FALSE, FALSE, intersectLeftNarrowScans, sizeof (intersectLeftNarrowScans));
 
@@ -5429,7 +9524,7 @@ static void test_combineUnion ()
 	// Rect + Intersect Top Narrow = Calculation.
 	RectF intersectTopNarrowScans[] = {
 		{20, -20, 10, 40},
-		{10, 20, 30, 40},
+		{10, 20, 30, 40}
 	};
 	verifyCombineRectWithRect (&rect, &intersectTopNarrowRect, CombineModeUnion, 10, -20, 30, 80, FALSE, FALSE, intersectTopNarrowScans, sizeof (intersectTopNarrowScans));
 
@@ -5437,7 +9532,7 @@ static void test_combineUnion ()
 	RectF intersectRightNarrowScans[] = {
 		{10, 20, 30, 10},
 		{10, 30, 70, 10},
-		{10, 40, 30, 20},
+		{10, 40, 30, 20}
 	};
 	verifyCombineRectWithRect (&rect, &intersectRightNarrowRect, CombineModeUnion, 10, 20, 70, 40, FALSE, FALSE, intersectRightNarrowScans, sizeof (intersectRightNarrowScans));
 
@@ -5458,14 +9553,14 @@ static void test_combineUnion ()
 	// Rect + Intersect Right Taller = Calculation.
 	RectF intersectRightTallerScans[] = {
 		{10, 20, 40, 40},
-		{20, 60, 30, 20},
+		{20, 60, 30, 20}
 	};
 	verifyCombineRectWithRect (&rect, &intersectRightTallerRect, CombineModeUnion, 10, 20, 40, 60, FALSE, FALSE, intersectRightTallerScans, sizeof (intersectRightTallerScans));
 
 	// Rect + Intersect Right Shorter = Calculation.
 	RectF intersectRightShorterScans[] = {
 		{10, 20, 40, 20},
-		{10, 40, 30, 20},
+		{10, 40, 30, 20}
 	};
 	verifyCombineRectWithRect (&rect, &intersectRightShorterRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, intersectRightShorterScans, sizeof (intersectRightShorterScans));
 
@@ -5476,7 +9571,7 @@ static void test_combineUnion ()
 	// Rect + Taller Narrow = Calculation.
 	RectF tallerNarrowScans[] = {
 		{10, 20, 30, 40},
-		{10, 60, 10, 30},
+		{10, 60, 10, 30}
 	};
 	verifyCombineRectWithRect (&rect, &tallerNarrowRect, CombineModeUnion, 10, 20, 30, 70, FALSE, FALSE, tallerNarrowScans, sizeof (tallerNarrowScans));
 
@@ -5487,7 +9582,7 @@ static void test_combineUnion ()
 	// Rect + Wider Shorter = Calculation.
 	RectF widerShorterScans[] = {
 		{10, 20, 60, 20},
-		{10, 40, 30, 20},
+		{10, 40, 30, 20}
 	};
 	verifyCombineRectWithRect (&rect, &widerShorterRect, CombineModeUnion, 10, 20, 60, 40, FALSE, FALSE, widerShorterScans, sizeof (widerShorterScans));
 
@@ -5499,7 +9594,7 @@ static void test_combineUnion ()
 	RectF crossingScans[] = {
 		{10, 20, 30, 10},
 		{0, 30, 50, 20},
-		{10, 50, 30, 10},
+		{10, 50, 30, 10}
 	};
 	verifyCombineRectWithRect (&rect, &crossingRect, CombineModeUnion, 0, 20, 50, 40, FALSE, FALSE, crossingScans, sizeof (crossingScans));
 
@@ -5586,9 +9681,8 @@ static void test_combineUnion ()
 	};
 	verifyCombineRectWithRect (&touchingTopRect, &touchingBottomRightRect, CombineModeUnion, 10, -20, 60, 120, FALSE, FALSE, noIntersectTopAndBottomRight, sizeof (noIntersectTopAndBottomRight));
 
-
 	// Rect + Infinite Path = Infinite.
-	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
+	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/411
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 #endif
@@ -5707,7 +9801,7 @@ static void test_combineUnion ()
 
 	// Infinite Path + Rect = Infinite.
 	verifyCombinePathWithRect (infinitePath, &rect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Infinite Path + Infinite Path = Infinite.
 	verifyCombinePathWithPath (infinitePath, infinitePath, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5719,7 +9813,7 @@ static void test_combineUnion ()
 
 	// Infinite Path + Path = Infinite.
 	verifyCombinePathWithPath (infinitePath, path, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-	
+
 	// Empty Path + Infinite = Infinite.
 	verifyCombinePathWithRegion (emptyPath, infiniteRegion, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -5754,10 +9848,7 @@ static void test_combineUnion ()
 	verifyCombinePathWithRegion (path, emptyRegion, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Infinite Rect = Infinite.
-	// FIXME: this should be infinite: https://github.com/mono/libgdiplus/issues/339
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeUnion, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
-#endif
 
 	// Path + Empty Rect = Empty.
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeUnion, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -5779,7 +9870,7 @@ static void test_combineUnion ()
 
 	// Path + Intersect Top = Calculation.
 	verifyCombinePathWithRect (path, &intersectTopRect, CombineModeUnion, 10, 10, 30, 50, FALSE, FALSE, &intersectTopScan, sizeof (intersectTopScan));
-	
+
 	// Path + Intersect Right = Calculation.
 	verifyCombinePathWithRect (path, &intersectRightRect, CombineModeUnion, 10, 20, 40, 40, FALSE, FALSE, &intersectRightScan, sizeof (intersectRightScan));
 
@@ -5924,7 +10015,7 @@ static void test_combineUnion ()
 
 	// Path + Touching Bottom Left = Both.
 	verifyCombinePathWithPath (path, touchingBottomLeftPath, CombineModeUnion, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Path + No Intersect Left = Calculation.
 	// FIXME: scans are wrong: https://github.com/mono/libgdiplus/issues/413
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -6095,7 +10186,7 @@ static void test_combineXor ()
 		{-4194304, 60, 8388608, 4194244}
 	};
 	verifyCombineInfiniteWithRect (&rect, CombineModeXor, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	{
 		GpRegion *region;
@@ -6122,7 +10213,7 @@ static void test_combineXor ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite + Infinite Path = Empty
 	// FIXME: shoud be infinite: https://github.com/mono/libgdiplus/issues/342
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -6163,7 +10254,7 @@ static void test_combineXor ()
 
 	// Empty + Path = Path.
 	verifyCombineEmptyWithPath (path, CombineModeXor, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Infinite Rect + Infinite = Empty.
 	verifyCombineRectWithRegion (&infiniteRect, infiniteRegion, CombineModeXor, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -6766,7 +10857,7 @@ static void test_combineXor ()
 
 	// Path + Touching Bottom Left = Both.
 	verifyCombinePathWithRect (path, &touchingBottomLeftRect, CombineModeXor, -20, 20, 60, 80, FALSE, FALSE, touchingBottomLeftScans, sizeof (touchingBottomLeftScans));
-	
+
 	// Path + No Intersect Left = Both.
 	verifyCombinePathWithRect (path, &noIntersectLeftRect, CombineModeXor, -21, 20, 61, 40, FALSE, FALSE, noIntersectLeftScans, sizeof (noIntersectLeftScans));
 
@@ -7021,7 +11112,7 @@ static void test_combineExclude ()
 		{-4194304, 60, 8388608, 4194244}
 	};
 	verifyCombineInfiniteWithRect (&rect, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, infiniteWithRectScans, sizeof (infiniteWithRectScans));
-	
+
 	// Infinite + Negative Rect = Infinite.
 	{
 		GpRegion *region;
@@ -7048,7 +11139,7 @@ static void test_combineExclude ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite + Infinite Path = Empty
 	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/352
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7129,7 +11220,7 @@ static void test_combineExclude ()
 		verifyRegionScans (clone, infiniteWithNegativeRectScans, sizeof (infiniteWithNegativeRectScans));
 		GdipDeleteRegion (clone);
 	}
-	
+
 	// Infinite Rect + Infinite Path = Empty.
 	// FIXME: should be empty: https://github.com/mono/libgdiplus/issues/352
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7436,14 +11527,14 @@ static void test_combineExclude ()
 	// Rect + No Intersect Bottom Left = Rect.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	// Infinite Path + Infinite = Empty.
 	verifyCombinePathWithRegion (infinitePath, infiniteRegion, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Infinite Path + Empty = Infinite.
 	verifyCombinePathWithRegion (infinitePath, emptyRegion, CombineModeExclude, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
+	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
+#if defined(USE_WINDOWS_GDIPLUS)
 	// Infinite Path + Infinite Rect = Empty.
 	verifyCombinePathWithRect (infinitePath, &infiniteRect, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
@@ -7488,19 +11579,13 @@ static void test_combineExclude ()
 	verifyCombinePathWithPath (emptyPath, path, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Infinite = Empty.
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRegion (path, infiniteRegion, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Path + Empty = Rect.
 	verifyCombinePathWithRegion (path, emptyRegion, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Infinite Rect = Empty.
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
-#if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-#endif
 
 	// Path + Empty Rect = Path.
 	verifyCombinePathWithRect (path, &emptyRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
@@ -7615,7 +11700,6 @@ static void test_combineExclude ()
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeExclude, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
 	// Path + Infinite Path = Empty.
-	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeExclude, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 #endif
@@ -7864,7 +11948,7 @@ static void test_combineComplement ()
 
 	// Empty + Rect = Rect.
 	verifyCombineEmptyWithRect (&rect, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
-	
+
 	// Empty + Infinite Path = Empty.
 	// FIXME: should have scans: https://github.com/mono/libgdiplus/issues/414
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -7900,7 +11984,7 @@ static void test_combineComplement ()
 
 	// Infinite Rect + Path = Empty.
 	verifyCombineRectWithPath (&infiniteRect, path, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
-	
+
 	// Empty Rect + Infinite = Infinite.
 	verifyCombineRectWithRegion (&emptyRect, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE, infiniteScans, sizeof (infiniteScans));
 
@@ -7938,13 +12022,13 @@ static void test_combineComplement ()
 	verifyCombineRectWithRegion (&rect, infiniteRegion, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 
 	// Rect + Empty = Empty.
-	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithRegion (&rect, emptyRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Infinite Rect = Empty.
 	verifyCombineRectWithRect (&rect, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 
 	// Rect + Empty Rect = Empty.
-	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithRect (&rect, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Rect = Empty.
 	verifyCombineRectWithRect (&rect, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8059,14 +12143,14 @@ static void test_combineComplement ()
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithRect (&rect, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-  	// Rect + Infinite Path = Infinite.
+	// Rect + Infinite Path = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombineRectWithPath (&rect, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Rect + Empty Path = Empty.
-	verifyCombineRectWithPath (&rect, emptyPath, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombineRectWithPath (&rect, emptyPath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Rect + Negative Path = Empty.
 	verifyCombineRectWithPath (&rect, negativePath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8130,7 +12214,7 @@ static void test_combineComplement ()
 
 	// Rect + Touching Bottom Left = Touching Bottom Left.
 	verifyCombineRectWithPath (&rect, touchingBottomLeftPath, CombineModeComplement, -20, 60, 30, 40, FALSE, FALSE, &touchingBottomLeftRect, sizeof (touchingBottomLeftRect));
-		
+
 	// Rect + No Intersect Left = No Intersect Left.
 	verifyCombineRectWithPath (&rect, noIntersectLeftPath, CombineModeComplement, -21, 20, 30, 40, FALSE, FALSE, &noIntersectLeftRect, sizeof (noIntersectLeftRect));
 
@@ -8154,7 +12238,7 @@ static void test_combineComplement ()
 
 	// Rect + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombineRectWithPath (&rect, noIntersectBottomLeftPath, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
-		
+
 	// Path + Infinite = Infinite.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8162,7 +12246,7 @@ static void test_combineComplement ()
 #endif
 
 	// Path + Empty = Rect.
-	verifyCombinePathWithRegion (path, emptyRegion, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithRegion (path, emptyRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Infinite Path + Infinite = Empty.
 	verifyCombinePathWithRegion (infinitePath, infiniteRegion, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8215,14 +12299,14 @@ static void test_combineComplement ()
 	// Empty Path + Path = Path.
 	verifyCombinePathWithPath (emptyPath, path, CombineModeComplement, 10, 20, 30, 40, FALSE, FALSE, &rect, sizeof (rect));
 
-  // Path + Infinite Rect = Empty.
+	// Path + Infinite Rect = Empty.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithRect (path, &infiniteRect, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Path + Empty Rect = Empty.
-	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithRect (path, &emptyRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Rect = Empty.
 	verifyCombinePathWithRect (path, &negativeRect, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8311,14 +12395,14 @@ static void test_combineComplement ()
 	// Path + No Intersect Bottom Left = No Intersect Bottom Left.
 	verifyCombinePathWithRect (path, &noIntersectBottomLeftRect, CombineModeComplement, -21, 61, 30, 40, FALSE, FALSE, &noIntersectBottomLeftRect, sizeof (noIntersectBottomLeftRect));
 
-  // Path + Infinite Path = Calculate.
+	// Path + Infinite Path = Calculate.
 	// FIXME: this fails with OutOfMemory: https://github.com/mono/libgdiplus/issues/338
 #if defined(USE_WINDOWS_GDIPLUS)
 	verifyCombinePathWithPath (path, infinitePath, CombineModeComplement, -4194304, -4194304, 8388608, 8388608, FALSE, FALSE, rectWithInfiniteScans, sizeof (rectWithInfiniteScans));
 #endif
 
 	// Path + Empty Path = Empty.
-	verifyCombinePathWithPath (path, emptyPath, CombineModeComplement, 0, 0,0, 0, TRUE, FALSE, emptyScans, 0);
+	verifyCombinePathWithPath (path, emptyPath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
 
 	// Path + Negative Path = Empty.
 	verifyCombinePathWithPath (path, negativePath, CombineModeComplement, 0, 0, 0, 0, TRUE, FALSE, emptyScans, 0);
@@ -8451,13 +12535,13 @@ static void test_translateRegion ()
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GpRectF rect = {10, 20, 30, 40};
-	
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// Infinite rect region - zero, zero
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
@@ -8495,10 +12579,10 @@ static void test_translateRegion ()
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty rect region - zero, zero
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8510,7 +12594,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - zero, positive.
@@ -8518,7 +12602,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - positive, positive.
@@ -8526,7 +12610,7 @@ static void test_translateRegion ()
 	status = GdipTranslateRegion (region, 10, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - negative, negative.
@@ -8539,15 +12623,15 @@ static void test_translateRegion ()
 
 	// Rect region.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
@@ -8564,18 +12648,18 @@ static void test_translateRegion ()
 
 	// Path region.
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
 	// FIXME: translating a path region should not affect the bounds.
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8595,7 +12679,7 @@ static void test_translateRegion ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -8624,15 +12708,15 @@ static void test_translateRegion ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipTranslateRegion (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegion (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegion (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8650,7 +12734,7 @@ static void test_translateRegion ()
 	// Negative tests.
 	status = GdipTranslateRegion (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (path);
 }
 
@@ -8662,13 +12746,13 @@ static void test_translateRegionI ()
 	GpRectF infiniteRect = {-4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f};
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GpRectF rect = {10, 20, 30, 40};
-	
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
-	
+
 	// Infinite rect region - zero, zero
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304, -4194304, 8388608, 8388608, FALSE, TRUE);
@@ -8706,10 +12790,10 @@ static void test_translateRegionI ()
 	verifyRegion (region, -4194324, -4194344, 8388608, 8388608, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty rect region - zero, zero
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8721,7 +12805,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 0, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - zero, positive.
@@ -8729,7 +12813,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - positive, positive.
@@ -8737,7 +12821,7 @@ static void test_translateRegionI ()
 	status = GdipTranslateRegionI (region, 10, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 0, 0, TRUE, FALSE);
-	
+
 	GdipDeleteRegion (region);
 
 	// Empty rect region - negative, negative.
@@ -8750,15 +12834,15 @@ static void test_translateRegionI ()
 
 	// Rect region.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 20, 40, 30, 40, FALSE, FALSE);
@@ -8775,18 +12859,18 @@ static void test_translateRegionI ()
 
 	// Path region.
 	GdipCreateRegionPath (path, &region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
 	// FIXME: translating a path region should not affect the bounds.
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 #endif
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 #if defined(USE_WINDOWS_GDIPLUS)
@@ -8806,7 +12890,7 @@ static void test_translateRegionI ()
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Empty region.
 	GdipCreateRegion (&region);
 	GdipSetEmpty (region);
@@ -8835,15 +12919,15 @@ static void test_translateRegionI ()
 
 	// Infinite region.
 	GdipCreateRegion (&region);
-	
+
 	status = GdipTranslateRegionI (region, 0, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegionI (region, 10, 0);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	
+
 	status = GdipTranslateRegionI (region, 0, 20);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8861,7 +12945,7 @@ static void test_translateRegionI ()
 	// Negative tests.
 	status = GdipTranslateRegionI (NULL, 0, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (path);
 }
 
@@ -8891,7 +12975,7 @@ static void test_transformRegion ()
 	GpRectF emptyRect = {0, 0, 0, 0};
 	GpRectF negativeWidthAndHeightRect = {10, 20, -30, -40};
 	GpRectF rect = {10, 20, 30, 40};
-	
+
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathRectangle (path, 10, 20, 30, 40);
 
@@ -8918,7 +13002,7 @@ static void test_transformRegion ()
 	GdipCreateMatrix (&translateXScaleXYMatrix);
 	GdipTranslateMatrix (translateXScaleXYMatrix, 10, 0, MatrixOrderAppend);
 	GdipScaleMatrix (translateXScaleXYMatrix, 20, 20, MatrixOrderAppend);
-	
+
 	GdipTranslateMatrix (translateYMatrix, 0, 10, MatrixOrderAppend);
 	GdipCreateMatrix (&translateYScaleXMatrix);
 	GdipTranslateMatrix (translateYScaleXMatrix, 0, 10, MatrixOrderAppend);
@@ -8929,7 +13013,7 @@ static void test_transformRegion ()
 	GdipCreateMatrix (&translateYScaleXYMatrix);
 	GdipTranslateMatrix (translateYScaleXYMatrix, 0, 10, MatrixOrderAppend);
 	GdipScaleMatrix (translateYScaleXYMatrix, 20, 20, MatrixOrderAppend);
-	
+
 	GdipTranslateMatrix (translateXYMatrix, 10, 10, MatrixOrderAppend);
 	GdipCreateMatrix (&translateXYScaleXMatrix);
 	GdipTranslateMatrix (translateXYScaleXMatrix, 10, 10, MatrixOrderAppend);
@@ -8945,7 +13029,7 @@ static void test_transformRegion ()
 
 	// Infinite rect region - empty.
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8954,7 +13038,7 @@ static void test_transformRegion ()
 
 	// Infinite rect region - translate transform.
 	GdipCreateRegionRect (&infiniteRect, &region);
-	
+
 	status = GdipTransformRegion (region, translateXYMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -4194294.0f, -4194294.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
@@ -8963,7 +13047,7 @@ static void test_transformRegion ()
 
 	// Empty rect region - empty.
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8981,7 +13065,7 @@ static void test_transformRegion ()
 
 	// Empty rect region - complex transform.
 	GdipCreateRegionRect (&emptyRect, &region);
-	
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
@@ -8990,7 +13074,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - empty.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, -30, -40, TRUE, FALSE);
@@ -8999,7 +13083,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - translate transform.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, translateXYMatrix);
 	assertEqualInt (status, Ok);
 	// FIXME: libgdiplus doesn't normalize.
@@ -9011,7 +13095,7 @@ static void test_transformRegion ()
 
 	// Negative rect region - complex transform.
 	GdipCreateRegionRect (&negativeWidthAndHeightRect, &region);
-	
+
 	status = GdipTransformRegion (region, matrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, -75, -114, 150, 220, FALSE, FALSE);
@@ -9020,13 +13104,13 @@ static void test_transformRegion ()
 
 	// Rect region - empty transform.
 	GdipCreateRegionRect (&rect, &region);
-	
+
 	status = GdipTransformRegion (region, emptyMatrix);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 10, 20, 30, 40, FALSE, FALSE);
-	
+
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9035,7 +13119,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9044,7 +13128,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9053,7 +13137,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9062,7 +13146,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 20, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9071,7 +13155,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 400, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9080,7 +13164,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 400, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9089,7 +13173,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 20, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9098,7 +13182,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 400, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9107,7 +13191,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 400, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9116,7 +13200,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 30, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9125,7 +13209,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate y, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9134,7 +13218,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 200, 600, 600, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale x transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9143,7 +13227,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 400, 30, 600, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9152,7 +13236,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Rect region - translate x and y, scale x and y transform.
 	GdipCreateRegionRect (&rect, &region);
 
@@ -9188,7 +13272,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 20, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9197,7 +13281,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 10, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate x and y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9206,7 +13290,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 30, 30, 40, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - scale x transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9305,7 +13389,7 @@ static void test_transformRegion ()
 	verifyRegion (region, 20, 600, 30, 800, FALSE, FALSE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Path region - translate x and y, scale x and y transform.
 	GdipCreateRegionPath (path, &region);
 
@@ -9362,7 +13446,7 @@ static void test_transformRegion ()
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Infinite region - translate transform.
 	GdipCreateRegion (&region);
 
@@ -9371,7 +13455,7 @@ static void test_transformRegion ()
 	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
 
 	GdipDeleteRegion (region);
-	
+
 	// Infinite region - complex transform.
 	GdipCreateRegion (&region);
 
@@ -9409,11 +13493,11 @@ static void test_transformRegion ()
 }
 
 int
-main (int argc, char**argv)
+main (int argc, char **argv)
 {
 	STARTUP;
 
-	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, (GpBitmap **) &image);
+	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppRGB, NULL, (GpBitmap **)&image);
 	GdipGetImageGraphicsContext (image, &graphics);
 
 	test_createRegion ();
@@ -9422,9 +13506,15 @@ main (int argc, char**argv)
 	test_createRegionPath ();
 	test_createRegionRgnData ();
 	test_getRegionData ();
+	test_getRegionDataSetEmpty ();
+	test_getRegionDataSetInfinite ();
 	test_getRegionDataReplace ();
+	test_getRegionDataIntersect ();
 	test_getRegionDataUnion ();
+	test_getRegionDataXor ();
+	test_getRegionDataExclude ();
 	test_getRegionDataComplement ();
+	test_getRegionDataMultiple ();
 	test_getRegionDataSize ();
 	test_cloneRegion ();
 	test_deleteRegion ();
