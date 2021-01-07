@@ -42,6 +42,7 @@ struct _PathIterator {
 	int markerPosition;	/* The start position of next marker, index of (marker type) + 1  */
 	int subpathPosition;	/* The start position of next subpath, index of (start type) */
 	int pathTypePosition;	/* The position to get the next path type inside a subpath */
+	int enumerateIndex;
 };
 
 #include "graphics-pathiterator.h"

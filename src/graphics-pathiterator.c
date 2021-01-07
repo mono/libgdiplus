@@ -61,6 +61,7 @@ GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 	iter->markerPosition = 0;
 	iter->subpathPosition = 0;
 	iter->pathTypePosition = 0;
+	iter->enumerateIndex = 0;
 
 	*iterator = iter;
 
@@ -68,7 +69,7 @@ GdipCreatePathIter (GpPathIterator **iterator, GpPath *path)
 }
 
 GpStatus
-GdipPathIterGetCount (GpPathIterator *iterator, int *count)
+GdipPathIterGetCount (GpPathIterator *iterator, INT *count)
 {
 	if (!iterator || !count)
 		return InvalidParameter;
@@ -82,7 +83,7 @@ GdipPathIterGetCount (GpPathIterator *iterator, int *count)
 }
 
 GpStatus
-GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count)
+GdipPathIterGetSubpathCount (GpPathIterator *iterator, INT *count)
 {
 	int numSubpaths = 0;
 
@@ -90,12 +91,10 @@ GdipPathIterGetSubpathCount (GpPathIterator *iterator, int *count)
 		return InvalidParameter;
 
 	if (iterator->path) {
-		int i;
-		BYTE type;
-		/* Number of subpaths = Number of starting points */
-		for (i = 0; i < iterator->path->count; i++) {
-			type = iterator->path->types[i];
-			if (type == PathPointTypeStart)
+		// Number of subpaths = Number of starting points.
+		for (int i = 0; i < iterator->path->count; i++) {
+			BYTE type = iterator->path->types[i];
+			if ((type & PathPointTypePathTypeMask) == PathPointTypeStart)
 				numSubpaths++;
 		}
 	}
@@ -122,7 +121,7 @@ GdipDeletePathIter (GpPathIterator *iterator)
 }
 
 GpStatus
-GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *points, BYTE *types, int startIndex, int endIndex)
+GdipPathIterCopyData (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, int startIndex, int endIndex)
 {
 	if (!iterator || !resultCount || !points || !types)
 		return InvalidParameter;
@@ -141,22 +140,22 @@ GdipPathIterCopyData (GpPathIterator *iterator, int *resultCount, GpPointF *poin
 }
 
 GpStatus
-GdipPathIterEnumerate (GpPathIterator *iterator, int *resultCount, GpPointF *points, BYTE *types, int count)
+GdipPathIterEnumerate (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT count)
 {
-	int i = 0;
-
 	if (!iterator || !resultCount || !points || !types)
 		return InvalidParameter;
 
-	if (iterator->path) {
-		for (; i < count && i < iterator->path->count; i++) {
-			points [i] = iterator->path->points[i];
-			types [i] = iterator->path->types[i];
-		}
+	if (!iterator->path) {
+		*resultCount = 0;
+		return Ok;
 	}
 
-	*resultCount = i;
-
+	int copyCount = min (count, iterator->path->count - iterator->enumerateIndex);
+	memcpy (points, iterator->path->points + iterator->enumerateIndex, copyCount * sizeof (GpPointF));
+	memcpy (types, iterator->path->types + iterator->enumerateIndex, copyCount * sizeof (BYTE));
+	
+	iterator->enumerateIndex += copyCount;
+	*resultCount = copyCount;
 	return Ok;
 }
 
@@ -172,15 +171,31 @@ GdipPathIterHasCurve (GpPathIterator *iterator, BOOL *curve)
 }
 
 GpStatus
-GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *path)
+GdipPathIterNextMarkerPath (GpPathIterator *iterator, INT *resultCount, GpPath *path)
 {
 	int start, end;
 	GpStatus status;
+	
+	if (!iterator || !resultCount) {
+		return InvalidParameter;
+	}
+
+	if (!path) {
+		*resultCount = 0;
+		return Ok;
+	}
 
 	status = GdipPathIterNextMarker (iterator, resultCount, &start, &end);
 	if (status == Ok && *resultCount > 0) {
+		GpFillMode fillmode;
+		GdipGetPathFillMode (path, &fillmode);
 		GdipResetPath (path);
-		gdip_path_ensure_size (path, *resultCount);
+		GdipSetPathFillMode (path, fillmode);
+
+		if (!gdip_path_ensure_size (path, *resultCount)) {
+			return OutOfMemory;
+		}
+
 		memcpy (path->types, iterator->path->types + start, sizeof (BYTE) * *resultCount);
 		memcpy (path->points, iterator->path->points + start, sizeof (GpPointF) * *resultCount);
 		path->count = *resultCount;
@@ -190,7 +205,7 @@ GdipPathIterNextMarkerPath (GpPathIterator *iterator, int *resultCount, GpPath *
 }
 
 GpStatus
-GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex)
+GdipPathIterNextMarker (GpPathIterator *iterator, INT *resultCount, int *startIndex, int *endIndex)
 {
 	int index = 0;
 	BYTE type;
@@ -225,7 +240,7 @@ GdipPathIterNextMarker (GpPathIterator *iterator, int *resultCount, int *startIn
 }
 
 GpStatus
-GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, BYTE *pathType, int *startIndex, int *endIndex)
+GdipPathIterNextPathType (GpPathIterator *iterator, INT *resultCount, BYTE *pathType, int *startIndex, int *endIndex)
 {
 	int index;
 	BYTE currentType;
@@ -280,15 +295,31 @@ GdipPathIterNextPathType (GpPathIterator *iterator, int *resultCount, BYTE *path
 }
 
 GpStatus
-GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath *path, BOOL *isClosed)
+GdipPathIterNextSubpathPath (GpPathIterator *iterator, INT *resultCount, GpPath *path, BOOL *isClosed)
 {
 	int start, end;
 	GpStatus status;
 
+	if (!iterator || !resultCount || !isClosed) {
+		return InvalidParameter;
+	}
+
+	if (!path) {
+		*resultCount = 0;
+		return Ok;
+	}
+
 	status = GdipPathIterNextSubpath (iterator, resultCount, &start, &end, isClosed);
 	if (status == Ok && *resultCount > 0) {
+		GpFillMode fillmode;
+		GdipGetPathFillMode (path, &fillmode);
 		GdipResetPath (path);
-		gdip_path_ensure_size (path, *resultCount);
+		GdipSetPathFillMode (path, fillmode);
+
+		if (!gdip_path_ensure_size (path, *resultCount)) {
+			return OutOfMemory;
+		}
+
 		memcpy (path->types, iterator->path->types + start, sizeof (BYTE) * *resultCount);
 		memcpy (path->points, iterator->path->points + start, sizeof (GpPointF) * *resultCount);
 		path->count = *resultCount;
@@ -298,7 +329,7 @@ GdipPathIterNextSubpathPath (GpPathIterator *iterator, int *resultCount, GpPath 
 }
 
 GpStatus
-GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startIndex, int *endIndex, BOOL *isClosed)
+GdipPathIterNextSubpath (GpPathIterator *iterator, INT *resultCount, INT *startIndex, INT *endIndex, BOOL *isClosed)
 {
 	int index = 0;
 	BYTE currentType;
@@ -306,11 +337,18 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 	if (!iterator || !resultCount || !startIndex || !endIndex || !isClosed)
 		return InvalidParameter;
 
-	/* There are no subpaths or we are done with all the subpaths */
-	if (!iterator->path || (iterator->path->count == 0) || 
-	    (iterator->subpathPosition == iterator->path->count)) {
-		/* we don't touch startIndex and endIndex in this case */
+	// There are no subpaths or we are done with all the subpaths.
+	if (!iterator->path || iterator->path->count == 0) {
+		// We don't touch startIndex, endIndex or isClosed in this case.
 		*resultCount = 0;
+		return Ok;
+	}
+
+	// Finished iterating.
+	if (iterator->subpathPosition== iterator->path->count) {
+		*resultCount = 0;
+		*startIndex = 0;
+		*endIndex = 0;
 		*isClosed = TRUE;
 		return Ok;
 	}
@@ -318,7 +356,7 @@ GdipPathIterNextSubpath (GpPathIterator *iterator, int *resultCount, int *startI
 	/* Check for next start point */
 	for (index = iterator->subpathPosition + 1; index < iterator->path->count; index++) {
 		currentType = iterator->path->types[index];
-		if (currentType == PathPointTypeStart)
+		if ((currentType & PathPointTypePathTypeMask) == PathPointTypeStart)
 			break;
 	}
 
@@ -349,6 +387,18 @@ GdipPathIterRewind (GpPathIterator *iterator)
 	iterator->markerPosition = 0;
 	iterator->subpathPosition = 0;
 	iterator->pathTypePosition = 0;
+	iterator->enumerateIndex = 0;
 
 	return Ok;
 }
+
+GpStatus
+GdipPathIterIsValid (GpPathIterator *iterator, BOOL *valid)
+{
+	if (!iterator || !valid)
+		return InvalidParameter;
+	
+	*valid = TRUE;
+	return Ok;
+}
+

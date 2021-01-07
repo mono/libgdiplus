@@ -237,10 +237,9 @@ ATTRIBUTE_USED static void assertEqualPointFImpl (PointF actual, PointF expected
 
 ATTRIBUTE_USED static void assertEqualPointsFImpl (const PointF *actual, const PointF *expected, INT count, const char *file, const char *function, int line)
 {
-	for (int i = 0; i < count; i++)
-	{
-		char iChar = i + '0';
-		assertEqualPointFImpl (actual[i], expected[i], &iChar, file, function, line);
+	for (int i = 0; i < count; i++) {
+		char iChar[] = {i + '0', '\0'};
+		assertEqualPointFImpl (actual[i], expected[i], iChar, file, function, line);
 	}
 }
 
@@ -321,6 +320,40 @@ ATTRIBUTE_USED static void verifyMatrixImpl(GpMatrix *matrix, REAL e1, REAL e2, 
 }
 
 #define verifyMatrix(matrix, e1, e2, e3, e4, e5, e6) verifyMatrixImpl (matrix, e1, e2, e3, e4, e5, e6, __FILE__, __func__, __LINE__)
+
+ATTRIBUTE_USED static void verifyPathImpl (GpPath *path, FillMode expectedFillMode, float expectedX, float expectedY, float expectedWidth, float expectedHeight, const PointF *expectedPoints, const BYTE *expectedTypes, INT expectedCount, const char *message, const char *file, const char *function, int line)
+{
+	GpStatus status;
+	FillMode fillMode;
+	RectF bounds;
+	RectF expectedBounds = {expectedX, expectedY, expectedWidth, expectedHeight};
+	GpPathData pathData;
+	pathData.Count = 16;
+	pathData.Points = (PointF *) malloc (sizeof (PointF) * 16);
+	pathData.Types = (BYTE *) malloc (sizeof (BYTE) * 16);
+
+	status = GdipGetPathFillMode (path, &fillMode);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (fillMode, expectedFillMode, message, file, function, line);
+
+	status = GdipGetPathWorldBounds (path, &bounds, NULL, NULL);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualRectImpl (bounds, expectedBounds, message, file, function, line);
+
+	status = GdipGetPathData (path, &pathData);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (pathData.Count, expectedCount, message, file, function, line);
+	assertEqualPointsFImpl (pathData.Points, expectedPoints, expectedCount, file, function, line);
+	assertEqualBytesImpl (pathData.Types, expectedTypes, expectedCount, "Types", file, function, line);
+
+#if !defined(USE_WINDOWS_GDIPLUS)
+	free (pathData.Points);
+	free (pathData.Types);
+#endif
+}
+
+#define verifyPath(path, expectedFillMode, expectedX, expectedY, expectedWidth, expectedHeight, expectedPoints, expectedTypes, expectedCount) \
+	verifyPathImpl (path, expectedFillMode, expectedX, expectedY, expectedWidth, expectedHeight, expectedPoints, expectedTypes, expectedCount, NULL, __FILE__, __func__, __LINE__)
 
 ATTRIBUTE_USED static void verifyRegionImpl(GpRegion *region, float expectedX, float expectedY, float expectedWidth, float expectedHeight, BOOL expectedIsEmpty, BOOL expectedIsInfinite, const char *file, const char *function, int line)
 {

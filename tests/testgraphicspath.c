@@ -23,44 +23,6 @@ using namespace DllExports;
 #include "../config.h"
 #endif
 
-static void verifyPathImpl (GpPath *path, FillMode expectedFillMode, float expectedX, float expectedY, float expectedWidth, float expectedHeight, const PointF *expectedPoints, const BYTE *expectedTypes, INT expectedCount, const char *message, const char *file, const char *function, int line)
-{
-	GpStatus status;
-	FillMode fillMode;
-	RectF bounds;
-	RectF expectedBounds = {expectedX, expectedY, expectedWidth, expectedHeight};
-	GpPathData pathData;
-	pathData.Count = 16;
-	pathData.Points = (PointF *) malloc (sizeof (PointF) * 16);
-	pathData.Types = (BYTE *) malloc (sizeof (BYTE) * 16);
-
-	status = GdipGetPathFillMode (path, &fillMode);
-	assertEqualIntImpl (status, Ok, message, file, function, line);
-	assertEqualIntImpl (fillMode, expectedFillMode, message, file, function, line);
-
-	status = GdipGetPathWorldBounds (path, &bounds, NULL, NULL);
-	assertEqualIntImpl (status, Ok, message, file, function, line);
-	assertEqualRectImpl (bounds, expectedBounds, message, file, function, line);
-
-	status = GdipGetPathData (path, &pathData);
-	assertEqualIntImpl (status, Ok, message, file, function, line);
-	assertEqualIntImpl (pathData.Count, expectedCount, message, file, function, line);
-	assertEqualPointsFImpl (pathData.Points, expectedPoints, expectedCount, file, function, line);
-	for (int i = 0; i < pathData.Count; i++)
-	{
-		char iChar[] = {(char) i + '0', '\0'};
-		assertEqualIntImpl (pathData.Types[i], expectedTypes[i], iChar, file, function, line);
-	}
-
-#if !defined(USE_WINDOWS_GDIPLUS)
-	free (pathData.Points);
-	free (pathData.Types);
-#endif
-}
-
-#define verifyPath(path, expectedFillMode, expectedX, expectedY, expectedWidth, expectedHeight, expectedPoints, expectedTypes, expectedCount) \
-	verifyPathImpl (path, expectedFillMode, expectedX, expectedY, expectedWidth, expectedHeight, expectedPoints, expectedTypes, expectedCount, NULL, __FILE__, __func__, __LINE__)
-
 // A debug helper that simply saves the path out to an image for viewing and comparison with GDI+.
 ATTRIBUTE_USED static void dumpPath (GpPath *path)
 {
@@ -125,7 +87,7 @@ static void test_createPath2 ()
 {
 	GpStatus status;
 	GpPath *path;
-	
+
 	PointF rectPoints[] = {
 		{1, 2},
 		{4, 2},
@@ -391,35 +353,35 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 0, rectPoints, rectTypes, 2);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed lines.
 	status = GdipCreatePath2 (rectPoints, rectTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 4, rectPoints, rectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, rectTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 4, rectPoints, rectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open lines.
 	status = GdipCreatePath2 (rectPoints, openRectTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 4, rectPoints, openRectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, openRectTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 4, rectPoints, openRectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed lines.
 	status = GdipCreatePath2 (rectPoints, multiOpenAndClosedRectTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 4, rectPoints, multiOpenAndClosedRectTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, multiOpenAndClosedRectTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 4, rectPoints, multiOpenAndClosedRectTypes, 12);
@@ -446,90 +408,90 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 6, bezierPoints, openBezierTypes, 4);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed beziers.
 	status = GdipCreatePath2 (bezierPoints, bezierTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 6, bezierPoints, bezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, bezierTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 6, bezierPoints, bezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open beziers.
 	status = GdipCreatePath2 (bezierPoints, openBezierTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 6, bezierPoints, openBezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, openBezierTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 6, bezierPoints, openBezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed beziers.
 	status = GdipCreatePath2 (bezierPoints, multiOpenAndClosedBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, bezierPoints, multiOpenAndClosedBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, multiOpenAndClosedBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, bezierPoints, multiOpenAndClosedBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Closed lines and rects.
 	status = GdipCreatePath2 (rectBezierPoints, rectBezierTypes, 7, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 12, 4, rectBezierPoints, rectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectBezierPoints, rectBezierTypes, 7, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 12, 4, rectBezierPoints, rectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	// Open lines and rects.
 	status = GdipCreatePath2 (rectBezierPoints, openRectBezierTypes, 7, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 12, 4, rectBezierPoints, openRectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectBezierPoints, openRectBezierTypes, 7, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 12, 4, rectBezierPoints, openRectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed lines and rects.
 	status = GdipCreatePath2 (rectBezierPoints, multiRectBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, rectBezierPoints, multiRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectBezierPoints, multiRectBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, rectBezierPoints, multiRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Multiple open lines and rects.
 	status = GdipCreatePath2 (rectBezierPoints, multiOpenRectBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, rectBezierPoints, multiOpenRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectBezierPoints, multiOpenRectBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, rectBezierPoints, multiOpenRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed lines and rects.
 	status = GdipCreatePath2 (rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 33, 6, rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 33, 6, rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16);
@@ -579,7 +541,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// End start type open - sets to empty.
 	status = GdipCreatePath2 (rectPoints, openEndStartType, 3, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
@@ -596,7 +558,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, invalidMidType, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -607,7 +569,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, invalidEndType, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -618,7 +580,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, invalidPostEndType, 5, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -629,7 +591,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, bezierTypes, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -640,7 +602,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, bezierTypes, 3, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -651,7 +613,7 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, invalidBezierType2, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -662,23 +624,23 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (bezierPoints, invalidBezierType3, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// Only start - sets to empty.
 	status = GdipCreatePath2 (rectPoints, allStartTypes, 4, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, rectPoints, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, allStartTypes, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPoints, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// Only start open - sets to empty.
 	status = GdipCreatePath2 (rectPoints, midStartType1, 4, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
@@ -689,81 +651,119 @@ static void test_createPath2 ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, rectPoints, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, midStartType1, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPoints, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2 (rectPoints, midStartType2, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPoints, NULL, 0);
 	GdipDeletePath (path);
 
 	// Negative tests.
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, rectTypes, 2, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, rectTypes, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, rectTypes, -1, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, rectTypes, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, rectTypes, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (NULL, NULL, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, NULL, 2, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, NULL, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, NULL, -1, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, NULL, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, NULL, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 0, FillModeAlternate, &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, -1, FillModeAlternate, &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 2, FillModeAlternate, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, -1, FillModeAlternate, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 2, (FillMode)(FillModeWinding + 1), NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2 (rectPoints, rectTypes, 2, (FillMode)(FillModeAlternate - 1), NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (path == (GpPath *) 0xCC);
 }
 
 static void test_createPath2I ()
 {
 	GpStatus status;
 	GpPath *path;
-	
+
 	Point rectPoints[] = {
 		{1, 2},
 		{4, 2},
@@ -1075,35 +1075,35 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 0, rectPointsF, rectTypes, 2);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed lines.
 	status = GdipCreatePath2I (rectPoints, rectTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 4, rectPointsF, rectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, rectTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 4, rectPointsF, rectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open lines.
 	status = GdipCreatePath2I (rectPoints, openRectTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 4, rectPointsF, openRectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, openRectTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 4, rectPointsF, openRectTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed lines.
 	status = GdipCreatePath2I (rectPoints, multiOpenAndClosedRectTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 4, rectPointsF, multiOpenAndClosedRectTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, multiOpenAndClosedRectTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 4, rectPointsF, multiOpenAndClosedRectTypes, 12);
@@ -1130,90 +1130,90 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 6, bezierPointsF, openBezierTypes, 4);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed beziers.
 	status = GdipCreatePath2I (bezierPoints, bezierTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 6, bezierPointsF, bezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, bezierTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 6, bezierPointsF, bezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open beziers.
 	status = GdipCreatePath2I (bezierPoints, openBezierTypes, 8, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 6, bezierPointsF, openBezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, openBezierTypes, 8, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 13, 6, bezierPointsF, openBezierTypes, 8);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed beziers.
 	status = GdipCreatePath2I (bezierPoints, multiOpenAndClosedBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, bezierPointsF, multiOpenAndClosedBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, multiOpenAndClosedBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, bezierPointsF, multiOpenAndClosedBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Closed lines and rects.
 	status = GdipCreatePath2I (rectBezierPoints, rectBezierTypes, 7, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 12, 4, rectBezierPointsF, rectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectBezierPoints, rectBezierTypes, 7, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 12, 4, rectBezierPointsF, rectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	// Open lines and rects.
 	status = GdipCreatePath2I (rectBezierPoints, openRectBezierTypes, 7, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 12, 4, rectBezierPointsF, openRectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectBezierPoints, openRectBezierTypes, 7, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 12, 4, rectBezierPointsF, openRectBezierTypes, 7);
 	GdipDeletePath (path);
-	
+
 	// Multiple closed lines and rects.
 	status = GdipCreatePath2I (rectBezierPoints, multiRectBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, rectBezierPointsF, multiRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectBezierPoints, multiRectBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, rectBezierPointsF, multiRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Multiple open lines and rects.
 	status = GdipCreatePath2I (rectBezierPoints, multiOpenRectBezierTypes, 12, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 23, 6, rectBezierPointsF, multiOpenRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectBezierPoints, multiOpenRectBezierTypes, 12, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 23, 6, rectBezierPointsF, multiOpenRectBezierTypes, 12);
 	GdipDeletePath (path);
-	
+
 	// Multiple open and closed lines and rects.
 	status = GdipCreatePath2I (rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 33, 6, rectBezierPointsF, multiOpenAndClosedRectBezierTypes, 16);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectBezierPoints, multiOpenAndClosedRectBezierTypes, 16, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 33, 6, rectBezierPointsF, multiOpenAndClosedRectBezierTypes, 16);
@@ -1252,7 +1252,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPointsF, zeroType, 1);
 	GdipDeletePath (path);
-	
+
 	// End start type closed - sets to empty.
 	status = GdipCreatePath2I (rectPoints, endStartType, 3, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
@@ -1263,7 +1263,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// End start type open - sets to empty.
 	status = GdipCreatePath2I (rectPoints, openEndStartType, 3, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
@@ -1280,7 +1280,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, invalidMidType, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1291,7 +1291,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, invalidEndType, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1302,7 +1302,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, invalidPostEndType, 5, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1313,7 +1313,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, bezierTypes, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1324,7 +1324,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, bezierTypes, 3, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1335,7 +1335,7 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, invalidBezierType2, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -1346,23 +1346,23 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (bezierPoints, invalidBezierType3, 2, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// Only start - sets to empty.
 	status = GdipCreatePath2I (rectPoints, allStartTypes, 4, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, rectPointsF, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, allStartTypes, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPointsF, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	// Only start open - sets to empty.
 	status = GdipCreatePath2I (rectPoints, midStartType1, 4, FillModeAlternate, &path);
 	assertEqualInt (status, Ok);
@@ -1373,74 +1373,117 @@ static void test_createPath2I ()
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, rectPointsF, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, midStartType1, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPointsF, NULL, 0);
 	GdipDeletePath (path);
-	
+
 	status = GdipCreatePath2I (rectPoints, midStartType2, 4, FillModeWinding, &path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, rectPointsF, NULL, 0);
 	GdipDeletePath (path);
 
 	// Negative tests.
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, rectTypes, 2, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, rectTypes, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, rectTypes, -1, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, rectTypes, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, rectTypes, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (NULL, NULL, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, NULL, 2, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, NULL, 0, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, NULL, -1, FillModeAlternate, &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, NULL, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, NULL, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 0, FillModeAlternate, &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, -1, FillModeAlternate, &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 2, (FillMode)(FillModeWinding + 1), &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 2, (FillMode)(FillModeAlternate - 1), &path);
 	assertEqualInt (status, OutOfMemory);
-	
+	assert (!path);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 2, FillModeAlternate, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, -1, FillModeAlternate, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 2, (FillMode)(FillModeWinding + 1), NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
 	status = GdipCreatePath2I (rectPoints, rectTypes, 2, (FillMode)(FillModeAlternate - 1), NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (path == (GpPath *) 0xCC);
+
+	path = (GpPath *) 0xCC;
+	status = GdipCreatePath2I (rectPoints, rectTypes, INT_MAX, FillModeAlternate, &path);
+	assertEqualInt (status, OutOfMemory);
+	assert (path == (GpPath *) 0xCC);
 }
 
 static void test_clonePath ()
@@ -1468,7 +1511,7 @@ static void test_clonePath ()
 	verifyPath (clonePath, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
 	GdipDeletePath (clonePath);
-	
+
 	// Empty - FillModeWinding.
 	GdipCreatePath (FillModeWinding, &path);
 	status = GdipClonePath (path, &clonePath);
@@ -1476,7 +1519,7 @@ static void test_clonePath ()
 	verifyPath (clonePath, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 	GdipDeletePath (path);
 	GdipDeletePath (clonePath);
-	
+
 	// Empty - invalid FillMode.
 	GdipCreatePath ((FillMode)(FillModeWinding + 1), &path);
 	status = GdipClonePath (path, &clonePath);
@@ -1492,7 +1535,7 @@ static void test_clonePath ()
 	verifyPath (clonePath, FillModeAlternate, 1, 2, 3, 4, points, types, 4);
 	GdipDeletePath (path);
 	GdipDeletePath (clonePath);
-	
+
 	// Non Empty - FillModeWinding.
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
 	status = GdipClonePath (path, &clonePath);
@@ -1504,7 +1547,7 @@ static void test_clonePath ()
 	// Negative tests.
 	status = GdipClonePath (NULL, &clonePath);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipClonePath (path, NULL);
 	assertEqualInt (status, InvalidParameter);
 }
@@ -1595,7 +1638,7 @@ static void test_getPointCount ()
 		PathPointTypeLine | PathPointTypeCloseSubpath,
 	};
 	INT count;
-	
+
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
 
@@ -1619,7 +1662,7 @@ static void test_getPointCount ()
 
 	status = GdipGetPointCount (path, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (path);
 }
 
@@ -1641,10 +1684,10 @@ static void test_getPathTypes ()
 		PathPointTypeLine | PathPointTypeCloseSubpath,
 	};
 	BYTE buffer[] = {0, 0, 0, 0, 0, 0};
-	
+
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
-	
+
 	// Empty - greater than.
 	status = GdipGetPathTypes (emptyPath, buffer, 1);
 	assertEqualInt (status, Ok);
@@ -1663,7 +1706,7 @@ static void test_getPathTypes ()
 		0
 	};
 	assertEqualBytes (buffer, nonEmptyExpected, sizeof (nonEmptyExpected));
-	
+
 	// Non empty - greater.
 	status = GdipGetPathTypes (path, buffer, 10);
 	assertEqualInt (status, Ok);
@@ -1672,28 +1715,28 @@ static void test_getPathTypes ()
 	// Negative tests.
 	status = GdipGetPathTypes (NULL, buffer, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (NULL, buffer, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (path, NULL, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (path, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (emptyPath, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (emptyPath, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (path, buffer, 3);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetPathTypes (path, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathTypes (path, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1726,10 +1769,10 @@ static void test_getPathPoints ()
 		{0, 0},
 		{0, 0}
 	};
-	
+
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
-	
+
 	// Empty - greater than.
 	status = GdipGetPathPoints (emptyPath, buffer, 1);
 	assertEqualInt (status, Ok);
@@ -1755,7 +1798,7 @@ static void test_getPathPoints ()
 		{0, 0}
 	};
 	assertEqualPointsF (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (PointF));
-	
+
 	// Non empty - greater.
 	status = GdipGetPathPoints (path, buffer, 10);
 	assertEqualInt (status, Ok);
@@ -1764,28 +1807,28 @@ static void test_getPathPoints ()
 	// Negative tests.
 	status = GdipGetPathPoints (NULL, buffer, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (NULL, buffer, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (path, NULL, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (path, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (emptyPath, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (emptyPath, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (path, buffer, 3);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetPathPoints (path, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPoints (path, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1836,10 +1879,10 @@ static void test_getPathPointsI ()
 		{0, 0},
 		{0, 0}
 	};
-	
+
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (pointsZero, types, 4, FillModeWinding, &path);
-	
+
 	// Empty - greater than.
 	// Causes an overflow in GDI+.
 #if !defined(USE_WINDOWS_GDIPLUS)
@@ -1868,7 +1911,7 @@ static void test_getPathPointsI ()
 		{0, 0}
 	};
 	assertEqualPoints (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (Point));
-	
+
 	// Non empty - greater.
 	// Causes an overflow in GDI+.
 #if !defined(USE_WINDOWS_GDIPLUS)
@@ -1877,7 +1920,7 @@ static void test_getPathPointsI ()
 	assertEqualPoints (buffer, nonEmptyExpected, sizeof (nonEmptyExpected) / sizeof (Point));
 #endif
 	GdipDeletePath (path);
-	
+
 	// Non empty < 0.5.
 	GdipCreatePath2 (pointsLessThanPointFive, types, 4, FillModeWinding, &path);
 	status = GdipGetPathPointsI (path, buffer, 4);
@@ -1907,7 +1950,7 @@ static void test_getPathPointsI ()
 	};
 	assertEqualPoints (buffer, pointFiveExpected, sizeof (pointFiveExpected) / sizeof (Point));
 	GdipDeletePath (path);
-	
+
 	// Non empty < 0.5.
 	GdipCreatePath2 (pointsGreaterThanPointFive, types, 4, FillModeWinding, &path);
 	status = GdipGetPathPointsI (path, buffer, 4);
@@ -1925,28 +1968,28 @@ static void test_getPathPointsI ()
 	// Negative tests.
 	status = GdipGetPathPointsI (NULL, buffer, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (NULL, buffer, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (path, NULL, 4);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (path, NULL, 3);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (emptyPath, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (emptyPath, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (path, buffer, 3);
 	assertEqualInt (status, InsufficientBuffer);
-	
+
 	status = GdipGetPathPointsI (path, buffer, 0);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathPointsI (path, buffer, -1);
 	assertEqualInt (status, InvalidParameter);
 
@@ -1975,7 +2018,7 @@ static void test_getPathData ()
 
 	GdipCreatePath (FillModeWinding, &emptyPath);
 	GdipCreatePath2 (points, types, 4, FillModeWinding, &path);
-	
+
 	// Empty - equal.
 	data.Count = 0;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
@@ -2037,7 +2080,7 @@ static void test_getPathData ()
 	assertEqualBytes (data.Types, nonEmptyExpectedTypes, sizeof (nonEmptyExpectedTypes));
 	free (data.Points);
 	free (data.Types);
-	
+
 	// Non empty - greater.
 	data.Count = 10;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
@@ -2056,7 +2099,7 @@ static void test_getPathData ()
 
 	status = GdipGetPathData (path, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	data.Count = 10;
 	data.Points = NULL;
 	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
@@ -2065,23 +2108,23 @@ static void test_getPathData ()
 	assertEqualInt (status, InvalidParameter);
 
 	free (data.Types);
-	
+
 	data.Count = 10;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
 	data.Types = NULL;
 
 	status = GdipGetPathData (emptyPath, &data);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathData (path, &data);
 	assertEqualInt (status, InvalidParameter);
 
 	free (data.Points);
-	
+
 	data.Count = 1;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
 	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
-	
+
 	status = GdipGetPathData (path, &data);
 	assertEqualInt (status, OutOfMemory);
 
@@ -2091,20 +2134,20 @@ static void test_getPathData ()
 	data.Count = 0;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
 	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
-	
+
 	status = GdipGetPathData (path, &data);
 	assertEqualInt (status, OutOfMemory);
 
 	free (data.Points);
 	free (data.Types);
-	
+
 	data.Count = -1;
 	data.Points = (PointF *) calloc (6, sizeof (PointF));
 	data.Types = (BYTE *) calloc (6, sizeof (BYTE));
-	
+
 	status = GdipGetPathData (emptyPath, &data);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathData (path, &data);
 	assertEqualInt (status, InvalidParameter);
 
@@ -2148,40 +2191,40 @@ static void test_setPathFillMode ()
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, FillModeAlternate);
-	
+
 	status = GdipSetPathFillMode (path, FillModeAlternate);
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, FillModeAlternate);
-	
+
 	// FillModeWinding.
 	status = GdipSetPathFillMode (path, FillModeWinding);
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, FillModeWinding);
-	
+
 	status = GdipSetPathFillMode (path, FillModeWinding);
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, FillModeWinding);
-	
+
 	// Invalid FillMode - positive.
 	status = GdipSetPathFillMode (path, (FillMode)(FillModeWinding + 1));
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, (FillMode)(FillModeWinding + 1));
-	
+
 	status = GdipSetPathFillMode (path, (FillMode)(FillModeWinding + 1));
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, (FillMode)(FillModeWinding + 1));
-	
+
 	// Invalid FillMode - negative.
 	status = GdipSetPathFillMode (path, (FillMode)(FillModeAlternate - 1));
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
 	assertEqualInt (fillMode, (FillMode)(FillModeAlternate - 1));
-	
+
 	status = GdipSetPathFillMode (path, (FillMode)(FillModeAlternate - 1));
 	assertEqualInt (status, Ok);
 	GdipGetPathFillMode (path, &fillMode);
@@ -2207,7 +2250,7 @@ static void test_startPathFigure ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipStartPathFigure (path);
 	assertEqualInt (status, Ok);
 	PointF emptyExpectedPoints[] = {
@@ -2224,7 +2267,7 @@ static void test_startPathFigure ()
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 0, emptyExpectedPoints, emptyExpectedTypes, 2);
 
 	GdipDeletePath (path);
-	
+
 	// Single.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
 
@@ -2290,7 +2333,7 @@ static void test_closePathFigure ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipClosePathFigure (path);
 	assertEqualInt (status, Ok);
 	PointF emptyExpectedPoints[] = {
@@ -2403,7 +2446,7 @@ static void test_closePathFigures ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipClosePathFigures (path);
 	assertEqualInt (status, Ok);
 	PointF emptyExpectedPoints[] = {
@@ -2516,13 +2559,13 @@ static void test_setPathMarker ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipSetPathMarker (path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
 
@@ -2568,13 +2611,13 @@ static void test_clearPathMarkers ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipClearPathMarkers (path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
 
@@ -2604,7 +2647,7 @@ static void test_clearPathMarkers ()
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyExpectedPoints, nonEmptyExpectedTypes, 3);
 
 	GdipDeletePath (path);
-	
+
 	// Non Empty - several.
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipAddPathLine (path, 1, 2, 4, 2);
@@ -2684,13 +2727,13 @@ static void test_reversePath ()
 
 	// Empty.
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipReversePath (path);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeAlternate, &path);
 
@@ -2806,7 +2849,7 @@ static void test_getPathLastPoint ()
 	GdipCreatePath (FillModeAlternate, &path);
 	GdipAddPathLine (path, 1, 2, 4, 2);
 	GdipAddPathLine (path, 4, 2, 4, 6);
-	
+
 	status = GdipGetPathLastPoint (path, &lastPoint);
 	assertEqualInt (status, Ok);
 	assertEqualFloat (lastPoint.X, 4);
@@ -2815,16 +2858,16 @@ static void test_getPathLastPoint ()
 	// Negative tests.
 	status = GdipGetPathLastPoint (NULL, &lastPoint);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathLastPoint (path, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathLastPoint (emptyPath, NULL);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	status = GdipGetPathLastPoint (emptyPath, &lastPoint);
 	assertEqualInt (status, InvalidParameter);
-	
+
 	GdipDeletePath (emptyPath);
 	GdipDeletePath (path);
 }
@@ -2859,34 +2902,34 @@ static void test_flattenPath ()
 
 	// Empty - null.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - identity.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - custom.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - zero flatness.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -2895,25 +2938,25 @@ static void test_flattenPath ()
 
 	// Single - null.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePoints, singleTypes, 1);
 
 	GdipDeletePath (path);
-	
+
 	// Single - identity.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePoints, singleTypes, 1);
 
 	GdipDeletePath (path);
-	
+
 	// Single - custom.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	PointF singlePointsExpected[] = {
@@ -2922,10 +2965,10 @@ static void test_flattenPath ()
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePointsExpected, singleTypes, 1);
 
 	GdipDeletePath (path);
-	
+
 	// Single - zero flatness.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePoints, singleTypes, 1);
@@ -2934,25 +2977,25 @@ static void test_flattenPath ()
 
 	// Non Empty Lines - null.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - identity.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - custom.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	PointF nonEmptyPointsExpected[] = {
@@ -2962,16 +3005,16 @@ static void test_flattenPath ()
 		{24, 32}
 	};
 	verifyPath (path, FillModeWinding, 12, 16, 15, 22, nonEmptyPointsExpected, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
 
 	// Non Empty Lines - zero flatness.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
 
 	// Non empty ellipse - null, one flatness.
@@ -3016,7 +3059,7 @@ static void test_flattenPath ()
 	verifyPath (path, FillModeWinding, 1, 2, 13, 14, circleOneFlatnessPointsExpected, circleOneFlatnessTypesExpected, 9);
 
 	GdipDeletePath (path);
-	
+
 	// Non empty ellipse - identity, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -3027,7 +3070,7 @@ static void test_flattenPath ()
 	verifyPath (path, FillModeWinding, 1, 2, 13, 14, circleOneFlatnessPointsExpected, circleOneFlatnessTypesExpected, 9);
 
 	GdipDeletePath (path);
-	
+
 	// Non empty ellipse - custom, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -3159,34 +3202,34 @@ static void test_windingModeOutline ()
 
 	// Empty - null.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - identity.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - custom.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - zero flatness.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -3196,34 +3239,34 @@ static void test_windingModeOutline ()
 #if defined(USE_WINDOWS_GDIPLUS)
 	// Single - null.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single - identity.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single - custom.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Single - zero flatness.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 0, 0, 0, 0, NULL, NULL, 0);
@@ -3232,25 +3275,25 @@ static void test_windingModeOutline ()
 
 	// Non Empty Lines - null.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - identity.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, identityMatrix, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - custom.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, customMatrix, 1);
 	assertEqualInt (status, Ok);
 	PointF nonEmptyPointsExpected[] = {
@@ -3260,25 +3303,25 @@ static void test_windingModeOutline ()
 		{24, 32}
 	};
 	verifyPath (path, FillModeAlternate, 12, 16, 15, 22, nonEmptyPointsExpected, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - zero flatness.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
 
 	// Non Empty Lines - open.
 	GdipCreatePath2 (nonEmptyPoints, openNonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipWindingModeOutline (path, NULL, 1);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeAlternate, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non empty ellipse - null, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -3309,7 +3352,7 @@ static void test_windingModeOutline ()
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 14, circleOneFlatnessPointsExpected, circleOneFlatnessTypesExpected, 8);
 
 	GdipDeletePath (path);
-	
+
 	// Non empty ellipse - identity, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -3320,7 +3363,7 @@ static void test_windingModeOutline ()
 	verifyPath (path, FillModeAlternate, 1, 2, 13, 14, circleOneFlatnessPointsExpected, circleOneFlatnessTypesExpected, 8);
 
 	GdipDeletePath (path);
-	
+
 	// Non empty ellipse - custom, one flatness.
 	GdipCreatePath (FillModeWinding, &path);
 	GdipAddPathEllipse (path, 1, 2, 3, 4);
@@ -3371,7 +3414,7 @@ static void test_windingModeOutline ()
 
 	status = GdipWindingModeOutline (path, NULL, 0);
 	assertEqualInt (status, GenericError);
-	
+
 	status = GdipWindingModeOutline (NULL, NULL, 0);
 	assertEqualInt (status, InvalidParameter);
 
@@ -3412,34 +3455,34 @@ static void test_transformPath ()
 
 	// Empty - null.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, NULL);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - identity.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, identityMatrix);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - custom.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, customMatrix);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
 
 	GdipDeletePath (path);
-	
+
 	// Empty - zero flatness.
 	GdipCreatePath (FillModeWinding, &path);
-	
+
 	status = GdipFlattenPath (path, NULL, 0);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, NULL, NULL, 0);
@@ -3448,25 +3491,25 @@ static void test_transformPath ()
 
 	// Single - null.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, NULL);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePoints, singleTypes, 1);
 
 	GdipDeletePath (path);
-	
+
 	// Single - identity.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, identityMatrix);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 0, 0, 0, 0, singlePoints, singleTypes, 1);
 
 	GdipDeletePath (path);
-	
+
 	// Single - custom.
 	GdipCreatePath2 (singlePoints, singleTypes, 1, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, customMatrix);
 	assertEqualInt (status, Ok);
 	PointF singlePointsExpected[] = {
@@ -3478,25 +3521,25 @@ static void test_transformPath ()
 
 	// Non Empty Lines - null.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, NULL);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - identity.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, identityMatrix);
 	assertEqualInt (status, Ok);
 	verifyPath (path, FillModeWinding, 1, 2, 3, 4, nonEmptyPoints, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
-	
+
 	// Non Empty Lines - custom.
 	GdipCreatePath2 (nonEmptyPoints, nonEmptyTypes, 4, FillModeWinding, &path);
-	
+
 	status = GdipTransformPath (path, customMatrix);
 	assertEqualInt (status, Ok);
 	PointF nonEmptyPointsExpected[] = {
@@ -3506,7 +3549,7 @@ static void test_transformPath ()
 		{24, 32}
 	};
 	verifyPath (path, FillModeWinding, 12, 16, 15, 22, nonEmptyPointsExpected, nonEmptyTypes, 4);
-	
+
 	GdipDeletePath (path);
 
 	// Negative tests.
@@ -3523,52 +3566,52 @@ static void test_addPathArc ()
 	GpPath *path;
 
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 5, 6);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 0, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, -90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, -180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, -360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, 1, 2, 3, 4, 90, -360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArc (path, -1, -2, 3, 4, 0, 360);
 	assertEqualInt (status, Ok);
 
@@ -3597,52 +3640,52 @@ static void test_addPathArcI ()
 	GpPath *path;
 
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 5, 6);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 0, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, -90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, -180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, -360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, 1, 2, 3, 4, 90, -360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathArcI (path, -1, -2, 3, 4, 0, 360);
 	assertEqualInt (status, Ok);
 
@@ -3671,52 +3714,52 @@ static void test_addPathPie ()
 	GpPath *path;
 
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 5, 6);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 0, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, -90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, -180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, -360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, 1, 2, 3, 4, 90, -360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPie (path, -1, -2, 3, 4, 0, 360);
 	assertEqualInt (status, Ok);
 
@@ -3745,52 +3788,52 @@ static void test_addPathPieI ()
 	GpPath *path;
 
 	GdipCreatePath (FillModeAlternate, &path);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 5, 6);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 0, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, -90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, -180, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, -360, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, 0);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -90);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -180);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, 1, 2, 3, 4, 90, -360);
 	assertEqualInt (status, Ok);
-	
+
 	status = GdipAddPathPieI (path, -1, -2, 3, 4, 0, 360);
 	assertEqualInt (status, Ok);
 
