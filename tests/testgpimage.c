@@ -23,18 +23,22 @@ using namespace DllExports;
 #include <stdlib.h>
 #include "testhelpers.h"
 
-static GpImage* getImage (const char* fileName) {
+
+static GpImage* getImageImpl (const char* fileName, const char* message, const char* file, const char* function, int line)
+{
 	GpStatus status;
 	WCHAR *wFileName = wcharFromChar (fileName);
 	GpImage *image;
 
 	status = GdipLoadImageFromFile (wFileName, &image);
-	assertEqualInt (status, Ok);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
 
 	freeWchar (wFileName);
 
 	return image;
 }
+
+#define getImage(fileName) getImageImpl (fileName, NULL, __FILE__, __func__, __LINE__)
 
 static void test_loadImageFromStream ()
 {
@@ -1461,7 +1465,7 @@ static void test_removePropertyItem ()
 	GdipDisposeImage (metafileImage);
 }
 
-static void setPropertyItemForImage (GpImage *image)
+static void setPropertyItemForImageImpl (GpImage *image, const char* message, const char* file, const char* function, int line)
 {
 	GpStatus status;
 
@@ -1478,94 +1482,96 @@ static void setPropertyItemForImage (GpImage *image)
 
 	// Set new property.
 	status = GdipSetPropertyItem (image, &propertyItem1);
-	assertEqualInt (status, Ok);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
 
 	status = GdipGetPropertyItemSize (image, propertyItem1.id, &propertySize);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertySize, (int) sizeof(PropertyItem), message, file, function, line);
 
 	status = GdipGetPropertyItem (image, propertyItem1.id, propertySize, &resultPropertyItem);
-	assertEqualInt (status, Ok);
-	assertEqualInt (resultPropertyItem.id, 10);
-	assertEqualInt (resultPropertyItem.length, 0);
-	assertEqualInt (resultPropertyItem.type, 11);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.id, 10, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.length, 0, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.type, 11, message, file, function, line);
 
 	status = GdipGetPropertyCount (image, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (numProperties, 1);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (numProperties, 1, message, file, function, line);
 
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem));
-	assertEqualInt (numProperties, 1);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (totalBufferSize, (int) sizeof(PropertyItem), message, file, function, line);
+	assertEqualIntImpl (numProperties, 1, message, file, function, line);
 
 	propertyIds[1] = -1;
 	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertyIds[0], 10);
-	assertEqualInt (propertyIds[1], -1);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertyIds[0], 10, message, file, function, line);
+	assertEqualIntImpl (propertyIds[1], -1, message, file, function, line);
 
 	// Set another new property.
 	status = GdipSetPropertyItem (image, &propertyItem2);
-	assertEqualInt (status, Ok);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
 
 	status = GdipGetPropertyItemSize (image, propertyItem2.id, &propertySize);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertySize, (int) sizeof(PropertyItem), message, file, function, line);
 
 	status = GdipGetPropertyItem (image, propertyItem2.id, propertySize, &resultPropertyItem);
-	assertEqualInt (status, Ok);
-	assertEqualInt (resultPropertyItem.id, 11);
-	assertEqualInt (resultPropertyItem.length, 0);
-	assertEqualInt (resultPropertyItem.type, 12);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.id, 11, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.length, 0, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.type, 12, message, file, function, line);
 
 	status = GdipGetPropertyCount (image, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (numProperties, 2);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (numProperties, 2, message, file, function, line);
 
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
-	assertEqualInt (numProperties, 2);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (totalBufferSize, (int) sizeof(PropertyItem) * 2, message, file, function, line);
+	assertEqualIntImpl (numProperties, 2, message, file, function, line);
 
 	propertyIds[1] = -1;
 	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertyIds[0], 10);
-	assertEqualInt (propertyIds[1], 11);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertyIds[0], 10, message, file, function, line);
+	assertEqualIntImpl (propertyIds[1], 11, message, file, function, line);
 
 	// Override an existing property.
 	status = GdipSetPropertyItem (image, &propertyItem3);
-	assertEqualInt (status, Ok);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
 
 	status = GdipGetPropertyItemSize (image, propertyItem3.id, &propertySize);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertySize, (int) sizeof(PropertyItem));
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertySize, (int) sizeof(PropertyItem), message, file, function, line);
 
 	status = GdipGetPropertyItem (image, propertyItem3.id, propertySize, &resultPropertyItem);
-	assertEqualInt (status, Ok);
-	assertEqualInt (resultPropertyItem.id, 10);
-	assertEqualInt (resultPropertyItem.length, 0);
-	assertEqualInt (resultPropertyItem.type, 9);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.id, 10, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.length, 0, message, file, function, line);
+	assertEqualIntImpl (resultPropertyItem.type, 9, message, file, function, line);
 
 	status = GdipGetPropertyCount (image, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (numProperties, 2);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (numProperties, 2, message, file, function, line);
 
 	numProperties = -1;
 	status = GdipGetPropertySize (image, &totalBufferSize, &numProperties);
-	assertEqualInt (status, Ok);
-	assertEqualInt (totalBufferSize, (int) sizeof(PropertyItem) * 2);
-	assertEqualInt (numProperties, 2);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (totalBufferSize, (int) sizeof(PropertyItem) * 2, message, file, function, line);
+	assertEqualIntImpl (numProperties, 2, message, file, function, line);
 
 	propertyIds[1] = -1;
 	status = GdipGetPropertyIdList (image, numProperties, propertyIds);
-	assertEqualInt (status, Ok);
-	assertEqualInt (propertyIds[0], 10);
-	assertEqualInt (propertyIds[1], 11);
+	assertEqualIntImpl (status, Ok, message, file, function, line);
+	assertEqualIntImpl (propertyIds[0], 10, message, file, function, line);
+	assertEqualIntImpl (propertyIds[1], 11, message, file, function, line);
 }
+
+#define setPropertyItemForImage(image) setPropertyItemForImageImpl (image, NULL, __FILE__, __func__, __LINE__)
 
 static void test_setPropertyItem()
 {
@@ -1577,10 +1583,12 @@ static void test_setPropertyItem()
 	GpImage *jpgImage = getImage ("test.jpg");
 	GpImage *icoImage = getImage ("test.ico");
 	GpImage *metafileImage = getImage ("test.wmf");
+	GpImage *memoryImage;
+	GdipCreateBitmapFromScan0 (10, 10, 0, PixelFormat32bppARGB, NULL, (GpBitmap **)&memoryImage);
 	PropertyItem propertyItem = {10, 0, 11, NULL};
 
 	setPropertyItemForImage (bmpImage);
-
+	
 	status = GdipSetPropertyItem (tifImage, &propertyItem);
 	assertEqualInt (status, Ok);
 
@@ -1593,8 +1601,9 @@ static void test_setPropertyItem()
 	status = GdipSetPropertyItem (jpgImage, &propertyItem);
 	assertEqualInt (status, Ok);
 
-	status = GdipSetPropertyItem (icoImage, &propertyItem);
-	assertEqualInt (status, Ok);
+	setPropertyItemForImage (icoImage);
+
+	setPropertyItemForImage (memoryImage);
 
 	// Negative tests.
 	status = GdipSetPropertyItem (NULL, &propertyItem);
@@ -1616,6 +1625,7 @@ static void test_setPropertyItem()
 	GdipDisposeImage (jpgImage);
 	GdipDisposeImage (icoImage);
 	GdipDisposeImage (metafileImage);
+	GdipDisposeImage (memoryImage);
 }
 
 int

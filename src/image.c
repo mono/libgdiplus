@@ -2096,19 +2096,17 @@ GdipSetPropertyItem(GpImage *image, GDIPCONST PropertyItem *item)
 	if (image->type != ImageTypeBitmap)
 		return NotImplemented;
 
-	switch(image->image_format) {
+	switch (image->image_format) {
 		case BMP:
 		case TIF:
 		case GIF:
 		case JPEG:
 		case PNG:
-		case ICON: {
+		case ICON:
+		case MEMBMP:
 			break;
-		}
-
-		default: {
+		default:
 			return PropertyNotSupported;
-		}
 	}
 
 	/* Check if it exists and we need to replace */
