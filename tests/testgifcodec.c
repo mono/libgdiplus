@@ -27,20 +27,20 @@ GpImage *image;
 
 #define createFile(buffer, expectedStatus) \
 { \
-	GpStatus status; \
-	FILE *f = fopen (file, "wb+"); \
-	assert (f); \
-	fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
-	fclose (f); \
+  GpStatus status; \
+  FILE *f = fopen (file, "wb+"); \
+  assert (f); \
+  fwrite ((void *) buffer, sizeof (BYTE), sizeof (buffer), f); \
+  fclose (f); \
  \
-	status = GdipLoadImageFromFile (wFile, &image); \
-	assertEqualInt (status, expectedStatus); \
+  status = GdipLoadImageFromFile (wFile, &image); \
+  assertEqualInt (status, expectedStatus); \
 }
 
-#define createFileSuccess(buffer, expectedWidth, expectedHeight) \
+#define createFileSuccess(buffer, expectedWidth, expectedHeight, expectedPropertyCount) \
 { \
   createFile(buffer, Ok); \
-  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0); \
+  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, expectedPropertyCount); \
   GdipDisposeImage (image); \
 }
 
@@ -70,31 +70,31 @@ static void test_validData ()
   BYTE applicationTextControlBlock[]           = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFF, 0x0B, '1', '2', '3', '4', '5', '6', '7', '8', 1, 2, 3, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
   BYTE commentControlBlock[]                   = {'G', 'I', 'F', '8', '9', 'a', 3, 0, 5, 0, 0, 0, 0, '!', 0xFE, 2, 'H', 'I', 0, ',', 0, 0, 0, 0, 3, 0, 5, 0, B8(10000000), 0, 0, 0, 255, 255, 255, 0x02, 0x06, 0x84, 0x03, 0x81, 0x9a, 0x06, 0x05, 0x00, ';'};
 
-  createFileSuccess (localColorTable89, 3, 5);
-  createFileSuccess (globalColorTable89, 3, 5);
-  createFileSuccess (localAndGlobalColorTable89, 3, 5);
-  createFileSuccess (localColorTable87, 3, 5);
-  createFileSuccess (globalColorTable87, 3, 5);
-  createFileSuccess (localAndGlobalColorTable87, 3, 5);
-  createFileSuccess (extraData, 3, 5);
-  createFileSuccess (noColorTables, 3, 5);
-  createFileSuccess (emptyExtensionBlock, 3, 5);
-  createFileSuccess (unknownExtensionBlock87, 3, 5);
-  createFileSuccess (unknownExtensionBlock89, 3, 5);
-  createFileSuccess (graphicsControlBlock, 3, 5);
+  createFileSuccess (localColorTable89, 3, 5, 2);
+  createFileSuccess (globalColorTable89, 3, 5, 4);
+  createFileSuccess (localAndGlobalColorTable89, 3, 5, 4);
+  createFileSuccess (localColorTable87, 3, 5, 2);
+  createFileSuccess (globalColorTable87, 3, 5, 4);
+  createFileSuccess (localAndGlobalColorTable87, 3, 5, 4);
+  createFileSuccess (extraData, 3, 5, 4);
+  createFileSuccess (noColorTables, 3, 5, 2);
+  createFileSuccess (emptyExtensionBlock, 3, 5, 2);
+  createFileSuccess (unknownExtensionBlock87, 3, 5, 2);
+  createFileSuccess (unknownExtensionBlock89, 3, 5, 2);
+  createFileSuccess (graphicsControlBlock, 3, 5, 2);
 
   // FIXME: it appears that GDI+ allows a graphics control extension block without a
   // terminating 0 byte.
 #if defined(USE_WINDOWS_GDIPLUS)
-  createFileSuccess (graphicsControlBlockMissingTerminator, 3, 5);
+  createFileSuccess (graphicsControlBlockMissingTerminator, 3, 5, 2);
 #endif
 
-  createFileSuccess (severalGraphicsControlBlocks, 3, 5);
-  createFileSuccess (misplacedGraphicsControlBlock, 3, 5);
-  createFileSuccess (plainTextControlBlock, 3, 5);
-  createFileSuccess (invalidTextControlBlock, 3, 5);
-  createFileSuccess (applicationTextControlBlock, 3, 5);
-  createFileSuccess (commentControlBlock, 3, 5);
+  createFileSuccess (severalGraphicsControlBlocks, 3, 5, 2);
+  createFileSuccess (misplacedGraphicsControlBlock, 3, 5, 2);
+  createFileSuccess (plainTextControlBlock, 3, 5, 2);
+  createFileSuccess (invalidTextControlBlock, 3, 5, 2);
+  createFileSuccess (applicationTextControlBlock, 3, 5, 2);
+  createFileSuccess (commentControlBlock, 3, 5, 3);
 }
 
 static void test_invalidHeader ()
@@ -231,7 +231,7 @@ static void test_invalidExtensionRecord ()
 int
 main (int argc, char**argv)
 {
-	STARTUP;
+  STARTUP;
 
   test_validData ();
   test_invalidHeader ();

@@ -119,7 +119,7 @@ typedef enum {
 	DitherTypeDualSpiral8x8 = 8,
 	DitherTypeErrorDiffusion = 9,
 	DitherTypeMax = 10
-}
+} DitherType;
 #endif //(GDIPVER >= 0x0110)
 
 typedef enum {
