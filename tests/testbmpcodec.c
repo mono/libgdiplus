@@ -41,7 +41,7 @@ INT bmpFlags = ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlags
 #define createFileSuccessDispose(buffer, expectedFormat, width, height, expectedFlags, dispose) \
 { \
 	createFile (buffer, Ok); \
-	verifyBitmap (image, bmpRawFormat, expectedFormat, width, height, expectedFlags, 0, TRUE); \
+	verifyBitmap (image, bmpRawFormat, expectedFormat, width, height, expectedFlags, 0); \
 	if (dispose) \
 		GdipDisposeImage (image); \
 }

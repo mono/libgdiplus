@@ -119,7 +119,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		png_uint_32	res_x = 0;
 		png_uint_32	res_y = 0;
 		png_get_pHYs( png_ptr, info_ptr, &res_x, &res_y, &unit_type );
-		if (unit_type == PNG_RESOLUTION_METER) {
+		if (unit_type == PNG_RESOLUTION_METER && res_x != 0 && res_y != 0) {
 			bitmap_data->image_flags |= ImageFlagsHasRealDPI;
 			bitmap_data->dpi_horz = res_x * 0.0254;
 			bitmap_data->dpi_vert = res_y * 0.0254;
@@ -149,12 +149,33 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 	}
 #endif
 
+    int srgbIntent = 255;
+#if defined(PNG_sRGB_SUPPORTED)
+    {
+        if (png_get_sRGB (png_ptr, info_ptr, &srgbIntent)) {
+            gdip_bitmapdata_property_add_byte (bitmap_data, PropertyTagSRGBRenderingIntent, (BYTE) srgbIntent);
+        }
+    }
+#endif
+
 #if defined(PNG_gAMA_SUPPORTED)
 	{
 		double	gamma = 0;
 
 		if (png_get_gAMA(png_ptr, info_ptr, &gamma)) {
 			gdip_bitmapdata_property_add_rational(bitmap_data, PropertyTagGamma, 100000, gamma * 100000);
+		}
+	}
+#endif
+
+#if defined(PNG_tIME_SUPPORTED)
+	{
+		png_timep modTime;
+		if (png_get_tIME (png_ptr, info_ptr, &modTime)) {
+			// Format is YYYY:MM:DD HH:MM:SS\0
+			char date[20];
+			sprintf (date, "%04d:%02d:%02d %02d:%02d:%02d", modTime->year, modTime->month, modTime->day, modTime->hour, modTime->minute, modTime->second);
+			gdip_bitmapdata_property_add_ASCII (bitmap_data, PropertyTagDateTime, (BYTE *) date);
 		}
 	}
 #endif
@@ -170,7 +191,7 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 		double	blue_x = 0;
 		double	blue_y = 0;
 
-		if (png_get_cHRM(png_ptr, info_ptr, &white_x, &white_y, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
+		if (srgbIntent == 255 && png_get_cHRM(png_ptr, info_ptr, &white_x, &white_y, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
 			BYTE *buffer;
 			guint32		*ptr;
 
@@ -221,6 +242,10 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagPixelUnit, (BYTE)unit_type);
 			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitX, res_x);
 			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitY, res_y);
+		} else {
+			gdip_bitmapdata_property_add_byte(bitmap_data, PropertyTagPixelUnit, 1);
+			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitX, 0);
+			gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagPixelPerUnitY, 0);
 		}
 	}
 #endif
@@ -240,6 +265,15 @@ gdip_load_png_properties (png_structp png_ptr, png_infop info_ptr, png_infop end
 
 	return Ok;
 }
+
+#ifdef PNG_READ_USER_CHUNKS_SUPPORTED
+static int PNGCBAPI
+read_unknown_chunk_callback(png_structp pp, png_unknown_chunkp pc)
+{
+	// Ignore unknown chunks.
+	return 1;
+}
+#endif
 
 static GpStatus 
 gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc, GpImage **image)
@@ -277,6 +311,14 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	if (end_info_ptr == NULL) {
 		goto error;
 	}
+
+	// Allow chunks with invalid CRCs to match GDI+.
+	png_set_crc_action (png_ptr, PNG_CRC_QUIET_USE, PNG_CRC_QUIET_USE);
+
+	// Allow unknown (critical) chunks to match GDI+.
+#ifdef PNG_READ_USER_CHUNKS_SUPPORTED
+	png_set_read_user_chunk_fn (png_ptr, NULL, read_unknown_chunk_callback);
+#endif
 
 	if (fp != NULL) {
 		png_init_io (png_ptr, fp);
@@ -380,7 +422,7 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 
 		if (color_type == PNG_COLOR_TYPE_GRAY) {
 			/* A gray-scale image; generate a palette fading from black to white. */
-			colourspace_flag = ImageFlagsColorSpaceGRAY;
+			colourspace_flag = ImageFlagsColorSpaceRGB;
 			palette = gdip_create_greyscale_palette (num_colours);
 			if (!palette) {
 				status = OutOfMemory;
@@ -552,21 +594,23 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		if (channels == 3) {
 			result->active_bitmap->pixel_format = PixelFormat24bppRGB;
 			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
-		} else if (channels == 4) {
+		} else if ((channels == 4) && (original_color_type == PNG_COLOR_TYPE_GRAY)) {
+            result->active_bitmap->pixel_format = PixelFormat32bppARGB;
+        } else if (channels == 4) {
 			result->active_bitmap->pixel_format = PixelFormat32bppARGB;
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
 		} else if ((channels == 1) && (color_type == PNG_COLOR_TYPE_GRAY)) {
 			// doesn't apply to 2bpp images
 			result->active_bitmap->pixel_format = PixelFormat8bppIndexed;
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
-		} else if ((channels == 1) && (color_type == PNG_COLOR_TYPE_PALETTE)) {
-			// does apply to (what were) 2bpp images
-			result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
-			result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
 		}
-
-		if (original_color_type & PNG_COLOR_MASK_ALPHA)
-			 result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
+        
+        if (original_color_type == PNG_COLOR_TYPE_GRAY) {
+            result->active_bitmap->image_flags = ImageFlagsColorSpaceGRAY;
+        } else {
+            result->active_bitmap->image_flags = ImageFlagsColorSpaceRGB;
+        }
+        if (channels != 3) {
+            result->active_bitmap->image_flags |= ImageFlagsHasAlpha;
+        }
 
 		result->active_bitmap->image_flags |= ImageFlagsReadOnly | ImageFlagsHasRealPixelSize;
 		result->active_bitmap->dpi_horz = 0;

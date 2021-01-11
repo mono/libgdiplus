@@ -489,7 +489,7 @@ ATTRIBUTE_USED static BOOL is_32bit()
 #define WINDOWS_GDIPLUS 0
 #endif
 
-ATTRIBUTE_USED static void verifyImageImpl(GpImage *image, ImageType expectedType, GUID expectedRawFormat, PixelFormat expectedPixelFormat, REAL expectedX, REAL expectedY, INT expectedWidth, INT expectedHeight, REAL expectedBoundsWidth, REAL expectedBoundsHeight, REAL expectedDimensionWidth, REAL expectedDimensionHeight, UINT expectedFlags, UINT expectedPropertyCount, BOOL checkFlags, const char* message, const char* file, const char* function, int line)
+ATTRIBUTE_USED static void verifyImageImpl(GpImage *image, ImageType expectedType, GUID expectedRawFormat, PixelFormat expectedPixelFormat, REAL expectedX, REAL expectedY, INT expectedWidth, INT expectedHeight, REAL expectedBoundsWidth, REAL expectedBoundsHeight, REAL expectedDimensionWidth, REAL expectedDimensionHeight, UINT expectedFlags, UINT expectedPropertyCount, const char* message, const char* file, const char* function, int line)
 {
     GpStatus status;
     ImageType type;
@@ -540,31 +540,27 @@ ATTRIBUTE_USED static void verifyImageImpl(GpImage *image, ImageType expectedTyp
     if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05)
         assertEqualFloatImpl (dimensionHeight, expectedDimensionHeight, "DimensionHeight", file, function, line);
 
-    /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */
-    if (checkFlags || WINDOWS_GDIPLUS)
-    {
-        status = GdipGetImageFlags (image, &flags);
-        assertEqualIntImpl (status, Ok, message, file, function, line);
-        assertEqualIntImpl (flags, (expectedFlags), "Flags", file, function, line);
-    }
+    status = GdipGetImageFlags (image, &flags);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualIntImpl (flags, (expectedFlags), "Flags", file, function, line);
 
     status = GdipGetPropertyCount (image, &propertyCount);
     assertEqualIntImpl (status, Ok, message, file, function, line);
      /* FIXME: libgdiplus returns 0 for each image. */ \
-    if (WINDOWS_GDIPLUS)
+    if (!WINDOWS_GDIPLUS)
     {
         assertEqualIntImpl (propertyCount, expectedPropertyCount, "PropertyCount", file, function, line);
     }
 }
 
-#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-    verifyImageImpl (image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags, NULL, __FILE__, __func__, __LINE__)
+#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount) \
+    verifyImageImpl (image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, NULL, __FILE__, __func__, __LINE__)
 
-#define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-    verifyImage((GpBitmap *) image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
+#define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount) \
+    verifyImage((GpBitmap *) image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL) expectedHeight, (REAL) expectedWidth, (REAL) expectedHeight, expectedFlags, expectedPropertyCount)
 
 #define verifyMetafile(image, expectedRawFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight) \
-    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
+    verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL) expectedWidth, (REAL) expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0)
 
 ATTRIBUTE_USED static void assertEqualARGBImpl (ARGB actual, ARGB expected, const char *message, const char *file, const char *function, int line)
 {

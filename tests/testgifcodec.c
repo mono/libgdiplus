@@ -40,7 +40,7 @@ GpImage *image;
 #define createFileSuccess(buffer, expectedWidth, expectedHeight) \
 { \
   createFile(buffer, Ok); \
-  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0, TRUE); \
+  verifyBitmap (image, gifRawFormat, PixelFormat8bppIndexed, 3, 5, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 0); \
   GdipDisposeImage (image); \
 }
 

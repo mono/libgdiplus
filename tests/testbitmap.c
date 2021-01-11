@@ -57,17 +57,17 @@ static void test_createBitmapFromFile ()
 
 	status = GdipCreateBitmapFromFile (bitmapFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5, TRUE);
+	verifyBitmap ((GpImage *) bitmap, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
 	status = GdipCreateBitmapFromFile (metafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
 	status = GdipCreateBitmapFromFile (enhancedMetafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	// Negative tests.
@@ -122,17 +122,17 @@ static void test_createBitmapFromFileICM ()
 
 	status = GdipCreateBitmapFromFileICM (bitmapFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5, TRUE);
+	verifyBitmap ((GpImage *) bitmap, pngRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
 	status = GdipCreateBitmapFromFileICM (metafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 770, 649, ImageFlagsHasAlpha, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	status = GdipCreateBitmapFromFileICM (enhancedMetafileFile, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap ((GpImage *) bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 100, 100, ImageFlagsHasAlpha, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	// Negative tests.
@@ -166,7 +166,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat64bppARGB, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -188,7 +188,7 @@ static void test_createBitmapFromScan0 ()
 		0x00000000,
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp64ArgbPixels);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -199,7 +199,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat64bppPARGB, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppPARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppPARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -221,7 +221,7 @@ static void test_createBitmapFromScan0 ()
 		0x00000000,
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppPARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat64bppPARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp64PArgbPixels);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -232,7 +232,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat48bppRGB, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat48bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat48bppRGB, 1, 2, 0, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -254,7 +254,7 @@ static void test_createBitmapFromScan0 ()
 		0xFF000000,
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat48bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat48bppRGB, 1, 2, 0, 0);
 	verifyPixels (bitmap, bpp48RgbPixels);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -264,7 +264,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat32bppARGB.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat32bppARGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 
@@ -281,7 +281,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat32bppARGB, bpp32ArgbData, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp32ArgbPixels);
 	
 	// Holds a reference to the original data.
@@ -297,7 +297,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat32bppPARGB.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat32bppPARGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 
@@ -314,7 +314,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat32bppPARGB, bpp32PArgbData, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp32PArgbPixels);
 	
 	// Holds a reference to the original data.
@@ -330,7 +330,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat32bppRGB.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat32bppRGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppRGB, 1, 2, 0, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	// Has scan0 - PixelFormat32bppRGB.
@@ -346,7 +346,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat32bppRGB, bpp32RgbData, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppRGB, 1, 2, 0, 0);
 	verifyPixels (bitmap, bpp32RgbPixels);
 	
 	// Holds a reference to the original data.
@@ -363,7 +363,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat32bppCMYK, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppCMYK, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppCMYK, 1, 2, 0, 0);
 	// Don't verify the image pixel data as a bug in GDI+ means that we read uninitialized memory.
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -378,7 +378,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat32bppCMYK, bpp32CMYKData, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppCMYK, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppCMYK, 1, 2, 0, 0);
 	// Don't verify the image pixel data as a bug in GDI+ means that we read uninitialized memory.
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -388,7 +388,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat24bppRGB.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat24bppRGB, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat24bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat24bppRGB, 1, 2, 0, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
@@ -405,7 +405,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat24bppRGB, bpp24RgbData, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat24bppRGB, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat24bppRGB, 1, 2, 0, 0);
 	verifyPixels (bitmap, bpp24RgbPixels);
 	
 	// Holds a reference to the original data.
@@ -421,7 +421,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat16bppRGB555.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat16bppRGB555, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB555, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB555, 1, 2, 0, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 
@@ -438,7 +438,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat16bppRGB555, bpp16rgb555Data, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB555, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB555, 1, 2, 0, 0);
 	verifyPixels (bitmap, bpp16rgb555Pixels);
 
 	// Holds a reference to the original data.
@@ -454,7 +454,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat16bppRGB565.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat16bppRGB565, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB565, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB565, 1, 2, 0, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 
@@ -471,7 +471,7 @@ static void test_createBitmapFromScan0 ()
 	};
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat16bppRGB565, bpp16rgb565Data, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB565, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppRGB565, 1, 2, 0, 0);
 	verifyPixels (bitmap, bpp16rgb565Pixels);
 	
 	// Holds a reference to the original data.
@@ -488,7 +488,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat16bppARGB1555, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppARGB1555, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppARGB1555, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -509,7 +509,7 @@ static void test_createBitmapFromScan0 ()
 		0x00FF0000
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppARGB1555, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppARGB1555, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp16argb555Pixels);
 
 	// Holds a reference to the original data.
@@ -529,7 +529,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat16bppGrayScale, NULL, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppGrayScale, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppGrayScale, 1, 2, 0, 0);
 	// Don't verify the image pixel data as a bug in GDI+ means that we read uninitialized memory.
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -545,7 +545,7 @@ static void test_createBitmapFromScan0 ()
 	status = GdipCreateBitmapFromScan0 (1, 2, 4, PixelFormat16bppGrayScale, bpp16grayscaleData, &bitmap);
 #if defined(USE_WINDOWS_GDIPLUS)
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppGrayScale, 1, 2, 0, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat16bppGrayScale, 1, 2, 0, 0);
 	// Don't verify the image pixel data as a bug in GDI+ means that we read uninitialized memory.
 	GdipDisposeImage ((GpImage *) bitmap);
 #else
@@ -555,7 +555,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat8bppIndexed.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat8bppIndexed, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat8bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat8bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
@@ -572,7 +572,7 @@ static void test_createBitmapFromScan0 ()
 		0xFFFF0000
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat8bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat8bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp8indexedPixels);
 	
 	// Holds a reference to the original data.
@@ -588,7 +588,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat4bppIndexed.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat4bppIndexed, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat4bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat4bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
@@ -605,7 +605,7 @@ static void test_createBitmapFromScan0 ()
 		0xFFFF0000
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat4bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat4bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp4indexedPixels);
 	
 	// Holds a reference to the original data.
@@ -621,7 +621,7 @@ static void test_createBitmapFromScan0 ()
 	// No scan0 - PixelFormat1bppIndexed.
 	status = GdipCreateBitmapFromScan0 (1, 2, 0, PixelFormat1bppIndexed, NULL, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat1bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat1bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, emptyPixelsWithNoAlpha);
 	GdipDisposeImage ((GpImage *) bitmap);
 	
@@ -638,7 +638,7 @@ static void test_createBitmapFromScan0 ()
 		0xFFFFFFFF
 	};
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat1bppIndexed, 1, 2, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat1bppIndexed, 1, 2, ImageFlagsHasAlpha, 0);
 	verifyPixels (bitmap, bpp1indexedPixels);
 
 	// Holds a reference to the original data.
@@ -728,12 +728,12 @@ static void test_createBitmapFromGraphics ()
 
 	status = GdipCreateBitmapFromGraphics (24, 32, graphics, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0);
 	GdipDisposeImage ((GpImage *) bitmap);
 
 	status = GdipCreateBitmapFromGraphics (24, 32, graphicsWithResolution, &bitmap);
 	assertEqualInt (status, Ok);
-	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0, TRUE);
+	verifyBitmap (bitmap, memoryBmpRawFormat, PixelFormat32bppPARGB, 24, 32, ImageFlagsHasAlpha, 0);
 	
 	// Verify the DPI.
 	GdipGetImageGraphicsContext ((GpImage *) bitmap, &bitmapGraphics);
