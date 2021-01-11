@@ -2037,7 +2037,7 @@ GdipGetPropertyItem (GpImage *image, PROPID propID, UINT size, PropertyItem *buf
 	}
 
 	if (size != (sizeof(PropertyItem) + image->active_bitmap->property[index].length)) {
-		return InvalidParameter;
+		return GenericError;
 	}
 
 	memcpy(buffer, &image->active_bitmap->property[index], sizeof(PropertyItem));

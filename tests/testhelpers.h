@@ -489,82 +489,82 @@ ATTRIBUTE_USED static BOOL is_32bit()
 #define WINDOWS_GDIPLUS 0
 #endif
 
+ATTRIBUTE_USED static void verifyImageImpl(GpImage *image, ImageType expectedType, GUID expectedRawFormat, PixelFormat expectedPixelFormat, REAL expectedX, REAL expectedY, INT expectedWidth, INT expectedHeight, REAL expectedBoundsWidth, REAL expectedBoundsHeight, REAL expectedDimensionWidth, REAL expectedDimensionHeight, UINT expectedFlags, UINT expectedPropertyCount, BOOL checkFlags, const char* message, const char* file, const char* function, int line)
+{
+    GpStatus status;
+    ImageType type;
+    GUID rawFormat;
+    PixelFormat pixelFormat;
+    UINT width;
+    UINT height;
+    GpRectF bounds;
+    GpUnit unit;
+    REAL dimensionWidth;
+    REAL dimensionHeight;
+    UINT flags;
+    UINT propertyCount;
+
+    status = GdipGetImageType (image, &type);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualIntImpl (type, expectedType, "Imagetype", file, function, line);
+
+    status = GdipGetImageRawFormat (image, &rawFormat);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualGuidImpl (rawFormat, expectedRawFormat, "RawFormat", file, function, line);
+
+    status = GdipGetImagePixelFormat (image, &pixelFormat);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualIntImpl (pixelFormat, expectedPixelFormat, "PixelFormat", file, function, line);
+
+    status = GdipGetImageWidth (image, &width);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualIntImpl (width, expectedWidth, "ImageWidth", file, function, line);
+
+    status = GdipGetImageHeight (image, &height);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    assertEqualIntImpl (height, expectedHeight, "ImageHeight", file, function, line);
+
+    status = GdipGetImageBounds (image, &bounds, &unit);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    GpRectF expectedBounds = {expectedX, expectedY, expectedBoundsWidth, expectedBoundsHeight};
+    assertEqualRectImpl (bounds, expectedBounds, "Bounds", file, function, line);
+    assertEqualIntImpl (unit, UnitPixel, "Unit", file, function, line);
+
+    /* Libgdiplus and GDI+ have different exact degrees of accuracy. */
+    /* Typically they differ by +-0.02. */
+    /* This is an acceptable difference. */
+    status = GdipGetImageDimension (image, &dimensionWidth, &dimensionHeight);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+    if (fabsf (dimensionWidth - expectedDimensionWidth) > 0.05)
+        assertEqualFloatImpl (dimensionWidth, expectedDimensionWidth, "DimensionWidth", file, function, line);
+    if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05)
+        assertEqualFloatImpl (dimensionHeight, expectedDimensionHeight, "DimensionHeight", file, function, line);
+
+    /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */
+    if (checkFlags || WINDOWS_GDIPLUS)
+    {
+        status = GdipGetImageFlags (image, &flags);
+        assertEqualIntImpl (status, Ok, message, file, function, line);
+        assertEqualIntImpl (flags, (expectedFlags), "Flags", file, function, line);
+    }
+
+    status = GdipGetPropertyCount (image, &propertyCount);
+    assertEqualIntImpl (status, Ok, message, file, function, line);
+     /* FIXME: libgdiplus returns 0 for each image. */ \
+    if (WINDOWS_GDIPLUS)
+    {
+        assertEqualIntImpl (propertyCount, expectedPropertyCount, "PropertyCount", file, function, line);
+    }
+}
+
+#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
+    verifyImageImpl (image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags, NULL, __FILE__, __func__, __LINE__)
+
 #define verifyBitmap(image, expectedRawFormat, expectedPixelFormat, expectedWidth, expectedHeight, expectedFlags, expectedPropertyCount, checkFlags) \
     verifyImage((GpBitmap *) image, ImageTypeBitmap, expectedRawFormat, expectedPixelFormat, 0, 0, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedFlags, expectedPropertyCount, checkFlags)
 
 #define verifyMetafile(image, expectedRawFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedDimensionWidth, expectedDimensionHeight) \
     verifyImage(image, ImageTypeMetafile, expectedRawFormat, PixelFormat32bppRGB, expectedX, expectedY, expectedWidth, expectedHeight, (REAL)expectedWidth, (REAL)expectedHeight, expectedDimensionWidth, expectedDimensionHeight, 327683, 0, TRUE)
-
-#define verifyImage(image, expectedType, expectedRawFormat, expectedPixelFormat, expectedX, expectedY, expectedWidth, expectedHeight, expectedBoundsWidth, expectedBoundsHeight, expectedDimensionWidth, expectedDimensionHeight, expectedFlags, expectedPropertyCount, checkFlags) \
-{ \
-    GpStatus status; \
-    ImageType type; \
-    GUID rawFormat; \
-    PixelFormat pixelFormat; \
-    UINT width; \
-    UINT height; \
-    GpRectF bounds; \
-    GpUnit unit; \
-    REAL dimensionWidth; \
-    REAL dimensionHeight; \
-    UINT flags; \
-    UINT propertyCount; \
- \
-    status = GdipGetImageType (image, &type); \
-    assertEqualInt (status, Ok); \
-    assertEqualInt (type, expectedType); \
- \
-    status = GdipGetImageRawFormat (image, &rawFormat); \
-    assertEqualInt (status, Ok); \
-    assertEqualGuid (rawFormat, expectedRawFormat); \
- \
-    status = GdipGetImagePixelFormat (image, &pixelFormat); \
-    assertEqualInt (status, Ok); \
-    assertEqualInt (pixelFormat, expectedPixelFormat); \
- \
-    status = GdipGetImageWidth (image, &width); \
-    assertEqualInt (status, Ok); \
-    assertEqualInt (width, expectedWidth); \
- \
-    status = GdipGetImageHeight (image, &height); \
-    assertEqualInt (status, Ok); \
-    assertEqualInt (height, expectedHeight); \
- \
-    status = GdipGetImageBounds (image, &bounds, &unit); \
-    assertEqualInt (status, Ok); \
-    assertEqualFloat (bounds.X, expectedX); \
-    assertEqualFloat (bounds.Y, expectedY); \
-    assertEqualFloat (bounds.Width, expectedBoundsWidth); \
-    assertEqualFloat (bounds.Height, expectedBoundsHeight); \
-    assertEqualInt (unit, UnitPixel); \
- \
-    /* Libgdiplus and GDI+ have different exact degrees of accuracy. */ \
-    /* Typically they differ by +-0.02. */ \
-    /* This is an acceptable difference. */ \
-    status = GdipGetImageDimension (image, &dimensionWidth, &dimensionHeight); \
-    assertEqualInt (status, Ok); \
-    if (fabsf (dimensionWidth - expectedDimensionWidth) > 0.05) \
-        assertEqualFloat (dimensionWidth, expectedDimensionWidth); \
-    if (fabsf (dimensionHeight - expectedDimensionHeight) > 0.05) \
-        assertEqualFloat (dimensionHeight, expectedDimensionHeight); \
- \
-    /* FIXME: libgdiplus and GDI+ have different results for bitmap images. */ \
-    if (checkFlags || WINDOWS_GDIPLUS) \
-    { \
-        status = GdipGetImageFlags (image, &flags); \
-        assertEqualInt (status, Ok); \
-        assertEqualInt (flags, (expectedFlags)); \
-    } \
- \
-    status = GdipGetPropertyCount (image, &propertyCount); \
-    assertEqualInt (status, Ok); \
-    /* FIXME: libgdiplus returns 0 for each image. */ \
-    if (WINDOWS_GDIPLUS) \
-    { \
-        assertEqualInt (propertyCount, expectedPropertyCount); \
-    } \
-}
-
 
 ATTRIBUTE_USED static void assertEqualARGBImpl (ARGB actual, ARGB expected, const char *message, const char *file, const char *function, int line)
 {
