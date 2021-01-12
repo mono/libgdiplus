@@ -227,7 +227,22 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &bits_per_sample)) {
-		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagBitsPerSample, bits_per_sample);
+		TIFFGetFieldDefaulted(tiff, TIFFTAG_SAMPLESPERPIXEL, &samples_per_pixel);
+		SHORT *bitsPerSample = GdipAlloc (sizeof (SHORT) * samples_per_pixel);
+		if (bitsPerSample) {
+			for (int i = 0; i < samples_per_pixel; i++) {
+				bitsPerSample[i] = bits_per_sample;
+			}
+
+			gdip_bitmapdata_property_add (
+				bitmap_data,
+				PropertyTagBitsPerSample,
+				sizeof (SHORT) * samples_per_pixel,
+				PropertyTagTypeShort,
+				bitsPerSample);
+
+			GdipFree (bitsPerSample);
+		}
 	}
 
 	{
@@ -331,21 +346,13 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagInkSet, s);
 	}
 
-
-#ifdef NotImplemented
-	/* Don't know how this property should be stored, datatype is void */
 	{
 		uint32	count;
 		void	*tables;
 
 		if (TIFFGetField(tiff, TIFFTAG_JPEGTABLES, &count, &tables)) {
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagJPEGTables, text);
+			gdip_bitmapdata_property_add (bitmap_data, /* PropertyTagJPEGTables */ 0x015B, count, PropertyTagTypeUndefined, tables);
 		}
-	}
-#endif
-
-	if (TIFFGetField(tiff, TIFFTAG_JPEGQUALITY, &i)) {
-		gdip_bitmapdata_property_add_long(bitmap_data, PropertyTagJPEGQuality, i);
 	}
 
 	if (TIFFGetField(tiff, TIFFTAG_MAKE, &text)) {
@@ -379,12 +386,13 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	if (TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &s)) {
 		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPhotometricInterp, s);
 	}
-
-	if (TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &planar_configuration)) {
+	
+	if (TIFFFieldWithTag (tiff, TIFFTAG_PLANARCONFIG) &&
+		TIFFGetField(tiff, TIFFTAG_PLANARCONFIG, &planar_configuration)) {
 		gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPlanarConfig, planar_configuration);
 	}
 
-	if (compression == COMPRESSION_ADOBE_DEFLATE) {
+	if (compression == COMPRESSION_LZW || compression == COMPRESSION_ADOBE_DEFLATE) {
 		if (TIFFGetField(tiff, TIFFTAG_PREDICTOR, &s)) {
 			gdip_bitmapdata_property_add_short(bitmap_data, PropertyTagPredictor, s);
 		}
@@ -466,8 +474,8 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	if ((rows_per_strip != 0) && (planar_configuration != 0)) {
-		uint32	*bytecounts;
-		uint32	*offsets;
+		toff_t	*bytecounts;
+		toff_t	*offsets;
 		int	count;
 
 		strips_per_image = floor ((image_length + rows_per_strip - 1) / rows_per_strip);
@@ -478,14 +486,61 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 			count = samples_per_pixel * strips_per_image;
 		}
 
+		// Newer versions of libtiff interpret this as a 64-bit array.
+		// We need to convert the 64-bit array into 32-bit values.
 		if (TIFFGetField(tiff, TIFFTAG_STRIPBYTECOUNTS, &bytecounts)) {
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagStripBytesCount, 
-				count * sizeof(uint32), PropertyTagTypeLong, bytecounts);
+			if (sizeof (toff_t) == sizeof (uint32)) {
+				gdip_bitmapdata_property_add(
+					 bitmap_data,
+					 PropertyTagStripBytesCount,
+					 count * sizeof(uint32),
+					 PropertyTagTypeLong,
+					 bytecounts);
+			} else {
+				uint32 *byteCountsAdjusted = (uint32 *) GdipAlloc(count * sizeof (uint32));
+				if (byteCountsAdjusted) {
+					for (int i = 0; i < count; i++) {
+						byteCountsAdjusted[i] = (uint32) bytecounts[i];
+					}
+					gdip_bitmapdata_property_add(
+						 bitmap_data,
+						 PropertyTagStripBytesCount,
+						 count * sizeof(uint32),
+						 PropertyTagTypeLong,
+						 byteCountsAdjusted);
+				}
+				
+				GdipFree (byteCountsAdjusted);
+			}
 		}
 
+		// Newer versions of libtiff interpret this as a 64-bit array.
+		// We need to convert the 64-bit array into 32-bit values.
 		if (TIFFGetField(tiff, TIFFTAG_STRIPOFFSETS, &offsets)) {
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagStripOffsets, 
-				count * sizeof(uint32), PropertyTagTypeLong, offsets);
+			if (sizeof (toff_t) == sizeof (uint32)) {
+				gdip_bitmapdata_property_add(
+					 bitmap_data,
+					 PropertyTagStripOffsets,
+					 count * sizeof(uint32),
+					 PropertyTagTypeLong,
+					 offsets);
+			}
+			else {
+				uint32 *offsetsAdjusted = (uint32 *) GdipAlloc(count * sizeof (uint32));
+				if (offsetsAdjusted) {
+					for (int i = 0; i < count; i++) {
+						offsetsAdjusted[i] = (uint32) offsets[i];
+					}
+					gdip_bitmapdata_property_add(
+						 bitmap_data,
+						 PropertyTagStripOffsets,
+						 count * sizeof(uint32),
+						 PropertyTagTypeLong,
+						 offsetsAdjusted);
+				}
+				
+				GdipFree (offsetsAdjusted);
+			}
 		}
 	}
 
@@ -741,11 +796,6 @@ gdip_save_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data, int sample
 	if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagInkSet, &index) == Ok) {
 		gdip_property_get_short(0, bitmap_data->property[index].value, &s);
 		TIFFSetField(tiff, TIFFTAG_INKSET, s);
-	}
-
-	if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagJPEGQuality, &index) == Ok) {
-		gdip_property_get_long(0, bitmap_data->property[index].value, &l);
-		TIFFSetField(tiff, TIFFTAG_JPEGQUALITY, l);
 	}
 
 	if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagEquipMake, &index) == Ok) {
@@ -1356,7 +1406,7 @@ gdip_save_tiff_image_to_stream_delegate (GetBytesDelegate getBytesFunc,
 					GpImage *image,
 					GDIPCONST EncoderParameters *params)
 {
-    return UnknownImageFormat;
+	return UnknownImageFormat;
 }
 #endif
 

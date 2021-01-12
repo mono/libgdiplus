@@ -119,7 +119,7 @@ static void test_valid ()
 	validData24bpp[3] = 0x00;
 	createFileSuccess (validData24bpp, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
 
-	createFileSuccess (missingRequiredTagsAccordingToSpec, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 5);
+	createFileSuccess (missingRequiredTagsAccordingToSpec, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, WINDOWS_GDIPLUS ? 5 : 6);
 	createFileSuccess (invalidNextIFDOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
 }
 
@@ -272,12 +272,12 @@ static void test_units ()
 		/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
 	};
 
-	createFileSuccess (invalidXResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 14);
-	createFileSuccess (invalidYResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 14);
+	createFileSuccess (invalidXResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, WINDOWS_GDIPLUS ? 14 : 15);
+	createFileSuccess (invalidYResolutionOffset, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, WINDOWS_GDIPLUS ? 14 : 15);
 	createFileSuccess (zeroXResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
 	createFileSuccess (zeroYResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
-	createFileSuccess (noXResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 13);
-	createFileSuccess (noYResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 13);
+	createFileSuccess (noXResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, WINDOWS_GDIPLUS ? 13 : 15);
+	createFileSuccess (noYResolution, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, WINDOWS_GDIPLUS ? 13 : 15);
 }
 
 static void test_validGdiplus ()

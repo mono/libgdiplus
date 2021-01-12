@@ -147,11 +147,553 @@ static void test_loadImageFromFileICM ()
 
 static void test_loadImageFromFileTif ()
 {
-	GpImage *image = getImage ("test.tif");
+	GpStatus status;
+	UINT numOfProperty;
+	UINT size;
+	PropertyItem *propertyItem = (PropertyItem *) malloc(1024);
 
-	verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 19);
+	{
+		GpImage *image = getImage ("test.tif");
 
-	GdipDisposeImage (image);
+		verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 100, 68, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 19);
+
+		status = GdipGetPropertyCount (image, &numOfProperty);
+		assertEqualInt (status, Ok);
+		assertEqualInt (numOfProperty, 19);
+
+		PROPID *list = (PROPID *) malloc (numOfProperty * sizeof (PROPID));
+		status = GdipGetPropertyIdList (image, numOfProperty, list);
+		assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (list[0], PropertyTagImageWidth);
+		assertEqualInt (list[1], PropertyTagImageHeight);
+		assertEqualInt (list[2], PropertyTagBitsPerSample);
+		assertEqualInt (list[3], PropertyTagCompression);
+		assertEqualInt (list[4], PropertyTagPhotometricInterp);
+		assertEqualInt (list[5], PropertyTagFillOrder);
+		assertEqualInt (list[6], PropertyTagDocumentName);
+		assertEqualInt (list[7], PropertyTagImageDescription);
+		assertEqualInt (list[8], PropertyTagStripOffsets);
+		assertEqualInt (list[9], PropertyTagOrientation);
+		assertEqualInt (list[10], PropertyTagSamplesPerPixel);
+		assertEqualInt (list[11], PropertyTagRowsPerStrip);
+		assertEqualInt (list[12], PropertyTagStripBytesCount);
+		assertEqualInt (list[13], PropertyTagXResolution);
+		assertEqualInt (list[14], PropertyTagYResolution);
+		assertEqualInt (list[15], PropertyTagPlanarConfig);
+		assertEqualInt (list[16], PropertyTagResolutionUnit);
+		assertEqualInt (list[17], PropertyTagSoftwareUsed);
+		assertEqualInt (list[18], 0x015B);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagImageWidth, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageWidth, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagImageWidth);
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 100);
+#else
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 100);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagImageHeight, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageHeight, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagImageHeight);
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 68);
+#else
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 68);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagBitsPerSample, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagBitsPerSample, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagBitsPerSample);
+		assertEqualInt (propertyItem->length, 6);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (((SHORT *) propertyItem->value)[0], 8);
+		assertEqualInt (((SHORT *) propertyItem->value)[1], 8);
+		assertEqualInt (((SHORT *) propertyItem->value)[2], 8);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagCompression, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagCompression, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagCompression);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 7);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagPhotometricInterp, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPhotometricInterp, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagPhotometricInterp);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 2);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagFillOrder, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagFillOrder, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagFillOrder);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagDocumentName, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagDocumentName, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagDocumentName);
+		assertEqualInt (propertyItem->length, 9);
+		assertEqualInt (propertyItem->type, PropertyTagTypeASCII);
+		assertEqualInt (strcmp ("test.tif", (char *) propertyItem->value), 0);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagImageDescription, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageDescription, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagImageDescription);
+		assertEqualInt (propertyItem->length, 37);
+		assertEqualInt (propertyItem->type, PropertyTagTypeASCII);
+		assertEqualInt (strcmp ("File written by Adobe Photoshop\xA8 4.0", (char *) propertyItem->value), 0);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagStripOffsets, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripOffsets, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripOffsets, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagStripOffsets);
+		assertEqualInt (propertyItem->length, 12);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (((LONG *) propertyItem->value)[0], 8);
+		assertEqualInt (((LONG *) propertyItem->value)[1], 2401);
+		assertEqualInt (((LONG *) propertyItem->value)[2], 4395);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagOrientation, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagOrientation, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		assertEqualInt (propertyItem->id, PropertyTagOrientation);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagSamplesPerPixel, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagSamplesPerPixel, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagSamplesPerPixel);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 3);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagRowsPerStrip, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagRowsPerStrip, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagRowsPerStrip);
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 32);
+#else
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 32);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagStripBytesCount, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripBytesCount, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagStripBytesCount);
+		assertEqualInt (propertyItem->length, 12);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (((LONG *) propertyItem->value)[0], 2393);
+		assertEqualInt (((LONG *) propertyItem->value)[1], 1994);
+		assertEqualInt (((LONG *) propertyItem->value)[2], 209);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagXResolution, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagXResolution, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagXResolution);
+		assertEqualInt (propertyItem->length, 8);
+		assertEqualInt (propertyItem->type, PropertyTagTypeRational);
+		// 72
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (((UINT *) propertyItem->value)[0], 1207959552);
+		assertEqualInt (((UINT *) propertyItem->value)[1], 16777216);
+#else
+		assertEqualInt (((UINT *) propertyItem->value)[0], 72);
+		assertEqualInt (((UINT *)propertyItem->value)[1], 1);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagYResolution, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagYResolution, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagYResolution);
+		assertEqualInt (propertyItem->length, 8);
+		assertEqualInt (propertyItem->type, PropertyTagTypeRational);
+		// 72
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (((UINT *)propertyItem->value)[0], 1207959552);
+		assertEqualInt (((UINT *)propertyItem->value)[1], 16777216);
+#else
+		assertEqualInt (((UINT *)propertyItem->value)[0], 72);
+		assertEqualInt (((UINT *)propertyItem->value)[1], 1);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagPlanarConfig, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPlanarConfig, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagPlanarConfig);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *)propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagResolutionUnit, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagResolutionUnit, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagResolutionUnit);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *)propertyItem->value), 2);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagSoftwareUsed, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagSoftwareUsed, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagSoftwareUsed);
+		assertEqualInt (propertyItem->length, 58);
+		assertEqualInt (propertyItem->type, PropertyTagTypeASCII);
+		assertEqualInt (strcmp ("ImageMagick 5.5.6 04/01/03 Q16 http://www.imagemagick.org", (char *)propertyItem->value), 0);
+
+		status = GdipGetPropertyItemSize (image, 0x015B, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, 0x015B, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, 0x015B);
+		assertEqualInt (propertyItem->length, 289);
+		assertEqualInt (propertyItem->type, PropertyTagTypeUndefined);
+		BYTE expected0x015B[] = {
+			0xFF, 0xD8, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08, 0x07, 0x07,
+			0x07, 0x09, 0x09, 0x08, 0x0A, 0x0C, 0x14, 0x0D, 0x0C, 0x0B, 0x0B, 0x0C, 0x19, 0x12, 0x13, 0x0F,
+			0x14, 0x1D, 0x1A, 0x1F, 0x1E, 0x1D, 0x1A, 0x1C, 0x1C, 0x20, 0x24, 0x2E, 0x27, 0x20, 0x22, 0x2C,
+			0x23, 0x1C, 0x1C, 0x28, 0x37, 0x29, 0x2C, 0x30, 0x31, 0x34, 0x34, 0x34, 0x1F, 0x27, 0x39, 0x3D,
+			0x38, 0x32, 0x3C, 0x2E, 0x33, 0x34, 0x32, 0xFF, 0xC4, 0x00, 0x1F, 0x00, 0x00, 0x01, 0x05, 0x01,
+			0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03,
+			0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0xFF, 0xC4, 0x00, 0xB5, 0x10, 0x00, 0x02, 0x01,
+			0x03, 0x03, 0x02, 0x04, 0x03, 0x05, 0x05, 0x04, 0x04, 0x00, 0x00, 0x01, 0x7D, 0x01, 0x02, 0x03,
+			0x00, 0x04, 0x11, 0x05, 0x12, 0x21, 0x31, 0x41, 0x06, 0x13, 0x51, 0x61, 0x07, 0x22, 0x71, 0x14,
+			0x32, 0x81, 0x91, 0xA1, 0x08, 0x23, 0x42, 0xB1, 0xC1, 0x15, 0x52, 0xD1, 0xF0, 0x24, 0x33, 0x62,
+			0x72, 0x82, 0x09, 0x0A, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x34,
+			0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x53, 0x54,
+			0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x73, 0x74,
+			0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x92, 0x93,
+			0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA,
+			0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8,
+			0xC9, 0xCA, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5,
+			0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFF,
+			0xD9
+		};
+		assertEqualBytes ((BYTE *)propertyItem->value, expected0x015B, sizeof (expected0x015B));
+
+		GdipDisposeImage (image);
+		free (list);
+	}
+
+	{
+		BYTE validData24bpp[] = {
+			/* Header */                     0x49, 0x49, 0x2A, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x80, 0x3F, 0xE0, 0x50, 0x10, 0x00,
+			/* Number of Tags */             0x0F, 0x00,
+
+			/* NewSubFileType */             0xFE, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			/* ImageWidth */                 0x00, 0x01, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+			/* ImageHeight */                0x01, 0x01, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+			/* BitsPerSample */              0x02, 0x01, 0x03, 0x00, 0x03, 0x00, 0x00, 0x00, 0xC8, 0x00, 0x00, 0x00,
+			/* Compression */                0x03, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+			/* PhotometricInterpretation */  0x06, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+			/* StripOffsets */               0x11, 0x01, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+			/* SamplesPerPixel */            0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+			/* RowsPerStrip */               0x16, 0x01, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+			/* StripByteCounts */            0x17, 0x01, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+			/* XResolution */                0x1A, 0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x00, 0xCE, 0x00, 0x00, 0x00,
+			/* YResolution */                0x1B, 0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD6, 0x00, 0x00, 0x00,
+			/* PlanarConfiguration */        0x1C, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+			/* ResolutionUnit */             0x28, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+			/* Predictor */                  0x3D, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+			/* Next IFD Offset */            0x00, 0x00, 0x00, 0x00,
+
+			/* BitsPerSample Data */         0x08, 0x00, 0x08, 0x00, 0x08, 0x00,
+			/* XResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00,
+			/* YResolution Data */           0x00, 0x77, 0x01, 0x00, 0xE8, 0x03, 0x00, 0x00
+		};
+		createFile (validData24bpp, Ok);
+
+		verifyBitmap (image, tifRawFormat, PixelFormat24bppRGB, 1, 1, ImageFlagsColorSpaceRGB | ImageFlagsHasRealDPI | ImageFlagsHasRealPixelSize | ImageFlagsReadOnly, 15);
+
+		status = GdipGetPropertyCount (image, &numOfProperty);
+		assertEqualInt (status, Ok);
+		assertEqualInt (numOfProperty, 15);
+
+		PROPID *list = (PROPID *) malloc (numOfProperty * sizeof (PROPID));
+		status = GdipGetPropertyIdList (image, numOfProperty, list);
+		assertEqualInt (status, Ok);
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (list[0], PropertyTagNewSubfileType);
+		assertEqualInt (list[1], PropertyTagImageWidth);
+		assertEqualInt (list[2], PropertyTagImageHeight);
+		assertEqualInt (list[3], PropertyTagBitsPerSample);
+		assertEqualInt (list[4], PropertyTagCompression);
+		assertEqualInt (list[5], PropertyTagPhotometricInterp);
+		assertEqualInt (list[6], PropertyTagStripOffsets);
+		assertEqualInt (list[7], PropertyTagSamplesPerPixel);
+		assertEqualInt (list[8], PropertyTagRowsPerStrip);
+		assertEqualInt (list[9], PropertyTagStripBytesCount);
+		assertEqualInt (list[10], PropertyTagXResolution);
+		assertEqualInt (list[11], PropertyTagYResolution);
+		assertEqualInt (list[12], PropertyTagPlanarConfig);
+		assertEqualInt (list[13], PropertyTagResolutionUnit);
+		assertEqualInt (list[14], PropertyTagPredictor);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagNewSubfileType, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagNewSubfileType, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagNewSubfileType, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagNewSubfileType);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 0);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagImageWidth, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageWidth, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageWidth, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagImageWidth);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagImageHeight, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageHeight, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagImageHeight, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagImageHeight);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagBitsPerSample, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagBitsPerSample, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagBitsPerSample, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagBitsPerSample);
+		assertEqualInt (propertyItem->length, 6);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (((SHORT *) propertyItem->value)[0], 8);
+		assertEqualInt (((SHORT *) propertyItem->value)[1], 8);
+		assertEqualInt (((SHORT *) propertyItem->value)[2], 8);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagCompression, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagCompression, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagCompression, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagCompression);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 5);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagPhotometricInterp, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPhotometricInterp, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPhotometricInterp, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagPhotometricInterp);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 2);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagStripOffsets, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripOffsets, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripOffsets, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagStripOffsets);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 8);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagSamplesPerPixel, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagSamplesPerPixel, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagSamplesPerPixel);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 3);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagRowsPerStrip, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagRowsPerStrip, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagRowsPerStrip);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagStripBytesCount, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagStripBytesCount, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagStripBytesCount);
+		assertEqualInt (propertyItem->length, 4);
+		assertEqualInt (propertyItem->type, PropertyTagTypeLong);
+		assertEqualInt (*((LONG *) propertyItem->value), 5);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagXResolution, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagXResolution, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagXResolution);
+		assertEqualInt (propertyItem->length, 8);
+		assertEqualInt (propertyItem->type, PropertyTagTypeRational);
+		// 96
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (((UINT *) propertyItem->value)[0], 96000);
+		assertEqualInt (((UINT *) propertyItem->value)[1], 1000);
+#else
+		assertEqualInt (((UINT *) propertyItem->value)[0], 96);
+		assertEqualInt (((UINT *) propertyItem->value)[1], 1);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagYResolution, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagYResolution, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagYResolution);
+		assertEqualInt (propertyItem->length, 8);
+		assertEqualInt (propertyItem->type, PropertyTagTypeRational);
+		// 96
+#if defined(USE_WINDOWS_GDIPLUS)
+		assertEqualInt (((UINT *) propertyItem->value)[0], 96000);
+		assertEqualInt (((UINT *) propertyItem->value)[1], 1000);
+#else
+		assertEqualInt (((UINT *) propertyItem->value)[0], 96);
+		assertEqualInt (((UINT *) propertyItem->value)[1], 1);
+#endif
+
+		status = GdipGetPropertyItemSize (image, PropertyTagPlanarConfig, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPlanarConfig, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagPlanarConfig);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 1);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagResolutionUnit, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagResolutionUnit, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagResolutionUnit);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 2);
+
+		status = GdipGetPropertyItemSize (image, PropertyTagPredictor, &size);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPredictor, size, propertyItem);
+		assertEqualInt (status, Ok);
+
+		status = GdipGetPropertyItem (image, PropertyTagPredictor, size, propertyItem);
+		assertEqualInt (status, Ok);
+		assertEqualInt (propertyItem->id, PropertyTagPredictor);
+		assertEqualInt (propertyItem->length, 2);
+		assertEqualInt (propertyItem->type, PropertyTagTypeShort);
+		assertEqualInt (*((SHORT *) propertyItem->value), 2);
+
+		GdipDisposeImage (image);
+		free (list);
+		deleteFile (file);
+	}
+
+	free (propertyItem);
 }
 
 static void test_loadImageFromFileGif ()
