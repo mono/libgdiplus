@@ -165,6 +165,10 @@ gdip_read_ico_image_from_file_stream (void *pointer, GpImage **image, ImageSourc
 	status = gdip_read_BITMAPINFOHEADER (pointer, source, &bih, &upsidedown);
 	if (status != Ok)
 		goto error;
+
+	status = gdip_validate_and_fixup_BITMAPINFOHEADER (NULL, &bih);
+	if (status != Ok)
+		goto error;
 	
 	result = gdip_bitmap_new_with_frame (NULL, TRUE);
 	if (!result) {
