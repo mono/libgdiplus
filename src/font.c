@@ -69,6 +69,7 @@ gdip_fontfamily_init (GpFontFamily *fontFamily)
 	fontFamily->celldescent = -1;
 	fontFamily->cellascent = -1;
 	fontFamily->pattern = NULL;
+	for (int i = 0; i < 16; ++i) fontFamily->relatives[i] = NULL;
 	fontFamily->allocated = FALSE;
 }
 
@@ -131,7 +132,7 @@ GdipNewInstalledFontCollection (GpFontCollection **fontCollection)
 	 * (b) other libgdiplus structures depends on that allocated data;
 	 */
 	if (!system_fonts) {
-		FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, NULL);
+		FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, FC_SLANT, FC_WEIGHT, NULL);
 		FcPattern *pat = FcPatternCreate ();
 		FcValue val;
 		FcFontSet *col;
@@ -308,8 +309,30 @@ GdipCloneFontFamily (GpFontFamily *fontFamily, GpFontFamily **clonedFontFamily)
 		result->allocated = TRUE;
 	}
 
+	for (int i = 0; i < 16; ++i) {
+		if (fontFamily->relatives[i]) {
+			result->relatives[i] = FcPatternDuplicate (fontFamily->relatives[i]);
+		}
+	}
+
 	*clonedFontFamily = result;
 	return Ok;
+}
+
+void
+delete_font_family_unchecked (GpFontFamily *fontFamily)
+{
+	if (fontFamily->allocated) {
+		FcPatternDestroy (fontFamily->pattern);
+		fontFamily->pattern = NULL;
+	}
+	for (int i = 0; i < 16; ++i) {
+		if (fontFamily->relatives[i]) {
+			FcPatternDestroy (fontFamily->relatives[i]);
+			fontFamily->relatives[i] = NULL;
+		}
+	}
+	GdipFree (fontFamily);
 }
 
 GpStatus WINGDIPAPI
@@ -357,11 +380,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 #endif
 	
 	if (delete) {
-		if (fontFamily->allocated) {
-			FcPatternDestroy (fontFamily->pattern);
-			fontFamily->pattern = NULL;
-		}
-		GdipFree (fontFamily);
+		delete_font_family_unchecked (fontFamily);
 	}
 	
 	return Ok;
@@ -370,7 +389,7 @@ GdipDeleteFontFamily (GpFontFamily *fontFamily)
 static void
 gdip_createPrivateFontSet (GpFontCollection *font_collection)
 {
-	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, FC_FILE, NULL);
+	FcObjectSet *os = FcObjectSetBuild (FC_FAMILY, FC_FOUNDRY, FC_FILE, FC_SLANT, FC_WEIGHT, NULL);
 	FcPattern *pat = FcPatternCreate ();
 	FcFontSet *col = FcFontList (font_collection->config, pat, os);
 
@@ -392,10 +411,141 @@ GdipGetFontCollectionFamilyCount (GpFontCollection *fontCollection, INT *numFoun
 	if (fontCollection->config)
 		gdip_createPrivateFontSet (fontCollection);
 
-	if (fontCollection->fontset)
-		*numFound = fontCollection->fontset->nfont;
+	if (fontCollection->fontset) {
+		GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
+		*numFound = 0;
+
+		for (int i = 0; i < fontCollection->fontset->nfont; ++i) {
+			char *name;
+			FcPatternGetString(fontCollection->fontset->fonts[i], FC_FAMILY, 0, (FcChar8**)&name);
+			*numFound += g_hash_table_insert(table, name, NULL);
+		}
+
+		g_hash_table_destroy(table);
+	}
 	else
 		*numFound = 0;
+
+	return Ok;
+}
+
+INT style_from_fcpattern (FcPattern *pattern)
+{
+	int slant;
+	int weight;
+
+	FcPatternGetInteger(pattern, FC_SLANT, 0, &slant);
+	FcPatternGetInteger(pattern, FC_WEIGHT, 0, &weight);
+
+	int style = FontStyleRegular;
+
+	switch (slant)
+	{
+		case FC_SLANT_ITALIC:
+			style |= FontStyleItalic;
+			break;
+		case FC_SLANT_ROMAN:
+			break;
+		default:
+		/* .NET does not seem to support other slants, so we return -1 */
+			return -1;
+	}
+
+	switch (weight)
+	{
+		case FC_WEIGHT_BOLD:
+			style |= FontStyleBold;
+			break;
+		case FC_WEIGHT_REGULAR:
+			break;
+		default:
+		/* Same here */
+			return -1;
+	}
+
+	return style;
+}
+
+void
+font_table_clean(GHashTable *table)
+{
+	GHashTableIter iter;
+	void *key;
+	GpFontFamily *fontFamily;
+
+	g_hash_table_iter_init (&iter, table);
+
+	while (g_hash_table_iter_next (&iter, &key, (gpointer*)&fontFamily)) {
+		/* We should be able to safely call this function, as generic font families
+		   should not be in the hash table */
+		delete_font_family_unchecked (fontFamily);
+	}
+
+	g_hash_table_destroy (table);
+}
+
+GpStatus
+font_table_from_fontset(GHashTable **table, FcFontSet *fontset)
+{
+	int i;
+	FcChar8 *name;
+	GpFontFamily *tempFamily;
+
+	GHashTable *result = g_hash_table_new (g_str_hash, g_str_equal);
+
+	for (i = 0; i < fontset->nfont; i++) {
+
+		FcPatternGetString(fontset->fonts[i], FC_FAMILY, 0, &name);
+
+		tempFamily = g_hash_table_lookup (result, name);
+
+		if (tempFamily)
+		{
+			INT style = style_from_fcpattern (fontset->fonts[i]);
+			
+			FcPattern *pattern = FcPatternDuplicate(fontset->fonts[i]);
+			if (!pattern) {
+				font_table_clean (result);
+				return OutOfMemory;
+			}
+				
+			
+			if (style == FontStyleRegular) {
+				tempFamily->relatives[style] = pattern;
+				FcPatternDestroy (tempFamily->pattern);
+				tempFamily->pattern = FcPatternDuplicate (pattern);
+				if (!tempFamily->pattern) {
+					font_table_clean (result);
+					return OutOfMemory;
+				}
+			} else if (style != -1)
+				tempFamily->relatives[style] = pattern;
+			else FcPatternDestroy(pattern); 
+		}
+		else
+		{
+			tempFamily = gdip_fontfamily_new ();
+			if (!tempFamily) {
+				font_table_clean (result);
+				return OutOfMemory;
+			}
+
+			INT style = style_from_fcpattern (fontset->fonts[i]);
+
+			FcPattern *pattern = FcPatternDuplicate(fontset->fonts[i]);
+			if (!pattern) {
+				font_table_clean (result);
+				return OutOfMemory;
+			}
+			tempFamily->pattern = pattern;
+			if (style != -1)
+				tempFamily->relatives[style] = FcPatternDuplicate(fontset->fonts[i]);
+
+			g_hash_table_insert (result, name, tempFamily);
+		}
+	}
+
+	*table = result;
 
 	return Ok;
 }
@@ -404,6 +554,7 @@ GpStatus WINGDIPAPI
 GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought, GpFontFamily *gpfamilies[], INT *numFound)
 {
 	int i;
+	int count;
 
 	if (!fontCollection || !gpfamilies || !numFound)
 		return InvalidParameter;
@@ -411,22 +562,24 @@ GdipGetFontCollectionFamilyList (GpFontCollection *fontCollection, INT numSought
 	if (fontCollection->config)
 		gdip_createPrivateFontSet (fontCollection);
 
-	for (i = 0; i < numSought && i < fontCollection->fontset->nfont; i++) {
-		gpfamilies[i] = gdip_fontfamily_new ();
-		if (!gpfamilies[i]) {
-			while (--i >= 0) {
-				GdipFree (gpfamilies[i]);
-				gpfamilies[i] = NULL;
-			}
-			return OutOfMemory;
-		}
+	GHashTable *table = NULL;
+	GpStatus currentStatus = font_table_from_fontset(&table, fontCollection->fontset);
+	if (currentStatus != Ok) return currentStatus;
+	
+	count = g_hash_table_size (table);
 
-		gpfamilies[i]->collection = fontCollection;
-		gpfamilies[i]->pattern = fontCollection->fontset->fonts[i];
-		gpfamilies[i]->allocated = FALSE;
+	GHashTableIter iter;
+	g_hash_table_iter_init (&iter, table);
+
+	for (i = 0; i < numSought && i < count; i++) {
+		void *key;
+		g_hash_table_iter_next (&iter, &key, (gpointer*)&gpfamilies[i]);
 	}
 	
 	*numFound = i;
+
+	g_hash_table_destroy (table);
+	
 	return Ok;  
 }
 
@@ -506,6 +659,8 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 	FcPattern *pat = NULL;
 	GpFontCollection *font_collection;
 
+	*fontFamily = NULL;
+
 	status = GdipNewInstalledFontCollection (&font_collection);
 	if (status != Ok) {
 		return status;
@@ -533,17 +688,27 @@ create_fontfamily_from_name (char* name, GpFontFamily **fontFamily)
 	}
 
 	if (pat) {
-		ff = gdip_fontfamily_new ();
-		if (ff) {
-			ff->pattern = pat;
-			ff->allocated = FALSE;
-			ff->collection = font_collection;
-			status = Ok;
-		} else 
-			status = OutOfMemory;
+		/* 	Gets the real name of the font, because on non-Windows platforms, 
+			we get a lot of "Microsoft Sans Serif" requests that might return
+			an error */
+		FcPatternGetString(pat, FC_FAMILY, 0, (FcChar8 **)&name);
+
+		GHashTable *font_table;
+		status = font_table_from_fontset(&font_table, font_collection->fontset);
+
+		if (status == Ok)
+		{
+			status = FontFamilyNotFound;
+			ff = g_hash_table_lookup (font_table, (gconstpointer)name);
+
+			if (ff) {
+				status = GdipCloneFontFamily(ff, fontFamily);
+			}
+
+			font_table_clean (font_table);
+		}
 	}
 
-	*fontFamily = ff;
 #if GLIB_CHECK_VERSION(2,32,0)
 	g_mutex_unlock (&patterns_mutex);
 #else
@@ -591,30 +756,25 @@ create_fontfamily_from_collection (char* name, GpFontCollection *font_collection
 {
 	/* note: fontset can be NULL when we supply an empty private collection */
 	if (font_collection->fontset) {
-		int i;
-		FcChar8 *str;
-		FcPattern **gpfam = font_collection->fontset->fonts;
-    
-		for (i=0; i < font_collection->fontset->nfont; gpfam++, i++) {
-			FcResult rlt = FcPatternGetString (*gpfam, FC_FAMILY, 0, &str);
-			GpStatus status = gdip_status_from_fontconfig (rlt);
-			if (status != Ok)
-				return status;
+		GHashTable *font_table;
+		GpFontFamily *result = NULL;
+		GpStatus currentStatus = font_table_from_fontset(&font_table, font_collection->fontset);
 
-			if (strcmp ((char *)name, (const char *)str) == 0) {
-				GpFontFamily *result = gdip_fontfamily_new ();
-				if (!result)
-					return OutOfMemory;
-
-				result->pattern = *gpfam;
-				result->allocated = FALSE;
-				result->collection = font_collection;
-
-				*fontFamily = result;
-				return Ok;
-			}
+		if (currentStatus != Ok) {
+			return currentStatus;
 		}
+		
+		result = g_hash_table_lookup (font_table, (gconstpointer)name);
+
+		if (result) {
+			currentStatus = GdipCloneFontFamily(result, fontFamily);
+		}
+
+		font_table_clean (font_table);
+
+		return currentStatus;
 	}
+
 	return FontFamilyNotFound;
 }
 
@@ -1000,11 +1160,9 @@ GdipGetEmHeight (GDIPCONST GpFontFamily *family, INT style, UINT16 *EmHeight)
 	if (!family || !EmHeight)
 		return InvalidParameter;
 
-	if (family->height == -1) {
-		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
-		if (status != Ok)
-			return status;
-	}
+	status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+	if (status != Ok)
+		return status;
 
 	*EmHeight = family->height;
 	return Ok;
@@ -1018,11 +1176,9 @@ GdipGetCellAscent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellAscent
 	if (!family || !CellAscent)
 		return InvalidParameter;
 
-	if (family->cellascent == -1) {
-		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
-		if (status != Ok)
-			return status;
-	}
+	status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+	if (status != Ok)
+		return status;
 
 	*CellAscent = family->cellascent;
 	return Ok;
@@ -1036,11 +1192,9 @@ GdipGetCellDescent (GDIPCONST GpFontFamily *family, INT style, UINT16 *CellDesce
 	if (!family || !CellDescent)
 		return InvalidParameter;
 
-	if (family->celldescent == -1) {
-		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
-		if (status != Ok)
-			return status;
-	}
+	status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+	if (status != Ok)
+		return status;
 
 	*CellDescent = family->celldescent;
 	return Ok;
@@ -1054,11 +1208,9 @@ GdipGetLineSpacing (GDIPCONST GpFontFamily *family, INT style, UINT16 *LineSpaci
 	if (!family || !LineSpacing)
 		return InvalidParameter;
 
-	if (family->linespacing == -1) {
-		status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
-		if (status != Ok)
-			return status;
-	}
+	status = gdip_get_fontfamily_details ((GpFontFamily *) family, style);
+	if (status != Ok)
+		return status;
 
 	*LineSpacing = family->linespacing;
 	return Ok;
@@ -1070,7 +1222,7 @@ GdipIsStyleAvailable (GDIPCONST GpFontFamily *family, INT style, BOOL *IsStyleAv
 	if (!family || !IsStyleAvailable)
 		return InvalidParameter;
 
-	*IsStyleAvailable = TRUE;
+	*IsStyleAvailable = family->relatives[style] != NULL;
 	return Ok;    
 }
 
@@ -1084,8 +1236,9 @@ gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize
 	FcResult r;
 	GpFont *result;
 	REAL sizeInPixels;
+	FcPattern *tempPattern;
 
-	r = FcPatternGetString (family->pattern, FC_FAMILY, 0, &str);
+	r = FcPatternGetString ((family->relatives[style]) ? family->relatives[style] : family->pattern, FC_FAMILY, 0, &str);
 	status = gdip_status_from_fontconfig (r);
 	if (status != Ok)
 		return status;
@@ -1115,6 +1268,12 @@ gdip_create_font_without_validation (GDIPCONST GpFontFamily *family, REAL emSize
 		return OutOfMemory;
 	}
 
+	tempPattern = FcPatternDuplicate(result->family->relatives[style] ? result->family->relatives[style] : result->family->pattern);
+	if (tempPattern) {
+		if (result->family->pattern)
+			FcPatternDestroy (result->family->pattern);
+		result->family->pattern = tempPattern;
+	}
 	result->style = style;
 #ifndef USE_PANGO_RENDERING
 	gdip_get_cairo_font_face (result);
@@ -1480,7 +1639,7 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 	/* unlink(fontfile); */
 	/* We cannot delete our temporary font file, we must keep
 	   them and manually delete them later */
-	if (push_front_string_list (&(fontCollection->tempfiles), fontfile)) return OutOfMemory;
+	if (push_front_string_list (&(fontCollection->tempfiles), (char *)fontfile)) return OutOfMemory;
 
 	return Ok;
 }
