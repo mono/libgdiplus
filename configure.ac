@@ -39,7 +39,7 @@ PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
 # Optional use of Cairo's text rendering instead of Pango
 AC_ARG_WITH(pango, [  --without-pango         [[NOT RECOMMENDED]] use Cairo instead of Pango to measure and draw text],[text_v=without-pango],[text_v=pango])
 
-GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -std=gnu11"
+GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -std=gnu11 -Wno-tautological-compare"
 
 AC_ARG_ENABLE(warnaserror, AS_HELP_STRING([--enable-warnaserror],[Enable treating warnings as errors.]),[warnaserror=yes],[warnaserror=no])
 
