@@ -36,8 +36,8 @@ AM_CONDITIONAL(HAVE_CMAKE, [test x$CMAKE != "xno"])
 CAIRO_REQUIRED_VERSION="1.6.4"
 PKG_CHECK_MODULES(CAIRO, cairo >= $CAIRO_REQUIRED_VERSION)
 
-# Optional use of Pango's text rendering on top of Cairo
-AC_ARG_WITH(pango, [  --with-pango            use Pango to measure and draw text],[text_v=pango],[text_v=default])
+# Optional use of Cairo's text rendering instead of Pango
+AC_ARG_WITH(pango, [  --without-pango         [[NOT RECOMMENDED]] use Cairo instead of Pango to measure and draw text],[text_v=without-pango],[text_v=pango])
 
 GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -std=gnu11"
 
@@ -68,16 +68,9 @@ GDIPLUS_PKG_REQ="cairo"
 
 PANGO_REQUIRED_VERSION="1.40.14"
 if test $text_v = "pango"; then
-  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
-fi
-if test $text_v = "default"; then
-  PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION,
-	  [text_v=pango], [text_v=cairo])
-fi
-if test $text_v = "pango"; then
+	PKG_CHECK_MODULES(PANGO, pango >= $PANGO_REQUIRED_VERSION)
 	PANGO_LIBS="`$PKG_CONFIG --libs pangocairo `"
 	PANGO_CFLAGS="`$PKG_CONFIG --cflags pangocairo `"
-	AC_DEFINE(USE_PANGO_RENDERING,1,[Use Pango to measure and draw text])
 	GDIPLUS_PKG_REQ="$GDIPLUS_PKG_REQ pangocairo-1.0"
 fi
 
@@ -514,6 +507,10 @@ echo ""
 echo "   * Installation prefix = $prefix"
 echo "   * Cairo = $cairo_info"
 echo "   * Text = $text_v"
+if test $text_v = "without-pango"; then
+	echo "     WARNING: *** Some text rendering features will not work without pango >= $PANGO_REQUIRED_VERSION. Consider removing --without-pango and adding the pango dependency ***"
+fi
+
 echo "   * EXIF tags = $libexif_pkgconfig"
 echo "   * X11 = $x11_available"
 echo "   * Codecs supported:"
