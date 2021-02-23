@@ -14,7 +14,7 @@ stages:
       displayName: Linux x64
       timeoutInMinutes: 120
       pool:
-        vmImage: ubuntu-16.04
+        vmImage: ubuntu-20.04
       steps:
         - bash: |
             sudo apt update
@@ -165,7 +165,7 @@ stages:
       displayName: Linux x64 mono-netcore
       timeoutInMinutes: 120
       pool:
-        vmImage: ubuntu-16.04
+        vmImage: ubuntu-20.04
       steps:
         - bash: |
             sudo apt update
