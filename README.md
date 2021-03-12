@@ -4,7 +4,7 @@ This is part of the [Mono project](http://www.mono-project.com/).
 
 Build status:
 
-[![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/mono/mono-libgdiplus-ci?branchName=master)](https://dnceng.visualstudio.com/public/_build/latest?definitionId=617&branchName=master)
+[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/mono/mono-libgdiplus-ci?branchName=main)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=617&branchName=main)
 
 ### Requirements:
 
