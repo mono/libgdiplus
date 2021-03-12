@@ -711,31 +711,31 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 		cairo_surface_t *mask_surface;
 
 		/* (optimization) if if the path is empty, return immediately */
-		if (!region->tree)
+		if (!region->cachedData.tree)
 			return Ok;
 
 		/* (optimization) if there is only one path, then we do not need the bitmap */
-		if (region->tree->path) {
+		if (region->cachedData.tree->path) {
 			/* if the path is empty, return OK */
-			if (region->tree->path->count == 0)
+			if (region->cachedData.tree->path->count == 0)
 				return Ok;
 
 			/* else fill the single path */
-			return cairo_FillPath (graphics, brush, region->tree->path);
+			return cairo_FillPath (graphics, brush, region->cachedData.tree->path);
 		}
 
 		gdip_region_bitmap_ensure (region);
-		if (!region->bitmap)
+		if (!region->cachedData.bitmap)
 			return OutOfMemory;
 
-		mask_surface = gdip_region_bitmap_to_cairo_surface (region->bitmap);
+		mask_surface = gdip_region_bitmap_to_cairo_surface (region->cachedData.bitmap);
 		cairo_save (graphics->ct);
 	
 		/* We do brush setup just before filling. */
 		gdip_brush_setup (graphics, brush);
 
 		cairo_close_path (graphics->ct);
-		cairo_mask_surface (graphics->ct, mask_surface, region->bitmap->X, region->bitmap->Y);
+		cairo_mask_surface (graphics->ct, mask_surface, region->cachedData.bitmap->X, region->cachedData.bitmap->Y);
 		cairo_fill (graphics->ct);
 
 		status = gdip_get_status (cairo_status (graphics->ct));
@@ -747,10 +747,10 @@ cairo_FillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region)
 	}
 
 	/* if there's no rectangles, we can return directly */
-	if (!region->rects || (region->cnt == 0))
+	if (!region->cachedData.rects || (region->cachedData.cnt == 0))
 		return Ok;
 
-	return cairo_FillRectangles (graphics, brush, region->rects, region->cnt);
+	return cairo_FillRectangles (graphics, brush, region->cachedData.rects, region->cachedData.cnt);
 }
 
 /*
@@ -844,13 +844,13 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 
 	switch (work->type) {
 	case RegionTypeRect:
-		for (i = 0, rect = work->rects; i < work->cnt; i++, rect++) {
+		for (i = 0, rect = work->cachedData.rects; i < work->cachedData.cnt; i++, rect++) {
 			gdip_cairo_rectangle (graphics, rect->X, rect->Y, rect->Width, rect->Height, FALSE);
 		}
 		break;
 	case RegionTypePath:
-		if (work->tree && work->tree->path)
-			gdip_plot_path (graphics, work->tree->path, FALSE);
+		if (work->cachedData.tree && work->cachedData.tree->path)
+			gdip_plot_path (graphics, work->cachedData.tree->path, FALSE);
 		else {
 			UINT count;
 			GpMatrix matrix;

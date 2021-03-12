@@ -35,10 +35,10 @@ void
 gdip_region_init (GpRegion *result)
 {
 	result->type = RegionTypeInfinite;
-	result->cnt = 0;
-	result->rects = NULL;
-	result->tree = NULL;
-	result->bitmap = NULL;
+	result->cachedData.cnt = 0;
+	result->cachedData.rects = NULL;
+	result->cachedData.tree = NULL;
+	result->cachedData.bitmap = NULL;
 }
 
 GpRegion *
@@ -290,25 +290,25 @@ gdip_is_region_empty (const GpRegion *region, BOOL allowNegative)
 
 	switch (region->type) {
 	case RegionTypeRect:
-		if (!region->rects || (region->cnt == 0))
+		if (!region->cachedData.rects || (region->cachedData.cnt == 0))
 			return TRUE;
 
-		gdip_get_bounds (region->rects, region->cnt, &rect);
+		gdip_get_bounds (region->cachedData.rects, region->cachedData.cnt, &rect);
 		return gdip_is_rectF_empty (&rect, allowNegative);
 	case RegionTypeInfinite:
 		return FALSE;
 	case RegionTypePath:
-		if (!region->tree)
+		if (!region->cachedData.tree)
 			return TRUE;
-		if (region->tree->path) {
-			if (region->tree->path->count == 0)
+		if (region->cachedData.tree->path) {
+			if (region->cachedData.tree->path->count == 0)
 				return TRUE;
-			
+
 			// Open paths are empty.
-			if (!gdip_path_closed (region->tree->path))
+			if (!gdip_path_closed (region->cachedData.tree->path))
 				return TRUE;
 		}
-		if (region->bitmap && (region->bitmap->Width == 0 || region->bitmap->Height == 0))
+		if (region->cachedData.bitmap && (region->cachedData.bitmap->Width == 0 || region->cachedData.bitmap->Height == 0))
 			return TRUE;
 
 		return FALSE;
@@ -338,17 +338,17 @@ gdip_is_InfiniteRegion (const GpRegion *region)
 {
 	switch (region->type) {
 	case RegionTypeRect:
-		if (region->cnt != 1)
+		if (region->cachedData.cnt != 1)
 		      return FALSE;
-		return gdip_is_rect_infinite (region->rects);
+		return gdip_is_rect_infinite (region->cachedData.rects);
 	case RegionTypePath:
 		/* FIXME: incomplete and not 100% accurate (curves) - but cover the most common case */
-		if (!region->tree || !region->tree->path)
+		if (!region->cachedData.tree || !region->cachedData.tree->path)
 			return FALSE;
 
-		if (gdip_path_closed (region->tree->path) && region->tree->path->count == 4) {
+		if (gdip_path_closed (region->cachedData.tree->path) && region->cachedData.tree->path->count == 4) {
 			GpRectF bounds;
-			if (GdipGetPathWorldBounds (region->tree->path, &bounds, NULL, NULL) == Ok)
+			if (GdipGetPathWorldBounds (region->cachedData.tree->path, &bounds, NULL, NULL) == Ok)
 				return gdip_is_rect_infinite (&bounds);
 		}
 		break;
@@ -471,23 +471,23 @@ gdip_clear_region (GpRegion *region)
 {
 	region->type = RegionTypeInfinite;
 
-	if (region->rects) {
-		GdipFree (region->rects);
-		region->rects = NULL;
+	if (region->cachedData.rects) {
+		GdipFree (region->cachedData.rects);
+		region->cachedData.rects = NULL;
 	}
 
-	if (region->tree) {
-		gdip_region_clear_tree (region->tree);
-		GdipFree (region->tree);
-		region->tree = NULL;
+	if (region->cachedData.tree) {
+		gdip_region_clear_tree (region->cachedData.tree);
+		GdipFree (region->cachedData.tree);
+		region->cachedData.tree = NULL;
 	}
 
-	if (region->bitmap) {
-		gdip_region_bitmap_free (region->bitmap);
-		region->bitmap = NULL;
+	if (region->cachedData.bitmap) {
+		gdip_region_bitmap_free (region->cachedData.bitmap);
+		region->cachedData.bitmap = NULL;
 	}
 
-	region->cnt = 0;
+	region->cachedData.cnt = 0;
 }
 
 GpStatus
@@ -497,34 +497,34 @@ gdip_copy_region (GpRegion *source, GpRegion *dest)
 
 	dest->type = source->type;
 
-	if (source->rects) {
-		dest->cnt = source->cnt;
-		dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
-		if (!dest->rects)
+	if (source->cachedData.rects) {
+		dest->cachedData.cnt = source->cachedData.cnt;
+		dest->cachedData.rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cachedData.cnt);
+		if (!dest->cachedData.rects)
 			return OutOfMemory;
 
-		memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
+		memcpy (dest->cachedData.rects, source->cachedData.rects, sizeof (GpRectF) * source->cachedData.cnt);
 	} else {
-		dest->cnt = 0;
-		dest->rects = NULL;
+		dest->cachedData.cnt = 0;
+		dest->cachedData.rects = NULL;
 	}
 
-	if (source->tree) {
-		dest->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		if (!dest->tree)
+	if (source->cachedData.tree) {
+		dest->cachedData.tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+		if (!dest->cachedData.tree)
 			return OutOfMemory;
 
-		status = gdip_region_copy_tree (source->tree, dest->tree);
+		status = gdip_region_copy_tree (source->cachedData.tree, dest->cachedData.tree);
 		if (status != Ok)
 			return status;
 	} else {
-		dest->tree = NULL;
+		dest->cachedData.tree = NULL;
 	}
 
-	if (source->bitmap) {
-		dest->bitmap = gdip_region_bitmap_clone (source->bitmap);
+	if (source->cachedData.bitmap) {
+		dest->cachedData.bitmap = gdip_region_bitmap_clone (source->cachedData.bitmap);
 	} else {
-		dest->bitmap = NULL;
+		dest->cachedData.bitmap = NULL;
 	}
 
 	return Ok;
@@ -540,11 +540,11 @@ gdip_region_convert_to_path (GpRegion *region)
 	if (!region || (region->type == RegionTypePath))
 		return Ok;
 
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
+	region->cachedData.tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->cachedData.tree)
 		return OutOfMemory;
 
-	status = GdipCreatePath (FillModeAlternate, &region->tree->path);
+	status = GdipCreatePath (FillModeAlternate, &region->cachedData.tree->path);
 	if (status != Ok)
 		return status;
 
@@ -552,10 +552,10 @@ gdip_region_convert_to_path (GpRegion *region)
 	case RegionTypeRect:
 	case RegionTypeInfinite: {
 		/* all rectangles are converted into a single path */
-		for (int i = 0; i < region->cnt; i++) {
+		for (int i = 0; i < region->cachedData.cnt; i++) {
 			RectF normalized;
-			gdip_normalize_rectangle (&region->rects[i], &normalized);
-			GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			gdip_normalize_rectangle (&region->cachedData.rects[i], &normalized);
+			GdipAddPathRectangle (region->cachedData.tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
 		}
 
 		break;
@@ -565,10 +565,10 @@ gdip_region_convert_to_path (GpRegion *region)
 		return NotImplemented;
 	}
 
-	if (region->rects) {
-		GdipFree (region->rects);
-		region->cnt = 0;
-		region->rects = NULL;
+	if (region->cachedData.rects) {
+		GdipFree (region->cachedData.rects);
+		region->cachedData.cnt = 0;
+		region->cachedData.rects = NULL;
 	}
 
 	region->type = RegionTypePath;
@@ -582,11 +582,11 @@ static GpStatus
 gdip_region_create_from_path (GpRegion *region, GpPath *path)
 {
 	region->type = RegionTypePath;
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
+	region->cachedData.tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->cachedData.tree)
 		return OutOfMemory;
 
-	return GdipClonePath (path, &region->tree->path);
+	return GdipClonePath (path, &region->cachedData.tree->path);
 }
 
 /*
@@ -639,7 +639,7 @@ GdipCreateRegionRect (GDIPCONST GpRectF *rect, GpRegion **region)
 		return OutOfMemory;
 
 	result->type = RegionTypeRect;
-	status = gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, rect);
+	status = gdip_add_rect_to_array (&result->cachedData.rects, &result->cachedData.cnt, NULL, rect);
 	if (status != Ok) {
 		GdipDeleteRegion (result);
 		return status;
@@ -696,10 +696,10 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 	if (!result)
 		return OutOfMemory;
 
-	result->cnt = 0;
-	result->rects = NULL;
-	result->tree = NULL;
-	result->bitmap = NULL;
+	result->cachedData.cnt = 0;
+	result->cachedData.rects = NULL;
+	result->cachedData.tree = NULL;
+	result->cachedData.bitmap = NULL;
 
 	// Read the type.
 	memcpy (&type, regionData, sizeof (DWORD));
@@ -716,7 +716,7 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 
 		GpRectF rect;
 		memcpy (&rect, regionData, sizeof (GpRectF));
-		gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, &rect);
+		gdip_add_rect_to_array (&result->cachedData.rects, &result->cachedData.cnt, NULL, &rect);
 
 		break;
 	case RegionDataPath:
@@ -726,13 +726,13 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 			return InvalidParameter;
 		}
 
-		result->tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!result->tree) {
+		result->cachedData.tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!result->cachedData.tree) {
 			GdipFree (result);
 			return OutOfMemory;
 		}
 
-		if (!gdip_region_deserialize_tree ((BYTE *) regionData, size, result->tree)) {
+		if (!gdip_region_deserialize_tree ((BYTE *) regionData, size, result->cachedData.tree)) {
 			GdipFree (result);
 			return InvalidParameter;
 		}
@@ -746,8 +746,8 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		result->type = RegionTypeInfinite;
 
 		GpRectF rect = {REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH};
-		gdip_add_rect_to_array (&result->rects, &result->cnt, NULL, &rect);
-		
+		gdip_add_rect_to_array (&result->cachedData.rects, &result->cachedData.cnt, NULL, &rect);
+
 		break;
 	}
 	default:
@@ -814,7 +814,7 @@ GdipSetInfinite (GpRegion *region)
 	rect.X = rect.Y = REGION_INFINITE_POSITION;
 	rect.Width = rect.Height = REGION_INFINITE_LENGTH;
 
-	return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &rect);
+	return gdip_add_rect_to_array (&region->cachedData.rects, &region->cachedData.cnt, NULL, &rect);
 }
 
 
@@ -842,9 +842,9 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 	GpStatus status;
 
 	/* Create the list of source rectangles to process, it will contain splitted ones later */
-	allsrccap = region->cnt * 2;
+	allsrccap = region->cachedData.cnt * 2;
 	cap = allsrccap;
-	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+	for (i = 0, rect = region->cachedData.rects; i < region->cachedData.cnt; i++, rect++) {
 		status = gdip_add_rect_to_array (&allsrcrects, &allsrccnt, &allsrccap, rect);
 		if (status != Ok) {
 			if (allsrcrects) {
@@ -975,11 +975,11 @@ gdip_combine_exclude (GpRegion *region, GpRectF *rtrg, int cntt)
 
 	GdipFree (allsrcrects);
 	GdipFree (alltrgrects);
-	if (region->rects)
-		GdipFree (region->rects);
+	if (region->cachedData.rects)
+		GdipFree (region->cachedData.rects);
 
-	region->rects = rects;
-	region->cnt = cnt;
+	region->cachedData.rects = rects;
+	region->cachedData.cnt = cnt;
 
 	return Ok;
 }
@@ -1010,22 +1010,22 @@ gdip_combine_complement (GpRegion *region, GpRectF *rtrg, int cntt)
 		}
 	}
 
-	regsrc.rects = allsrcrects;
-	regsrc.cnt = allsrccnt;
-	trg = region->rects;
-	trgcnt = region->cnt;
+	regsrc.cachedData.rects = allsrcrects;
+	regsrc.cachedData.cnt = allsrccnt;
+	trg = region->cachedData.rects;
+	trgcnt = region->cachedData.cnt;
 
 	status = gdip_combine_exclude (&regsrc, trg, trgcnt);
 	if (status != Ok) {
 		goto error;
 	}
 
-	if ((regsrc.rects != allsrcrects) || (regsrc.cnt != allsrccnt)) {
-		if (region->rects)
-			GdipFree (region->rects);
+	if ((regsrc.cachedData.rects != allsrcrects) || (regsrc.cachedData.cnt != allsrccnt)) {
+		if (region->cachedData.rects)
+			GdipFree (region->cachedData.rects);
 
-		region->rects = regsrc.rects;
-		region->cnt = regsrc.cnt;
+		region->cachedData.rects = regsrc.cachedData.rects;
+		region->cachedData.cnt = regsrc.cachedData.cnt;
 	}
 
 	return Ok;
@@ -1050,9 +1050,9 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	GpStatus status;
 
 	/* All the src and trg rects in a single array*/
-	allcap = (region->cnt + cnttrg) * 2;
+	allcap = (region->cachedData.cnt + cnttrg) * 2;
 	cap = allcap;
-	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+	for (i = 0, rect = region->cachedData.rects; i < region->cachedData.cnt; i++, rect++) {
 		status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap, rect);
 		if (status != Ok) {
 			if (allrects)
@@ -1197,12 +1197,12 @@ gdip_combine_union (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	}
 
 	GdipFree (allrects);
-	if (region->rects)
-		GdipFree (region->rects);
+	if (region->cachedData.rects)
+		GdipFree (region->cachedData.rects);
 
 	gdip_trim_rect_array (&rects, cnt);
-	region->rects = rects;
-	region->cnt = cnt;
+	region->cachedData.rects = rects;
+	region->cachedData.cnt = cnt;
 
 	return Ok;
 }
@@ -1218,10 +1218,10 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 	GpRectF *recttrg;
 	GpStatus status;
 
-	regunion.rects = NULL;
-	regunion.cnt = 0;
+	regunion.cachedData.rects = NULL;
+	regunion.cachedData.cnt = 0;
 
-	for (rectsrc = region->rects, src = 0; src < region->cnt; src++, rectsrc++) {
+	for (rectsrc = region->cachedData.rects, src = 0; src < region->cachedData.cnt; src++, rectsrc++) {
 		for (recttrg = rtrg, trg = 0; trg < cnttrg; trg++, recttrg++) {
 			/* normalize */
 			GpRectF normal;
@@ -1248,11 +1248,11 @@ gdip_combine_intersect (GpRegion *region, GpRectF *rtrg, int cnttrg)
 		}
 	}
 
-	if (region->rects)
-		GdipFree (region->rects);
+	if (region->cachedData.rects)
+		GdipFree (region->cachedData.rects);
 
-	region->rects = regunion.rects;
-	region->cnt = regunion.cnt;
+	region->cachedData.rects = regunion.cachedData.rects;
+	region->cachedData.cnt = regunion.cachedData.cnt;
 
 	return Ok;
 }
@@ -1268,8 +1268,8 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 	GpStatus status;
 
 	/* All the src and trg rects in a single array*/
-	allcap = region->cnt + cnttrg;
-	for (i = 0, rect = region->rects; i < region->cnt; i++, rect++) {
+	allcap = region->cachedData.cnt + cnttrg;
+	for (i = 0, rect = region->cachedData.rects; i < region->cachedData.cnt; i++, rect++) {
 		status = gdip_add_rect_to_array (&allrects, &allcnt, &allcap, rect);
 		if (status != Ok)
 			goto error;
@@ -1289,8 +1289,8 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 	}
 
 	rgnsrc->type = RegionTypeRect;
-	rgnsrc->cnt = allcnt;
-	rgnsrc->rects = allrects;
+	rgnsrc->cachedData.cnt = allcnt;
+	rgnsrc->cachedData.rects = allrects;
 
 	status = GdipCloneRegion (region, &rgntrg);
 	if (status != Ok)
@@ -1301,17 +1301,17 @@ gdip_combine_xor (GpRegion *region, GpRectF *recttrg, int cnttrg)
 		goto error;
 
 	/* exclude the intersecting rectangles (if any) */
-	if (rgntrg->cnt > 0) {
-		status = gdip_combine_exclude (rgnsrc, rgntrg->rects, rgntrg->cnt);
+	if (rgntrg->cachedData.cnt > 0) {
+		status = gdip_combine_exclude (rgnsrc, rgntrg->cachedData.rects, rgntrg->cachedData.cnt);
 		if (status != Ok)
 			goto error;
 	}
 
-	if (region->rects)
-		GdipFree (region->rects);
+	if (region->cachedData.rects)
+		GdipFree (region->cachedData.rects);
 
-	region->rects = rgnsrc->rects;
-	region->cnt = rgnsrc->cnt;
+	region->cachedData.rects = rgnsrc->cachedData.rects;
+	region->cachedData.cnt = rgnsrc->cachedData.cnt;
 
 	GdipFree (rgnsrc);
 	GdipDeleteRegion (rgntrg);
@@ -1336,7 +1336,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 
 	if (combineMode == CombineModeReplace) {
 		GdipSetEmpty (region);
-		return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, (GpRectF *)rect);
+		return gdip_add_rect_to_array (&region->cachedData.rects, &region->cachedData.cnt, NULL, (GpRectF *)rect);
 	}
 
 	GpRectF normalized;
@@ -1375,7 +1375,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		case CombineModeIntersect: {
 			/* The intersection of the infinite region with X is X */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+			return gdip_add_rect_to_array (&region->cachedData.rects, &region->cachedData.cnt, NULL, &normalized);
 		}
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
@@ -1400,7 +1400,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
 			GdipSetEmpty (region);
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+			return gdip_add_rect_to_array (&region->cachedData.rects, &region->cachedData.cnt, NULL, &normalized);
 		default:
 			break;
 		}
@@ -1422,7 +1422,7 @@ GdipCombineRegionRect (GpRegion *region, GDIPCONST GpRectF *rect, CombineMode co
 		case CombineModeXor:
 			return gdip_combine_xor (region, &normalized, 1);
 		case CombineModeReplace: /* Used by Graphics clipping */
-			return gdip_add_rect_to_array (&region->rects, &region->cnt, NULL, &normalized);
+			return gdip_add_rect_to_array (&region->cachedData.rects, &region->cachedData.cnt, NULL, &normalized);
 		default:
 			return NotImplemented;
 		}
@@ -1482,24 +1482,24 @@ gdip_combine_exclude_from_infinite (GpRegion *region, GpPath *path)
 		if (status != Ok)
 			return FALSE;
 	}
-	
-	g_assert (region->tree->path);
-	region_path = region->tree->path;
-	status = GdipClonePath (path, &region->tree->path);
+
+	g_assert (region->cachedData.tree->path);
+	region_path = region->cachedData.tree->path;
+	status = GdipClonePath (path, &region->cachedData.tree->path);
 	if (status != Ok) {
-		region->tree->path = region_path;
+		region->cachedData.tree->path = region_path;
 		return FALSE;
 	}
-	status = GdipAddPathPath (region->tree->path, region_path, FALSE);
+	status = GdipAddPathPath (region->cachedData.tree->path, region_path, FALSE);
 	if (status != Ok) {
-		GdipDeletePath (region->tree->path);
-		region->tree->path = region_path;
+		GdipDeletePath (region->cachedData.tree->path);
+		region->cachedData.tree->path = region_path;
 		return FALSE;
 	}
-	status = GdipReversePath (region->tree->path);
+	status = GdipReversePath (region->cachedData.tree->path);
 	if (status != Ok) {
-		GdipDeletePath (region->tree->path);
-		region->tree->path = region_path;
+		GdipDeletePath (region->cachedData.tree->path);
+		region->cachedData.tree->path = region_path;
 		return FALSE;
 	}
 	GdipDeletePath (region_path);
@@ -1594,30 +1594,30 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 
 	/* make sure the region's bitmap is available */
 	gdip_region_bitmap_ensure (region);
-	if (!region->bitmap)
+	if (!region->cachedData.bitmap)
 		return OutOfMemory;
 
 	/* create a bitmap for the path to combine into the region */
 	path_bitmap = gdip_region_bitmap_from_path (path);
 
-	result = gdip_region_bitmap_combine (region->bitmap, path_bitmap, combineMode);
+	result = gdip_region_bitmap_combine (region->cachedData.bitmap, path_bitmap, combineMode);
 	gdip_region_bitmap_free (path_bitmap);
 	if (!result)
 		return NotImplemented;
 
-	gdip_region_bitmap_free (region->bitmap);
-	region->bitmap = result;
+	gdip_region_bitmap_free (region->cachedData.bitmap);
+	region->cachedData.bitmap = result;
 
 	/* add a copy of path into region1 tree */
-	if (region->tree->path) {
+	if (region->cachedData.tree->path) {
 		/* move the existing path into a new tree (branch1) ... */
-		region->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!region->tree->branch1)
+		region->cachedData.tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region->cachedData.tree->branch1)
 			return OutOfMemory;
 
-		region->tree->branch1->path = region->tree->path;
-		region->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!region->tree->branch2)
+		region->cachedData.tree->branch1->path = region->cachedData.tree->path;
+		region->cachedData.tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region->cachedData.tree->branch2)
 			return OutOfMemory;
 	} else {
 		/* move the current base tree into branch1 of a new tree ... */
@@ -1625,20 +1625,20 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		if (!tmp)
 			return OutOfMemory;
 
-		tmp->branch1 = region->tree;
+		tmp->branch1 = region->cachedData.tree;
 		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
 		if (!tmp->branch2) {
 			GdipFree (tmp);
 			return OutOfMemory;
 		}
 
-		region->tree = tmp;
+		region->cachedData.tree = tmp;
 	}
 	/* ... and clone the specified path into branch2 */
-	region->tree->mode = combineMode;
-	region->tree->path = NULL;
+	region->cachedData.tree->mode = combineMode;
+	region->cachedData.tree->path = NULL;
 
-	return GdipClonePath (path, &region->tree->branch2->path);
+	return GdipClonePath (path, &region->cachedData.tree->branch2->path);
 }
 
 
@@ -1650,24 +1650,24 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 	/* if not available, construct the bitmaps for both regions */
 	gdip_region_bitmap_ensure (region1);
 	gdip_region_bitmap_ensure (region2);
-	if (!region1->bitmap || !region2->bitmap)
+	if (!region1->cachedData.bitmap || !region2->cachedData.bitmap)
 		return OutOfMemory;
 
-	result = gdip_region_bitmap_combine (region1->bitmap, region2->bitmap, combineMode);
+	result = gdip_region_bitmap_combine (region1->cachedData.bitmap, region2->cachedData.bitmap, combineMode);
 	if (!result)
 		return NotImplemented;
-	gdip_region_bitmap_free (region1->bitmap);
-	region1->bitmap = result;
+	gdip_region_bitmap_free (region1->cachedData.bitmap);
+	region1->cachedData.bitmap = result;
 
 	/* re-structure region1 to allow adding a copy of region2 inside it */
-	if (region1->tree->path) {
-		region1->tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!region1->tree->branch1)
+	if (region1->cachedData.tree->path) {
+		region1->cachedData.tree->branch1 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region1->cachedData.tree->branch1)
 			return OutOfMemory;
 
-		region1->tree->branch1->path = region1->tree->path;
-		region1->tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
-		if (!region1->tree->branch2)
+		region1->cachedData.tree->branch1->path = region1->cachedData.tree->path;
+		region1->cachedData.tree->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
+		if (!region1->cachedData.tree->branch2)
 			return OutOfMemory;
 	} else {
 		/* move the current base tree into branch1 of a new tree ... */
@@ -1675,24 +1675,24 @@ gdip_combine_pathbased_region (GpRegion *region1, GpRegion *region2, CombineMode
 		if (!tmp)
 			return OutOfMemory;
 
-		tmp->branch1 = region1->tree;
+		tmp->branch1 = region1->cachedData.tree;
 		tmp->branch2 = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
 		if (!tmp->branch2) {
 			GdipFree (tmp);
 			return OutOfMemory;
 		}
 
-		region1->tree = tmp;
+		region1->cachedData.tree = tmp;
 	}
 
-	region1->tree->mode = combineMode;
-	region1->tree->path = NULL;
+	region1->cachedData.tree->mode = combineMode;
+	region1->cachedData.tree->path = NULL;
 
 	/* add a copy of region2 tree into region1 tree */
-	if (region2->tree->path) {
-		return GdipClonePath (region2->tree->path, &region1->tree->branch2->path);
+	if (region2->cachedData.tree->path) {
+		return GdipClonePath (region2->cachedData.tree->path, &region1->cachedData.tree->branch2->path);
 	} else {
-		return gdip_region_copy_tree (region2->tree, region1->tree->branch2);
+		return gdip_region_copy_tree (region2->cachedData.tree, region1->cachedData.tree->branch2);
 	}
 }
 
@@ -1761,8 +1761,8 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 			return Ok;
 		}
 		if (region1Infinite) {
-			if ((region2->type == RegionTypePath) && region2->tree && region2->tree->path &&
-				gdip_combine_exclude_from_infinite (region, region2->tree->path))
+			if ((region2->type == RegionTypePath) && region2->cachedData.tree && region2->cachedData.tree->path &&
+				gdip_combine_exclude_from_infinite (region, region2->cachedData.tree->path))
 				return Ok;
 		}
 
@@ -1822,21 +1822,21 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		return gdip_combine_pathbased_region (region, region2, combineMode);
 	}
 
-	/* at this stage we are sure that BOTH region and region2 are rectangle 
+	/* at this stage we are sure that BOTH region and region2 are rectangle
 	 * based, so we can use the old rectangle-based code to combine regions
 	 */
 	region->type = RegionTypeRect;
 	switch (combineMode) {
 	case CombineModeExclude:
-		return gdip_combine_exclude (region, region2->rects, region2->cnt);
+		return gdip_combine_exclude (region, region2->cachedData.rects, region2->cachedData.cnt);
 	case CombineModeComplement:
-		return gdip_combine_complement (region, region2->rects, region2->cnt);
+		return gdip_combine_complement (region, region2->cachedData.rects, region2->cachedData.cnt);
 	case CombineModeIntersect:
-		return gdip_combine_intersect (region, region2->rects, region2->cnt);
+		return gdip_combine_intersect (region, region2->cachedData.rects, region2->cachedData.cnt);
 	case CombineModeUnion:
-		return gdip_combine_union (region, region2->rects, region2->cnt);
+		return gdip_combine_union (region, region2->cachedData.rects, region2->cachedData.cnt);
 	case CombineModeXor:
-		return gdip_combine_xor (region, region2->rects, region2->cnt);
+		return gdip_combine_xor (region, region2->cachedData.rects, region2->cachedData.cnt);
 	default:
 		return NotImplemented;
 	}
@@ -1851,21 +1851,21 @@ GdipGetRegionBounds (GpRegion *region, GpGraphics *graphics, GpRectF *rect)
 	switch (region->type) {
 	case RegionTypeRect:
 	case RegionTypeInfinite:
-		gdip_get_bounds (region->rects , region->cnt, rect);
+		gdip_get_bounds (region->cachedData.rects , region->cachedData.cnt, rect);
 		break;
 	case RegionTypePath: {
 		GpRect bounds;
 
 		/* optimisation for simple path */
-		if (region->tree->path)
-			return GdipGetPathWorldBounds (region->tree->path, rect, NULL, NULL);
+		if (region->cachedData.tree->path)
+			return GdipGetPathWorldBounds (region->cachedData.tree->path, rect, NULL, NULL);
 
 		gdip_region_bitmap_ensure (region);
-		if (!region->bitmap)
+		if (!region->cachedData.bitmap)
 			return OutOfMemory;
 
 		/* base the bounds on the reduced bitmap of the paths */
-		gdip_region_bitmap_get_smallest_rect (region->bitmap, &bounds);
+		gdip_region_bitmap_get_smallest_rect (region->cachedData.bitmap, &bounds);
 
 		/* small loss of precision when converting the bitmap coord to float */
 		rect->X = bounds.X;
@@ -1914,13 +1914,13 @@ GdipIsVisibleRegionPoint (GpRegion *region, float x, float y, GpGraphics *graphi
 	switch (region->type) {
 	case RegionTypeRect:
 	case RegionTypeInfinite:
-		*result = gdip_is_Point_in_RectFs_Visible (x, y, region->rects, region->cnt);
+		*result = gdip_is_Point_in_RectFs_Visible (x, y, region->cachedData.rects, region->cachedData.cnt);
 		break;
 	case RegionTypePath:
 		gdip_region_bitmap_ensure (region);
-		g_assert (region->bitmap);
+		g_assert (region->cachedData.bitmap);
 
-		*result = gdip_region_bitmap_is_point_visible (region->bitmap, x, y);
+		*result = gdip_region_bitmap_is_point_visible (region->cachedData.bitmap, x, y);
 		break;
 	default:
 		g_warning ("unknown type 0x%08X", region->type);
@@ -1952,15 +1952,15 @@ GdipIsVisibleRegionRect (GpRegion *region, float x, float y, float width, float 
 	switch (region->type) {
 	case RegionTypeRect:
 	case RegionTypeInfinite:
-		*result = gdip_is_Rect_in_RectFs_Visible (x, y, width, height, region->rects, region->cnt);
+		*result = gdip_is_Rect_in_RectFs_Visible (x, y, width, height, region->cachedData.rects, region->cachedData.cnt);
 		break;
 	case RegionTypePath: {
 		GpRect rect = {x, y, width, height};
 
 		gdip_region_bitmap_ensure (region);
-		g_assert (region->bitmap);
+		g_assert (region->cachedData.bitmap);
 
-		*result = gdip_region_bitmap_is_rect_visible (region->bitmap, &rect);
+		*result = gdip_region_bitmap_is_rect_visible (region->cachedData.bitmap, &rect);
 		break;
 	}
 	default:
@@ -2005,7 +2005,7 @@ get_transformed_region (GpRegion *region, GpMatrix *matrix, GpRegion **result)
 	}
 
 	/* Transform all the paths */
-	status = gdip_region_transform_tree (work->tree, matrix);
+	status = gdip_region_transform_tree (work->cachedData.tree, matrix);
 	if (status != Ok) {
 		GdipDeleteRegion (work);
 		return status;
@@ -2063,8 +2063,8 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 		switch (work->type) {
 		case RegionTypeRect:
 			if (rects) {
-				for (int i = 0; i < work->cnt; i++) {
-					GpRectF rect = work->rects[i];
+				for (int i = 0; i < work->cachedData.cnt; i++) {
+					GpRectF rect = work->cachedData.rects[i];
 
 					INT origX = iround ((rect.X * 16.0f));
 					INT origY = iround ((rect.Y * 16.0f));
@@ -2083,12 +2083,12 @@ GdipGetRegionScans (GpRegion *region, GpRectF* rects, INT* count, GpMatrix* matr
 				}
 			}
 
-			*count = work->cnt;
+			*count = work->cachedData.cnt;
 			break;
 		case RegionTypePath:
 			/* ensure the bitmap is usable */
 			gdip_region_bitmap_ensure (work);
-			*count = gdip_region_bitmap_get_scans (work->bitmap, rects);
+			*count = gdip_region_bitmap_get_scans (work->cachedData.bitmap, rects);
 			break;
 		default:
 			g_warning ("unknown type 0x%08X", region->type);
@@ -2185,7 +2185,7 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 		}
 
 		gdip_region_bitmap_ensure (region);
-		g_assert (region->bitmap);
+		g_assert (region->cachedData.bitmap);
 
 		if (region2->type != RegionTypePath) {
 			status = gdip_region_convert_to_path (region2);
@@ -2194,19 +2194,19 @@ GdipIsEqualRegion (GpRegion *region, GpRegion *region2, GpGraphics *graphics, BO
 		}
 
 		gdip_region_bitmap_ensure (region2);
-		g_assert (region2->bitmap);
+		g_assert (region2->cachedData.bitmap);
 
-		*result = gdip_region_bitmap_compare (region->bitmap, region2->bitmap);
+		*result = gdip_region_bitmap_compare (region->cachedData.bitmap, region2->cachedData.bitmap);
 		return Ok;
 	}
 
 	/* rectangular-based region quality test */
-	if (region->cnt != region2->cnt) {
+	if (region->cachedData.cnt != region2->cachedData.cnt) {
 		*result = FALSE;
 		return Ok;
 	}
 
-	for (i = 0, rectsrc = region->rects, recttrg = region2->rects; i < region->cnt; i++, rectsrc++, recttrg++) {
+	for (i = 0, rectsrc = region->cachedData.rects, recttrg = region2->cachedData.rects; i < region->cachedData.cnt; i++, rectsrc++, recttrg++) {
 		if (rectsrc->X != recttrg->X || rectsrc->Y != recttrg->Y ||
 				rectsrc->Width != recttrg->Width || rectsrc->Height != recttrg->Height) {
 			*result = FALSE;
@@ -2232,7 +2232,7 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 	case RegionTypeRect: {
 		int i;
 		GpRectF *rect;
-		for (i = 0, rect = region->rects ; i < region->cnt; i++, rect++) {
+		for (i = 0, rect = region->cachedData.rects ; i < region->cachedData.cnt; i++, rect++) {
 			rect->X += dx;
 			rect->Y += dy;
 		}
@@ -2240,10 +2240,10 @@ GdipTranslateRegion (GpRegion *region, float dx, float dy)
 		break;
 	}
 	case RegionTypePath:
-		gdip_region_translate_tree (region->tree, dx, dy);
-		if (region->bitmap) {
-			region->bitmap->X += dx;
-			region->bitmap->Y += dy;
+		gdip_region_translate_tree (region->cachedData.tree, dx, dy);
+		if (region->cachedData.bitmap) {
+			region->cachedData.bitmap->X += dx;
+			region->cachedData.bitmap->Y += dy;
 		}
 
 		break;
@@ -2266,13 +2266,13 @@ static GpStatus
 ScaleRegion (GpRegion *region, float sx, float sy)
 {
 	g_assert (region);
-	g_assert (region->type == RegionTypeRect && region->rects);
+	g_assert (region->type == RegionTypeRect && region->cachedData.rects);
 
-	for (int i = 0; i < region->cnt; i++) {
-		region->rects[i].X *= sx;
-		region->rects[i].Y *= sy;
-		region->rects[i].Width *= sx;
-		region->rects[i].Height *= sy;
+	for (int i = 0; i < region->cachedData.cnt; i++) {
+		region->cachedData.rects[i].X *= sx;
+		region->cachedData.rects[i].Y *= sy;
+		region->cachedData.rects[i].Width *= sx;
+		region->cachedData.rects[i].Height *= sy;
 	}
 
 	return Ok;
@@ -2287,7 +2287,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 		return InvalidParameter;
 
 	// Infinite and empty regions cannot be transformed.
-	if (region->type == RegionTypeInfinite || ((region->cnt == 0) && (region->type == RegionTypeRect)))
+	if (region->type == RegionTypeInfinite || ((region->cachedData.cnt == 0) && (region->type == RegionTypeRect)))
 		return Ok;
 
 	// Nothing to do.
@@ -2298,7 +2298,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	BOOL matrixHasTranslate = (matrix->x0 != 0) || (matrix->y0 != 0);
 	BOOL matrixHasScale = (matrix->xx != 1) || (matrix->yy != 1);
 
-	/* try to avoid heavy stuff (e.g. conversion to path, invalidating 
+	/* try to avoid heavy stuff (e.g. conversion to path, invalidating
 	 * bitmap...) if the transform is:
 	 * - a translation + scale operations (for rectangle ebased region)
 	 * - only to do a scale operation (for a rectangle based region)
@@ -2329,7 +2329,7 @@ GdipTransformRegion (GpRegion *region, GpMatrix *matrix)
 	}
 
 	/* apply the same transformation matrix to all paths */
-	status = gdip_region_transform_tree (region->tree, matrix);
+	status = gdip_region_transform_tree (region->cachedData.tree, matrix);
 
 	/* invalidate the bitmap so it will get re-created on the next gdip_region_bitmap_ensure call */
 	gdip_region_bitmap_invalidate (region);
@@ -2386,8 +2386,8 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
  *
  *	where data is for tag 1 (Path)
  *		guint32 Count		0-2^32
- *		GpFillMode FillMode	
- *		guint8[Count] Types	
+ *		GpFillMode FillMode
+ *		guint8[Count] Types
  *		GpPointF[Count] Points
  *	or
  *	where data is for tag 2 (Tree)
@@ -2408,11 +2408,11 @@ GdipGetRegionDataSize (GpRegion *region, UINT *bufferSize)
 
 	switch (region->type) {
 	case RegionTypeRect:
-		*bufferSize += sizeof (DWORD) + region->cnt * sizeof (GpRectF);
+		*bufferSize += sizeof (DWORD) + region->cachedData.cnt * sizeof (GpRectF);
 		break;
 	case RegionTypePath:
 		/* regiontype, tree */
-		*bufferSize += sizeof (DWORD) + gdip_region_get_tree_size (region->tree);
+		*bufferSize += sizeof (DWORD) + gdip_region_get_tree_size (region->cachedData.tree);
 		break;
 	case RegionTypeInfinite:
 		// Only one DWORD.
@@ -2451,13 +2451,13 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 	case RegionTypeRect: {
 		DWORD type;
 
-		if (region->cnt) {
+		if (region->cachedData.cnt) {
 			type = RegionDataRect;
 			memcpy (buffer + filled, &type, sizeof (DWORD));
 			filled += sizeof (DWORD);
 
-			memcpy (buffer + filled, region->rects, region->cnt * sizeof (GpRectF));
-			filled += region->cnt * sizeof (GpRectF);
+			memcpy (buffer + filled, region->cachedData.rects, region->cachedData.cnt * sizeof (GpRectF));
+			filled += region->cachedData.cnt * sizeof (GpRectF);
 		} else {
 			type = RegionDataEmptyRect;
 			memcpy (buffer + filled, &type, sizeof (DWORD));
@@ -2472,7 +2472,7 @@ GdipGetRegionData (GpRegion *region, BYTE *buffer, UINT bufferSize, UINT *sizeFi
 		memcpy (buffer + filled, &type, sizeof (DWORD));
 		filled += sizeof (DWORD);
 
-		if (!gdip_region_serialize_tree (region->tree, buffer + filled, bufferSize - filled, &filled))
+		if (!gdip_region_serialize_tree (region->cachedData.tree, buffer + filled, bufferSize - filled, &filled))
 			return InsufficientBuffer;
 		break;
 	}

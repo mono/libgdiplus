@@ -11,5 +11,6 @@
         "dstream.h": "c",
         "jconfig.h": "c",
         "jmorecfg.h": "c"
-    }
+    },
+    "editor.trimAutoWhitespace": false
 }

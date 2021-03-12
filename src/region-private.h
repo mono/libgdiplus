@@ -64,12 +64,16 @@ typedef struct {
     DWORD combiningOps;
 } RegionHeader;
 
-struct _Region {
-    guint32		type;
-    int		cnt;
-    GpRectF*	rects;
+typedef struct {
+    int cnt;
+    GpRectF* rects;
     GpPathTree*	tree;
     GpRegionBitmap*	bitmap;
+} RegionCachedData;
+
+struct _Region {
+    guint32		type;
+    RegionCachedData cachedData;
 };
 
 BOOL gdip_is_InfiniteRegion (const GpRegion *region) GDIP_INTERNAL;
