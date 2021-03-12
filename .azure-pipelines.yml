@@ -138,7 +138,7 @@ stages:
       displayName: Windows x86+x64
       timeoutInMinutes: 60
       pool:
-        vmImage: vs2017-win2016
+        vmImage: windows-2019
       steps:
         - script: |
             vcpkg integrate install
