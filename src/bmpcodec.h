@@ -71,6 +71,15 @@ ImageCodecInfo *gdip_getcodecinfo_bmp () GDIP_INTERNAL;
 ARGB gdip_getpixel_32bppARGB (BYTE *scan, INT x) GDIP_INTERNAL;
 void gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b) GDIP_INTERNAL;
 
+ARGB gdip_getpixel_32bppPARGB (BYTE *scan, INT x) GDIP_INTERNAL;
+void gdip_setpixel_32bppPARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b) GDIP_INTERNAL;
+
+ARGB gdip_getpixel_32bppRGB (BYTE *scan, INT x) GDIP_INTERNAL;
+void gdip_setpixel_32bppRGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b) GDIP_INTERNAL;
+
+ARGB gdip_getpixel_24bppRGB (BYTE *scan, INT x) GDIP_INTERNAL;
+void gdip_setpixel_24bppRGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b) GDIP_INTERNAL;
+
 ARGB gdip_getpixel_16bppRGB555 (BYTE *scan, INT x) GDIP_INTERNAL;
 
 ARGB gdip_getpixel_16bppRGB565 (BYTE *scan, INT x) GDIP_INTERNAL;

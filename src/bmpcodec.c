@@ -392,6 +392,36 @@ gdip_read_bmp_rle_8bit (void *pointer, BYTE *scan0, BOOL upsidedown, int stride,
 	return;
 }
 
+// PixelFormat32bppPARGB.
+ARGB
+gdip_getpixel_32bppPARGB (BYTE *scan, INT x)
+{
+	ARGB pixel = ((ARGB *) scan) [x];
+	BYTE r, g, b, a;
+	get_pixel_bgra (pixel, b, g, r, a);
+	if (a < 0xff) {
+		b = pre_multiplied_table_reverse [b][a];
+		g = pre_multiplied_table_reverse [g][a];
+		r = pre_multiplied_table_reverse [r][a];
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	} else {
+		return pixel;
+	}
+}
+
+void
+gdip_setpixel_32bppPARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
+{
+	if (a < 0xff) {
+		b = pre_multiplied_table [b][a];
+		g = pre_multiplied_table [g][a];
+		r = pre_multiplied_table [r][a];
+		set_pixel_bgra (scan, x * 4, b, g, r, a);
+	} else {
+		set_pixel_bgra (scan, x * 4, b, g, r, a);
+	}
+}
+
 // PixelFormat32bppARGB.
 ARGB
 gdip_getpixel_32bppARGB (BYTE *scan, INT x)
@@ -404,6 +434,42 @@ void
 gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
 {
 	set_pixel_bgra (scan, x * 4, b, g, r, a);
+}
+
+// PixelFormat32bppRGB.
+ARGB
+gdip_getpixel_32bppRGB (BYTE *scan, INT x)
+{
+	ARGB pixel = ((ARGB *) scan)[x];
+	return pixel | 0xFF000000;
+}
+
+void
+gdip_setpixel_32bppRGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
+{
+	set_pixel_bgra (scan, x * 4, b, g, r, 0xFF);
+}
+
+// PixelFormat24bppRGB.
+ARGB
+gdip_getpixel_24bppRGB (BYTE *scan, INT x)
+{
+	// Cairo uses 32bpp to represent 24bpp images so this is read as 32bpp.
+	// https://github.com/mono/libgdiplus/issues/448.
+	DWORD a = 0xFF;
+	DWORD r = scan[x * 4 + 2];
+	DWORD g = scan[x * 4 + 1];
+	DWORD b = scan[x * 4];
+
+	return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+void
+gdip_setpixel_24bppRGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
+{
+	// Cairo uses 32bpp to represent 24bpp images so this is read as 32bpp.
+	// https://github.com/mono/libgdiplus/issues/448.
+	set_pixel_bgra (scan, x * 4, b, g, r, 0xFF);
 }
 
 // PixelFormat16bppRGB555.
