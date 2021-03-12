@@ -58,7 +58,7 @@ typedef struct {
 
 #include "gdiplus-private.h"
 
-GpStatus gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source) GDIP_INTERNAL;
+GpStatus gdip_read_bmp_image (void *pointer, GpImage **image, ImageSource source, BITMAPFILEHEADER *bmfh) GDIP_INTERNAL;
 GpStatus gdip_load_bmp_image_from_file (FILE *fp, GpImage **image) GDIP_INTERNAL;
 GpStatus gdip_load_bmp_image_from_stream_delegate (dstream_t *loader, GpImage **image) GDIP_INTERNAL;
 
@@ -78,6 +78,7 @@ ARGB gdip_getpixel_16bppRGB565 (BYTE *scan, INT x) GDIP_INTERNAL;
 /* helper functions / shared with ICOn codec */
 GpStatus gdip_read_BITMAPINFOHEADER (void *pointer, ImageSource source, BITMAPV5HEADER *bmi, 
 	BOOL *upsidedown) GDIP_INTERNAL;
+GpStatus gdip_validate_and_fixup_BITMAPINFOHEADER (BITMAPFILEHEADER *bmfh, BITMAPV5HEADER *bmi) GDIP_INTERNAL;
 int gdip_read_bmp_data (void *pointer, BYTE *data, int size, ImageSource source) GDIP_INTERNAL;
 
 #endif /* _BMPCODEC_H */

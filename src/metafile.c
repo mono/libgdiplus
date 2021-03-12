@@ -655,7 +655,7 @@ gdip_metafile_StretchDIBits (MetafilePlayContext *context, int XDest, int YDest,
 		ms.size = lpBitsInfo->bmiHeader.biSizeImage;
 	}
 	ms.pos = 0;
-	status = gdip_read_bmp_image (&ms, &image, Memory);
+	status = gdip_read_bmp_image (&ms, &image, Memory, NULL);
 	if (status == Ok) {
 		status = GdipDrawImageRectRect (context->graphics, image, XDest, YDest,
 			nDestWidth, nDestHeight, XSrc, YSrc, nSrcWidth, nSrcHeight, UnitPixel, NULL, NULL, NULL);

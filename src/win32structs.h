@@ -329,10 +329,12 @@
 #define MWT_RIGHTMULTIPLY	3
 
 /* Compression */
-#define BI_RGB           0
-#define BI_RLE8          1
-#define BI_RLE4          2
-#define BI_BITFIELDS     3
+#define BI_RGB        0L
+#define BI_RLE8       1L
+#define BI_RLE4       2L
+#define BI_BITFIELDS  3L
+#define BI_JPEG       4L
+#define BI_PNG        5L
 
 typedef float REAL;
 
