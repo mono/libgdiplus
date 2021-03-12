@@ -491,43 +491,65 @@ gdip_clear_region (GpRegion *region)
 }
 
 GpStatus
-gdip_copy_region (GpRegion *source, GpRegion *dest)
+gdip_region_set_region (GpRegion *region, const GpRegion *other)
 {
 	GpStatus status;
 
-	dest->type = source->type;
+	// Clear the region.
+	gdip_clear_region (region);
 
-	if (source->rects) {
-		dest->cnt = source->cnt;
-		dest->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * source->cnt);
-		if (!dest->rects)
+	// Set the new data.
+	region->type = other->type;
+
+	if (other->rects) {
+		region->cnt = other->cnt;
+		region->rects = (GpRectF *) GdipAlloc (sizeof (GpRectF) * other->cnt);
+		if (!region->rects)
 			return OutOfMemory;
 
-		memcpy (dest->rects, source->rects, sizeof (GpRectF) * source->cnt);
+		memcpy (region->rects, other->rects, sizeof (GpRectF) * other->cnt);
 	} else {
-		dest->cnt = 0;
-		dest->rects = NULL;
+		region->cnt = 0;
+		region->rects = NULL;
 	}
 
-	if (source->tree) {
-		dest->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-		if (!dest->tree)
+	if (other->tree) {
+		region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+		if (!region->tree)
 			return OutOfMemory;
 
-		status = gdip_region_copy_tree (source->tree, dest->tree);
+		status = gdip_region_copy_tree (other->tree, region->tree);
 		if (status != Ok)
 			return status;
 	} else {
-		dest->tree = NULL;
+		region->tree = NULL;
 	}
 
-	if (source->bitmap) {
-		dest->bitmap = gdip_region_bitmap_clone (source->bitmap);
+	if (other->bitmap) {
+		region->bitmap = gdip_region_bitmap_clone (other->bitmap);
 	} else {
-		dest->bitmap = NULL;
+		region->bitmap = NULL;
 	}
 
 	return Ok;
+}
+
+/*
+ * Create a region (path-tree) from a path.
+ */
+static GpStatus
+gdip_region_set_path (GpRegion *region, GpPath *path)
+{
+	// Clear the region.
+	gdip_clear_region (region);
+
+	// Set the new data.
+	region->type = RegionTypePath;
+	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
+	if (!region->tree)
+		return OutOfMemory;
+
+	return GdipClonePath (path, &region->tree->path);
 }
 
 /* convert a rectangle-based region to a path based region */
@@ -536,57 +558,38 @@ gdip_region_convert_to_path (GpRegion *region)
 {
 	GpStatus status;
 
-	/* no conversion is required for complex regions */
+	// Don't convert regions that are already complex.
 	if (!region || (region->type == RegionTypePath))
 		return Ok;
 
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
-		return OutOfMemory;
-
-	status = GdipCreatePath (FillModeAlternate, &region->tree->path);
+	// Create a path from rectangle data.
+	GpPath *path;
+	status = GdipCreatePath (FillModeAlternate, &path);
 	if (status != Ok)
 		return status;
 
-	switch (region->type) {
-	case RegionTypeRect:
-	case RegionTypeInfinite: {
-		/* all rectangles are converted into a single path */
+	if (region->type == RegionTypeInfinite) {
+		status = GdipAddPathRectangle (path, REGION_INFINITE_POSITION, REGION_INFINITE_POSITION, REGION_INFINITE_LENGTH, REGION_INFINITE_LENGTH);
+		if (status != Ok) {
+			return status;
+		}
+	} else if (region->type == RegionTypeRect) {
 		for (int i = 0; i < region->cnt; i++) {
 			RectF normalized;
 			gdip_normalize_rectangle (&region->rects[i], &normalized);
-			GdipAddPathRectangle (region->tree->path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			status = GdipAddPathRectangle (path, normalized.X, normalized.Y, normalized.Width, normalized.Height);
+			if (status != Ok) {
+				GdipDeletePath (path);
+				return status;
+			}
 		}
-
-		break;
-	}
-	default:
+	} else {
 		g_warning ("unknown type 0x%08X", region->type);
+		GdipDeletePath (path);
 		return NotImplemented;
 	}
-
-	if (region->rects) {
-		GdipFree (region->rects);
-		region->cnt = 0;
-		region->rects = NULL;
-	}
-
-	region->type = RegionTypePath;
-	return Ok;
-}
-
-/*
- * Create a region (path-tree) from a path.
- */
-static GpStatus
-gdip_region_create_from_path (GpRegion *region, GpPath *path)
-{
-	region->type = RegionTypePath;
-	region->tree = (GpPathTree *) GdipAlloc (sizeof (GpPathTree));
-	if (!region->tree)
-		return OutOfMemory;
-
-	return GdipClonePath (path, &region->tree->path);
+	
+	return gdip_region_set_path (region, path);
 }
 
 /*
@@ -773,13 +776,13 @@ GdipCloneRegion (GpRegion *region, GpRegion **cloneRegion)
 	if (!region || !cloneRegion)
 		return InvalidParameter;
 
-	result = (GpRegion *) GdipAlloc (sizeof (GpRegion));
+	result = (GpRegion *) gdip_region_new ();
 	if (!result)
 		return OutOfMemory;
 
-	status = gdip_copy_region (region, result);
+	status = gdip_region_set_region (result, region);
 	if (status != Ok) {
-		GdipFree (result);
+		GdipDeleteRegion (region);
 		return status;
 	}
 
@@ -1516,8 +1519,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		gdip_clear_region (region);
-		return gdip_region_create_from_path (region, path);
+		return gdip_region_set_path (region, path);
 	}
 	
 	BOOL infinite = gdip_is_InfiniteRegion (region);
@@ -1550,8 +1552,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 		switch (combineMode) {
 		case CombineModeIntersect:
 			/* The intersection of the infinite region with X is X */
-			GdipSetEmpty (region);
-			return gdip_region_create_from_path (region, path);
+			return gdip_region_set_path (region, path);
 		case CombineModeUnion:
 			/* The union of the infinite region and X is the infinite region */
 			return GdipSetInfinite (region);
@@ -1579,8 +1580,7 @@ GdipCombineRegionPath (GpRegion *region, GpPath *path, CombineMode combineMode)
 			/* The union of the empty region and X is X */
 			/* The XOR of the empty region and X is X */
 			/* Everything is outside the empty region */
-			GdipSetEmpty (region);
-			return gdip_region_create_from_path (region, path);
+			return gdip_region_set_path (region, path);
 		default:
 			break;
 		}
@@ -1706,8 +1706,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		return InvalidParameter;
 
 	if (combineMode == CombineModeReplace) {
-		GdipSetEmpty (region);
-		return gdip_copy_region (region2, region);
+		return gdip_region_set_region (region, region2);
 	}
 
 	BOOL region1Empty = gdip_is_region_empty (region, /* allowNegative */ TRUE);
@@ -1725,7 +1724,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 			/* The union of the empty region and X is X */
 			GdipSetEmpty (region);
 			if (!region2Empty)
-				return gdip_copy_region (region2, region);
+				return gdip_region_set_region (region, region2);
 			
 			return Ok;
 		}
@@ -1742,8 +1741,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		}
 		if (region1Infinite) {
 			/* Everything intersects with the infinite region */
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 		if (region2Infinite) {
 			/* Everything intersects with the infinite region */
@@ -1778,8 +1776,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 		}
 		if (region1Empty) {
 			/* The XOR of the empty region and X is X */
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 		if (region1Infinite && region2Infinite) {
 			/* The XOR of the infinite region and the infinite region is X */
@@ -1799,8 +1796,7 @@ GdipCombineRegionRegion (GpRegion *region, GpRegion *region2, CombineMode combin
 				return GdipSetInfinite (region);
 			}
 
-			GdipSetEmpty (region);
-			return gdip_copy_region (region2, region);
+			return gdip_region_set_region (region, region2);
 		}
 
 		break;
@@ -2354,7 +2350,7 @@ GdipCreateRegionPath (GpPath *path, GpRegion **region)
 	if (!result)
 		return OutOfMemory;
 
-	status = gdip_region_create_from_path (result, path);
+	status = gdip_region_set_path (result, path);
 	if (status != Ok) {
 		GdipDeleteRegion (result);
 		return status;

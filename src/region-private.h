@@ -76,7 +76,7 @@ BOOL gdip_is_InfiniteRegion (const GpRegion *region) GDIP_INTERNAL;
 BOOL gdip_is_Point_in_RectF_inclusive (float x, float y, GpRectF* rect) GDIP_INTERNAL;
 
 void gdip_clear_region (GpRegion *region) GDIP_INTERNAL;
-GpStatus gdip_copy_region (GpRegion *source, GpRegion *dest) GDIP_INTERNAL;
+GpStatus gdip_region_set_region (GpRegion *region, const GpRegion *other) GDIP_INTERNAL;
 
 #include "region.h"
 
