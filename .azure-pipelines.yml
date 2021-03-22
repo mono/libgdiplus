@@ -136,7 +136,7 @@ stages:
     ############ WINDOWS BUILD ############
     - job: Build_Windows_x86_x64
       displayName: Windows x86+x64
-      timeoutInMinutes: 60
+      timeoutInMinutes: 120
       pool:
         vmImage: windows-2019
       steps:
