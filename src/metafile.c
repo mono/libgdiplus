@@ -1268,9 +1268,9 @@ EnhMetaHeaderLE (ENHMETAHEADER3 *emf)
 	emf->nVersion = GUINT32_FROM_LE (emf->nVersion);
 	emf->nBytes = GUINT32_FROM_LE (emf->nBytes);
 	emf->nRecords = GUINT32_FROM_LE (emf->nRecords);
-	emf->nHandles = GUINT32_FROM_LE (emf->nHandles);
+	emf->nHandles = GUINT16_FROM_LE (emf->nHandles);
 
-	emf->sReserved = GUINT32_FROM_LE (emf->sReserved);
+	emf->sReserved = GUINT16_FROM_LE (emf->sReserved);
 	emf->nDescription = GUINT32_FROM_LE (emf->nDescription);
 	emf->offDescription = GUINT32_FROM_LE (emf->offDescription);
 	emf->nPalEntries = GUINT32_FROM_LE (emf->nPalEntries);
