@@ -24,6 +24,12 @@
 #include "graphics-path-private.h"
 #include "graphics-cairo-private.h"
 
+#ifdef WORDS_BIGENDIAN
+#define is_bit_set(w, k) ((w) & (1 << (7 - (k))))
+#else
+#define is_bit_set(w, k) ((w) & (1 << (k)))
+#endif
+
 // #define DEBUG_REGION
 
 #ifdef DEBUG_REGION
@@ -63,7 +69,7 @@ display (char* message, GpRegionBitmap *bitmap)
 				j = 1;
 				printf ("\n");
 			}
-			printf ("%s", ((b & (1 << k)) == 0) ? "." : "X");
+			printf ("%s", (is_bit_set (b, k) == 0) ? "." : "X");
 		}
 	}
 	printf ("\n");
@@ -555,7 +561,7 @@ gdip_region_bitmap_get_smallest_rect (GpRegionBitmap *bitmap, GpRect *rect)
 	while (i < original_size) {
 		if (bitmap->Mask [i] != 0) {
 			for (k = 0; k < 8; k++) {
-				if ((bitmap->Mask [i] & (1 << k)) != 0) {
+				if (is_bit_set (bitmap->Mask [i], k) != 0) {
 					if (x < first_x)
 						first_x = x;
 					if (x > last_x)
@@ -720,7 +726,7 @@ is_point_visible (GpRegionBitmap *bitmap, int x, int y)
 	pos = (pixel >> 3);
 	mask = (pixel & 7);
 
-	return ((bitmap->Mask [pos] & (1 << mask)) != 0);
+	return (is_bit_set (bitmap->Mask [pos], mask) != 0);
 }
 
 
