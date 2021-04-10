@@ -1,7 +1,11 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src tests
-DIST_SUBDIRS = src tests
+if BUILD_UNIT_TESTS
+SUBDIRS_TESTS = tests
+endif
+
+SUBDIRS = src $(SUBDIRS_TESTS)
+DIST_SUBDIRS = src $(SUBDIRS_TESTS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 

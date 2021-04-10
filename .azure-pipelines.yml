@@ -23,7 +23,7 @@ stages:
 
         - bash: |
             export CFLAGS="-ggdb3 -O2"
-            ./autogen.sh --prefix=/usr --enable-warnaserror
+            ./autogen.sh --prefix=/usr --enable-warnaserror --enable-unittests
             make -j4
             sudo make install
           displayName: 'Build and Install libgdiplus'
@@ -87,7 +87,7 @@ stages:
         - bash: |
             export CFLAGS="-m64 -arch x86_64 -mmacosx-version-min=10.9"
             export LDFLAGS="-m64 -arch x86_64"
-            ./autogen.sh --prefix=/tmp/libgdiplus-dev --enable-warnaserror --without-x11 --host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0
+            ./autogen.sh --prefix=/tmp/libgdiplus-dev --enable-warnaserror --enable-unittests --without-x11 --host=x86_64-apple-darwin13.0.0 --build=x86_64-apple-darwin13.0.0
             make -j4
             make install
           displayName: 'Build and Install libgdiplus'
