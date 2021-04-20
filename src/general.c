@@ -284,7 +284,13 @@ convert_points (const GpPoint *point, int count)
 	if (!point || count < 0)
 		return NULL;
 
-	GpPointF *retval = (GpPointF *) GdipAlloc (sizeof (GpPointF) * count);
+	unsigned long long int size = (unsigned long long int) sizeof (GpPointF) * count;
+
+	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
+	if (size > G_MAXINT32)
+		return NULL;
+
+	GpPointF *retval = (GpPointF *) GdipAlloc (size);
 	if (!retval)
 		return NULL;
 
@@ -300,7 +306,13 @@ convert_rects (const GpRect *rect, int count)
 	if (!rect || count < 0)
 		return NULL;
 
-	GpRectF *retval = (GpRectF *) GdipAlloc (sizeof (GpRectF) * count);
+	unsigned long long int size = (unsigned long long int) sizeof (GpRectF) * count;
+
+	/* ensure total 'size' does not overflow an integer and fits inside our 2GB limit */
+	if (size > G_MAXINT32)
+		return NULL;
+
+	GpRectF *retval = (GpRectF *) GdipAlloc (size);
 	if (!retval)
 		return NULL;
 

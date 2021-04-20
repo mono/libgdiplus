@@ -61,13 +61,11 @@ gdip_path_ensure_size (GpPath *path, int size)
 BOOL
 gdip_path_has_curve (GpPath *path)
 {
-	int i;
-
 	if (!path)
 		return FALSE;
 
-	for (i = 0; i < path->count; i++) {
-		if (path->types[i] == PathPointTypeBezier)
+	for (int i = 0; i < path->count; i++) {
+		if ((path->types[i] & PathPointTypePathTypeMask) == PathPointTypeBezier)
 			return TRUE;
 	}
 
@@ -294,8 +292,10 @@ GdipCreatePath2 (GDIPCONST GpPointF *points, GDIPCONST BYTE *types, INT count, F
 
 	if (!path || !points || !types)
 		return InvalidParameter;
-	if (count <= 0 || fillMode > FillModeWinding)
+	if (count <= 0 || fillMode > FillModeWinding) {
+		*path = NULL;
 		return OutOfMemory;
+	}
 
 	// Match GDI+ behaviour and set the path to empty if it is invalid.
 	if (!gdip_validate_path_types (types, count))

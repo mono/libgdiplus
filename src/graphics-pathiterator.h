@@ -41,10 +41,6 @@ GpStatus WINGDIPAPI GdipPathIterNextSubpath (GpPathIterator *iterator, INT *resu
 
 GpStatus WINGDIPAPI GdipPathIterEnumerate (GpPathIterator *iterator, INT *resultCount, GpPointF *points, BYTE *types, INT count);
 GpStatus WINGDIPAPI GdipPathIterRewind (GpPathIterator *iterator);
-
-
-/* missing API
-	GdipPathIterIsValid
-*/
+GpStatus WINGDIPAPI GdipPathIterIsValid (GpPathIterator *iterator, BOOL *valid);
 
 #endif

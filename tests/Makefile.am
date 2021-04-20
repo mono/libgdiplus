@@ -32,6 +32,7 @@ noinst_PROGRAMS =			\
 	testgraphicsdraw \
 	testgraphicsfill \
 	testgraphicspath \
+	testgraphicspathiterator \
 	testhatchbrush \
 	testicocodec \
 	testimageattributes \
@@ -162,6 +163,12 @@ testgraphicspath_SOURCES =		\
 
 testgraphicspath_DEPENDENCIES = $(TEST_DEPS)
 testgraphicspath_LDADD = $(LDADDS)
+
+testgraphicspathiterator_SOURCES =		\
+	testgraphicspathiterator.c
+
+testgraphicspathiterator_DEPENDENCIES = $(TEST_DEPS)
+testgraphicspathiterator_LDADD = $(LDADDS)
 
 testhatchbrush_SOURCES =		\
 	testhatchbrush.c
@@ -351,6 +358,7 @@ TESTS = \
 	testgraphicsdraw \
 	testgraphicsfill \
 	testgraphicspath \
+	testgraphicspathiterator \
 	testhatchbrush \
 	testicocodec \
 	testimageattributes \

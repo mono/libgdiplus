@@ -21,6 +21,7 @@ testgraphics
 testgraphicsdraw
 testgraphicsfill
 testgraphicspath
+testgraphicspathiterator
 testgdi
 testhatchbrush
 testicocodec
