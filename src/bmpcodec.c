@@ -410,7 +410,7 @@ gdip_setpixel_32bppARGB (BYTE *scan, INT x, BYTE a, BYTE r, BYTE g, BYTE b)
 ARGB
 gdip_getpixel_16bppRGB555 (BYTE *scan, INT x)
 {
-	WORD pixel = ((WORD *) scan)[x];
+	WORD pixel = (WORD)scan[2*x] | ((WORD)scan[2*x+1] << 8);
 	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 8 * (((((pixel >> 5) & 0x1F) | (((pixel >> 10) & 0x1C) << 8)) & 0xFFFFFFFC) | 32 * (((pixel >> 5) & 0x1F) | ((((pixel >> 10) & 0x1F) | 0xFFFFFFE0) << 8))));
 }
 
@@ -418,7 +418,7 @@ gdip_getpixel_16bppRGB555 (BYTE *scan, INT x)
 ARGB
 gdip_getpixel_16bppRGB565 (BYTE *scan, INT x)
 {
-	WORD pixel = ((WORD *) scan)[x];
+	WORD pixel = (WORD)scan[2*x] | ((WORD)scan[2*x+1] << 8);
 	return ((pixel & 0x1F) >> 2) | 8 * ((pixel & 0x1F) | 2 * (((((pixel >> 5) & 0x3F) | (((pixel >> 11) & 0xFFFFFFFC) << 10)) & 0xFFFFFFF0) | ((((pixel >> 5) & 0x3F) | ((((pixel >> 11)) | 0xFFFFFFE0) << 9)) << 6)));
 }
 
