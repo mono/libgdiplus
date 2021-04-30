@@ -299,8 +299,13 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 	if (bit_depth == 16) {
 		png_set_strip_16 (png_ptr);
 		png_set_gray_to_rgb (png_ptr);
+#ifndef WORDS_BIGENDIAN
 		png_set_bgr (png_ptr);
 		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+#else
+		png_set_swap_alpha (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_BEFORE);
+#endif
 		channels = 4;
 	}
 
@@ -309,13 +314,23 @@ gdip_load_png_image_from_file_or_stream (FILE *fp, GetBytesDelegate getBytesFunc
 		|| (bit_depth == 8 && original_color_type != PNG_COLOR_TYPE_PALETTE)) {
 		png_set_expand (png_ptr);
 		png_set_gray_to_rgb (png_ptr);
+#ifndef WORDS_BIGENDIAN
 		png_set_bgr (png_ptr);
 		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+#else
+		png_set_swap_alpha (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_BEFORE);
+#endif
 	}
 
 	if (bit_depth == 8 && !(channels == 1 && (original_color_type == PNG_COLOR_TYPE_PALETTE || original_color_type == PNG_COLOR_TYPE_GRAY))) {
+#ifndef WORDS_BIGENDIAN
 		png_set_bgr (png_ptr);
 		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_AFTER);
+#else
+		png_set_swap_alpha (png_ptr);
+		png_set_add_alpha (png_ptr, 0xFF, PNG_FILLER_BEFORE);
+#endif
 	}
 
 	// Update the image properties after the transformations have been applied.
