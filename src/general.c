@@ -724,24 +724,53 @@ void gdip_Point_from_PointF (const GpPointF* pointf, GpPoint* point)
 void
 gdip_normalize_rectangle (const GpRectF *rect, GpRectF *normalized)
 {
+	float x = rect->X;
+	float y = rect->Y;
 	float width = rect->Width;
 	float height = rect->Height;
 
+	// Handle flipped rects.
 	if (width < 0) {
-		normalized->X = rect->X + width;
-		normalized->Width = fabs (width);
-	} else {
-		normalized->X = rect->X;
-		normalized->Width = width;
+		x = x + width;
+		width = fabs (width);
 	}
 
-	if (rect->Height < 0) {
-		normalized->Y = rect->Y + height;
-		normalized->Height = fabs (height);
-	} else {
-		normalized->Y = rect->Y;
-		normalized->Height = height;
+	if (height < 0) {
+		y = rect->Y + height;
+		height = fabs (height);
 	}
+
+	// Limit bounds to infinity.
+	// GDI+ offsets invalid x and y coordinates by modifying the width and height.
+	if (x < REGION_INFINITE_POSITION) {
+		if (width < REGION_INFINITE_LENGTH) {
+			width = width - (REGION_INFINITE_POSITION - x);
+		}
+
+		x = REGION_INFINITE_POSITION;
+	}
+
+	if (y < REGION_INFINITE_POSITION) {
+		if (height < REGION_INFINITE_LENGTH) {
+			height = height - (REGION_INFINITE_POSITION - y);
+		}
+
+		y = REGION_INFINITE_POSITION;
+	}
+	
+	// GDI+ limits the width and height to the maximum value.
+	if (width > REGION_INFINITE_LENGTH) {
+		width = REGION_INFINITE_LENGTH;
+	}
+
+	if (height > REGION_INFINITE_LENGTH) {
+		height = REGION_INFINITE_LENGTH;
+	}
+
+	normalized->X = x;
+	normalized->Y = y;
+	normalized->Width = width;
+	normalized->Height = height;
 }
 
 BOOL
