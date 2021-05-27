@@ -296,6 +296,10 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 	jpeg_create_decompress (&cinfo);
 	cinfo.src = src;
 
+	// Save contents of comment markers.
+	jpeg_save_markers (&cinfo, JPEG_COM, 0xFFFF);
+
+	// Read the header and data.
 	jpeg_read_header (&cinfo, TRUE);
 
 	cinfo.do_fancy_upsampling = FALSE;
@@ -513,6 +517,41 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 				}
 			}
 		}
+	}
+
+	// Add any JPEG comments as properties.
+	jpeg_saved_marker_ptr marker = cinfo.marker_list;
+	while (marker) {
+		if (marker->marker == JPEG_COM) {
+			gdip_bitmapdata_property_add (
+				result->active_bitmap,
+				PropertyTagExifUserComment,
+				marker->data_length,
+				PropertyTagTypeASCII,
+				marker->data);
+		}
+
+		marker = marker->next;
+	}
+
+	// Add the Luminance and Chrominance quantization tables as properties.
+	UINT tableSize = DCTSIZE2 * sizeof (UINT16);
+	if (cinfo.quant_tbl_ptrs[1]) {
+		gdip_bitmapdata_property_add (
+			result->active_bitmap,
+			PropertyTagChrominanceTable,
+			tableSize,
+			PropertyTagTypeShort,
+			cinfo.quant_tbl_ptrs[1]);
+	}
+
+	if (cinfo.quant_tbl_ptrs[0]) {
+		gdip_bitmapdata_property_add (
+			result->active_bitmap,
+			PropertyTagLuminanceTable,
+			tableSize,
+			PropertyTagTypeShort,
+			cinfo.quant_tbl_ptrs[0]);
 	}
 
 	jpeg_finish_decompress (&cinfo);

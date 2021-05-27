@@ -42,7 +42,7 @@ GpImage *image;
 #define createFileSuccess(buffer, x, y, width, height, dimensionWidth, dimensionHeight) \
 { \
 	createFile (buffer, Ok); \
-	verifyMetafile (image, emfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight) \
+	verifyMetafile (image, emfRawFormat, x, y, width, height, dimensionWidth, dimensionHeight); \
 	GdipDisposeImage (image); \
 }
 

@@ -44,7 +44,7 @@ GpImage *image;
 #define createFileSuccess(buffer, pixelFormat, width, height, flags, propertyCount) \
 { \
   createFile (buffer, Ok); \
-  verifyBitmap (image, jpegRawFormat, pixelFormat, width, height, flags, propertyCount, TRUE); \
+  verifyBitmap (image, jpegRawFormat, pixelFormat, width, height, flags, propertyCount); \
   GdipDisposeImage (image); \
 }
 

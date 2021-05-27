@@ -341,15 +341,17 @@ gdip_bitmapdata_property_add(ActiveBitmapData *bitmap_data, PROPID id, ULONG len
 GpStatus
 gdip_bitmapdata_property_remove_id(ActiveBitmapData *bitmap_data, PROPID id)
 {
-	int	i;
+	if (!bitmap_data->property_count) {
+		return GenericError;
+	}
 
-	for (i = 0; i < bitmap_data->property_count; i++) {
+	for (int i = 0; i < bitmap_data->property_count; i++) {
 		if (bitmap_data->property[i].id == id) {
 			return gdip_bitmapdata_property_remove_index(bitmap_data, i);
 		}
 	}
 
-	return GenericError;
+	return PropertyNotFound;
 }
 
 GpStatus
