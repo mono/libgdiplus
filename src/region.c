@@ -679,27 +679,35 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 	if (!region || !regionData || size < 0)
 		return InvalidParameter;
 	
-	/* Read and validate the region data header. */
-	if (size < sizeof (RegionHeader))
+	// Read and validate the region data header.
+	if (size < sizeof (RegionHeader)) {
+		*region = NULL;
 		return GenericError;
+	}
 
 	memcpy (&header, regionData, sizeof (RegionHeader));
-	if (header.size < 8 || header.checksum != gdip_crc32 (regionData + 8, size - 8) || (header.magic & 0xfffff000) != 0xdbc01000) {
+	if (size - 8 < header.size || header.size < 8) {
+		*region = NULL;
+		return GenericError;
+	}
+	if (header.checksum != gdip_crc32 (regionData + 8, header.size)) {
+		*region = NULL;
+		return GenericError;
+	}
+	if ((header.magic & 0xfffff000) != 0xdbc01000) {
+		*region = NULL;
 		return GenericError;
 	}
 
 	regionData += sizeof (RegionHeader);
 	size -= sizeof (RegionHeader);
 	
-	/* Now read the rest of the data. */
+	// Now read the rest of the data.
 	result = gdip_region_new ();
-	if (!result)
+	if (!result) {
+		*region = NULL;
 		return OutOfMemory;
-
-	result->cnt = 0;
-	result->rects = NULL;
-	result->tree = NULL;
-	result->bitmap = NULL;
+	}
 
 	// Read the type.
 	memcpy (&type, regionData, sizeof (DWORD));
@@ -709,8 +717,9 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 	switch (type) {
 	case RegionDataRect:
 		result->type = RegionTypeRect;
-		if (header.size < sizeof (DWORD) * 3 + sizeof (GpRectF)) {
-			GdipFree (result);
+		if (size < sizeof (GpRectF)) {
+			GdipDeleteRegion (result);
+			*region = NULL;
 			return GenericError;
 		}
 
@@ -721,19 +730,22 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 		break;
 	case RegionDataPath:
 		result->type = RegionTypePath;
-		if (size < 16) {
-			GdipFree (result);
+		if (size < sizeof (DWORD)) {
+			GdipDeleteRegion (result);
+			*region = NULL;
 			return InvalidParameter;
 		}
 
 		result->tree = (GpPathTree*) GdipAlloc (sizeof (GpPathTree));
 		if (!result->tree) {
-			GdipFree (result);
+			GdipDeleteRegion (result);
+			*region = NULL;
 			return OutOfMemory;
 		}
 
 		if (!gdip_region_deserialize_tree ((BYTE *) regionData, size, result->tree)) {
-			GdipFree (result);
+			GdipDeleteRegion (result);
+			*region = NULL;
 			return InvalidParameter;
 		}
 		break;
@@ -752,7 +764,8 @@ GdipCreateRegionRgnData (GDIPCONST BYTE *regionData, INT size, GpRegion **region
 	}
 	default:
 		g_warning ("unknown type 0x%08X", result->type);
-		GdipFree (result);
+		GdipDeleteRegion (result);
+		*region = NULL;
 		return NotImplemented;
 	}
 

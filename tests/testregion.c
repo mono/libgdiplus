@@ -402,185 +402,243 @@ static void test_createRegionRgnData ()
 {
 	GpStatus status;
 	GpRegion *region;
+
+	// Infinite.
 	BYTE infiniteRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
-		/* Type */ 0x03, 0x00, 0x00, 0x10
+
+		/* --Entry --*/
+		/* Type */          0x03, 0x00, 0x00, 0x10
 	};
+	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+
+	BYTE infiniteAdditionalDataRegionData[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x0C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x9B, 0x34, 0x22, 0xA3,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x03, 0x00, 0x00, 0x10,
+		/* Additional Data */ 0x01, 0x02, 0x03, 0x04
+	};
+	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteAdditionalDataRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+
+	// Empty.
 	BYTE emptyRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xFE, 0x53, 0x9E, 0x1B,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
-		/* Type */ 0x02, 0x00, 0x00, 0x10
+
+		/* --Entry --*/
+		/* Type */          0x02, 0x00, 0x00, 0x10
 	};
+	status = GdipCreateRegionRgnData (emptyRegionData, sizeof (emptyRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
+	// Rect
 	BYTE rectMagicNumber2[] = {
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
-		/* Magic Number */  0x02, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
 		/* X */             0x00, 0x00, 0x80, 0x3F,
 		/* Y */             0x00, 0x00, 0x00, 0x40,
 		/* Width */         0x00, 0x00, 0x40, 0x40,
 		/* Height */        0x00, 0x00, 0x80, 0x40
 	};
+	status = GdipCreateRegionRgnData (rectMagicNumber2, sizeof (rectMagicNumber2), &region);
+	assertEqualInt (status, Ok);
+	GpRectF expectedRect = {1, 2, 3, 4};
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
 	BYTE rectMagicNumber1[] = {
+		/* --RegionHeader-- */
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xD0, 0x97, 0x65, 0xEE,
-		/* Magic Number */  0x01, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
+		/* Magic */         0x01, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
 		/* X */             0x00, 0x00, 0x80, 0x3F,
 		/* Y */             0x00, 0x00, 0x00, 0x40,
 		/* Width */         0x00, 0x00, 0x40, 0x40,
 		/* Height */        0x00, 0x00, 0x80, 0x40
 	};
+	status = GdipCreateRegionRgnData (rectMagicNumber1, sizeof (rectMagicNumber1), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
 	BYTE rectEmpty[] = {
+		/* --RegionHeader-- */
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x0E, 0x81, 0x00, 0x6C,
-		/* Magic Number */  0x01, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x02, 0x00, 0x00, 0x10
+		/* Magic */         0x01, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x02, 0x00, 0x00, 0x10
 	};
+	status = GdipCreateRegionRgnData (rectEmpty, sizeof (rectEmpty), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
 	BYTE rectInfinite[] = {
+		/* --RegionHeader-- */
 		/* Size */          0x0C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x6B, 0xE6, 0xBC, 0xD4,
-		/* Magic Number */  0x01, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x03, 0x00, 0x00, 0x10
+		/* Magic */         0x01, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x03, 0x00, 0x00, 0x10
 	};
+	status = GdipCreateRegionRgnData (rectInfinite, sizeof (rectInfinite), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
+	verifyRegionScans (region, infiniteScans, sizeof (infiniteScans));
+	GdipDeleteRegion (region);
+	
 	BYTE zeroWidthRectRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xD2, 0xC2, 0x10, 0xBB,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
 		/* Y */      0x00, 0x00, 0x00, 0x40,
 		/* Width */  0x00, 0x00, 0x00, 0x00,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+	status = GdipCreateRegionRgnData (zeroWidthRectRegionData, sizeof (zeroWidthRectRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
 	BYTE zeroHeightRectRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x2C, 0x49, 0xE4, 0xA1,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
 		/* Y */      0x00, 0x00, 0x00, 0x40,
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x00, 0x00
 	};
+	status = GdipCreateRegionRgnData (zeroHeightRectRegionData, sizeof (zeroHeightRectRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
 	BYTE zeroWidthAndHeightRectRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x09, 0x1B, 0x4F, 0xF6,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
 		/* Y */      0x00, 0x00, 0x00, 0x40,
 		/* Width */  0x00, 0x00, 0x00, 0x00,
 		/* Height */ 0x00, 0x00, 0x00, 0x00
 	};
+	status = GdipCreateRegionRgnData (zeroWidthAndHeightRectRegionData, sizeof (zeroWidthAndHeightRectRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
 	BYTE negativeWidthRectRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0x65, 0x20, 0x5D, 0x5D,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
 		/* Y */      0x00, 0x00, 0x00, 0x40,
 		/* Width */  0x00, 0x00, 0x40, 0xC0,
 		/* Height */ 0x00, 0x00, 0x80, 0x40
 	};
+	status = GdipCreateRegionRgnData (negativeWidthRectRegionData, sizeof (negativeWidthRectRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
 	BYTE negativeHeightRectRegionData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x1C, 0x00, 0x00, 0x00,
 		/* Checksum */      0xD7, 0x13, 0x03, 0x01,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */   0x00, 0x00, 0x00, 0x10,
 		/* X */      0x00, 0x00, 0x80, 0x3F,
 		/* Y */      0x00, 0x00, 0x00, 0x40,
 		/* Width */  0x00, 0x00, 0x40, 0x40,
 		/* Height */ 0x00, 0x00, 0x80, 0xC0
 	};
-	BYTE invalidChecksum[] = {
-		/* Size */          0x1C, 0x00, 0x00, 0x00,
-		/* Checksum */      0x00, 0x00, 0x00, 0x00,
-		/* Magic Number */  0x02, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
-		/* X */             0x00, 0x00, 0x80, 0x3F,
-		/* Y */             0x00, 0x00, 0x00, 0x40,
-		/* Width */         0x00, 0x00, 0x40, 0x40,
-		/* Height */        0x00, 0x00, 0x80, 0x40
-	};
-	BYTE zeroSize[] = {
-		/* Size */          0x00, 0x00, 0x00, 0x00,
-		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
-		/* Magic Number */  0x02, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
-		/* X */             0x00, 0x00, 0x80, 0x3F,
-		/* Y */             0x00, 0x00, 0x00, 0x40,
-		/* Width */         0x00, 0x00, 0x40, 0x40,
-		/* Height */        0x00, 0x00, 0x80, 0x40
-	};
-	BYTE smallSize[] = {
-		/* Size */          0x18, 0x00, 0x00, 0x00,
-		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
-		/* Magic Number */  0x02, 0x10, 0xC0, 0xDB,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
-		/* X */             0x00, 0x00, 0x80, 0x3F,
-		/* Y */             0x00, 0x00, 0x00, 0x40,
-		/* Width */         0x00, 0x00, 0x40, 0x40,
-		/* Height */        0x00, 0x00, 0x80, 0x40
-	};
-	BYTE invalidMagicNumber[] = {
-		/* Size */          0x1C, 0x00, 0x00, 0x00,
-		/* Checksum */      0x6A, 0x4E, 0xC2, 0x0F,
-		/* Magic Number */  0xFF, 0xFF, 0xFF, 0xFF,
-		/* Combining ops */ 0x00, 0x00, 0x00, 0x00,
-		/* Rect */          0x00, 0x00, 0x00, 0x10,
-		/* X */             0x00, 0x00, 0x80, 0x3F,
-		/* Y */             0x00, 0x00, 0x00, 0x40,
-		/* Width */         0x00, 0x00, 0x40, 0x40,
-		/* Height */        0x00, 0x00, 0x80, 0x40
-	};
+	status = GdipCreateRegionRgnData (negativeHeightRectRegionData, sizeof (negativeHeightRectRegionData), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
+	verifyRegionScans (region, emptyScans, 0);
+	GdipDeleteRegion (region);
+
+	// Path.
+	// FIXME: match GDI+ parsing.
 #if defined(USE_WINDOWS_GDIPLUS)
 	BYTE pathData[] = {
-		/* -- RegionHeader -- */
+		/* --RegionHeader --*/
 		/* Size */          0x30, 0x00, 0x00, 0x00,
 		/* Checksum */      0xCA, 0x7C, 0x8B, 0x34,
 		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
 		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
-		
-		/* -- Entry -- */
+
+		/* --Entry --*/
 		/* Type */      0x01, 0x00, 0x00, 0x10,
 		/* Size */      0x20, 0x00, 0x00, 0x00,
 		/* Magic */     0x02, 0x10, 0xC0, 0xDB,
@@ -595,81 +653,6 @@ static void test_createRegionRgnData ()
 		/* LineTo */    0x01,
 		/* CloseLine */ 0x81,
 	};
-#endif
-
-	// Infinite.
-	status = GdipCreateRegionRgnData (infiniteRegionData, sizeof (infiniteRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
-	GdipDeleteRegion (region);
-
-	// Empty.
-	status = GdipCreateRegionRgnData (emptyRegionData, sizeof (emptyRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-
-	// Rect.
-	status = GdipCreateRegionRgnData (rectMagicNumber2, sizeof (rectMagicNumber2), &region);
-	assertEqualInt (status, Ok);
-	GpRectF expectedRect = { 1, 2, 3, 4 };
-	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (rectMagicNumber1, sizeof (rectMagicNumber1), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
-	verifyRegionScans(region, &expectedRect, sizeof (expectedRect));
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (rectEmpty, sizeof (rectEmpty), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 0, 0, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (rectInfinite, sizeof (rectInfinite), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, -4194304.0f, -4194304.0f, 8388608.0f, 8388608.0f, FALSE, TRUE);
-	verifyRegionScans(region, infiniteScans, sizeof (infiniteScans));
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (zeroWidthRectRegionData, sizeof (zeroWidthRectRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 0, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-	
-	status = GdipCreateRegionRgnData (zeroHeightRectRegionData, sizeof (zeroHeightRectRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-	
-	status = GdipCreateRegionRgnData (zeroWidthAndHeightRectRegionData, sizeof (zeroWidthAndHeightRectRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 0, 0, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (negativeWidthRectRegionData, sizeof (negativeWidthRectRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, -3, 4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-
-	status = GdipCreateRegionRgnData (negativeHeightRectRegionData, sizeof (negativeHeightRectRegionData), &region);
-	assertEqualInt (status, Ok);
-	verifyRegion (region, 1, 2, 3, -4, TRUE, FALSE);
-	verifyRegionScans(region, emptyScans, 0);
-	GdipDeleteRegion (region);
-
-	// Path.
-	// FIXME: match GDI+ parsing.
-#if defined(USE_WINDOWS_GDIPLUS)
 	status = GdipCreateRegionRgnData (pathData, sizeof (pathData), &region);
 	assertEqualInt (status, Ok);
 	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
@@ -677,45 +660,327 @@ static void test_createRegionRgnData ()
 	GdipDeleteRegion (region);
 #endif
 
+	// Edge cases.
+	BYTE smallSizeValid1[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x0C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x75, 0x9B, 0x97, 0xB1,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	status = GdipCreateRegionRgnData (smallSizeValid1, sizeof (smallSizeValid1), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
+	BYTE smallSizeValid2[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x10, 0x00, 0x00, 0x00,
+		/* Checksum */      0x0E, 0x2D, 0x24, 0xA2,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	status = GdipCreateRegionRgnData (smallSizeValid2, sizeof (smallSizeValid2), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
+	BYTE smallSizeValid3[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x14, 0x00, 0x00, 0x00,
+		/* Checksum */      0x72, 0xC0, 0xA6, 0x6F,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	status = GdipCreateRegionRgnData (smallSizeValid3, sizeof (smallSizeValid3), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
+	BYTE smallSizeValid4[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x18, 0x00, 0x00, 0x00,
+		/* Checksum */      0x64, 0x97, 0x6C, 0xF3,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	status = GdipCreateRegionRgnData (smallSizeValid4, sizeof (smallSizeValid4), &region);
+	assertEqualInt (status, Ok);
+	verifyRegion (region, 1, 2, 3, 4, FALSE, FALSE);
+	verifyRegionScans (region, &expectedRect, sizeof (expectedRect));
+	GdipDeleteRegion (region);
+
 	// Negative tests.
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (NULL, 12, &region);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (rectMagicNumber2, -1, &region);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (rectMagicNumber2, 0, &region);
 	assertEqualInt (status, GenericError);
+	assert (region == NULL);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (NULL, 0, &region);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
 	status = GdipCreateRegionRgnData (rectMagicNumber2, 0, NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (rectMagicNumber2, 7, &region);
 	assertEqualInt (status, GenericError);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (NULL, 7, &region);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (rectMagicNumber2, 7, NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (rectMagicNumber2, 12, NULL);
 	assertEqualInt (status, InvalidParameter);
+	assert (region == (GpRegion *) 0xCC);
 
-	status = GdipCreateRegionRgnData (invalidChecksum, sizeof (invalidChecksum), &region);
-	assertEqualInt (status, GenericError);
+	// Invalid size.
+	BYTE zeroSize[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x00, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
 
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
 	status = GdipCreateRegionRgnData (zeroSize, sizeof (zeroSize), &region);
 	assertEqualInt (status, GenericError);
+	assert (region == NULL);
 
-	status = GdipCreateRegionRgnData (smallSize, sizeof (smallSize), &region);
-	assertEqualInt (status, GenericError);
+	BYTE smallSizeInvalid1[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x04, 0x00, 0x00, 0x00,
+		/* Checksum */      0x75, 0x9B, 0x97, 0xB1,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
 
-	status = GdipCreateRegionRgnData (smallSize, sizeof (invalidMagicNumber), &region);
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeInvalid1, sizeof (smallSizeInvalid1), &region);
 	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	BYTE smallSizeInvalid2[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x08, 0x00, 0x00, 0x00,
+		/* Checksum */      0xCD, 0x83, 0x24, 0xFC,
+		/* Magic  */        0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeInvalid2, sizeof (smallSizeInvalid2), &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	BYTE largeSize1[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x1D, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (largeSize1, sizeof (largeSize1), &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	BYTE largeSize2[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x20, 0x00, 0x00, 0x00,
+		/* Checksum */      0xF7, 0x90, 0xBB, 0xEC,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (largeSize2, sizeof (largeSize2), &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	// Invalid checksum
+	BYTE invalidChecksum[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x00, 0x00, 0x00, 0x00,
+		/* Magic */         0x02, 0x10, 0xC0, 0xDB,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (invalidChecksum, sizeof (invalidChecksum), &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	// Invalid magic number.
+	BYTE invalidMagicNumber[] = {
+		/* --RegionHeader --*/
+		/* Size */          0x1C, 0x00, 0x00, 0x00,
+		/* Checksum */      0x6A, 0x4E, 0xC2, 0x0F,
+		/* Magic */         0xFF, 0xFF, 0xFF, 0xFF,
+		/* Combining Ops */ 0x00, 0x00, 0x00, 0x00,
+
+		/* --Entry --*/
+		/* Type */          0x00, 0x00, 0x00, 0x10,
+		/* X */             0x00, 0x00, 0x80, 0x3F,
+		/* Y */             0x00, 0x00, 0x00, 0x40,
+		/* Width */         0x00, 0x00, 0x40, 0x40,
+		/* Height */        0x00, 0x00, 0x80, 0x40
+	};
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (invalidMagicNumber, sizeof (invalidMagicNumber), &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	// Invalid data size.
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x00, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x01, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x04, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x08, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x0C, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x0D, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x0F, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x10, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x14, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x18, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x1C, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
+
+	region = (GpRegion *) 0xCC;
+	status = GdipCreateRegionRgnData (smallSizeValid1, 0x20, &region);
+	assertEqualInt (status, GenericError);
+	assert (region == NULL);
 }
 
 static void test_getRegionData ()
