@@ -141,9 +141,9 @@ stages:
         vmImage: windows-2019
       steps:
         - script: |
-            vcpkg integrate install
             vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x86-windows
             vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
+            vcpkg integrate install
           displayName: 'Install Windows dependencies'
 
         - task: MSBuild@1
