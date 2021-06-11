@@ -2644,7 +2644,7 @@ GdipSetPageScale (GpGraphics *graphics, REAL scale)
 		return InvalidParameter;
 	if (graphics->state == GraphicsStateBusy)
 		return ObjectBusy;
-	if (scale <= 0.0 || scale > 1000000032)
+	if (scale <= 0.0 || scale > 1.0E+9)
 		return InvalidParameter;
 	
 	graphics->scale = scale;	
