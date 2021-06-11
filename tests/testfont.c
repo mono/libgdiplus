@@ -930,7 +930,7 @@ static void test_createFontFamilyFromName ()
 
 	status = GdipCreateFontFamilyFromName (CodeNewRoman, collection, &family);
 	assertEqualInt (status, Ok);
-	verifyFontFamily (family, "Code New Roman", 1884, 514, 2398, "Code New Roman", 1884, 514, 2398);
+    verifyFontFamily (family, "Code New Roman", 2059, 430, 2489, "Code New Roman", 1901, 483, 2384);
 
 	// Negative tests.
 	status = GdipCreateFontFamilyFromName (NULL, collection, &family);
