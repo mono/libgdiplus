@@ -195,20 +195,20 @@ static GpStatus
 gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 {
 	BYTE *text;
-	uint32	i;
-	uint16	s;
-	uint16	s2;
+	guint32	i;
+	guint16	s;
+	guint16	s2;
 	double	d;
 	float	f;
-	uint16	samples_per_pixel;
-	uint16	bits_per_sample;
-	uint16	planar_configuration;
-	uint32	image_length;
-	uint16	strips_per_image;
-	uint32	rows_per_strip;
-	uint32	tile_length;
-	uint32	tile_width;
-	uint16 compression = 0;
+	guint16	samples_per_pixel;
+	guint16	bits_per_sample;
+	guint16	planar_configuration;
+	guint32	image_length;
+	guint16	strips_per_image;
+	guint32	rows_per_strip;
+	guint32	tile_length;
+	guint32	tile_width;
+	guint16 compression = 0;
 
 	samples_per_pixel = 0;
 	bits_per_sample = 0;
@@ -231,18 +231,18 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	{
-		uint16 *rmap;
-		uint16 *gmap;
-		uint16 *bmap;
+		guint16 *rmap;
+		guint16 *gmap;
+		guint16 *bmap;
 
 		if (TIFFGetField(tiff, TIFFTAG_COLORMAP, &rmap, &gmap, &bmap)) {
 			BYTE *buffer;
-			uint16		*ptr;
+			guint16		*ptr;
 
 			if ((rmap != NULL) && (gmap != NULL) && (bmap != NULL)) {
-				buffer = GdipAlloc (3 * bits_per_sample * sizeof (uint16));
+				buffer = GdipAlloc (3 * bits_per_sample * sizeof (guint16));
 				if (buffer != NULL)  {
-					ptr = (uint16 *)buffer;
+					ptr = (guint16 *)buffer;
 
 					for (i = 0; i < bits_per_sample; i++) {
 						ptr[0] = rmap[i];
@@ -251,7 +251,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 						ptr += 3;
 					}
 					gdip_bitmapdata_property_add(bitmap_data, PropertyTagColorMap, 
-						3 * bits_per_sample * sizeof(uint16), PropertyTagTypeShort, buffer);
+						3 * bits_per_sample * sizeof(guint16), PropertyTagTypeShort, buffer);
 					GdipFree(buffer);
 				}
 			}
@@ -280,12 +280,12 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	{
-		uint16	count;
-		uint16	*samples;
+		guint16	count;
+		guint16	*samples;
 
 		if (TIFFGetField(tiff, TIFFTAG_EXTRASAMPLES, &count, &samples)) {
 			if ((count > 0) && (samples != NULL)) {
-				gdip_bitmapdata_property_add(bitmap_data, PropertyTagExtraSamples, count * sizeof(uint16), 
+				gdip_bitmapdata_property_add(bitmap_data, PropertyTagExtraSamples, count * sizeof(guint16), 
 					PropertyTagTypeShort, samples);
 			}
 		}
@@ -335,7 +335,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 #ifdef NotImplemented
 	/* Don't know how this property should be stored, datatype is void */
 	{
-		uint32	count;
+		guint32	count;
 		void	*tables;
 
 		if (TIFFGetField(tiff, TIFFTAG_JPEGTABLES, &count, &tables)) {
@@ -395,19 +395,19 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 
 		if (TIFFGetField(tiff, TIFFTAG_PRIMARYCHROMATICITIES, &chromacities) && (chromacities != NULL)) {
 			BYTE *buffer;
-			uint32		*ptr;
+			guint32		*ptr;
 
-			buffer = GdipAlloc(6 * (sizeof(uint32) + sizeof(uint32)));
+			buffer = GdipAlloc(6 * (sizeof(guint32) + sizeof(guint32)));
 			if (buffer != NULL)  {
-				ptr = (uint32 *)buffer;
+				ptr = (guint32 *)buffer;
 
 				for (i = 0; i < 6; i++) {
-					ptr[0] = (uint32)(chromacities[i] * 1000000);
+					ptr[0] = (guint32)(chromacities[i] * 1000000);
 					ptr[1] = 1000000;
 					ptr += 2;
 				}
 				gdip_bitmapdata_property_add (bitmap_data, PropertyTagPrimaryChromaticities, 
-					6 * (sizeof(uint32) + sizeof(uint32)), PropertyTagTypeRational, buffer);
+					6 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
 				GdipFree(buffer);
 			}
 		}
@@ -434,19 +434,19 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 
 		if (TIFFGetField(tiff, TIFFTAG_REFERENCEBLACKWHITE, &ref_blackwhite)) {
 			BYTE *buffer;
-			uint32		*ptr;
+			guint32		*ptr;
 
-			buffer = GdipAlloc(2 * samples_per_pixel * (sizeof(uint32) + sizeof(uint32)));
+			buffer = GdipAlloc(2 * samples_per_pixel * (sizeof(guint32) + sizeof(guint32)));
 			if (buffer != NULL)  {
-				ptr = (uint32 *)buffer;
+				ptr = (guint32 *)buffer;
 
 				for (i = 0; i < 2 * samples_per_pixel; i++) {
-					ptr[0] = (uint32)(ref_blackwhite[i] * 1000000);
+					ptr[0] = (guint32)(ref_blackwhite[i] * 1000000);
 					ptr[1] = 1000000;
 					ptr += 2;
 				}
 				gdip_bitmapdata_property_add (bitmap_data, PropertyTagREFBlackWhite, 
-					6 * (sizeof(uint32) + sizeof(uint32)), PropertyTagTypeRational, buffer);
+					6 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
 				GdipFree(buffer);
 			}
 		}
@@ -466,8 +466,8 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	if ((rows_per_strip != 0) && (planar_configuration != 0)) {
-		uint32	*bytecounts;
-		uint32	*offsets;
+		guint32	*bytecounts;
+		guint32	*offsets;
 		int	count;
 
 		strips_per_image = floor ((image_length + rows_per_strip - 1) / rows_per_strip);
@@ -480,12 +480,12 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 
 		if (TIFFGetField(tiff, TIFFTAG_STRIPBYTECOUNTS, &bytecounts)) {
 			gdip_bitmapdata_property_add(bitmap_data, PropertyTagStripBytesCount, 
-				count * sizeof(uint32), PropertyTagTypeLong, bytecounts);
+				count * sizeof(guint32), PropertyTagTypeLong, bytecounts);
 		}
 
 		if (TIFFGetField(tiff, TIFFTAG_STRIPOFFSETS, &offsets)) {
 			gdip_bitmapdata_property_add(bitmap_data, PropertyTagStripOffsets, 
-				count * sizeof(uint32), PropertyTagTypeLong, offsets);
+				count * sizeof(guint32), PropertyTagTypeLong, offsets);
 		}
 	}
 
@@ -510,10 +510,10 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 	}
 
 	if ((planar_configuration != 0) && (tile_width != 0) && (tile_length != 0)) {
-		uint32	*byte_counts;
-		uint32	*offsets;
-		uint32	tiles_across;
-		uint32	tiles_down;
+		guint32	*byte_counts;
+		guint32	*offsets;
+		guint32	tiles_across;
+		guint32	tiles_down;
 		int	tiles_per_image;
 		int	count;
 
@@ -528,35 +528,35 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 		}
 
 		if (TIFFGetField(tiff, TIFFTAG_TILEBYTECOUNTS, &byte_counts)) {
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagTileByteCounts, count * sizeof(uint32), 
+			gdip_bitmapdata_property_add(bitmap_data, PropertyTagTileByteCounts, count * sizeof(guint32), 
 				PropertyTagTypeLong, byte_counts);
 		}
 
 		if (TIFFGetField(tiff, TIFFTAG_TILEOFFSETS, &offsets)) {
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagTileOffset, count * sizeof(uint32), 
+			gdip_bitmapdata_property_add(bitmap_data, PropertyTagTileOffset, count * sizeof(guint32), 
 				PropertyTagTypeLong, offsets);
 		}
 	}
 
 	if (samples_per_pixel == 1) {
-		uint16	*sample;
+		guint16	*sample;
 
 		if (TIFFGetField(tiff, TIFFTAG_TRANSFERFUNCTION, &sample)) {
 			gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
-				(1 << bits_per_sample) * (ULONG) sizeof(uint16), PropertyTagTypeShort, sample);
+				(1 << bits_per_sample) * (ULONG) sizeof(guint16), PropertyTagTypeShort, sample);
 		}
 	} else if (samples_per_pixel == 3) {
-		uint16	*r;
-		uint16	*g;
-		uint16	*b;
+		guint16	*r;
+		guint16	*g;
+		guint16	*b;
 
 		if (TIFFGetField(tiff, TIFFTAG_TRANSFERFUNCTION, &r, &g, &b)) {
 			BYTE *buffer;
-			uint16		*ptr;
+			guint16		*ptr;
 
-			buffer = GdipAlloc(3 * (1 << samples_per_pixel) *  sizeof(uint16));
+			buffer = GdipAlloc(3 * (1 << samples_per_pixel) *  sizeof(guint16));
 			if (buffer != NULL)  {
-				ptr = (uint16 *)buffer;
+				ptr = (guint16 *)buffer;
 
 				for (i = 0; i < 1 << bits_per_sample; i++) {
 					ptr[i] = r[i];
@@ -564,7 +564,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 					ptr[i + 2] = b[i];
 				}
 				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
-					3 * (1 << samples_per_pixel) * sizeof(uint16), PropertyTagTypeShort, buffer);
+					3 * (1 << samples_per_pixel) * sizeof(guint16), PropertyTagTypeShort, buffer);
 				GdipFree(buffer);
 			}
 		}
@@ -575,11 +575,11 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 
 		if (TIFFGetField(tiff, TIFFTAG_WHITEPOINT, &whitepoints)) {
 			BYTE *buffer;
-			uint32		*ptr;
+			guint32		*ptr;
 
-			buffer = GdipAlloc(2 * (sizeof(uint32) + sizeof(uint32)));
+			buffer = GdipAlloc(2 * (sizeof(guint32) + sizeof(guint32)));
 			if (buffer != NULL)  {
-				ptr = (uint32 *)buffer;
+				ptr = (guint32 *)buffer;
 
 				ptr[0] = whitepoints[0] * 1000000;
 				ptr[1] = 1000000;
@@ -588,7 +588,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 				ptr[3] = 1000000;
 
 				gdip_bitmapdata_property_add (bitmap_data, PropertyTagTransferFuncition, 
-					2 * (sizeof(uint32) + sizeof(uint32)), PropertyTagTypeRational, buffer);
+					2 * (sizeof(guint32) + sizeof(guint32)), PropertyTagTypeRational, buffer);
 				GdipFree(buffer);
 			}
 
@@ -608,18 +608,18 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 		float	*coefficients;
 
 		if (TIFFGetField(tiff, TIFFTAG_YCBCRCOEFFICIENTS, &coefficients)) {
-			BYTE buffer[sizeof(uint32) * 6];
-			uint32		*ptr;
+			BYTE buffer[sizeof(guint32) * 6];
+			guint32		*ptr;
 
-			ptr = (uint32 *)&buffer;
-			ptr[0] = (uint32)(coefficients[0] * 1000000);
+			ptr = (guint32 *)&buffer;
+			ptr[0] = (guint32)(coefficients[0] * 1000000);
 			ptr[1] = 1000000;
-			ptr[2] = (uint32)(coefficients[1] * 1000000);
+			ptr[2] = (guint32)(coefficients[1] * 1000000);
 			ptr[3] = 1000000;
-			ptr[4] = (uint32)(coefficients[2] * 1000000);
+			ptr[4] = (guint32)(coefficients[2] * 1000000);
 			ptr[5] = 1000000;
 			
-			gdip_bitmapdata_property_add(bitmap_data, PropertyTagYCbCrCoefficients, sizeof(uint32) * 6, 
+			gdip_bitmapdata_property_add(bitmap_data, PropertyTagYCbCrCoefficients, sizeof(guint32) * 6, 
 				PropertyTagTypeRational, buffer);
 		}
 	}
@@ -643,7 +643,7 @@ gdip_load_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data)
 #ifdef NotImplemented
 	/* Not sure what type the data is */
 	{
-		uint32	count;
+		guint32	count;
 		void	*profile_data;
 
 		if (TIFFGetField(tiff, TIFFTAG_ICCPROFILE, &count, &profile_data)) {
@@ -667,8 +667,8 @@ gdip_save_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data, int sample
 	guint32		i;
 	guint32		l;
 	int		j;
-	uint16		s;
-	uint16		s2;
+	guint16		s;
+	guint16		s2;
 	double		d;
 	float		f;
 
@@ -860,13 +860,13 @@ gdip_save_tiff_properties (TIFF *tiff, ActiveBitmapData *bitmap_data, int sample
 		}
 	} else if (samples_per_pixel == 3) {
 		if (gdip_bitmapdata_property_find_id(bitmap_data, PropertyTagTransferFuncition, &index) == Ok) {
-			uint16	*rmap;
-			uint16	*gmap;
-			uint16	*bmap;
+			guint16	*rmap;
+			guint16	*gmap;
+			guint16	*bmap;
 
-			rmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
-			gmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
-			bmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (uint16));
+			rmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (guint16));
+			gmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (guint16));
+			bmap = GdipAlloc ((1 << samples_per_pixel) * (ULONG) sizeof (guint16));
 
 			if ((rmap != NULL) && (gmap != NULL) && (bmap != NULL)) {
 				for (j = 0; j < 1 << bits_per_sample; j++) {
@@ -1175,7 +1175,7 @@ gdip_load_tiff_image (TIFF *tiff, GpImage **image)
 		}
 
 		/* Flip the image. TIFF has its origin at bottom left, and is in ARGB instead of ABGR */
-		if (!TIFFRGBAImageGet(&tiff_image, (uint32 *)pixbuf, tiff_image.width, tiff_image.height)) {
+		if (!TIFFRGBAImageGet(&tiff_image, (guint32 *)pixbuf, tiff_image.width, tiff_image.height)) {
 			goto error;
 		}
 
