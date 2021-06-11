@@ -37,12 +37,19 @@
 
 #include "gdiplus-private.h"
 
+struct _StringList {
+	char* 				str;
+	struct _StringList* next;
+};
+typedef struct _StringList StringList;
+
 struct _FontCollection {
 	FcFontSet*	fontset;
 	FcConfig*	config;		/* Only for private collections */
 #ifdef USE_PANGO_RENDERING
 	PangoFontMap*	pango_font_map;
 #endif
+	StringList* tempfiles;
 };
 
 #include "fontcollection.h"
