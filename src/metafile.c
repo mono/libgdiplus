@@ -918,6 +918,7 @@ gdip_metafile_create ()
 		mf->recording = FALSE;
 		mf->fp = NULL;
 		mf->stream = NULL;
+		mf->graphics = NULL;
 	}
 	return mf;
 }
@@ -970,6 +971,13 @@ gdip_metafile_dispose (GpMetafile *metafile)
 	if (!metafile)
 		return InvalidParameter;
 
+	if (metafile->graphics) {
+		g_assert (!metafile->graphics->own_metafile);
+		g_assert (metafile->graphics->metafile == metafile);
+		/* Transfer responsiblity to the graphics instance that outlives this metafile instance */
+		metafile->graphics->own_metafile = TRUE;
+		return Ok;
+	}
 	/* TODO deal with "delete" flag */
 	metafile->length = 0;
 	if (metafile->data) {
@@ -979,6 +987,9 @@ gdip_metafile_dispose (GpMetafile *metafile)
 
 	if (metafile->recording)
 		gdip_metafile_stop_recording (metafile);
+
+	/* if there was a graphics instance, it should already be cleaned up */
+	g_assert (metafile->graphics == NULL);
 
 	GdipFree (metafile);
 	return Ok;
