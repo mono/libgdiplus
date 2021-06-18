@@ -41,6 +41,10 @@ AC_ARG_WITH(pango, [  --with-pango            use Pango to measure and draw text
 
 GDIPLUS_CFLAGS="$GDIPLUS_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -std=gnu11"
 
+AC_ARG_ENABLE(unittests, AS_HELP_STRING([--enable-unittests],[Enable building unit tests.]),[unittests=yes],[unittests=no])
+
+AM_CONDITIONAL([BUILD_UNIT_TESTS], [test x$unittests = xyes])
+
 AC_ARG_ENABLE(warnaserror, AS_HELP_STRING([--enable-warnaserror],[Enable treating warnings as errors.]),[warnaserror=yes],[warnaserror=no])
 
 if test $warnaserror = "yes"; then
