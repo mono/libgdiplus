@@ -40,6 +40,7 @@
 struct _FontFamily {
 	struct _FontCollection *collection;
 	FcPattern*	pattern;
+	FcPattern*	relatives[16];
 	BOOL		allocated;
 	short 		height;
 	short 		linespacing;
