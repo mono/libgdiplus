@@ -115,6 +115,8 @@ GpStatus WINGDIPAPI GdipFillPieI( GpGraphics *graphics, GpBrush *brush, INT x, I
 GpStatus WINGDIPAPI GdipFillRegion (GpGraphics *graphics, GpBrush *brush, GpRegion *region);
 GpStatus WINGDIPAPI GdipGraphicsClear (GpGraphics *graphics, ARGB color);
 
+GpStatus WINGDIPAPI GdipDrawCachedBitmap (GpGraphics *graphics, GpCachedBitmap *cachedBitmap, INT x, INT y);
+
 GpStatus WINGDIPAPI GdipGetDpiX( GpGraphics *graphics, REAL *dpi);
 GpStatus WINGDIPAPI GdipGetDpiY (GpGraphics *graphics, REAL *dpi);
 GpStatus WINGDIPAPI GdipGetNearestColor (GpGraphics *graphics, ARGB *argb);

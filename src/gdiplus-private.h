@@ -80,6 +80,7 @@
 
 typedef struct _AdjustableArrowCap GpAdjustableArrowCap;
 typedef struct _Brush GpBrush;
+typedef struct _CachedBitmap GpCachedBitmap;
 typedef struct _CustomLineCap GpCustomLineCap;
 typedef struct _Font GpFont;
 typedef struct _FontCollection GpFontCollection;

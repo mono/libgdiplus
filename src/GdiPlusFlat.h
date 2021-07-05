@@ -52,6 +52,7 @@ extern "C"
 typedef void GpAdjustableArrowCap;
 typedef void GpBitmap;
 typedef void GpBrush;
+typedef void GpCachedBitmap;
 typedef void GpCustomLineCap;
 typedef void GpFont;
 typedef void GpFontCollection;
@@ -87,6 +88,7 @@ typedef void GpTexture;
 #include "adjustablearrowcap.h"
 #include "bitmap.h"
 #include "brush.h"
+#include "cachedbitmap.h"
 #include "customlinecap.h"
 #include "font.h"
 #include "fontcollection.h"
