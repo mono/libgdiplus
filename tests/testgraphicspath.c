@@ -4018,6 +4018,21 @@ static void test_addPathString ()
 	assertSimilarFloat (rect1.Y + rect1.Height, rect2.Y + rect2.Height, 5.0);
 	GdipDeletePath (path);
 
+	// Check with vertical text
+	GdipSetStringFormatFlags (format, StringFormatFlagsDirectionVertical);
+	GdipCreatePath (FillModeAlternate, &path);
+	status = GdipAddPathString (path, longString, -1, family, 0, fontSize, &longLayoutRect, format);
+	assertEqualInt (status, Ok);
+	status = GdipGetPathWorldBounds (path, &rect1, NULL, NULL);
+	assertEqualInt (status, Ok);
+	status = GdipMeasureString (graphics, longString, -1, font, &longLayoutRect, format, &rect2, NULL, NULL);
+	assertEqualInt (status, Ok);
+	assertSimilarFloat (rect1.X, rect2.X, 10.0);
+	assertSimilarFloat (rect1.Y, rect2.Y, 10.0);
+	assertSimilarFloat (rect1.X + rect1.Width, rect2.X + rect2.Width, 5.0);
+	assertSimilarFloat (rect1.Y + rect1.Height, rect2.Y + rect2.Height, 5.0);
+	GdipDeletePath (path);
+
 	// Dispose the Graphics stuff
 	GdipDeleteGraphics (graphics);
 	GdipDeleteFont (font);
