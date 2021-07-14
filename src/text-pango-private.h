@@ -47,7 +47,7 @@
 
 
 PangoLayout* gdip_pango_setup_layout (cairo_t *cr, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
-	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, GDIPCONST GpStringFormat *format, INT **charsRemoved);
+	GDIPCONST RectF *rc, RectF *box, PointF *box_offset, float *baseline_offset, GDIPCONST GpStringFormat *format, INT **charsRemoved);
 
 GpStatus pango_DrawString (GpGraphics *graphics, GDIPCONST WCHAR *stringUnicode, INT length, GDIPCONST GpFont *font,
 	GDIPCONST RectF *rc, GDIPCONST GpStringFormat *format, GpBrush *brush) GDIP_INTERNAL;

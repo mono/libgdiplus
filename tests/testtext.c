@@ -50,6 +50,12 @@ static void test_measure_string(void)
 	int glyphs;
 	int lines;
 	const SHORT fontSize = 10;
+	GpFontCollection *collection;
+	WCHAR *ttfFile;
+	INT count;
+	GpFontFamily *families[1];
+	GpFont *font2;
+	REAL fontHeight;
 
 	status = GdipCreateStringFormat (0, 0, &format);
 	expect (Ok, status);
@@ -178,6 +184,34 @@ static void test_measure_string(void)
 	expect (3, glyphs); // Should be reported despite being trimmed
 	expect (1, lines);
 	expectf ((double)fontSize, bounds.Width); // An em-space should be the same width as the font size.
+
+	// Check measuring a string drawn with a font that has metrics which cause Pango to draw differently to GDI+
+	GdipNewPrivateFontCollection (&collection);
+	ttfFile = createWchar ("test.ttf");
+	status = GdipPrivateAddFontFile (collection, ttfFile);
+	expect (Ok, status);
+	status = GdipGetFontCollectionFamilyList (collection, 2, families, &count);
+	expect (Ok, status);
+	expect (1, count);
+	status = GdipCreateFont (families[0], 36, 0, UnitPixel, &font2);
+	expect (Ok, status);
+	status = GdipGetFontHeight (font2, graphics, &fontHeight);
+	expect (Ok, status);
+	set_rect_empty (&bounds);
+	status = GdipMeasureString (graphics, teststring1, 1, font2, &rect, format, &bounds, &glyphs, &lines);
+	expect (Ok, status);
+	expectf (5.0, bounds.X);
+	expectf (5.0, bounds.Y);
+	expectf_ (20.0, bounds.Width, 3);
+	expectf_ (fontHeight, bounds.Height, 3);
+	expect (1, glyphs);
+	expect (1, lines);
+	GdipDeleteFont(font2);
+	// This causes a crash in GDI+.
+#if !defined(USE_WINDOWS_GDIPLUS)
+	GdipDeleteFontFamily (families[0]);
+#endif
+	GdipDeletePrivateFontCollection (&collection);
 
 	// MonoTests.System.Drawing.GraphicsTest.MeasureString_Wrapping_Dots
 	GdipDeleteStringFormat (format);

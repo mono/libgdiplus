@@ -1273,6 +1273,7 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 	{
 	GpRectF box;
 	GpPointF box_offset;
+	float baseline_offset;
 	PangoLayout* layout; 
 	GpStringFormat *string_format;
 
@@ -1296,8 +1297,8 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return status;
 	}
 
-	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
-	cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y);
+	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, &baseline_offset, string_format, NULL);
+	cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y + baseline_offset);
 	pango_cairo_layout_path (cr, layout);
 	g_object_unref (layout);
 	
