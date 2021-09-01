@@ -146,7 +146,7 @@ stages:
         value: 'giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango'
       steps:
         - script: |
-            mkdir $(VCPKG_DEFAULT_BINARY_CACHE)
+            md "$(VCPKG_DEFAULT_BINARY_CACHE)"
             vcpkg install $(VCPKG_LIBS_TO_INSTALL) --triplet x86-windows
             vcpkg install $(VCPKG_LIBS_TO_INSTALL) --triplet x64-windows
             vcpkg integrate install
