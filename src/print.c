@@ -23,7 +23,7 @@
  *   Sebastien Pouliot  <sebastien@ximian.com>
  */
 
-#include <cairo-features.h>
+#include <cairo/cairo-features.h>
 
 #ifdef CAIRO_HAS_PS_SURFACE
 

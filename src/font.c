@@ -28,7 +28,7 @@
 #include "win32-private.h"
 #endif
 
-#include <cairo-features.h>
+#include <cairo/cairo-features.h>
 #include "gdiplus-private.h"
 #include "font-private.h"
 #include "fontcollection-private.h"

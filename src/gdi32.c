@@ -26,7 +26,7 @@
 #include "graphics-private.h"
 #include "graphics-cairo-private.h"
 
-#include <cairo-features.h>
+#include <cairo/cairo-features.h>
 
 #define	NO_CAIRO_AA
 

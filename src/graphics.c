@@ -37,7 +37,7 @@
 #include "bitmap-private.h"
 #include "metafile-private.h"
 
-#include <cairo-features.h>
+#include <cairo/cairo-features.h>
 
 #define	NO_CAIRO_AA
 
