@@ -15,11 +15,6 @@ stages:
       timeoutInMinutes: 120
       pool:
         vmImage: ubuntu-18.04
-      variables:
-      - name: VCPKG_DEFAULT_BINARY_CACHE
-        value: $(Build.BinariesDirectory)/vcpkg_archives
-      - name: VCPKG_LIBS_TO_INSTALL
-        value: 'giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango'
       steps:
         - bash: |
             sudo apt update
@@ -144,6 +139,11 @@ stages:
       timeoutInMinutes: 120
       pool:
         vmImage: windows-2019
+      variables:
+      - name: VCPKG_DEFAULT_BINARY_CACHE
+        value: $(Build.BinariesDirectory)/vcpkg_archives
+      - name: VCPKG_LIBS_TO_INSTALL
+        value: 'giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango'
       steps:
         - script: |
             mkdir $(VCPKG_DEFAULT_BINARY_CACHE)
