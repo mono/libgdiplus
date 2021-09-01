@@ -1336,7 +1336,7 @@ gdip_is_pixel_format_conversion_valid (PixelFormat src, PixelFormat dest)
 		/* all of these should be supported, but we only report the
 		 * ones we really can do for now */
 		/* We can't handle converting to/from the 565/555/1555 ones */
-		if ((src & 0xff00) == 16 || (dest & 0xff00) == 16) {
+		if ((src & 0xff00) == PixelFormatMax || (dest & 0xff00) == PixelFormatMax) {
 			return 0;
 		}
 		return 1;
