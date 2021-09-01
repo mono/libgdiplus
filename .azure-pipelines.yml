@@ -14,7 +14,12 @@ stages:
       displayName: Linux x64
       timeoutInMinutes: 120
       pool:
-        vmImage: ubuntu-16.04
+        vmImage: ubuntu-16.04 
+      variables:
+      - name: VCPKG_DEFAULT_BINARY_CACHE
+        value: $(Build.BinariesDirectory)/vcpkg_archives
+      - name: VCPKG_LIBS_TO_INSTALL
+        value: 'giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango'
       steps:
         - bash: |
             sudo apt update
@@ -141,19 +146,26 @@ stages:
         vmImage: windows-2019
       steps:
         - script: |
-            vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x86-windows
-            vcpkg install giflib libjpeg-turbo libpng cairo glib tiff libexif glib pango --triplet x64-windows
+            mkdir $(VCPKG_DEFAULT_BINARY_CACHE)
+            vcpkg install $(VCPKG_LIBS_TO_INSTALL) --triplet x86-windows
+            vcpkg install $(VCPKG_LIBS_TO_INSTALL) --triplet x64-windows
             vcpkg integrate install
           displayName: 'Install Windows dependencies'
 
-        - task: MSBuild@1
+        - task: Cache@2
+          displayName: Cache vcpkg binaries
+          inputs:
+            key: '$(VCPKG_LIBS_TO_INSTALL) | $(Agent.OS)'
+            path: '$(VCPKG_DEFAULT_BINARY_CACHE)'
+
+        - task: VSBuild@1
           displayName: 'Build libgdiplus x86'
           inputs:
             solution: libgdiplus.sln
             platform: Win32
             configuration: Release
 
-        - task: MSBuild@1
+        - task: VSBuild@1
           displayName: 'Build libgdiplus x64'
           inputs:
             solution: libgdiplus.sln
