@@ -93,6 +93,9 @@
       <AdditionalIncludeDirectories>$(ProjectDir)..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- Workaround for https://github.com/microsoft/vcpkg/issues/17702 -->
       <AdditionalIncludeDirectories Condition="'$(_ZVcpkgCurrentInstalledDir)' != ''">%(AdditionalIncludeDirectories);$(_ZVcpkgCurrentInstalledDir)\include\glib-2.0;$(_ZVcpkgCurrentInstalledDir)\lib\glib-2.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(_ZVcpkgCurrentInstalledDir)' != ''">%(AdditionalIncludeDirectories);$(_ZVcpkgCurrentInstalledDir)\include\pango-1.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(_ZVcpkgCurrentInstalledDir)' != ''">%(AdditionalIncludeDirectories);$(_ZVcpkgCurrentInstalledDir)\include\cairo</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(_ZVcpkgCurrentInstalledDir)' != ''">%(AdditionalIncludeDirectories);$(_ZVcpkgCurrentInstalledDir)\include\harfbuzz</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
