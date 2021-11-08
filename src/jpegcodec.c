@@ -449,13 +449,13 @@ gdip_load_jpeg_image_internal (struct jpeg_source_mgr *src, GpImage **image)
 					/* Adobe photoshop seems to have a bug and inverts the CMYK data.
 					 * We might need to remove this check, if Adobe decides to fix it. */
 					if (cinfo.saw_Adobe_marker) {
-						b = (k * c) / 255;
+						r = (k * c) / 255;
 						g = (k * m) / 255;
-						r = (k * y) / 255;
+						b = (k * y) / 255;
 					}  else {
-						b = (255 - k) * (255 - c) / 255;
+						r = (255 - k) * (255 - c) / 255;
 						g = (255 - k) * (255 - m) / 255;
-						r = (255 - k) * (255 - y) / 255;
+						b = (255 - k) * (255 - y) / 255;
 					}
 
 					set_pixel_bgra(lineptr, 0, b, g, r, 0xff);
