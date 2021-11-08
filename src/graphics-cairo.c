@@ -520,8 +520,7 @@ cairo_FillPath (GpGraphics *graphics, GpBrush *brush, GpPath *path)
 
 	cairo_set_fill_rule (graphics->ct, gdip_convert_fill_mode (path->fill_mode));
 
-	// filled paths includes the stroke
-	return fill_graphics_with_brush (graphics, brush, TRUE);
+	return fill_graphics_with_brush (graphics, brush, FALSE);
 }
 
 static void
