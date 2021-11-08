@@ -1296,10 +1296,24 @@ GdipAddPathString (GpPath *path, GDIPCONST WCHAR *string, int length,
 		return status;
 	}
 
+	cairo_save(cr); // gdip_pango_setup_layout can transform the Cairo context (vertical text), so save it and restore later.
+
 	layout = gdip_pango_setup_layout (cr, string, length, font, layoutRect, &box, &box_offset, string_format, NULL);
-	cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y);
+	if (string_format->formatFlags & StringFormatFlagsDirectionVertical) {
+		// The Cairo context is rotated 90 degrees, direction dependent on text direction, so the point to draw at must be rotated to match.
+		// To rotate 90 degrees, we swap X and Y, and invert one of them depending on which direction we're rotating.
+		if (string_format->formatFlags & StringFormatFlagsDirectionRightToLeft) {
+			cairo_move_to (cr, layoutRect->Y + box_offset.Y, -(layoutRect->X + box_offset.X));
+		} else {
+			cairo_move_to (cr, -(layoutRect->Y + box_offset.Y), layoutRect->X + box_offset.X);
+		}
+	} else {
+		cairo_move_to (cr, layoutRect->X + box_offset.X, layoutRect->Y + box_offset.Y);
+	}
 	pango_cairo_layout_path (cr, layout);
 	g_object_unref (layout);
+
+	cairo_restore(cr);
 	
 	if (string_format != format)
 		GdipDeleteStringFormat (string_format);
