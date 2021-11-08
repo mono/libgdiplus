@@ -126,6 +126,7 @@ typedef struct _Graphics {
 	float			aa_offset_y;
 	/* metafile-specific stuff */
 	EmfType			emf_type;
+	BOOL			own_metafile;	/* true when metafile is owned by the graphics instance */
 	GpMetafile		*metafile;
 	cairo_surface_t		*metasurface;	/* bogus surface to satisfy some API calls */
 	/* common-stuff */

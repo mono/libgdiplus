@@ -295,6 +295,9 @@ GdipGetImageGraphicsContext (GpImage *image, GpGraphics **graphics)
 		GpMetafile *mf = (GpMetafile*)image;
 		if (!mf->recording)
 			return OutOfMemory;
+		/* creating more than one graphics instance for a metafile is not supported */
+		if (mf->graphics)
+			return OutOfMemory;
 		*graphics = gdip_metafile_graphics_new (mf);
 		return *graphics ? Ok : OutOfMemory;
 	}

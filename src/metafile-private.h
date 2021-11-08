@@ -68,6 +68,7 @@ struct _Metafile {
 	BOOL recording;		/* recording into memory (data), file (fp) or user stream (stream) */
 	FILE *fp;
 	void *stream;
+	GpGraphics *graphics;	/* set if GdipGetImageGraphicsContext was called */
 };
 
 typedef struct {
