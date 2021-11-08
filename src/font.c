@@ -162,6 +162,36 @@ GdipNewInstalledFontCollection (GpFontCollection **fontCollection)
 	return Ok;
 }
 
+void free_tempfiles_list(StringList* head)
+{
+	while (head)
+	{
+		remove (head->str);
+		head->str = NULL;
+		head = head->next;
+	}
+}
+
+void destroy_string_list(StringList* head)
+{
+	while (head)
+	{
+		StringList* next = head->next;
+		GdipFree (head);
+		head = next;
+	}
+}
+
+GpStatus push_front_string_list(StringList** head, char* str)
+{
+	StringList* newHead = GdipAlloc (sizeof(StringList));
+	if (!newHead) return OutOfMemory;
+	newHead->str = str;
+	newHead->next = *head;
+	*head = newHead;
+	return Ok;
+}
+
 // coverity[+alloc : arg-*0]
 GpStatus WINGDIPAPI
 GdipNewPrivateFontCollection (GpFontCollection **fontCollection)
@@ -185,6 +215,8 @@ GdipNewPrivateFontCollection (GpFontCollection **fontCollection)
 	result->pango_font_map = pango_cairo_font_map_new_for_font_type (CAIRO_FONT_TYPE_FT);
 	pango_fc_font_map_set_config ((PangoFcFontMap *)result->pango_font_map, result->config);
 #endif
+
+	result->tempfiles = NULL;
 
 	*fontCollection = result;
 	return Ok;
@@ -214,6 +246,11 @@ GdipDeletePrivateFontCollection (GpFontCollection **fontCollection)
 		if ((*fontCollection)->config != NULL) {
 			FcConfigDestroy ((*fontCollection)->config);
 			(*fontCollection)->config = NULL;
+		}
+		if ((*fontCollection)->tempfiles != NULL) {
+			free_tempfiles_list ((*fontCollection)->tempfiles);
+			destroy_string_list ((*fontCollection)->tempfiles);
+			(*fontCollection)->tempfiles = NULL;
 		}
 		GdipFree (*fontCollection);
 	}
@@ -1399,7 +1436,8 @@ GdipCreateFontFromLogfontW(HDC hdc, GDIPCONST LOGFONTW *logfont, GpFont **font)
 GpStatus WINGDIPAPI
 GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memory, INT length)
 {
-	FcChar8	fontfile[256];
+	FcChar8* fontfile = (FcChar8*)GdipAlloc (256);
+	if (!fontfile) return OutOfMemory;
 #ifdef WIN32
 	FILE	*f;
 #else
@@ -1440,6 +1478,9 @@ GdipPrivateAddMemoryFont(GpFontCollection *fontCollection, GDIPCONST void *memor
 	/* FIXME - May we delete our temporary font file or does 
 	   FcConfigAppFontAddFile just reference our file?  */
 	/* unlink(fontfile); */
+	/* We cannot delete our temporary font file, we must keep
+	   them and manually delete them later */
+	if (push_front_string_list (&(fontCollection->tempfiles), fontfile)) return OutOfMemory;
 
 	return Ok;
 }
