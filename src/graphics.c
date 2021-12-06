@@ -35,6 +35,7 @@
 #include "brush-private.h"
 #include "matrix-private.h"
 #include "bitmap-private.h"
+#include "cachedbitmap-private.h"
 #include "metafile-private.h"
 
 #include <cairo/cairo-features.h>
@@ -1359,6 +1360,30 @@ GdipDrawCurve3I (GpGraphics *graphics, GpPen* pen, GDIPCONST GpPoint *points, IN
 
 	GdipFree (pointsF);
 	return status;
+}
+
+GpStatus WINGDIPAPI 
+GdipDrawCachedBitmap (GpGraphics *graphics, GpCachedBitmap *cachedBitmap, INT x, INT y)
+{
+	if (!graphics || !cachedBitmap)
+		return InvalidParameter;
+	if (graphics->state == GraphicsStateBusy)
+		return ObjectBusy;
+
+	// For compat with Windows, only support translation matrices. 
+	// Return WrongState otherwise.
+
+	cairo_matrix_t matrix;
+	cairo_get_matrix (graphics->ct, &matrix);
+	if (matrix.xx != 1 || matrix.yx != 0 || matrix.xy != 0 || matrix.yy != 1)
+	{
+		return WrongState;
+	}
+	
+	cairo_set_source_surface (graphics->ct, cachedBitmap->surface, x, y);
+	cairo_paint (graphics->ct);
+
+	return Ok;
 }
 
 /*
