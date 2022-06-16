@@ -243,6 +243,9 @@ GdipPrivateAddFontFile (GpFontCollection *fontCollection, GDIPCONST WCHAR *filen
 
 	fclose (fileHandle);
 	FcConfigAppFontAddFile (fontCollection->config, file);
+#if USE_PANGO_RENDERING
+	pango_fc_font_map_config_changed((PangoFcFontMap *)fontCollection->pango_font_map);
+#endif
 
 	GdipFree (file);
 	return Ok;
