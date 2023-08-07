@@ -157,6 +157,8 @@ typedef struct _Graphics {
 } Graphics;
 
 float gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nSrc) GDIP_INTERNAL;
+void gdip_get_page_transform(GpGraphics* graphics, GpMatrix* matrix) GDIP_INTERNAL;
+void gdip_get_inverse_page_transform(GpGraphics* graphics, GpMatrix* matrix) GDIP_INTERNAL;
 
 void gdip_set_cairo_clipping (GpGraphics *graphics) GDIP_INTERNAL;
 GpStatus gdip_calculate_overall_clipping (GpGraphics *graphics) GDIP_INTERNAL;

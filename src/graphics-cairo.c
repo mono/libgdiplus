@@ -835,11 +835,16 @@ cairo_SetGraphicsClip (GpGraphics *graphics)
 	if (gdip_is_InfiniteRegion (graphics->overall_clip))
 		return Ok;
 
-	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+	/* Clip region is in device coordinates but we're drawing in page coordinates
+	 * so we need to draw with an inverse page transform */
+	GpMatrix page;
+	gdip_get_inverse_page_transform(graphics, &page);
+
+	if (gdip_is_matrix_empty (&page)) {
 		work = graphics->overall_clip;
 	} else {
 		GdipCloneRegion (graphics->overall_clip, &work);
-		GdipTransformRegion (work, graphics->clip_matrix);
+	 	GdipTransformRegion (work, &page);
 	}
 
 	switch (work->type) {
