@@ -20,6 +20,8 @@ using namespace Gdiplus;
 using namespace DllExports;
 #endif
 
+static void assertClipBounds(GpGraphics* graphics, double x, double y, double width, double height);
+
 static void
 test_gdip_clip()
 {
@@ -547,6 +549,163 @@ test_gdip_clip_path ()
 	C (GdipDisposeImage (bitmap));
 }
 
+static void
+test_gdip_clip_page_units ()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+	GpMatrix* matrix;
+	BOOL contains;
+
+	C (GdipCreateMatrix(&matrix));
+	C (GdipCreateBitmapFromScan0 (612, 792, 0, PixelFormat32bppARGB, NULL, &bitmap));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	/* Set the clip rect in Display units. */
+	C (GdipSetClipRect (graphics, 20, 30, 40, 50, CombineModeReplace));
+
+	/* Clip bounds should be as requested */
+	assertClipBounds(graphics, 20, 30, 40, 50);
+
+	/* Change to Document units */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+
+	/* Clip bounds should be scaled */
+	assertClipBounds(graphics, 62.5, 93.75, 125, 156.25);
+
+	/* Hit testing should be correct */
+	C (GdipIsVisiblePoint(graphics, 70, 100, &contains));
+	assert (contains);
+	C (GdipIsVisiblePoint(graphics, 60, 90, &contains));
+	assert (!contains);
+
+	/* Set the clip rect in Document units. */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+	C (GdipSetClipRect (graphics, 62.5, 93.75, 125, 156.25, CombineModeReplace));
+
+	/* Clip bounds should be equal to requested */
+	assertClipBounds (graphics, 62.5, 93.75, 125, 156.25);
+
+	/* Hit testing should be correct */
+	C (GdipIsVisiblePoint(graphics, 70, 100, &contains));
+	assert (contains);
+	C (GdipIsVisiblePoint(graphics, 60, 90, &contains));
+	assert (!contains);
+
+	/* Set the clip in Display units with translate transform */
+	C (GdipSetPageUnit(graphics, UnitDisplay));
+	C (GdipTranslateWorldTransform(graphics, 20, 30, MatrixOrderAppend));
+	C (GdipSetClipRect (graphics, 0, 0, 40, 50, CombineModeReplace));
+
+	/* Clip bounds and matrix should be as requested */
+	assertClipBounds (graphics, 0, 0, 40, 50);
+	C (GdipGetWorldTransform(graphics, matrix));
+	verifyMatrix(matrix, 1, 0, 0, 1, 20, 30);
+
+	/* Change to Document units */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+
+	/* Clip bounds should be scaled and matrix the same */
+	assertClipBounds (graphics, 42.5, 63.75, 125, 156.25);
+	C (GdipGetWorldTransform(graphics, matrix));
+	verifyMatrix(matrix, 1, 0, 0, 1, 20, 30);
+
+	GdipDeleteMatrix(matrix);
+}
+
+static void
+test_gdip_clip_path_page_units ()
+{
+	GpBitmap *bitmap = 0;
+	GpGraphics *graphics;
+	GpMatrix* matrix;
+	GpPath* path;
+	BOOL contains;
+
+	C (GdipCreateMatrix(&matrix));
+	C (GdipCreateBitmapFromScan0 (612, 792, 0, PixelFormat32bppARGB, NULL, &bitmap));
+	C (GdipGetImageGraphicsContext (bitmap, &graphics));
+
+	/* Set the clip path in Display units. */
+	C (GdipCreatePath(FillModeWinding, &path));
+	C (GdipAddPathRectangle(path, 20, 30, 40, 50));
+	C (GdipSetClipPath (graphics, path, CombineModeReplace));
+
+	/* Clip bounds should be as requested */
+	assertClipBounds(graphics, 20, 30, 40, 50);
+
+	/* Change to Document units */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+
+	/* Clip bounds should be scaled */
+	assertClipBounds(graphics, 62.5, 93.75, 125, 156.25);
+
+	/* Hit testing should be correct */
+	C (GdipIsVisiblePoint(graphics, 70, 100, &contains));
+	assert (contains);
+	C (GdipIsVisiblePoint(graphics, 60, 90, &contains));
+	assert (!contains);
+
+	/* Set the clip rect in Document units. */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+	C (GdipResetPath(path));
+	C (GdipAddPathRectangle(path, 62.5, 93.75, 125, 156.25));
+	C (GdipSetClipPath (graphics, path, CombineModeReplace));
+
+	/* Clip bounds should be equal to requested */
+	assertClipBounds (graphics, 62.5, 93.75, 125, 156.25);
+
+	/* Hit testing should be correct */
+	C (GdipIsVisiblePoint(graphics, 70, 100, &contains));
+	assert (contains);
+	C (GdipIsVisiblePoint(graphics, 60, 90, &contains));
+	assert (!contains);
+
+	/* Set the clip in Display units with translate transform */
+	C (GdipSetPageUnit(graphics, UnitDisplay));
+	C (GdipTranslateWorldTransform(graphics, 20, 30, MatrixOrderAppend));
+	C (GdipResetPath(path));
+	C (GdipAddPathRectangle(path, 0, 0, 40, 50));
+	C (GdipSetClipPath (graphics, path, CombineModeReplace));
+
+	/* Clip bounds and matrix should be as requested */
+	assertClipBounds (graphics, 0, 0, 40, 50);
+	C (GdipGetWorldTransform(graphics, matrix));
+	verifyMatrix(matrix, 1, 0, 0, 1, 20, 30);
+
+	/* Change to Document units */
+	C (GdipSetPageUnit(graphics, UnitDocument));
+
+	/* Clip bounds should be scaled and matrix the same */
+	assertClipBounds (graphics, 42.5, 63.75, 125, 156.25);
+	C (GdipGetWorldTransform(graphics, matrix));
+	verifyMatrix(matrix, 1, 0, 0, 1, 20, 30);
+
+	GdipDeleteMatrix(matrix);
+	GdipDeletePath(path);
+}
+
+void
+assertClipBounds(GpGraphics* graphics, double x, double y, double width, double height)
+{
+	GpRectF bounds;
+	GpRegion* region;
+
+	C (GdipCreateRegion(&region));
+
+	C (GdipGetClipBounds(graphics, &bounds));
+	assertEqualRectFInline (bounds, x, y, width, height);
+
+	C (GdipGetClip(graphics, region));
+	C (GdipGetRegionBounds(region, graphics, &bounds));
+	assertEqualRectFInline (bounds, x, y, width, height);
+
+	C (GdipGetVisibleClipBounds(graphics, &bounds));
+	assertEqualRectFInline (bounds, x, y, width, height);
+
+	GdipDeleteRegion(region);
+}
+
 int
 main(int argc, char**argv)
 {
@@ -557,6 +716,8 @@ main(int argc, char**argv)
 	test_gdip_clip_containers ();
 	test_gdip_clip_visible ();
 	test_gdip_clip_path ();
+	test_gdip_clip_page_units ();
+	test_gdip_clip_path_page_units ();
 
 	SHUTDOWN;
 	return 0;

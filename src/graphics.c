@@ -112,6 +112,24 @@ gdip_unit_conversion (Unit from, Unit to, float dpi, GraphicsType type, float nS
 	}
 }
 
+void
+gdip_get_page_transform(GpGraphics* graphics, GpMatrix* matrix)
+{
+	/* The page transformaion converts page coordinates to device coordinates */
+	double scaleX = gdip_unit_conversion(graphics->page_unit, UnitDisplay, graphics->dpi_x, graphics->type, 1);
+	double scaleY = gdip_unit_conversion(graphics->page_unit, UnitDisplay, graphics->dpi_y, graphics->type, 1);
+
+	cairo_matrix_init_scale(matrix, scaleX, scaleY);
+	cairo_matrix_multiply(matrix, graphics->copy_of_ctm, matrix);
+}
+
+void
+gdip_get_inverse_page_transform(GpGraphics* graphics, GpMatrix* matrix)
+{
+	gdip_get_page_transform(graphics, matrix);
+	cairo_matrix_invert(matrix);
+}
+
 static void
 gdip_graphics_reset (GpGraphics *graphics)
 {
@@ -2097,19 +2115,17 @@ GdipSetClipPath (GpGraphics *graphics, GpPath *path, CombineMode combineMode)
 	if (!path || combineMode > CombineModeComplement)
 		return InvalidParameter;
 
+	GpMatrix page;
+	gdip_get_page_transform(graphics, &page);
+
 	/* if the matrix is empty, avoid path cloning and transform */
-	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+	if (gdip_is_matrix_empty (&page)) {
 		work = path;
 	} else {
-		cairo_matrix_t inverted;
-
-		gdip_cairo_matrix_copy (&inverted, graphics->clip_matrix);
-		cairo_matrix_invert (&inverted);
-
 		status = GdipClonePath (path, &work);
 		if (status != Ok)
 			return status;
-		GdipTransformPath (work, &inverted);
+		GdipTransformPath (work, &page);
 	}
 
 	status = GdipCombineRegionPath (graphics->clip, work, combineMode);	
@@ -2152,17 +2168,15 @@ GdipSetClipRegion (GpGraphics *graphics, GpRegion *region, CombineMode combineMo
 	if (!region || combineMode > CombineModeComplement)
 		return InvalidParameter;
 
+	GpMatrix page;
+	gdip_get_page_transform(graphics, &page);
+
 	/* if the matrix is empty, avoid region cloning and transform */
-	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+	if (gdip_is_matrix_empty (&page)) {
 		work = region;
 	} else {
-		cairo_matrix_t inverted;
-
-		gdip_cairo_matrix_copy (&inverted, graphics->clip_matrix);
-		cairo_matrix_invert (&inverted);
-
 		GdipCloneRegion (region, &work);
-		GdipTransformRegion (work, &inverted);
+		GdipTransformRegion (work, &page);
 	}
 
 	status = GdipCombineRegionRegion (graphics->clip, work, combineMode);
@@ -2292,9 +2306,12 @@ GdipGetClip (GpGraphics *graphics, GpRegion *region)
 	gdip_clear_region (region);
 	gdip_copy_region (graphics->clip, region);
 
-	if (gdip_is_matrix_empty (graphics->clip_matrix))
+	GpMatrix page;
+	gdip_get_inverse_page_transform(graphics, &page);
+
+	if (gdip_is_matrix_empty (&page))
 		return Ok;
-	return GdipTransformRegion (region, graphics->clip_matrix);
+	return GdipTransformRegion (region, &page);
 }
 
 GpStatus WINGDIPAPI
@@ -2322,12 +2339,15 @@ GdipGetClipBounds (GpGraphics *graphics, GpRectF *rect)
 		return Ok;
 	}
 
+	GpMatrix page;
+	gdip_get_inverse_page_transform(graphics, &page);
+
 	/* if the matrix is empty, avoid region cloning and transform */
-	if (gdip_is_matrix_empty (graphics->clip_matrix)) {
+	if (gdip_is_matrix_empty (&page)) {
 		work = graphics->clip;
 	} else {
 		GdipCloneRegion (graphics->clip, &work);
-		GdipTransformRegion (work, graphics->clip_matrix);
+		GdipTransformRegion (work, &page);
 	}
 
 	status = GdipGetRegionBounds (work, graphics, rect);
@@ -2398,8 +2418,11 @@ GpStatus gdip_get_visible_clip (GpGraphics *graphics, GpRegion **visible_clip)
 		if (status != Ok)
 			return status;
 
-		if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
-			GdipTransformRegion (clip, graphics->clip_matrix);
+		GpMatrix page;
+		gdip_get_inverse_page_transform(graphics, &page);
+
+		if (!gdip_is_matrix_empty (&page)) {
+			GdipTransformRegion (clip, &page);
 		}
 
 		status = GdipCombineRegionRectI (clip, &graphics->bounds, CombineModeIntersect);
@@ -2436,10 +2459,13 @@ GdipGetVisibleClipBounds (GpGraphics *graphics, GpRectF *rect)
 		rect->X += graphics->clip_matrix->x0;
 		rect->Y += graphics->clip_matrix->y0;
 	} else if (!gdip_is_InfiniteRegion (clip)) {
+		GpMatrix page;
+		gdip_get_inverse_page_transform(graphics, &page);
+
 		/* if the matrix is empty, avoid region cloning and transform */
-		if (!gdip_is_matrix_empty (graphics->clip_matrix)) {
+		if (!gdip_is_matrix_empty (&page)) {
 			GdipCloneRegion (graphics->overall_clip, &clip);
-			GdipTransformRegion (clip, graphics->clip_matrix);
+			GdipTransformRegion (clip, &page);
 		}
 
 		RectF clipbound;
